@@ -129,6 +129,8 @@ fun main() {
     val o =
         Json.decodeFromJsonElement<Map<String, Resources.PropertySpecification>>(schemaFromJson.jsonObject["types"]!!)
 
+
+
     println("asd")
 
 }
@@ -151,16 +153,20 @@ object Resources {
     object PropertySpecificationSerializer :
         JsonContentPolymorphicSerializer<PropertySpecification>(PropertySpecification::class) {
         override fun selectDeserializer(element: JsonElement): KSerializer<out PropertySpecification> {
+            println(element)
             fun hasTypeEqualTo(type: String) =
-                element is JsonObject && "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == type
+                element is JsonObject &&
+                        "type" in element.jsonObject &&
+                        element.jsonObject.getValue("type").jsonPrimitive.content == type
             return when {
-                element is JsonObject &&  "\$ref" in element.jsonObject -> ReferredProperty.serializer()
+                element is JsonObject && "\$ref" in element.jsonObject -> ReferredProperty.serializer()
                 hasTypeEqualTo("array") -> ArrayProperty.serializer()
                 hasTypeEqualTo("string") -> StringProperty.serializer()
                 hasTypeEqualTo("object") -> ObjectProperty.serializer()
                 hasTypeEqualTo("boolean") -> BooleanProperty.serializer()
                 hasTypeEqualTo("integer") -> IntegerProperty.serializer()
                 hasTypeEqualTo("number") -> NumberProperty.serializer()
+                element is JsonObject && "oneOf" in element.jsonObject -> OneOf.serializer()
                 else -> {
                     error("Unknown ${element}")
                 }
@@ -184,7 +190,7 @@ object Resources {
     )
 
     @Serializable
-    data class StringSingleEnum(val name: String, val value: String)
+    data class StringSingleEnum(val name: String? = null, val value: String, val description: String? = null)
 
     @Serializable
     data class StringProperty(
@@ -231,10 +237,15 @@ object Resources {
     ) : PropertySpecification()
 
     @Serializable
+    data class OneOf(
+        val oneOf: List<PropertySpecification>
+    ): PropertySpecification()
+
+    @Serializable
     data class ObjectProperty(
         val type: PropertyType,
         val properties: Map<PropertyName, PropertySpecification> = emptyMap(),
-        val additionalProperties: Map<PropertyName, PropertySpecification> = emptyMap(),
+        val additionalProperties: PropertySpecification? = null,
         val required: List<PropertyName> = emptyList(),
         val description: String? = null,
         val language: Language? = null
