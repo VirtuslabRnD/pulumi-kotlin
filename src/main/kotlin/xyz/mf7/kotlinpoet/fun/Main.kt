@@ -116,12 +116,20 @@ fun main() {
 
     val resourceOne = Whatever::class.java.getResourceAsStream("/one-resource-example.json")!!
 
-
     val resourceFromJson = Json.decodeFromString<Resources.Resource>(
         resourceOne.bufferedReader().readText()
     )
 
+    val loadedSchema = Whatever::class.java.getResourceAsStream("/schema.json")!!
 
+    val schemaFromJson = Json.parseToJsonElement(
+        loadedSchema.bufferedReader().readText()
+    )
+
+    val o =
+        Json.decodeFromJsonElement<Map<String, Resources.PropertySpecification>>(schemaFromJson.jsonObject["types"]!!)
+
+    println("asd")
 
 }
 
@@ -137,27 +145,36 @@ object PropertySpecificationSerializer :
     }
 }
 
+
 object Resources {
 
     object PropertySpecificationSerializer :
         JsonContentPolymorphicSerializer<PropertySpecification>(PropertySpecification::class) {
-        override fun selectDeserializer(element: JsonElement) = when {
-            "\$ref" in element.jsonObject -> ReferredProperty.serializer()
-            "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == "array" -> ArrayProperty.serializer()
-            "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == "string" -> StringProperty.serializer()
-            "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == "object" -> ObjectProperty.serializer()
-            else -> {
-                StringProperty.serializer()
+        override fun selectDeserializer(element: JsonElement): KSerializer<out PropertySpecification> {
+            fun hasTypeEqualTo(type: String) =
+                element is JsonObject && "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == type
+            return when {
+                element is JsonObject &&  "\$ref" in element.jsonObject -> ReferredProperty.serializer()
+                hasTypeEqualTo("array") -> ArrayProperty.serializer()
+                hasTypeEqualTo("string") -> StringProperty.serializer()
+                hasTypeEqualTo("object") -> ObjectProperty.serializer()
+                hasTypeEqualTo("boolean") -> BooleanProperty.serializer()
+                hasTypeEqualTo("integer") -> IntegerProperty.serializer()
+                hasTypeEqualTo("number") -> NumberProperty.serializer()
+                else -> {
+                    error("Unknown ${element}")
+                }
             }
         }
     }
 
     @Serializable
-    data class Language(val csharp: Map<String, String>?)
+    @JvmInline
+    value class Language(val map: Map<String, JsonElement>?)
 
     @Serializable
     enum class PropertyType {
-        array, string, enum, `object`
+        array, string, `object`, boolean, integer, number
     }
 
     @Serializable
@@ -167,7 +184,35 @@ object Resources {
     )
 
     @Serializable
-    data class StringProperty(val type: PropertyType, val description: String? = null, val language: Language? = null) :
+    data class StringSingleEnum(val name: String, val value: String)
+
+    @Serializable
+    data class StringProperty(
+        val type: PropertyType,
+        val enum: List<StringSingleEnum> = emptyList(),
+        val description: String? = null,
+        val language: Language? = null
+    ) :
+        PropertySpecification()
+
+    @Serializable
+    data class BooleanProperty(
+        val type: PropertyType,
+        val description: String? = null,
+        val language: Language? = null
+    ) :
+        PropertySpecification()
+
+    @Serializable
+    data class IntegerProperty(
+        val type: PropertyType,
+        val description: String? = null,
+        val language: Language? = null
+    ) :
+        PropertySpecification()
+
+    @Serializable
+    data class NumberProperty(val type: PropertyType, val description: String? = null, val language: Language? = null) :
         PropertySpecification()
 
     @Serializable
@@ -188,8 +233,9 @@ object Resources {
     @Serializable
     data class ObjectProperty(
         val type: PropertyType,
-        val properties: Map<PropertyName, PropertySpecification>,
-        val required: List<PropertyName>,
+        val properties: Map<PropertyName, PropertySpecification> = emptyMap(),
+        val additionalProperties: Map<PropertyName, PropertySpecification> = emptyMap(),
+        val required: List<PropertyName> = emptyList(),
         val description: String? = null,
         val language: Language? = null
     ) : PropertySpecification()
