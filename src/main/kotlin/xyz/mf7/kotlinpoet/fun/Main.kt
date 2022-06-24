@@ -6,112 +6,17 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.io.File
 
-class Whatever {
-
-}
-
-
-data class Context(val valueMapKeys: List<String>)
-
-//fun generate(parentKey: String?, map: Any?, context: Context): List<TypeSpec> {
-//    val value = when(map) {
-//        is Map<*, *> -> {
-//            if(context.valueMapKeys.contains(parentKey)) {
-//                map.map { (key, value) ->
-//                    val newKey = key as String
-//                    key to generate(key, value, context)
-//                }
-//            } else {
-//
-//            }
-//        }
-//
-//        null -> {
-//            null
-//        }
-//
-//        is Int -> {
-//
-//        }
-//
-//        is Long -> {
-//
-//        }
-//
-//        is List<*> -> {
-//
-//        }
-//
-//        is String -> {
-//
-//        }
-//
-//        is Boolean -> {
-//
-//        }
-//        else -> {
-//            println("WARNING: unknown type $map")
-//        }
-//    }
-//
-//    if(context.valueMapKeys.contains(parentKey)) {
-//
-//    }
-//
-
 typealias TypeMap = Map<String, Resources.PropertySpecification>
 
 fun main() {
 
-    val resource = Whatever::class.java.getResourceAsStream("/schema.json")!!
-
-//    val json = ObjectMapper()
-
-    val valuesForTheseKeysShouldBeAMap = listOf("types", "resources")
-
-//    val schema = json.readValue<Map<String, Any>>(resource)
-
-    val rootClass = ClassName("", "Root")
-
-    val testClass = TypeSpec.classBuilder("Test").addModifiers(KModifier.DATA).primaryConstructor(
-            FunSpec.constructorBuilder().addParameter(
-                    ParameterSpec.builder("prop", String::class).build()
-                ).build()
-        ).addProperty(
-            PropertySpec.builder("prop", String::class).initializer("prop").build()
-        ).build()
-
-    val otherType = TypeSpec.classBuilder("Test2").addModifiers(KModifier.DATA).primaryConstructor(
-            FunSpec.constructorBuilder().addParameter(
-                    ParameterSpec.builder("prop", ClassName("", testClass.name!!)).build()
-                ).build()
-        ).addProperty(
-            PropertySpec.builder("prop", String::class).initializer("prop").build()
-        ).build()
-
-    val file = FileSpec.builder("", "file").addType(testClass).addType(otherType).build()
-
-    file.writeTo(System.out)
-
-    val functionOne = Whatever::class.java.getResourceAsStream("/one-function-example.json")!!
-
-    val functionFromJson = Json.decodeFromString<Function>(
-        functionOne.bufferedReader().readText()
-    )
-
-    val resourceOne = Whatever::class.java.getResourceAsStream("/one-resource-example.json")!!
-
-    val resourceFromJson = Json.decodeFromString<Resources.Resource>(
-        resourceOne.bufferedReader().readText()
-    )
-
-    val loadedSchema = Whatever::class.java.getResourceAsStream("/schema.json")!!
+    val loadedSchema = {}::class.java.getResourceAsStream("/schema.json")!!
 
     val schemaFromJson = Json.parseToJsonElement(
         loadedSchema.bufferedReader().readText()
     )
 
-    val loadedSchemaClassic = Whatever::class.java.getResourceAsStream("/schema-aws-classic.json")!!
+    val loadedSchemaClassic = { }::class.java.getResourceAsStream("/schema-aws-classic.json")!!
 
     val schemaFromJsonClassic = Json.parseToJsonElement(
         loadedSchemaClassic.bufferedReader().readText()
@@ -145,73 +50,6 @@ fun fileNameForName(name: String): String {
 fun classNameForName(name: String): ClassName {
     return ClassName(packageNameForName(name), fileNameForName(name))
 }
-
-
-/*
-*
-* {
-*   "type": "object",
-*   "properties": {
-*       "apiGateway": {
-*           "type": "object",
-*           "name": {
-*               "type": "string"
-*           },
-*           "url": {
-*               "type": "string"
-*           },
-*           "lambdaReference": {
-*               "type": "object",
-*               "properties": {
-*                   "arn": { "type": "string },
-*                   "isProxied": { "type": "boolean" }
-*               }
-*           }
-*       }
-*   }
-* }
-*
-* */
-
-//fun evaluateInnerProperty(name: Resources.PropertyName?, property: Resources.PropertySpecification): PropertySpec {
-//    val nameOrEmpty = name?.value ?: ""
-//    when(property) {
-//        is Resources.ArrayProperty -> {
-//            val innerType = evaluateInnerProperty(null, property.items)
-//            PropertySpec.builder(nameOrEmpty, ClassName("kotlin.collections", "List").parameterizedBy(innerType.type))
-//                .addKdoc(property.description ?: "")
-//                .build()
-//        }
-//
-//        is Resources.BooleanProperty -> {
-//            PropertySpec.builder(nameOrEmpty, Boolean::class)
-//                .addKdoc(property.description ?: "")
-//        }
-//        is Resources.IntegerProperty -> {
-//            PropertySpec.builder(nameOrEmpty, Integer::class)
-//                .addKdoc(property.description ?: "")
-//        }
-//        is Resources.NumberProperty -> {
-//            PropertySpec.builder(nameOrEmpty, Double::class)
-//                .addKdoc(property.description ?: "")
-//        }
-//        is Resources.ObjectProperty -> {
-//            val evaluated = property.properties.map { (innerName, innerSpec) ->
-//                val e = evaluateInnerProperty(innerName, innerSpec)
-//                if(isObject(e.type)) {
-//
-//                }
-//            }
-//
-//            val innerType =
-//                .addKdoc(property.description ?: "")
-//                .build()
-//        }
-//        is Resources.OneOf -> TODO()
-//        is Resources.ReferredProperty -> TODO()
-//        is Resources.StringProperty -> TODO()
-//    }
-//}
 
 fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
     return when (propertySpec) {
@@ -303,19 +141,6 @@ fun generateKotlinCode(typeMap: TypeMap): List<FileSpec> {
         }
     }
 }
-
-object PropertySpecificationSerializer :
-    JsonContentPolymorphicSerializer<PropertySpecification>(PropertySpecification::class) {
-    override fun selectDeserializer(element: JsonElement) = when {
-        "\$ref" in element.jsonObject -> ReferredProperty.serializer()
-        "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == "array" -> ArrayProperty.serializer()
-        "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == "string" -> StringProperty.serializer()
-        else -> {
-            StringProperty.serializer()
-        }
-    }
-}
-
 
 object Resources {
 
@@ -468,44 +293,14 @@ object Resources {
     )
 }
 
-
-@Serializable
-enum class PropertyType {
-    array, string, enum
-}
-
-@Serializable
-data class StringProperty(val type: PropertyType, val description: String? = null) : PropertySpecification()
-
-@Serializable
-data class ArrayProperty(val type: PropertyType, val items: PropertySpecification, val description: String? = null) :
-    PropertySpecification()
-
-@Serializable
-data class ReferredProperty(val `$ref`: SpecificationReference, val description: String? = null) :
-    PropertySpecification()
-
-@Serializable(with = PropertySpecificationSerializer::class)
-sealed class PropertySpecification
-
-@Serializable
-@JvmInline
-value class SpecificationReference(val value: String)
-
-@Serializable
-@JvmInline
-value class PropertyName(
-    val value: String
-)
-
 @Serializable
 data class Inputs(
-    val properties: Map<PropertyName, PropertySpecification>, val required: List<PropertyName>
+    val properties: Map<Resources.PropertyName, Resources.PropertySpecification>, val required: List<Resources.PropertyName>
 )
 
 @Serializable
 data class Outputs(
-    val properties: Map<PropertyName, PropertySpecification>
+    val properties: Map<Resources.PropertyName, Resources.PropertySpecification>
 )
 
 @Serializable
