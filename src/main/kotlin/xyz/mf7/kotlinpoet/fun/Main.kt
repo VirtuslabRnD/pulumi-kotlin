@@ -1,8 +1,10 @@
 package xyz.mf7.kotlinpoet.`fun`
 
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import java.io.File
 
 class Whatever {
 
@@ -56,6 +58,8 @@ data class Context(val valueMapKeys: List<String>)
 //
 //    }
 //
+
+typealias TypeMap = Map<String, Resources.PropertySpecification>
 
 fun main() {
 
@@ -127,12 +131,171 @@ fun main() {
     )
 
     val o =
-        Json.decodeFromJsonElement<Map<String, Resources.PropertySpecification>>(schemaFromJson.jsonObject["types"]!!)
+        Json.decodeFromJsonElement<TypeMap>(schemaFromJson.jsonObject["types"]!!)
 
-
+    generateKotlinCode(o).forEach {
+        it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated"))
+    }
 
     println("asd")
 
+}
+
+fun packageNameForName(name: String): String {
+    return "xyz.mf7.generated." + name.replace("-", "").replace("/", "").split(":").dropLast(1).joinToString(".")
+}
+
+fun fileNameForName(name: String): String {
+    return name.replace("-", "").replace("/", "").split(":").last()
+}
+
+fun classNameForName(name: String): ClassName {
+    return ClassName(packageNameForName(name), fileNameForName(name))
+}
+
+
+/*
+*
+* {
+*   "type": "object",
+*   "properties": {
+*       "apiGateway": {
+*           "type": "object",
+*           "name": {
+*               "type": "string"
+*           },
+*           "url": {
+*               "type": "string"
+*           },
+*           "lambdaReference": {
+*               "type": "object",
+*               "properties": {
+*                   "arn": { "type": "string },
+*                   "isProxied": { "type": "boolean" }
+*               }
+*           }
+*       }
+*   }
+* }
+*
+* */
+
+//fun evaluateInnerProperty(name: Resources.PropertyName?, property: Resources.PropertySpecification): PropertySpec {
+//    val nameOrEmpty = name?.value ?: ""
+//    when(property) {
+//        is Resources.ArrayProperty -> {
+//            val innerType = evaluateInnerProperty(null, property.items)
+//            PropertySpec.builder(nameOrEmpty, ClassName("kotlin.collections", "List").parameterizedBy(innerType.type))
+//                .addKdoc(property.description ?: "")
+//                .build()
+//        }
+//
+//        is Resources.BooleanProperty -> {
+//            PropertySpec.builder(nameOrEmpty, Boolean::class)
+//                .addKdoc(property.description ?: "")
+//        }
+//        is Resources.IntegerProperty -> {
+//            PropertySpec.builder(nameOrEmpty, Integer::class)
+//                .addKdoc(property.description ?: "")
+//        }
+//        is Resources.NumberProperty -> {
+//            PropertySpec.builder(nameOrEmpty, Double::class)
+//                .addKdoc(property.description ?: "")
+//        }
+//        is Resources.ObjectProperty -> {
+//            val evaluated = property.properties.map { (innerName, innerSpec) ->
+//                val e = evaluateInnerProperty(innerName, innerSpec)
+//                if(isObject(e.type)) {
+//
+//                }
+//            }
+//
+//            val innerType =
+//                .addKdoc(property.description ?: "")
+//                .build()
+//        }
+//        is Resources.OneOf -> TODO()
+//        is Resources.ReferredProperty -> TODO()
+//        is Resources.StringProperty -> TODO()
+//    }
+//}
+
+fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
+    return when(propertySpec) {
+        is Resources.ArrayProperty -> ClassName("kotlin.collections", "List").parameterizedBy(referenceName(propertySpec.items))
+        is Resources.BooleanProperty -> ClassName("kotlin", "Boolean")
+        is Resources.IntegerProperty -> ClassName("kotlin", "Long")
+        is Resources.NumberProperty -> ClassName("kotlin", "Double")
+        is Resources.ObjectProperty -> if(propertySpec.properties.isEmpty() && propertySpec.additionalProperties != null) {
+            referenceName(propertySpec.additionalProperties)
+        } else {
+            error("deeply nested objects are not allowed (only maps are), description: ${propertySpec.description ?: "<null>"}")
+        }
+        is Resources.OneOf -> ClassName("kotlin", "Any")
+        is Resources.ReferredProperty -> {
+            val refTypeName = propertySpec.`$ref`.value
+            if(refTypeName == "pulumi.json#/Any") {
+                ClassName("kotlin", "Any")
+            } else if(refTypeName.startsWith("#/types/")) {
+                classNameForName(refTypeName.removePrefix("#/types/"))
+            } else {
+                error("type reference not recognized: $refTypeName")
+            }
+        }
+        is Resources.StringProperty -> ClassName("kotlin", "String")
+        is Resources.StringEnumProperty -> error("deeply nested enums are not allowed, description: ${propertySpec.description ?: "<null>"}")
+    }
+}
+fun generateKotlinCode(typeMap: TypeMap): List<FileSpec> {
+    return typeMap.map { (name, spec) ->
+        val fileName = fileNameForName(name)
+        val className = classNameForName(name)
+        val packageName = packageNameForName(name)
+
+        when(spec) {
+            is Resources.ObjectProperty -> {
+                val builder = FileSpec.builder(packageName, fileName)
+
+                val classB = TypeSpec.classBuilder(className)
+
+                spec.properties.map { (innerPropertyName, innerPropertySpec) ->
+                    classB.addProperty(innerPropertyName.value, referenceName(innerPropertySpec))
+                }
+
+                builder.addType(classB.build()).build()
+            }
+            is Resources.StringEnumProperty -> {
+                val builder = FileSpec.builder(packageName, fileName)
+
+                val classB = TypeSpec.enumBuilder(className)
+                    .primaryConstructor(
+                        FunSpec.constructorBuilder()
+                            .addParameter("value", String::class)
+                            .build()
+                    )
+                    .addProperty(
+                        PropertySpec.builder("value", String::class, KModifier.PRIVATE)
+                            .initializer("value")
+                            .build()
+                    )
+
+                spec.enum.forEach {
+                    if(it.name == null || it.value == "*") {
+                        println("WARN: ${it.name ?: "<null>"} ${it.value} encountered when handling the enum, skipping")
+                    } else {
+                        classB.addEnumConstant(it.name,
+                            TypeSpec.anonymousClassBuilder()
+                            .addSuperclassConstructorParameter("%S", it.value)
+                            .build()
+                        )
+                    }
+                }
+
+                builder.addType(classB.build()).build()
+            }
+            else -> error("unsupported")
+        }
+    }
 }
 
 object PropertySpecificationSerializer :
@@ -161,6 +324,7 @@ object Resources {
             return when {
                 element is JsonObject && "\$ref" in element.jsonObject -> ReferredProperty.serializer()
                 hasTypeEqualTo("array") -> ArrayProperty.serializer()
+                hasTypeEqualTo("string") && "enum" in element.jsonObject -> StringEnumProperty.serializer()
                 hasTypeEqualTo("string") -> StringProperty.serializer()
                 hasTypeEqualTo("object") -> ObjectProperty.serializer()
                 hasTypeEqualTo("boolean") -> BooleanProperty.serializer()
@@ -193,9 +357,16 @@ object Resources {
     data class StringSingleEnum(val name: String? = null, val value: String, val description: String? = null)
 
     @Serializable
+    data class StringEnumProperty(
+        val type: PropertyType,
+        val enum: List<StringSingleEnum>,
+        val description: String? = null,
+        val language: Language? = null
+    ): PropertySpecification()
+
+    @Serializable
     data class StringProperty(
         val type: PropertyType,
-        val enum: List<StringSingleEnum> = emptyList(),
         val description: String? = null,
         val language: Language? = null
     ) :
