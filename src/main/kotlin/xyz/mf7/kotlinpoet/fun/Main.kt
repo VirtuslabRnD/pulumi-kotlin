@@ -73,42 +73,23 @@ fun main() {
 
     val rootClass = ClassName("", "Root")
 
-    val testClass = TypeSpec.classBuilder("Test")
-        .addModifiers(KModifier.DATA)
-        .primaryConstructor(
-            FunSpec.constructorBuilder()
-                .addParameter(
+    val testClass = TypeSpec.classBuilder("Test").addModifiers(KModifier.DATA).primaryConstructor(
+            FunSpec.constructorBuilder().addParameter(
                     ParameterSpec.builder("prop", String::class).build()
-                )
-                .build()
-        )
-        .addProperty(
-            PropertySpec.builder("prop", String::class)
-                .initializer("prop")
-                .build()
-        )
-        .build()
+                ).build()
+        ).addProperty(
+            PropertySpec.builder("prop", String::class).initializer("prop").build()
+        ).build()
 
-    val otherType = TypeSpec.classBuilder("Test2")
-        .addModifiers(KModifier.DATA)
-        .primaryConstructor(
-            FunSpec.constructorBuilder()
-                .addParameter(
+    val otherType = TypeSpec.classBuilder("Test2").addModifiers(KModifier.DATA).primaryConstructor(
+            FunSpec.constructorBuilder().addParameter(
                     ParameterSpec.builder("prop", ClassName("", testClass.name!!)).build()
-                )
-                .build()
-        )
-        .addProperty(
-            PropertySpec.builder("prop", String::class)
-                .initializer("prop")
-                .build()
-        )
-        .build()
+                ).build()
+        ).addProperty(
+            PropertySpec.builder("prop", String::class).initializer("prop").build()
+        ).build()
 
-    val file = FileSpec.builder("", "file")
-        .addType(testClass)
-        .addType(otherType)
-        .build()
+    val file = FileSpec.builder("", "file").addType(testClass).addType(otherType).build()
 
     file.writeTo(System.out)
 
@@ -130,10 +111,22 @@ fun main() {
         loadedSchema.bufferedReader().readText()
     )
 
-    val o =
-        Json.decodeFromJsonElement<TypeMap>(schemaFromJson.jsonObject["types"]!!)
+    val loadedSchemaClassic = Whatever::class.java.getResourceAsStream("/schema-aws-classic.json")!!
 
-    generateKotlinCode(o).forEach {
+    val schemaFromJsonClassic = Json.parseToJsonElement(
+        loadedSchemaClassic.bufferedReader().readText()
+    )
+
+    val typesForAwsNative = Json.decodeFromJsonElement<TypeMap>(schemaFromJson.jsonObject["types"]!!)
+
+
+    val typesForAwsClassic = Json.decodeFromJsonElement<TypeMap>(schemaFromJsonClassic.jsonObject["types"]!!)
+
+    generateKotlinCode(typesForAwsClassic).forEach {
+        it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated"))
+    }
+
+    generateKotlinCode(typesForAwsNative).forEach {
         it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated"))
     }
 
@@ -221,12 +214,14 @@ fun classNameForName(name: String): ClassName {
 //}
 
 fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
-    return when(propertySpec) {
-        is Resources.ArrayProperty -> ClassName("kotlin.collections", "List").parameterizedBy(referenceName(propertySpec.items))
+    return when (propertySpec) {
+        is Resources.ArrayProperty -> ClassName(
+            "kotlin.collections", "List"
+        ).parameterizedBy(referenceName(propertySpec.items))
         is Resources.BooleanProperty -> ClassName("kotlin", "Boolean")
         is Resources.IntegerProperty -> ClassName("kotlin", "Long")
         is Resources.NumberProperty -> ClassName("kotlin", "Double")
-        is Resources.ObjectProperty -> if(propertySpec.properties.isEmpty() && propertySpec.additionalProperties != null) {
+        is Resources.ObjectProperty -> if (propertySpec.properties.isEmpty() && propertySpec.additionalProperties != null) {
             referenceName(propertySpec.additionalProperties)
         } else {
             error("deeply nested objects are not allowed (only maps are), description: ${propertySpec.description ?: "<null>"}")
@@ -234,9 +229,9 @@ fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
         is Resources.OneOf -> ClassName("kotlin", "Any")
         is Resources.ReferredProperty -> {
             val refTypeName = propertySpec.`$ref`.value
-            if(refTypeName == "pulumi.json#/Any") {
+            if (refTypeName == "pulumi.json#/Any") {
                 ClassName("kotlin", "Any")
-            } else if(refTypeName.startsWith("#/types/")) {
+            } else if (refTypeName.startsWith("#/types/")) {
                 classNameForName(refTypeName.removePrefix("#/types/"))
             } else {
                 error("type reference not recognized: $refTypeName")
@@ -246,21 +241,37 @@ fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
         is Resources.StringEnumProperty -> error("deeply nested enums are not allowed, description: ${propertySpec.description ?: "<null>"}")
     }
 }
+
 fun generateKotlinCode(typeMap: TypeMap): List<FileSpec> {
     return typeMap.map { (name, spec) ->
         val fileName = fileNameForName(name)
         val className = classNameForName(name)
         val packageName = packageNameForName(name)
 
-        when(spec) {
+        when (spec) {
             is Resources.ObjectProperty -> {
                 val builder = FileSpec.builder(packageName, fileName)
 
                 val classB = TypeSpec.classBuilder(className)
+                    .addModifiers(KModifier.DATA)
+
+                val constructor = FunSpec.constructorBuilder()
 
                 spec.properties.map { (innerPropertyName, innerPropertySpec) ->
-                    classB.addProperty(innerPropertyName.value, referenceName(innerPropertySpec))
+                    val typeName = referenceName(innerPropertySpec).copy(nullable = !spec.required.contains(innerPropertyName))
+                    classB
+                        .addProperty(
+                            PropertySpec
+                                .builder(innerPropertyName.value, typeName)
+                                .initializer(innerPropertyName.value)
+                                .build()
+                        )
+
+                    constructor
+                        .addParameter(innerPropertyName.value, typeName)
                 }
+
+                classB.primaryConstructor(constructor.build())
 
                 builder.addType(classB.build()).build()
             }
@@ -269,24 +280,19 @@ fun generateKotlinCode(typeMap: TypeMap): List<FileSpec> {
 
                 val classB = TypeSpec.enumBuilder(className)
                     .primaryConstructor(
-                        FunSpec.constructorBuilder()
-                            .addParameter("value", String::class)
-                            .build()
+                        FunSpec.constructorBuilder().addParameter("value", String::class).build()
                     )
                     .addProperty(
-                        PropertySpec.builder("value", String::class, KModifier.PRIVATE)
-                            .initializer("value")
-                            .build()
+                        PropertySpec.builder("value", String::class, KModifier.PRIVATE).initializer("value").build()
                     )
 
                 spec.enum.forEach {
-                    if(it.name == null || it.value == "*") {
+                    if (it.name == null || it.value == "*") {
                         println("WARN: ${it.name ?: "<null>"} ${it.value} encountered when handling the enum, skipping")
                     } else {
-                        classB.addEnumConstant(it.name,
-                            TypeSpec.anonymousClassBuilder()
-                            .addSuperclassConstructorParameter("%S", it.value)
-                            .build()
+                        classB.addEnumConstant(
+                            it.name,
+                            TypeSpec.anonymousClassBuilder().addSuperclassConstructorParameter("%S", it.value).build()
                         )
                     }
                 }
@@ -316,13 +322,13 @@ object Resources {
     object PropertySpecificationSerializer :
         JsonContentPolymorphicSerializer<PropertySpecification>(PropertySpecification::class) {
         override fun selectDeserializer(element: JsonElement): KSerializer<out PropertySpecification> {
-            println(element)
+
             fun hasTypeEqualTo(type: String) =
-                element is JsonObject &&
-                        "type" in element.jsonObject &&
-                        element.jsonObject.getValue("type").jsonPrimitive.content == type
+                element is JsonObject && "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == type
+
             return when {
                 element is JsonObject && "\$ref" in element.jsonObject -> ReferredProperty.serializer()
+                element is JsonObject && "oneOf" in element.jsonObject -> OneOf.serializer()
                 hasTypeEqualTo("array") -> ArrayProperty.serializer()
                 hasTypeEqualTo("string") && "enum" in element.jsonObject -> StringEnumProperty.serializer()
                 hasTypeEqualTo("string") -> StringProperty.serializer()
@@ -330,7 +336,6 @@ object Resources {
                 hasTypeEqualTo("boolean") -> BooleanProperty.serializer()
                 hasTypeEqualTo("integer") -> IntegerProperty.serializer()
                 hasTypeEqualTo("number") -> NumberProperty.serializer()
-                element is JsonObject && "oneOf" in element.jsonObject -> OneOf.serializer()
                 else -> {
                     error("Unknown ${element}")
                 }
@@ -354,70 +359,94 @@ object Resources {
     )
 
     @Serializable
-    data class StringSingleEnum(val name: String? = null, val value: String, val description: String? = null)
+    data class StringSingleEnum(
+        val name: String? = null,
+        val value: String,
+        val description: String? = null,
+        val deprecationMessage: String? = null
+    )
 
     @Serializable
     data class StringEnumProperty(
         val type: PropertyType,
         val enum: List<StringSingleEnum>,
         val description: String? = null,
+        val willReplaceOnChanges: Boolean = false,
+        val deprecationMessage: String? = null,
         val language: Language? = null
-    ): PropertySpecification()
+    ) : PropertySpecification()
 
     @Serializable
     data class StringProperty(
         val type: PropertyType,
         val description: String? = null,
+        val willReplaceOnChanges: Boolean = false,
+        val deprecationMessage: String? = null,
         val language: Language? = null
-    ) :
-        PropertySpecification()
+    ) : PropertySpecification()
 
     @Serializable
     data class BooleanProperty(
         val type: PropertyType,
         val description: String? = null,
+        val willReplaceOnChanges: Boolean = false,
+        val deprecationMessage: String? = null,
         val language: Language? = null
-    ) :
-        PropertySpecification()
+    ) : PropertySpecification()
 
     @Serializable
     data class IntegerProperty(
         val type: PropertyType,
         val description: String? = null,
+        val willReplaceOnChanges: Boolean = false,
+        val deprecationMessage: String? = null,
         val language: Language? = null
-    ) :
-        PropertySpecification()
+    ) : PropertySpecification()
 
     @Serializable
-    data class NumberProperty(val type: PropertyType, val description: String? = null, val language: Language? = null) :
-        PropertySpecification()
+    data class NumberProperty(
+        val type: PropertyType,
+        val willReplaceOnChanges: Boolean = false,
+        val deprecationMessage: String? = null,
+        val description: String? = null,
+        val language: Language? = null
+    ) : PropertySpecification()
 
     @Serializable
     data class ArrayProperty(
         val type: PropertyType,
         val items: PropertySpecification,
+        val willReplaceOnChanges: Boolean = false,
+        val deprecationMessage: String? = null,
         val description: String? = null,
         val language: Language? = null
     ) : PropertySpecification()
 
     @Serializable
     data class ReferredProperty(
+        val type: String? = null,
         val `$ref`: SpecificationReference,
+        val willReplaceOnChanges: Boolean = false,
+        val deprecationMessage: String? = null,
         val description: String? = null,
         val language: Language? = null
     ) : PropertySpecification()
 
     @Serializable
     data class OneOf(
-        val oneOf: List<PropertySpecification>
-    ): PropertySpecification()
+        val type: String? = null,
+        val description: String? = null,
+        val oneOf: List<PropertySpecification>,
+        val language: Language? = null
+    ) : PropertySpecification()
 
     @Serializable
     data class ObjectProperty(
         val type: PropertyType,
         val properties: Map<PropertyName, PropertySpecification> = emptyMap(),
+        val willReplaceOnChanges: Boolean = false,
         val additionalProperties: PropertySpecification? = null,
-        val required: List<PropertyName> = emptyList(),
+        val required: Set<PropertyName> = emptySet(),
         val description: String? = null,
         val language: Language? = null
     ) : PropertySpecification()
@@ -471,8 +500,7 @@ value class PropertyName(
 
 @Serializable
 data class Inputs(
-    val properties: Map<PropertyName, PropertySpecification>,
-    val required: List<PropertyName>
+    val properties: Map<PropertyName, PropertySpecification>, val required: List<PropertyName>
 )
 
 @Serializable
@@ -482,7 +510,5 @@ data class Outputs(
 
 @Serializable
 data class Function(
-    val description: String,
-    val inputs: Inputs,
-    val outputs: Outputs
+    val description: String, val inputs: Inputs, val outputs: Outputs
 )
