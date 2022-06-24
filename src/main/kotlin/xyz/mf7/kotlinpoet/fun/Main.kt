@@ -5,8 +5,14 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.io.File
+import java.util.regex.Pattern
 
 typealias TypeMap = Map<String, Resources.PropertySpecification>
+
+typealias ResourcesMap = Map<String, Resources.Resource>
+
+typealias FunctionsMap = Map<String, Function>
+
 
 fun main() {
 
@@ -24,18 +30,22 @@ fun main() {
 
     val typesForAwsNative = Json.decodeFromJsonElement<TypeMap>(schemaFromJson.jsonObject["types"]!!)
 
-
     val typesForAwsClassic = Json.decodeFromJsonElement<TypeMap>(schemaFromJsonClassic.jsonObject["types"]!!)
 
-    generateKotlinCode(typesForAwsClassic).forEach {
+    val functionsForAwsClassic = Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
+
+    generateTypes(typesForAwsClassic).forEach {
         it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated"))
     }
 
-    generateKotlinCode(typesForAwsNative).forEach {
+    generateTypes(typesForAwsNative).forEach {
         it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated"))
     }
 
-    println("asd")
+    generateFunctions(functionsForAwsClassic).generatedFiles.forEach {
+        it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated_functions"))
+    }
+
 
 }
 
@@ -80,7 +90,107 @@ fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
     }
 }
 
-fun generateKotlinCode(typeMap: TypeMap): List<FileSpec> {
+data class GeneratedResource(
+    val generatedFiles: List<FileSpec>,
+    val identifiedOutputReferences: Set<Resources.PropertyName>,
+    val identifiedInputReferences: Set<Resources.PropertyName>
+)
+
+data class GeneratedFunction(
+    val generatedFiles: List<FileSpec>,
+    val identifiedOutputReferences: Set<Resources.PropertyName>,
+    val identifiedInputReferences: Set<Resources.PropertyName>
+)
+
+fun generateFunctions(functionsMap: FunctionsMap): GeneratedFunction {
+    val files = functionsMap
+        .entries
+        .groupBy { (name, value) -> name.split("/").first() }
+        .flatMap { (groupName, entries) ->
+
+            val resultTypes = mutableListOf<FileSpec>()
+
+            val file = FileSpec
+                .builder(packageNameForName(groupName), fileNameForName(groupName).capitalize())
+
+            entries.forEach { (name, function) ->
+
+                val inputName = ClassName(packageNameForName(groupName), fileNameForName(groupName) + "Args")
+                val outputName = ClassName(packageNameForName(groupName), fileNameForName(groupName) + "Result")
+
+                function.inputs ?. let {
+                    val i = constructDataClass(inputName, function.inputs)
+                    val inputFile = FileSpec
+                        .builder(packageNameForName(groupName), fileNameForName(groupName) + "Args")
+                        .addType(i)
+                        .build()
+
+                    resultTypes.add(inputFile)
+                }
+
+                val o = constructDataClass(outputName, function.outputs)
+
+
+                val outputFile = FileSpec
+                    .builder(packageNameForName(groupName), fileNameForName(groupName) + "Result")
+                    .addType(o)
+                    .build()
+
+                val realName = name.split(Regex("[/:]")).last()
+
+                val funSpec = FunSpec
+                    .builder(realName)
+                    .let { f ->
+                        function.description?.let {
+                            f.addKdoc("Some kdoc was here but it does not work currently")
+                        }
+                        f
+                    }
+                    .addParameter("args", inputName)
+                    .returns(outputName)
+                    .build()
+
+                file.addFunction(funSpec)
+
+                resultTypes.add(outputFile)
+            }
+
+            resultTypes + listOf(file.build())
+        }
+
+    return GeneratedFunction(files, emptySet(), emptySet())
+}
+
+//fun generateResources(resourceMap: ResourcesMap): GeneratedResource {
+//
+//}
+
+fun constructDataClass(className: ClassName, objectProperty: Resources.ObjectProperty): TypeSpec {
+    val classB = TypeSpec.classBuilder(className)
+        .addModifiers(KModifier.DATA)
+
+    val constructor = FunSpec.constructorBuilder()
+
+    objectProperty.properties.map { (innerPropertyName, innerPropertySpec) ->
+        val typeName = referenceName(innerPropertySpec).copy(nullable = !objectProperty.required.contains(innerPropertyName))
+        classB
+            .addProperty(
+                PropertySpec
+                    .builder(innerPropertyName.value, typeName)
+                    .initializer(innerPropertyName.value)
+                    .build()
+            )
+
+        constructor
+            .addParameter(innerPropertyName.value, typeName)
+    }
+
+    classB.primaryConstructor(constructor.build())
+
+    return classB.build()
+}
+
+fun generateTypes(typeMap: TypeMap): List<FileSpec> {
     return typeMap.map { (name, spec) ->
         val fileName = fileNameForName(name)
         val className = classNameForName(name)
@@ -90,28 +200,7 @@ fun generateKotlinCode(typeMap: TypeMap): List<FileSpec> {
             is Resources.ObjectProperty -> {
                 val builder = FileSpec.builder(packageName, fileName)
 
-                val classB = TypeSpec.classBuilder(className)
-                    .addModifiers(KModifier.DATA)
-
-                val constructor = FunSpec.constructorBuilder()
-
-                spec.properties.map { (innerPropertyName, innerPropertySpec) ->
-                    val typeName = referenceName(innerPropertySpec).copy(nullable = !spec.required.contains(innerPropertyName))
-                    classB
-                        .addProperty(
-                            PropertySpec
-                                .builder(innerPropertyName.value, typeName)
-                                .initializer(innerPropertyName.value)
-                                .build()
-                        )
-
-                    constructor
-                        .addParameter(innerPropertyName.value, typeName)
-                }
-
-                classB.primaryConstructor(constructor.build())
-
-                builder.addType(classB.build()).build()
+                builder.addType(constructDataClass(className, spec)).build()
             }
             is Resources.StringEnumProperty -> {
                 val builder = FileSpec.builder(packageName, fileName)
@@ -151,9 +240,13 @@ object Resources {
             fun hasTypeEqualTo(type: String) =
                 element is JsonObject && "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == type
 
+            fun mightBeOfTypeObject() =
+                element is JsonObject && "properties" in element.jsonObject
+
             return when {
                 element is JsonObject && "\$ref" in element.jsonObject -> ReferredProperty.serializer()
                 element is JsonObject && "oneOf" in element.jsonObject -> OneOf.serializer()
+                mightBeOfTypeObject() -> ObjectProperty.serializer()
                 hasTypeEqualTo("array") -> ArrayProperty.serializer()
                 hasTypeEqualTo("string") && "enum" in element.jsonObject -> StringEnumProperty.serializer()
                 hasTypeEqualTo("string") -> StringProperty.serializer()
@@ -267,7 +360,7 @@ object Resources {
 
     @Serializable
     data class ObjectProperty(
-        val type: PropertyType,
+        val type: PropertyType = PropertyType.`object`,
         val properties: Map<PropertyName, PropertySpecification> = emptyMap(),
         val willReplaceOnChanges: Boolean = false,
         val additionalProperties: PropertySpecification? = null,
@@ -289,7 +382,8 @@ object Resources {
         val properties: Map<PropertyName, PropertySpecification>,
         val type: PropertyType,
         val required: List<PropertyName>,
-        val inputProperties: Map<PropertyName, PropertySpecification>
+        val inputProperties: Map<PropertyName, PropertySpecification>,
+        val requiredInputs: List<PropertyName>
     )
 }
 
@@ -305,5 +399,7 @@ data class Outputs(
 
 @Serializable
 data class Function(
-    val description: String, val inputs: Inputs, val outputs: Outputs
+    val inputs: Resources.ObjectProperty? = null, val outputs: Resources.ObjectProperty,
+    val deprecationMessage: String? = null,
+    val description: String? = null
 )
