@@ -1,11 +1,11 @@
 package xyz.mf7.kotlinpoet.`fun`
 
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.io.File
-import java.util.regex.Pattern
 
 typealias TypeMap = Map<String, Resources.PropertySpecification>
 
@@ -32,29 +32,42 @@ fun main() {
 
     val typesForAwsClassic = Json.decodeFromJsonElement<TypeMap>(schemaFromJsonClassic.jsonObject["types"]!!)
 
-    val functionsForAwsClassic = Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
+    val functionsForAwsClassic =
+        Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
+
+    val destination = "/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java"
 
     generateTypes(typesForAwsClassic).forEach {
-        it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated"))
+        it.writeTo(File(destination))
     }
 
-    generateTypes(typesForAwsNative).forEach {
-        it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated"))
-    }
+//    generateTypes(typesForAwsNative).forEach {
+//        it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated_functions/src/main/kotlin"))
+//    }
+
 
     generateFunctions(functionsForAwsClassic).generatedFiles.forEach {
-        it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated_functions"))
+        it.writeTo(File(destination))
     }
 
+    generateAndSaveCommon(destination, "com.pulumi.kotlin.aws")
 
+
+}
+
+fun generateAndSaveCommon(basePath: String, packageName: String) {
+    val preparedPackageName = packageName.replace("-", "")
+
+    val packagePath = preparedPackageName.replace(".", "/")
+    File(basePath, packagePath + "/Utilities.java").writeText(generateUtilsFile(packagePath, preparedPackageName))
 }
 
 fun packageNameForName(name: String): String {
-    return "xyz.mf7.generated." + name.replace("-", "").replace("/", "").split(":").dropLast(1).joinToString(".")
+    return "com.pulumi.kotlin." + name.split("/").first().replace(":", ".").replace("-", "")
 }
 
 fun fileNameForName(name: String): String {
-    return name.replace("-", "").replace("/", "").split(":").last()
+    return name.split("/").last().split(":").last().replace("-", "").capitalize()
 }
 
 fun classNameForName(name: String): ClassName {
@@ -63,18 +76,18 @@ fun classNameForName(name: String): ClassName {
 
 fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
     return when (propertySpec) {
-        is Resources.ArrayProperty -> ClassName(
-            "kotlin.collections", "List"
-        ).parameterizedBy(referenceName(propertySpec.items))
-        is Resources.BooleanProperty -> ClassName("kotlin", "Boolean")
-        is Resources.IntegerProperty -> ClassName("kotlin", "Long")
-        is Resources.NumberProperty -> ClassName("kotlin", "Double")
+        is Resources.ArrayProperty -> LIST.parameterizedBy(referenceName(propertySpec.items))
+        is Resources.BooleanProperty -> BOOLEAN
+        is Resources.IntegerProperty -> LONG
+        is Resources.NumberProperty -> DOUBLE
+        is Resources.OneOf -> ANY
+        is Resources.StringProperty -> STRING
+
         is Resources.ObjectProperty -> if (propertySpec.properties.isEmpty() && propertySpec.additionalProperties != null) {
             referenceName(propertySpec.additionalProperties)
         } else {
             error("deeply nested objects are not allowed (only maps are), description: ${propertySpec.description ?: "<null>"}")
         }
-        is Resources.OneOf -> ClassName("kotlin", "Any")
         is Resources.ReferredProperty -> {
             val refTypeName = propertySpec.`$ref`.value
             if (refTypeName == "pulumi.json#/Any") {
@@ -85,7 +98,6 @@ fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
                 error("type reference not recognized: $refTypeName")
             }
         }
-        is Resources.StringProperty -> ClassName("kotlin", "String")
         is Resources.StringEnumProperty -> error("deeply nested enums are not allowed, description: ${propertySpec.description ?: "<null>"}")
     }
 }
@@ -118,15 +130,26 @@ fun generateFunctions(functionsMap: FunctionsMap): GeneratedFunction {
                 val inputName = ClassName(packageNameForName(groupName), fileNameForName(groupName) + "Args")
                 val outputName = ClassName(packageNameForName(groupName), fileNameForName(groupName) + "Result")
 
-                function.inputs ?. let {
-                    val i = constructDataClass(inputName, function.inputs)
-                    val inputFile = FileSpec
-                        .builder(packageNameForName(groupName), fileNameForName(groupName) + "Args")
-                        .addType(i)
-                        .build()
+                val i = constructDataClass(inputName, function.inputs,
+                    {
+                        superclass(ClassName("com.pulumi.resources", "InvokeArgs"))
+                    },
+                    { name, _, isRequired ->
+                        addAnnotation(
+                            AnnotationSpec.builder(ClassName("com.pulumi.core.annotations", "Import"))
+                                .useSiteTarget(AnnotationSpec.UseSiteTarget.FIELD)
+                                .addMember("name = %S", name.value)
+                                .addMember("required = %L", isRequired)
+                                .build()
+                        )
+                    }
+                )
+                val inputFile = FileSpec
+                    .builder(packageNameForName(groupName), fileNameForName(groupName) + "Args")
+                    .addType(i)
+                    .build()
 
-                    resultTypes.add(inputFile)
-                }
+                resultTypes.add(inputFile)
 
                 val o = constructDataClass(outputName, function.outputs)
 
@@ -138,13 +161,53 @@ fun generateFunctions(functionsMap: FunctionsMap): GeneratedFunction {
 
                 val realName = name.split(Regex("[/:]")).last()
 
+
+                val body = object {
+                    private val deployPackage = "com.pulumi.deployment"
+                    private val corePackage = "com.pulumi.core"
+                    private val providerPackage = "com.pulumi.kotlin.aws" // TODO: parametrize
+                    val deployment = ClassName(deployPackage, "Deployment")
+                    val deploymentInstance = ClassName(deployPackage, "DeploymentInstance")
+                    val getInstance = deployment.member("getInstance")
+                    val invokeAsync = deploymentInstance.member("invokeAsync")
+                    val typeShape = ClassName(corePackage, "TypeShape")
+                    val ofTypeShape = typeShape.member("of")
+                    val utilities = ClassName(providerPackage, "Utilities")
+                    val utilitiesWithVersion = utilities.member("withVersion")
+                    val invokeOptions = ClassName(deployPackage, "InvokeOptions")
+                    val invokeOptionsEmpty = invokeOptions.member("Empty")
+
+                    val awaitFuture = MemberName("kotlinx.coroutines.future", "await")
+                }
+
                 val funSpec = FunSpec
                     .builder(realName)
+                    .addModifiers(KModifier.SUSPEND)
                     .let { f ->
                         function.description?.let {
                             f.addKdoc("Some kdoc was here but it does not work currently")
                         }
                         f
+                    }
+                    .let {
+                        with(body) {
+                            it.addStatement(
+                                "val result = %T.%M().%N(%S, %T.%M(%N::class.java), args, %T.%M(%T.%M))",
+                                deployment,
+                                getInstance,
+                                "invokeAsync",
+                                name,
+                                typeShape,
+                                ofTypeShape,
+                                o,
+                                utilities,
+                                utilitiesWithVersion,
+                                invokeOptions,
+                                invokeOptionsEmpty
+                            )
+
+                            it.addStatement("return result.%M()", awaitFuture)
+                        }
                     }
                     .addParameter("args", inputName)
                     .returns(outputName)
@@ -165,24 +228,47 @@ fun generateFunctions(functionsMap: FunctionsMap): GeneratedFunction {
 //
 //}
 
-fun constructDataClass(className: ClassName, objectProperty: Resources.ObjectProperty): TypeSpec {
+fun constructDataClass(
+    className: ClassName, objectProperty: Resources.ObjectProperty?,
+    classModifier: (TypeSpec.Builder).() -> Unit = {},
+    propertyModifier: (PropertySpec.Builder).(Resources.PropertyName, Resources.PropertySpecification, Boolean /*required?*/) -> Unit = { _, _, _ -> }
+): TypeSpec {
     val classB = TypeSpec.classBuilder(className)
         .addModifiers(KModifier.DATA)
+        .apply(classModifier)
 
     val constructor = FunSpec.constructorBuilder()
 
+    if(objectProperty == null || objectProperty.properties.isEmpty()) {
+        return TypeSpec.objectBuilder(className)
+            .apply(classModifier)
+            .build()
+    }
+
     objectProperty.properties.map { (innerPropertyName, innerPropertySpec) ->
-        val typeName = referenceName(innerPropertySpec).copy(nullable = !objectProperty.required.contains(innerPropertyName))
+        val isRequired = objectProperty.required.contains(innerPropertyName)
+        val typeName = referenceName(innerPropertySpec).copy(nullable = !isRequired)
         classB
             .addProperty(
                 PropertySpec
                     .builder(innerPropertyName.value, typeName)
+                    .apply { this.propertyModifier(innerPropertyName, innerPropertySpec, isRequired) }
                     .initializer(innerPropertyName.value)
                     .build()
             )
 
         constructor
-            .addParameter(innerPropertyName.value, typeName)
+            .addParameter(
+                ParameterSpec.builder(innerPropertyName.value, typeName)
+                    .let {
+                        if(!isRequired) {
+                            it.defaultValue("%L", null)
+                        } else {
+                            it
+                        }
+                    }
+                    .build()
+            )
     }
 
     classB.primaryConstructor(constructor.build())
@@ -389,7 +475,8 @@ object Resources {
 
 @Serializable
 data class Inputs(
-    val properties: Map<Resources.PropertyName, Resources.PropertySpecification>, val required: List<Resources.PropertyName>
+    val properties: Map<Resources.PropertyName, Resources.PropertySpecification>,
+    val required: List<Resources.PropertyName>
 )
 
 @Serializable
