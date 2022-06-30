@@ -18,19 +18,36 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
     val utilitiesWithVersion = utilities.member("withVersion")
     val invokeOptions = ClassName(deployPackage, "InvokeOptions")
     val invokeOptionsEmpty = invokeOptions.member("Empty")
+    val invokeArgs = ClassName("com.pulumi.resources", "InvokeArgs")
+
+    val pulumiInterop = ClassName("com.pulumi.kotlin", "PulumiJavaKotlinInterop")
+    val getTargetClassForFromKotlinToJava = pulumiInterop.member("getTargetClassForFromKotlinToJava")
+    val toJava = pulumiInterop.member("toJava")
+    val toKotlin = pulumiInterop.member("toKotlin")
 
     val awaitFuture = MemberName("kotlinx.coroutines.future", "await")
 
 //    val convertFrom = CodeBlock.builder().add()
 
-    it.addCode(
-        "val result = %T.%M().%N(%S, %T.%M(%N::class.java), args, %T.%M(%T.%M))",
+
+
+    it.addStatement(
+        "val mappedArgs = %T.%M(args) as %T",
+        pulumiInterop,
+        toJava,
+        invokeArgs
+    )
+
+    it.addStatement(
+        "val result = %T.%M().%N(%S, %T.%M(%T.%M(%N::class.java)), args, %T.%M(%T.%M))",
         deployment,
         getInstance,
         "invokeAsync",
         name,
         typeShape,
         ofTypeShape,
+        pulumiInterop,
+        getTargetClassForFromKotlinToJava,
         outputType,
         utilities,
         utilitiesWithVersion,
@@ -38,7 +55,11 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
         invokeOptionsEmpty
     )
 
-    it.addStatement("return result.%M()", awaitFuture)
+    it.addStatement("val awaitedResult = result.%M()", awaitFuture)
+
+    it.addStatement("return %T.%M(awaitedResult)",
+        pulumiInterop, toKotlin
+    )
 
     return it
 }
