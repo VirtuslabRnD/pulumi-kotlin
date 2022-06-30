@@ -3,6 +3,44 @@ package xyz.mf7.kotlinpoet.`fun`
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 
+
+fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec): FunSpec.Builder {
+    val deployPackage = "com.pulumi.deployment"
+    val corePackage = "com.pulumi.core"
+    val providerPackage = "com.pulumi.kotlin.aws" // TODO: parametrize
+    val deployment = ClassName(deployPackage, "Deployment")
+    val deploymentInstance = ClassName(deployPackage, "DeploymentInstance")
+    val getInstance = deployment.member("getInstance")
+    val invokeAsync = deploymentInstance.member("invokeAsync")
+    val typeShape = ClassName(corePackage, "TypeShape")
+    val ofTypeShape = typeShape.member("of")
+    val utilities = ClassName(providerPackage, "Utilities")
+    val utilitiesWithVersion = utilities.member("withVersion")
+    val invokeOptions = ClassName(deployPackage, "InvokeOptions")
+    val invokeOptionsEmpty = invokeOptions.member("Empty")
+
+    val awaitFuture = MemberName("kotlinx.coroutines.future", "await")
+
+    it.addStatement(
+        "val result = %T.%M().%N(%S, %T.%M(%N::class.java), args, %T.%M(%T.%M))",
+        deployment,
+        getInstance,
+        "invokeAsync",
+        name,
+        typeShape,
+        ofTypeShape,
+        outputType,
+        utilities,
+        utilitiesWithVersion,
+        invokeOptions,
+        invokeOptionsEmpty
+    )
+
+    it.addStatement("return result.%M()", awaitFuture)
+
+    return it
+}
+
 fun generateFunctions(functionsMap: FunctionsMap): GeneratedFunction {
     val files = functionsMap
         .entries
@@ -47,25 +85,6 @@ fun generateFunctions(functionsMap: FunctionsMap): GeneratedFunction {
 
                 val realName = name.split(Regex("[/:]")).last()
 
-
-                val body = object {
-                    private val deployPackage = "com.pulumi.deployment"
-                    private val corePackage = "com.pulumi.core"
-                    private val providerPackage = "com.pulumi.kotlin.aws" // TODO: parametrize
-                    val deployment = ClassName(deployPackage, "Deployment")
-                    val deploymentInstance = ClassName(deployPackage, "DeploymentInstance")
-                    val getInstance = deployment.member("getInstance")
-                    val invokeAsync = deploymentInstance.member("invokeAsync")
-                    val typeShape = ClassName(corePackage, "TypeShape")
-                    val ofTypeShape = typeShape.member("of")
-                    val utilities = ClassName(providerPackage, "Utilities")
-                    val utilitiesWithVersion = utilities.member("withVersion")
-                    val invokeOptions = ClassName(deployPackage, "InvokeOptions")
-                    val invokeOptionsEmpty = invokeOptions.member("Empty")
-
-                    val awaitFuture = MemberName("kotlinx.coroutines.future", "await")
-                }
-
                 val funSpec = FunSpec.builder(realName)
                     .addModifiers(KModifier.SUSPEND)
                     .let { f ->
@@ -75,24 +94,7 @@ fun generateFunctions(functionsMap: FunctionsMap): GeneratedFunction {
                         f
                     }
                     .let {
-                        with(body) {
-                            it.addStatement(
-                                "val result = %T.%M().%N(%S, %T.%M(%N::class.java), args, %T.%M(%T.%M))",
-                                deployment,
-                                getInstance,
-                                "invokeAsync",
-                                name,
-                                typeShape,
-                                ofTypeShape,
-                                o,
-                                utilities,
-                                utilitiesWithVersion,
-                                invokeOptions,
-                                invokeOptionsEmpty
-                            )
-
-                            it.addStatement("return result.%M()", awaitFuture)
-                        }
+                        generateMethodBody(it, name, o)
                     }
                     .addParameter("args", inputName)
                     .returns(outputName)
