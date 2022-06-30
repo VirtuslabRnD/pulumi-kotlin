@@ -1,4 +1,4 @@
-package xyz.mf7.kotlinpoet.tobemoved
+package xyz.mf7.kotlinpoet.sdk
 //
 //inline fun <reified FROM, reified TO> pulumiFromJavaToKotlin(from: FROM): TO {
 //

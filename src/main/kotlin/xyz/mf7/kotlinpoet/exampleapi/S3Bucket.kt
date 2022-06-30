@@ -3,9 +3,6 @@ package xyz.mf7.kotlinpoet.exampleapi
 import com.pulumi.aws.s3.BucketV2
 import com.pulumi.aws.s3.BucketV2Args
 import com.pulumi.core.Output
-import com.pulumi.kotlin.aws.emr.GetReleaseLabelsArgs
-import com.pulumi.kotlin.aws.emr.GetReleaseLabelsFilters
-import com.pulumi.kotlin.aws.emr.getReleaseLabels
 import com.pulumi.resources.CustomResourceOptions
 import kotlinx.coroutines.runBlocking
 
@@ -128,7 +125,7 @@ suspend fun args(block: suspend S3ArgsBuilder.() -> Unit): S3Args {
 
     block(builder)
 
-    builder.build()
+    return builder.build()
 }
 
 suspend fun createInfra() {
