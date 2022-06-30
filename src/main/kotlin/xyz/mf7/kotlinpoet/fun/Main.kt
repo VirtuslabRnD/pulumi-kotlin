@@ -1,9 +1,8 @@
 package xyz.mf7.kotlinpoet.`fun`
 
-import com.pulumi.aws.emr.inputs.ClusterBootstrapActionArgs
 import com.pulumi.kotlin.aws.emr.*
 import com.squareup.kotlinpoet.*
-import kotlinx.serialization.json.*
+import xyz.mf7.kotlinpoet.sdk.pulumiArgsFromJavaToKotlin
 import xyz.mf7.kotlinpoet.sdk.pulumiArgsFromKotlinToJava
 import java.io.File
 import kotlin.io.path.Path
@@ -67,11 +66,32 @@ fun main() {
         )
     )
 
-    val converted = pulumiArgsFromKotlinToJava(omg2, com.pulumi.aws.emr.inputs.GetReleaseLabelsArgs::class.java)
+    val mappingRegistry = mapOf(
+        ClusterCoreInstanceGroup::class.java to com.pulumi.aws.emr.outputs.ClusterCoreInstanceGroup::class.java,
+        ClusterCoreInstanceGroupEbsConfig::class.java to com.pulumi.aws.emr.outputs.ClusterCoreInstanceGroupEbsConfig::class.java
+    )
+
+    val omg3 = ClusterCoreInstanceGroup(
+        "a",
+        "b",
+        listOf(ClusterCoreInstanceGroupEbsConfig(1, 2, "a", 3), ClusterCoreInstanceGroupEbsConfig(5, 6, "b", 13)),
+        "asdasd",
+        123,
+        "asdomasd",
+        "aomsdaomsdoamsd"
+    )
+
+    fun <K, V> Map<K, V>.inversed(): Map<V, K> {
+        return this.map { (k, v) -> v to k }.toMap()
+    }
+
+    val converted = pulumiArgsFromKotlinToJava(mappingRegistry, omg3)
+
+    val convertedBack = pulumiArgsFromJavaToKotlin(mappingRegistry.inversed(), converted)
 
 //    val converted = justTesting(omg)
 
-    println(converted.filters().flatMap { it.application() })
+    println("whatev")
 }
 
 fun generateAndSaveVersionAndPluginFile(baseResourcesPath: String, packageName: String) {
