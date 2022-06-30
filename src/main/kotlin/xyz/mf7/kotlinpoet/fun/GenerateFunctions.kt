@@ -21,7 +21,9 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
 
     val awaitFuture = MemberName("kotlinx.coroutines.future", "await")
 
-    it.addStatement(
+//    val convertFrom = CodeBlock.builder().add()
+
+    it.addCode(
         "val result = %T.%M().%N(%S, %T.%M(%N::class.java), args, %T.%M(%T.%M))",
         deployment,
         getInstance,
