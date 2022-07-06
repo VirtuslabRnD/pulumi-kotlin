@@ -39,18 +39,42 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
         )
         .addFunctions(
             spec.inputProperties.flatMap {
-                listOf(
-                    FunSpec
-                        .builder(it.key.value)
-                        .addParameter("value", output.parameterizedBy(referenceName(it.value)).copy(nullable = true))
-                        .addCode("this.${it.key.value} = value")
-                        .build(),
-                    FunSpec
-                        .builder(it.key.value)
-                        .addParameter("value", referenceName(it.value).copy(nullable = true))
-                        .addCode("this.${it.key.value} = value?.let { %T.%M(value) }", output, outputOf)
-                        .build()
-                )
+                buildList<FunSpec> {
+                    val ref = referenceName(it.value)
+                    add(
+                        FunSpec
+                            .builder(it.key.value)
+                            .addParameter("value", output.parameterizedBy(ref).copy(nullable = true))
+                            .addCode("this.${it.key.value} = value")
+                            .build()
+                    )
+                    add(
+                        FunSpec
+                            .builder(it.key.value)
+                            .addParameter("value", ref.copy(nullable = true))
+                            .addCode("this.${it.key.value} = value?.let { %T.%M(value) }", output, outputOf)
+                            .build()
+                    )
+                    if(ref is ParameterizedTypeName) {
+                        if(ref.rawType == LIST) {
+                            add(
+                                FunSpec
+                                    .builder(it.key.value)
+                                    .addParameter("values", ref.typeArguments.get(0), KModifier.VARARG)
+                                    .addCode("this.${it.key.value} = values.toList().let { %T.%M(it) }", output, outputOf)
+                                    .build()
+                            )
+                        } else if(ref.rawType == MAP) {
+                            add(
+                                FunSpec
+                                    .builder(it.key.value)
+                                    .addParameter("values", ClassName("kotlin", "Pair").parameterizedBy(ref.typeArguments.get(0), ref.typeArguments.get(1)), KModifier.VARARG)
+                                    .addCode("this.${it.key.value} = values.toList().toMap().let { %T.%M(it) }", output, outputOf)
+                                    .build()
+                            )
+                        }
+                    }
+                }
             }
         )
         .addFunction(
