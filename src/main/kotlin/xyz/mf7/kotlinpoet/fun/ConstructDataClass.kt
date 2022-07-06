@@ -3,11 +3,20 @@ package xyz.mf7.kotlinpoet.`fun`
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
+
 fun constructDataClass(
     className: ClassName, objectProperty: Resources.ObjectProperty?,
     classModifier: (TypeSpec.Builder).() -> Unit = {},
     propertyModifier: (PropertySpec.Builder).(Resources.PropertyName, Resources.PropertySpecification, Boolean /*required?*/) -> Unit = { _, _, _ -> },
     shouldAddCustomTypeAnnotations: Boolean = false
+): TypeSpec = constructDataClass(className, objectProperty?.properties, classModifier, propertyModifier, shouldAddCustomTypeAnnotations)
+
+fun constructDataClass(
+    className: ClassName, properties: Map<Resources.PropertyName, Resources.PropertySpecification>?,
+    classModifier: (TypeSpec.Builder).() -> Unit = {},
+    propertyModifier: (PropertySpec.Builder).(Resources.PropertyName, Resources.PropertySpecification, Boolean /*required?*/) -> Unit = { _, _, _ -> },
+    shouldAddCustomTypeAnnotations: Boolean = false,
+    shouldWrapWithOutput: Boolean = false
 ): TypeSpec {
     val customTypeAnnotation = ClassName("com.pulumi.core.annotations", "CustomType")
 
@@ -31,18 +40,28 @@ fun constructDataClass(
             }
         }
 
-    if (objectProperty == null || objectProperty.properties.isEmpty()) {
+    if (properties == null || properties.isEmpty()) {
         return TypeSpec.objectBuilder(className)
             .apply(classModifier)
             .build()
     }
 
-    objectProperty.properties.map { (innerPropertyName, innerPropertySpec) ->
+    properties.map { (innerPropertyName, innerPropertySpec) ->
         val isRequired = false /*objectProperty.required.contains(innerPropertyName)*/
         if(className.simpleName.endsWith("FunctionResult") && className.packageName.contains("lambda")) {
             println("debug")
         }
-        val typeName = referenceName(innerPropertySpec).copy(nullable = !isRequired)
+        val typeName = referenceName(innerPropertySpec).copy(nullable = !isRequired).let {
+            if(shouldWrapWithOutput) {
+                if(it.isNullable) {
+                    ClassName("com.pulumi.core", "Output").parameterizedBy(it.copy(nullable = false)).copy(nullable = true)
+                } else {
+                    ClassName("com.pulumi.core", "Output").parameterizedBy(it.copy(nullable = false))
+                }
+            } else {
+                it
+            }
+        }
         classB
             .addProperty(
                 PropertySpec.builder(innerPropertyName.value, typeName)
@@ -101,6 +120,10 @@ fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
                 ClassName("kotlin", "Any")
             } else if (refTypeName.startsWith("#/types/")) {
                 classNameForName(refTypeName.removePrefix("#/types/"))
+            } else if(refTypeName == "pulumi.json#/Archive") {
+                ClassName("kotlin", "Any") // TODO: this should be archive
+            } else if(refTypeName == "pulumi.json#/Asset") {
+                ClassName("kotlin", "Any") // TODO: this should be archive
             } else {
                 error("type reference not recognized: $refTypeName")
             }

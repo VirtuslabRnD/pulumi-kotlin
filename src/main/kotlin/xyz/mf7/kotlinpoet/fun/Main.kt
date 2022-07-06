@@ -1,6 +1,5 @@
 package xyz.mf7.kotlinpoet.`fun`
 
-import com.pulumi.kotlin.aws.emr.*
 import com.squareup.kotlinpoet.*
 import kotlinx.serialization.json.*
 
@@ -30,6 +29,9 @@ fun main() {
     val functionsForAwsClassic =
         Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
 
+    val resourcesForAwsClassic =
+        Json.decodeFromJsonElement<ResourcesMap>(schemaFromJsonClassic.jsonObject["resources"]!!)
+
     val destination = "/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java"
 
     generateTypes(typesForAwsClassic).forEach {
@@ -42,6 +44,10 @@ fun main() {
 
 
     generateFunctions(functionsForAwsClassic).generatedFiles.forEach {
+        it.writeTo(File(destination))
+    }
+
+    generateResources(resourcesForAwsClassic).generatedFiles.forEach {
         it.writeTo(File(destination))
     }
 
@@ -124,6 +130,10 @@ fun packageNameForName(name: String): String {
     return "com.pulumi.kotlin." + name.split("/").first().replace(":", ".").replace("-", "")
 }
 
+fun resourcePackageNameForName(name: String): String {
+    return "com.pulumi.kotlin.resources." + name.split("/").first().replace(":", ".").replace("-", "")
+}
+
 fun fileNameForName(name: String): String {
     return name.split("/").last().split(":").last().replace("-", "").capitalize()
 }
@@ -131,14 +141,3 @@ fun fileNameForName(name: String): String {
 fun classNameForName(name: String): ClassName {
     return ClassName(packageNameForName(name), fileNameForName(name))
 }
-
-data class GeneratedResource(
-    val generatedFiles: List<FileSpec>,
-    val identifiedOutputReferences: Set<Resources.PropertyName>,
-    val identifiedInputReferences: Set<Resources.PropertyName>
-)
-
-//fun generateResources(resourceMap: ResourcesMap): GeneratedResource {
-//
-//}
-
