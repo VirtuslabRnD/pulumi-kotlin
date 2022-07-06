@@ -89,6 +89,23 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
 
     val resourceClass = TypeSpec
         .classBuilder(resourceClassName)
+        .addProperties(
+            listOf(
+                PropertySpec.builder("javaResource", ClassName(javaPackageNameForName(name), fileNameForName(name)))
+                    .build()
+            )
+        )
+        .primaryConstructor(
+            FunSpec.constructorBuilder()
+                .addParameter("javaResource", ClassName(javaPackageNameForName(name), fileNameForName(name)))
+                .build()
+        )
+        .build()
+
+    val resourceBuilderClassName = ClassName(resourcePackageNameForName(name), fileNameForName(name) + "ResourceBuilder")
+
+    val resourceBuilderClass = TypeSpec
+        .classBuilder(resourceBuilderClassName)
         .addAnnotation(dslTag)
         .addProperties(
             listOf(
@@ -107,30 +124,65 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
             )
         )
         .addFunction(
-            FunSpec.builder("build")
-                .addCode("println(name); println(args); println(opts)")
+            FunSpec.builder("name")
+                .addParameter("value", STRING)
+                .addCode("this.name = value")
                 .build()
+        )
+        .addFunction(
+            FunSpec.builder("build")
+                .addCode("")
+                .build(),
         )
         .build()
 
+
     val argsFunction = FunSpec
         .builder("args")
-        .receiver(resourceClassName)
+        .receiver(resourceBuilderClassName)
         .addModifiers(KModifier.SUSPEND)
         .addParameter("block", LambdaTypeName.get(
             argsBuilderClassName,
             returnType = UNIT
-        ))
+        ).copy(suspending = true))
         .addStatement("val builder = %T()", argsBuilderClassName)
         .addStatement("block(builder)")
         .addStatement("this.args = builder.build()")
         .build()
 
+
+    val optsFunction = FunSpec
+        .builder("opts")
+        .receiver(resourceBuilderClassName)
+        .addModifiers(KModifier.SUSPEND)
+        .addParameter("block", LambdaTypeName.get(
+            ClassName("com.pulumi.kotlin", "CustomArgsBuilder"),
+            returnType = UNIT,
+        ).copy(suspending = true))
+        .addStatement("val builder = %T()", ClassName("com.pulumi.kotlin", "CustomArgsBuilder"))
+        .addStatement("block(builder)")
+        .addStatement("this.opts = builder.build()")
+        .build()
+
+    val resourceFunction = FunSpec
+        .builder(fileNameForName(name).decapitalize() + "Resource")
+        .addModifiers(KModifier.SUSPEND)
+        .addParameter("block", LambdaTypeName.get(
+            resourceBuilderClassName,
+            returnType = UNIT
+        ).copy(suspending = true))
+        .addStatement("val builder = %T()", resourceBuilderClassName)
+        .addStatement("block(builder)")
+        .addStatement("builder.build()")
+        .build()
+
     fileSpecBuilder
         .addType(argsClass)
         .addType(argsBuilderClass)
-        .addType(resourceClass)
+        .addType(resourceBuilderClass)
         .addFunction(argsFunction)
+        .addFunction(optsFunction)
+        .addFunction(resourceFunction)
 }
 
 

@@ -134,6 +134,10 @@ fun resourcePackageNameForName(name: String): String {
     return "com.pulumi.kotlin.resources." + name.split("/").first().replace(":", ".").replace("-", "")
 }
 
+fun javaPackageNameForName(name: String): String {
+    return "com.pulumi." + name.split("/").first().replace(":", ".").replace("-", "")
+}
+
 fun fileNameForName(name: String): String {
     return name.split("/").last().split(":").last().replace("-", "").capitalize()
 }

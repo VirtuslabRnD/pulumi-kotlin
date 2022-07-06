@@ -47,3 +47,41 @@ data class CustomArgs(
     val retainOnDelete: Boolean = false,
     val pluginDownloadURL: String? = null
 )
+
+data class CustomArgsBuilder(
+    var protect: Boolean = false,
+    var id: Output<String>? = null,
+    var parent: Resource? = null,
+    var dependsOn: Output<List<Resource>>? = null,
+    var ignoreChanges: List<String>? = null,
+    var version: String? = null,
+    var provider: ProviderResource? = null,
+    var customTimeouts: CustomTimeouts? = null,
+    var resourceTransformations: List<ResourceTransformation>? = null,
+    var aliases: List<Output<Alias>>? = null,
+    var urn: String? = null,
+    var deleteBeforeReplace: Boolean = false,
+    var additionalSecretOutputs: List<String>? = null,
+    var importId: String? = null,
+    var replaceOnChanges: List<String>? = null,
+    var retainOnDelete: Boolean = false,
+    var pluginDownloadURL: String? = null
+) {
+    fun protect(value : Boolean): Unit { this.protect = value } 
+    fun id(value : Output<String>?): Unit { this.id = value } 
+    fun parent(value : Resource?): Unit { this.parent = value } 
+    fun dependsOn(value: Output<List<Resource>>?): Unit { this.dependsOn = value } 
+    fun ignoreChanges(value: List<String>?): Unit { this.ignoreChanges = value } 
+    fun version(value : String?): Unit { this.version = value } 
+    fun provider(value : ProviderResource?): Unit { this.provider = value } 
+    fun customTimeouts(value: CustomTimeouts?): Unit { this.customTimeouts = value }
+    fun resourceTransformations(value: List<ResourceTransformation>?): Unit { this.resourceTransformations = value }
+    fun aliases(value : List<Output<Alias>>?): Unit { this.aliases = value } 
+    fun urn(value : String?): Unit { this.urn = value } 
+    fun deleteBeforeReplace(value: Boolean): Unit { this.deleteBeforeReplace = value }
+    fun additionalSecretOutputs(value: List<String>?): Unit { this.additionalSecretOutputs = value } 
+    fun importId(value: String?): Unit { this.importId = value } 
+    fun replaceOnChanges(value: List<String>?): Unit { this.replaceOnChanges = value } 
+    fun retainOnDelete(value: Boolean): Unit { this.retainOnDelete = value } 
+    fun pluginDownloadURL(value: String?) = null
+}
