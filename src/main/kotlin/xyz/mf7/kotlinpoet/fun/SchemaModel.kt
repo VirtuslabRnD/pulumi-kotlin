@@ -13,12 +13,16 @@ object Resources {
             fun hasTypeEqualTo(type: String) =
                 element is JsonObject && "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == type
 
+            fun isMapType() =
+                element is JsonObject && "additionalProperties" in element.jsonObject && "properties" !in element.jsonObject
+
             fun mightBeOfTypeObject() =
                 element is JsonObject && "properties" in element.jsonObject
 
             return when {
                 element is JsonObject && "\$ref" in element.jsonObject -> ReferredProperty.serializer()
                 element is JsonObject && "oneOf" in element.jsonObject -> OneOf.serializer()
+                isMapType() -> MapProperty.serializer()
                 mightBeOfTypeObject() -> ObjectProperty.serializer()
                 hasTypeEqualTo("array") -> ArrayProperty.serializer()
                 hasTypeEqualTo("string") && "enum" in element.jsonObject -> StringEnumProperty.serializer()
@@ -138,6 +142,15 @@ object Resources {
         val willReplaceOnChanges: Boolean = false,
         val additionalProperties: PropertySpecification? = null,
         val required: Set<PropertyName> = emptySet(),
+        val description: String? = null,
+        val language: Language? = null
+    ) : PropertySpecification()
+
+    @Serializable
+    data class MapProperty(
+        val type: PropertyType = PropertyType.`object`,
+        val willReplaceOnChanges: Boolean = false,
+        val additionalProperties: PropertySpecification,
         val description: String? = null,
         val language: Language? = null
     ) : PropertySpecification()

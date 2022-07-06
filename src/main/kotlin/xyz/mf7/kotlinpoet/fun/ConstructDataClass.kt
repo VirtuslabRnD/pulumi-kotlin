@@ -38,7 +38,10 @@ fun constructDataClass(
     }
 
     objectProperty.properties.map { (innerPropertyName, innerPropertySpec) ->
-        val isRequired = objectProperty.required.contains(innerPropertyName)
+        val isRequired = false /*objectProperty.required.contains(innerPropertyName)*/
+        if(className.simpleName.endsWith("FunctionResult") && className.packageName.contains("lambda")) {
+            println("debug")
+        }
         val typeName = referenceName(innerPropertySpec).copy(nullable = !isRequired)
         classB
             .addProperty(
@@ -85,6 +88,7 @@ fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
         is Resources.NumberProperty -> DOUBLE
         is Resources.OneOf -> ANY
         is Resources.StringProperty -> STRING
+        is Resources.MapProperty -> MAP.parameterizedBy(STRING, referenceName(propertySpec.additionalProperties))
 
         is Resources.ObjectProperty -> if (propertySpec.properties.isEmpty() && propertySpec.additionalProperties != null) {
             referenceName(propertySpec.additionalProperties)

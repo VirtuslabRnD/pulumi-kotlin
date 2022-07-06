@@ -1,4 +1,4 @@
-package xyz.mf7.kotlinpoet.sdk
+package com.pulumi.kotlin
 
 import java.util.*
 import kotlin.reflect.KProperty
@@ -11,6 +11,7 @@ import kotlin.reflect.KProperty
 fun <T1> isPulumiType(clazz: Class<T1>): Boolean {
     return clazz.packageName.contains("pulumi")
 }
+
 
 object PulumiJavaKotlinInterop {
 
@@ -47,7 +48,7 @@ object PulumiJavaKotlinInterop {
 
             is Map<*, *> -> return from.map { (k, v) ->
                 pulumiArgsFromJavaToKotlin(fromToRegistry, k) to pulumiArgsFromJavaToKotlin(fromToRegistry, v)
-            }
+            }.toMap()
 
             is Array<*> -> return from.map { v ->
                 pulumiArgsFromJavaToKotlin(fromToRegistry, v)
@@ -68,12 +69,16 @@ object PulumiJavaKotlinInterop {
             throw Error("could not find for ${from.javaClass.name}", e)
         }
 
+        println("DEBUG:")
+
+        println("from: ${from.javaClass} to: ${to}")
 
         val toConstructor = to.kotlin.constructors.first()
         val constructorArgsByKParameter = toConstructor.parameters.associate {
             val result = nameToMethod[it.name!!]!!.invoke(from)
-
             val goodResult = pulumiArgsFromJavaToKotlin(fromToRegistry, result)
+
+            println("${it.name}: ${it.type} is going to be set to ${goodResult?.javaClass}")
 
             it to goodResult
         }
@@ -93,7 +98,7 @@ object PulumiJavaKotlinInterop {
         if(Map::class.java.isInstance(from)) {
             return (from as Map<*, *>).map { (k, v) ->
                 pulumiArgsFromKotlinToJava(fromToRegistry, k) to pulumiArgsFromKotlinToJava(fromToRegistry, v)
-            }
+            }.toMap()
         }
 
         if(Array::class.java.isInstance(from)) {
