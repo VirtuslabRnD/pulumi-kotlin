@@ -99,15 +99,15 @@ fun constructDataClass(
     return classB.build()
 }
 
-fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
+fun referenceName(propertySpec: Resources.PropertySpecification, suffix: String = ""): TypeName {
     return when (propertySpec) {
-        is Resources.ArrayProperty -> LIST.parameterizedBy(referenceName(propertySpec.items))
+        is Resources.ArrayProperty -> LIST.parameterizedBy(referenceName(propertySpec.items, suffix))
         is Resources.BooleanProperty -> BOOLEAN
         is Resources.IntegerProperty -> INT
         is Resources.NumberProperty -> DOUBLE
         is Resources.OneOf -> ANY
         is Resources.StringProperty -> STRING
-        is Resources.MapProperty -> MAP.parameterizedBy(STRING, referenceName(propertySpec.additionalProperties))
+        is Resources.MapProperty -> MAP.parameterizedBy(STRING, referenceName(propertySpec.additionalProperties, suffix))
 
         is Resources.ObjectProperty -> if (propertySpec.properties.isEmpty() && propertySpec.additionalProperties != null) {
             referenceName(propertySpec.additionalProperties)
@@ -119,7 +119,7 @@ fun referenceName(propertySpec: Resources.PropertySpecification): TypeName {
             if (refTypeName == "pulumi.json#/Any") {
                 ClassName("kotlin", "Any")
             } else if (refTypeName.startsWith("#/types/")) {
-                classNameForName(refTypeName.removePrefix("#/types/"))
+                classNameForNameSuffix(refTypeName.removePrefix("#/types/"), suffix)
             } else if(refTypeName == "pulumi.json#/Archive") {
                 ClassName("kotlin", "Any") // TODO: this should be archive
             } else if(refTypeName == "pulumi.json#/Asset") {

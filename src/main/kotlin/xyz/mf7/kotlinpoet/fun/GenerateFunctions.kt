@@ -28,15 +28,12 @@ fun ClassName.member(f: KFunction<Any>): MemberName {
     return member(f.name)
 }
 
-fun <A, R> ClassName.staticMember(f: (A) -> R): MemberName {
-    return ClassName("a", "B").member(f.toString())
-}
+//fun ClassName.member3(f: ): MemberName {
+//    return member(f.toString())
+//}
 
-fun <O, A, B, C, R> member(f: O.(A, B, C) -> R): MemberName {
-    return ClassName("a", "B").member(f.toString())
-}
+object FunctionTypeLocations {
 
-fun main() {
 }
 
 fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec): FunSpec.Builder {
@@ -81,20 +78,31 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
 
     val typeShapeBlock = CodeBlock.of(
         "val typeShape = %M(javaResultType)",
-        classNameOf<TypeShape<*>>().staticMember<Class<String>, _>(TypeShape::of)
+        classNameOf<TypeShape<*>>().member("of")
     )
 
     val invokeOptionsBlock = CodeBlock.of("val invokeOptions = %M(%M)", utilitiesWithVersion, invokeOptionsEmpty)
 
     val resultBlock = CodeBlock.of("val result = %M().%N(%S, typeShape, args, invokeOptions)",
-        member<_, _, _, _, Output<String>>(Deployment::invoke)
+        classNameOf<Deployment>().member(Deployment::getInstance),
+        classNameOf<DeploymentInstance>().member("invoke"),
+        name
     )
 
-    it.addStatement("val awaitedResult = result.%M()", awaitFuture)
+    val awaitedResult = CodeBlock.of("val awaitedResult = result.%M()", awaitFuture)
 
-    it.addStatement("return %T.%M(awaitedResult)",
-        pulumiInterop, toKotlin
-    )
+    val returnValue = CodeBlock.of("return %T.%M(awaitedResult)", pulumiInterop, toKotlin)
+
+    val codeBuilder = CodeBlock.builder()
+    listOf(
+        mappedArgsBlock,
+        javaResulTypeBlock,
+        typeShapeBlock,
+        invokeOptionsBlock,
+        resultBlock,
+        awaitedResult,
+        returnValue
+    ).forEach { block -> codeBuilder.add(block) }
 
     return it
 }

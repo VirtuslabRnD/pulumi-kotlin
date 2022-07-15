@@ -8,7 +8,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 
-fun main() {
+fun main(args: Array<String>) {
 //
     val loadedSchema = {}::class.java.getResourceAsStream("/schema.json")!!
 
@@ -144,4 +144,8 @@ fun fileNameForName(name: String): String {
 
 fun classNameForName(name: String): ClassName {
     return ClassName(packageNameForName(name), fileNameForName(name))
+}
+
+fun classNameForNameSuffix(name: String, suffix: String): ClassName {
+    return ClassName(packageNameForName(name), fileNameForName(name) + suffix)
 }
