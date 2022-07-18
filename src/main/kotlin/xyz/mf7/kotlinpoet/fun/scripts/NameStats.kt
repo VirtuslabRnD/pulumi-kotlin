@@ -1,5 +1,6 @@
 package xyz.mf7.kotlinpoet.`fun`.scripts
 
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -9,13 +10,21 @@ import xyz.mf7.kotlinpoet.`fun`.ResourcesMap
 import xyz.mf7.kotlinpoet.`fun`.TypeMap
 import java.io.File
 
-data class CountWithExamples(val count: Int = 0, val examples: List<String> = emptyList()) {
-    fun withOneMore(example: String): CountWithExamples {
+@kotlinx.serialization.Serializable
+data class Example(val value: String, val from: String)
+
+@kotlinx.serialization.Serializable
+data class CountWithExamples(val count: Int = 0, val examples: List<Example> = emptyList()) {
+    fun withOneMore(example: Example): CountWithExamples {
         return copy(
             count = count + 1,
             examples = (examples + example).take(3)
         )
     }
+}
+
+val jsonOutput = Json {
+    prettyPrint = true
 }
 
 fun main() {
@@ -29,7 +38,7 @@ fun main() {
     }
 
     val json = Json
-    files.forEach {file ->
+    files.forEach { file ->
         val decoded = json.parseToJsonElement(File(file).readText())
 
 
@@ -38,18 +47,59 @@ fun main() {
         val resources = decoded.decodeSection<ResourcesMap>("resources")
 
         fun extractPattern(string: String): String {
-            return string.replace(Regex("[^:/]"), "")
+            return string.replace(Regex("[a-zA-Z0-9]|-"), "")
         }
 
-        val names = resources.map { it.key } + types.map { it.key } + functions.map { it.key }
-        names.forEach {name ->
-            stats[extractPattern(name)] = stats[extractPattern(name)]?.withOneMore(name) ?: CountWithExamples()
+        val names = resources.map { "r" to it.key } + types.map { "t" to it.key } + functions.map { "f" to it.key }
+        names.forEach { (type, name) ->
+            stats[extractPattern(name)] =
+                stats[extractPattern(name)]?.withOneMore(Example(name, type)) ?: CountWithExamples()
         }
-
-        println(names)
     }
+
+    val moreStats = mutableMapOf<String, CountWithExamples>().withDefault { _ ->
+        CountWithExamples()
+    }
+
+    val regexAndRuleToTest = listOf(
+        Regex("(.+?):(.+?)/(.+?):(.+?)") to { m: MatchResult ->
+            m.groupValues.get(4).lowercase() == m.groupValues.get(3).lowercase()
+        }
+    )
+
+    files.forEach { file ->
+        val decoded = json.parseToJsonElement(File(file).readText())
+
+
+        val types = decoded.decodeSection<TypeMap>("types")
+        val functions = decoded.decodeSection<FunctionsMap>("functions")
+        val resources = decoded.decodeSection<ResourcesMap>("resources")
+
+        fun extractPattern(string: String): String {
+            return regexAndRuleToTest
+                .asSequence()
+                .map { regex ->
+                    regex.first.matchEntire(string)
+                        ?.let { "yes" to (if (regex.second(it)) "yes" else "no") }
+                        ?: ("no" to "no")
+                }
+                .withIndex()
+                .map { it.index.toString() + ":" + it.value.first + "," + it.value.second }
+                .joinToString(",")
+        }
+
+        val names = resources.map { "r" to it.key } + types.map { "t" to it.key } + functions.map { "f" to it.key }
+        names.forEach { (type, name) ->
+            moreStats[extractPattern(name)] =
+                moreStats[extractPattern(name)]?.withOneMore(Example(name, type)) ?: CountWithExamples()
+        }
+    }
+
+    println(jsonOutput.encodeToString(stats))
+
+    println(jsonOutput.encodeToString(moreStats))
 }
 
 
 inline fun <reified T> JsonElement.decodeSection(section: String) =
-    Json.decodeFromJsonElement<T>(this.jsonObject["types"]!!)
+    Json.decodeFromJsonElement<T>(this.jsonObject[section]!!)

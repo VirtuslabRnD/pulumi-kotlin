@@ -99,7 +99,11 @@ fun constructDataClass(
     return classB.build()
 }
 
-fun referenceName(propertySpec: Resources.PropertySpecification, suffix: String = ""): TypeName {
+enum class Language {
+    KOTLIN, JAVA
+}
+
+fun referenceName(propertySpec: Resources.PropertySpecification, suffix: String = "", language: Language = Language.KOTLIN): TypeName {
     return when (propertySpec) {
         is Resources.ArrayProperty -> LIST.parameterizedBy(referenceName(propertySpec.items, suffix))
         is Resources.BooleanProperty -> BOOLEAN
@@ -119,7 +123,11 @@ fun referenceName(propertySpec: Resources.PropertySpecification, suffix: String 
             if (refTypeName == "pulumi.json#/Any") {
                 ClassName("kotlin", "Any")
             } else if (refTypeName.startsWith("#/types/")) {
-                classNameForNameSuffix(refTypeName.removePrefix("#/types/"), suffix)
+                when(language) {
+                    Language.KOTLIN -> classNameForNameSuffix(refTypeName.removePrefix("#/types/"), suffix)
+                    Language.JAVA -> classNameForNameSuffix(refTypeName.removePrefix("#/types/"), suffix)
+                }
+
             } else if(refTypeName == "pulumi.json#/Archive") {
                 ClassName("kotlin", "Any") // TODO: this should be archive
             } else if(refTypeName == "pulumi.json#/Asset") {

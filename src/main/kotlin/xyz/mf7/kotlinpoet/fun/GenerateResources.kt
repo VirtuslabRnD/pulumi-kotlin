@@ -1,21 +1,18 @@
 package xyz.mf7.kotlinpoet.`fun`
 
-import com.pulumi.aws.apigatewayv2.inputs.AuthorizerJwtConfigurationArgs
-import com.pulumi.core.Output
-import com.pulumi.kotlin.PulumiJavaKotlinInterop
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
+object PulumiClassesAndMembers {
+    val output = ClassName("com.pulumi.core", "Output")
+    val outputOf = output.member("of")
+}
 
 fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resources.Resource) {
     val dslTag = ClassName("com.pulumi.kotlin", "PulumiTagMarker")
-    val output = ClassName("com.pulumi.core", "Output")
 
     val customArgs = ClassName("com.pulumi.kotlin", "CustomArgs")
-
-    val outputOf = output.member("of")
-
 
     val argsClassName = ClassName(resourcePackageNameForName(name), fileNameForName(name) + "Args")
     val argsBuilderClassName = ClassName(resourcePackageNameForName(name), fileNameForName(name) + "ArgsBuilder")
@@ -32,7 +29,7 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
         .addProperties(
             spec.inputProperties.map {
                 PropertySpec
-                    .builder(it.key.value, output.parameterizedBy(referenceName(it.value)).copy(nullable = true))
+                    .builder(it.key.value, PulumiClassesAndMembers.output.parameterizedBy(referenceName(it.value)).copy(nullable = true))
                     .initializer("null")
                     .mutable(true)
                     .addModifiers(KModifier.PRIVATE)
@@ -40,58 +37,8 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
             }
         )
         .addFunctions(
-            spec.inputProperties.flatMap {
-                buildList<FunSpec> {
-                    val ref = referenceName(it.value)
-                    add(
-                        FunSpec
-                            .builder(it.key.value)
-                            .addParameter("value", output.parameterizedBy(ref).copy(nullable = true))
-                            .addCode("this.${it.key.value} = value")
-                            .build()
-                    )
-                    add(
-                        FunSpec
-                            .builder(it.key.value)
-                            .addParameter("value", ref.copy(nullable = true))
-                            .addCode("this.${it.key.value} = value?.let { %T.%M(value) }", output, outputOf)
-                            .build()
-                    )
-                    if (ref is ParameterizedTypeName) {
-                        if (ref.rawType == LIST) {
-                            add(
-                                FunSpec
-                                    .builder(it.key.value)
-                                    .addParameter("values", ref.typeArguments.get(0), KModifier.VARARG)
-                                    .addCode(
-                                        "this.${it.key.value} = values.toList().let { %T.%M(it) }",
-                                        output,
-                                        outputOf
-                                    )
-                                    .build()
-                            )
-                        } else if (ref.rawType == MAP) {
-                            add(
-                                FunSpec
-                                    .builder(it.key.value)
-                                    .addParameter(
-                                        "values",
-                                        ClassName("kotlin", "Pair").parameterizedBy(
-                                            ref.typeArguments.get(0),
-                                            ref.typeArguments.get(1)
-                                        ),
-                                        KModifier.VARARG
-                                    )
-                                    .addCode(
-                                        "this.${it.key.value} = values.toList().toMap().let { %T.%M(it) }",
-                                        output,
-                                        outputOf
-                                    )
-                                    .build()
-                            )
-                        }
-                    }
-                }
+            spec.inputProperties.flatMap { (name, spec) ->
+                generateFunctionsForInput(name, spec)
             }
         )
         .addFunction(
@@ -114,6 +61,7 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
         .addProperties(
             listOf(
                 PropertySpec.builder("javaResource", javaResourceClassName)
+                    .initializer("javaResource")
                     .build()
             )
         )
@@ -157,10 +105,10 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
                 .let {
                     val inputProperties = spec.inputProperties.keys.toList()
                     val builderInvocations = inputProperties
-                            .map { name ->
+                        .map { name ->
                             ".%N(%T.%M<%T>(this.args?.%N))"
-                            }
-                            .joinToString("\n")
+                        }
+                        .joinToString("\n")
 
                     it.addCode(
                         """
@@ -174,12 +122,17 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
                             javaResourceClassName,
                             javaResourceArgsBuilderClassName,
                             "builder",
-                            *spec.inputProperties.flatMap {(pName, pSpec) ->
+                            *spec.inputProperties.flatMap { (pName, pSpec) ->
                                 listOf(
                                     pName.value,
                                     ClassName("com.pulumi.kotlin", "PulumiJavaKotlinInterop"),
                                     ClassName("com.pulumi.kotlin", "PulumiJavaKotlinInterop").member("toJava"),
-                                    ClassName("com.pulumi.core", "Output").parameterizedBy(referenceName(pSpec, suffix = "Args")),
+                                    ClassName("com.pulumi.core", "Output").parameterizedBy(
+                                        referenceName(
+                                            pSpec,
+                                            suffix = "Args"
+                                        )
+                                    ),
                                     pName.value
                                 )
                             }.toTypedArray(),
@@ -228,6 +181,7 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
     val resourceFunction = FunSpec
         .builder(fileNameForName(name).decapitalize() + "Resource")
         .addModifiers(KModifier.SUSPEND)
+        .returns(resourceClassName)
         .addParameter(
             "block", LambdaTypeName.get(
                 resourceBuilderClassName,
@@ -236,7 +190,7 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
         )
         .addStatement("val builder = %T()", resourceBuilderClassName)
         .addStatement("block(builder)")
-        .addStatement("builder.build()")
+        .addStatement("return builder.build()")
         .build()
 
     fileSpecBuilder
@@ -247,6 +201,68 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
         .addFunction(argsFunction)
         .addFunction(optsFunction)
         .addFunction(resourceFunction)
+}
+
+private fun generateFunctionsForInput(
+    name: Resources.PropertyName,
+    spec: Resources.PropertySpecification,
+): List<FunSpec> {
+    return buildList {
+        val ref = referenceName(spec)
+        add(
+            FunSpec
+                .builder(name.value)
+                .addParameter("value", PulumiClassesAndMembers.output.parameterizedBy(ref).copy(nullable = true))
+                .addCode("this.${name.value} = value")
+                .build()
+        )
+        add(
+            FunSpec
+                .builder(name.value)
+                .addParameter("value", ref.copy(nullable = true))
+                .addCode(
+                    "this.${name.value} = value?.let { %T.%M(value) }",
+                    PulumiClassesAndMembers.output,
+                    PulumiClassesAndMembers.outputOf
+                )
+                .build()
+        )
+        if (ref is ParameterizedTypeName) {
+            when (ref.rawType) {
+                LIST ->
+                    add(
+                        FunSpec
+                            .builder(name.value)
+                            .addParameter("values", ref.typeArguments.get(0), KModifier.VARARG)
+                            .addCode(
+                                "this.${name.value} = values.toList().let { %T.%M(it) }",
+                                PulumiClassesAndMembers.output,
+                                PulumiClassesAndMembers.outputOf
+                            )
+                            .build()
+                    )
+                MAP ->
+                    add(
+                        FunSpec
+                            .builder(name.value)
+                            .addParameter(
+                                "values",
+                                ClassName("kotlin", "Pair").parameterizedBy(
+                                    ref.typeArguments.get(0),
+                                    ref.typeArguments.get(1)
+                                ),
+                                KModifier.VARARG
+                            )
+                            .addCode(
+                                "this.${name.value} = values.toList().toMap().let { %T.%M(it) }",
+                                PulumiClassesAndMembers.output,
+                                PulumiClassesAndMembers.outputOf
+                            )
+                            .build()
+                    )
+            }
+        }
+    }
 }
 
 

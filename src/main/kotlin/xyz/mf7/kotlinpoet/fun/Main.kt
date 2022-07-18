@@ -149,3 +149,7 @@ fun classNameForName(name: String): ClassName {
 fun classNameForNameSuffix(name: String, suffix: String): ClassName {
     return ClassName(packageNameForName(name), fileNameForName(name) + suffix)
 }
+
+fun javaClassNameForNameSuffix(name: String, suffix: String): ClassName {
+    return ClassName(javaPackageNameForName(name), fileNameForName(name) + suffix)
+}
