@@ -1,0 +1,69 @@
+{
+  "name": "aws",
+  "description": "A Pulumi package for creating and managing Amazon Web Services (AWS) cloud resources.",
+  "keywords": [
+    "pulumi",
+    "aws"
+  ],
+  "homepage": "https://pulumi.io",
+  "license": "Apache-2.0",
+  "attribution": "This Pulumi package is based on the [`aws` Terraform Provider](https://github.com/hashicorp/terraform-provider-aws).",
+  "repository": "https://github.com/pulumi/pulumi-aws",
+  "meta": {
+    "moduleFormat": "(.*)(?:/[^/]*)"
+  },
+  "config": {
+
+  },
+  "types": {
+    "aws:acm/CertificateDomainValidationOption:CertificateDomainValidationOption": {
+      "properties": {
+        "domainName": {
+          "type": "string",
+          "description": "A fully qualified domain name (FQDN) in the certificate.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "resourceRecordName": {
+          "type": "string",
+          "description": "The name of the DNS record to create to validate the certificate\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "resourceRecordType": {
+          "type": "string",
+          "description": "The type of DNS record to create\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "resourceRecordValue": {
+          "type": "string",
+          "description": "The value the DNS record needs to have\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "type": "object",
+      "language": {
+        "nodejs": {
+          "requiredOutputs": [
+            "domainName",
+            "resourceRecordName",
+            "resourceRecordType",
+            "resourceRecordValue"
+          ]
+        }
+      }
+    },

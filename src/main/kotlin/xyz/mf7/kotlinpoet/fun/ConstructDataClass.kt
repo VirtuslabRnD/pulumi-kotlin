@@ -48,9 +48,6 @@ fun constructDataClass(
 
     properties.map { (innerPropertyName, innerPropertySpec) ->
         val isRequired = false /*objectProperty.required.contains(innerPropertyName)*/
-        if(className.simpleName.endsWith("FunctionResult") && className.packageName.contains("lambda")) {
-            println("debug")
-        }
         val typeName = referenceName(innerPropertySpec).copy(nullable = !isRequired).let {
             if(shouldWrapWithOutput) {
                 if(it.isNullable) {

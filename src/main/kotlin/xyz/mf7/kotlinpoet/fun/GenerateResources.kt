@@ -14,41 +14,6 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
 
     val customArgs = ClassName("com.pulumi.kotlin", "CustomArgs")
 
-    val argsClassName = ClassName(resourcePackageNameForName(name), fileNameForName(name) + "Args")
-    val argsBuilderClassName = ClassName(resourcePackageNameForName(name), fileNameForName(name) + "ArgsBuilder")
-
-    val argsClass = constructDataClass(argsClassName, spec.inputProperties, shouldWrapWithOutput = true)
-
-    val argNames = spec.inputProperties.keys.map {
-        "${it.value} = ${it.value}"
-    }.joinToString(", ")
-
-    val argsBuilderClass = TypeSpec
-        .classBuilder(argsBuilderClassName)
-        .addAnnotation(dslTag)
-        .addProperties(
-            spec.inputProperties.map {
-                PropertySpec
-                    .builder(it.key.value, PulumiClassesAndMembers.output.parameterizedBy(referenceName(it.value)).copy(nullable = true))
-                    .initializer("null")
-                    .mutable(true)
-                    .addModifiers(KModifier.PRIVATE)
-                    .build()
-            }
-        )
-        .addFunctions(
-            spec.inputProperties.flatMap { (name, spec) ->
-                generateFunctionsForInput(name, spec)
-            }
-        )
-        .addFunction(
-            FunSpec.builder("build")
-                .returns(argsClassName)
-                .addCode("return %T(${argNames})", argsClassName)
-                .build()
-        )
-        .build()
-
     val resourceClassName = ClassName(resourcePackageNameForName(name), fileNameForName(name) + "Resource")
 
     val javaResourceClassName = ClassName(javaPackageNameForName(name), fileNameForName(name))
@@ -74,6 +39,26 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
 
     val resourceBuilderClassName =
         ClassName(resourcePackageNameForName(name), fileNameForName(name) + "ResourceBuilder")
+
+    val argsClassName = ClassName(resourcePackageNameForName(name), fileNameForName(name) + "Args")
+
+    val niceBuilderFileSpec = generateTypeWithNiceBuilders(
+        fileNameForName(name),
+        resourcePackageNameForName(name), fileNameForName(name) + "Args",
+        fileNameForName(name) + "ArgsBuilder",
+        "args",
+        "args",
+        resourceBuilderClassName,
+        spec.inputProperties.map {
+            val typeName = referenceName(it.value)
+            val outputWrappedTypeName = PulumiClassesAndMembers.output.parameterizedBy(typeName)
+            val nonOutputOverload = FieldOverload(
+                typeName,
+                { from, to -> CodeBlock.of("val %N = %T.%M(%N)", from, PulumiClassesAndMembers.output, PulumiClassesAndMembers.outputOf, to ) }
+            )
+            Field(it.key.value, outputWrappedTypeName, required = false, listOf(nonOutputOverload))
+        }
+    )
 
     val resourceBuilderClass = TypeSpec
         .classBuilder(resourceBuilderClassName)
@@ -147,20 +132,6 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
         )
         .build()
 
-    val argsFunction = FunSpec
-        .builder("args")
-        .receiver(resourceBuilderClassName)
-        .addModifiers(KModifier.SUSPEND)
-        .addParameter(
-            "block", LambdaTypeName.get(
-                argsBuilderClassName,
-                returnType = UNIT
-            ).copy(suspending = true)
-        )
-        .addStatement("val builder = %T()", argsBuilderClassName)
-        .addStatement("block(builder)")
-        .addStatement("this.args = builder.build()")
-        .build()
 
 
     val optsFunction = FunSpec
@@ -194,11 +165,8 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
         .build()
 
     fileSpecBuilder
-        .addType(argsClass)
-        .addType(argsBuilderClass)
         .addType(resourceBuilderClass)
         .addType(resourceClass)
-        .addFunction(argsFunction)
         .addFunction(optsFunction)
         .addFunction(resourceFunction)
 }
