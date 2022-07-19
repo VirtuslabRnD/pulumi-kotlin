@@ -22,9 +22,9 @@ fun main(args: Array<String>) {
         loadedSchemaClassic.bufferedReader().readText()
     )
 
-    val typesForAwsNative = Json.decodeFromJsonElement<TypeMap>(schemaFromJson.jsonObject["types"]!!)
+    val typesForAwsNative = Json.decodeFromJsonElement<TypesMap>(schemaFromJson.jsonObject["types"]!!)
 
-    val typesForAwsClassic = Json.decodeFromJsonElement<TypeMap>(schemaFromJsonClassic.jsonObject["types"]!!)
+    val typesForAwsClassic = Json.decodeFromJsonElement<TypesMap>(schemaFromJsonClassic.jsonObject["types"]!!)
 
     val functionsForAwsClassic =
         Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
@@ -36,6 +36,18 @@ fun main(args: Array<String>) {
 
     generateTypes(typesForAwsClassic).forEach {
         it.writeTo(File(destination))
+    }
+
+    val types2 = generateTypes2(
+        getTypeSpecs(
+            resourcesForAwsClassic,
+            typesForAwsClassic,
+            functionsForAwsClassic
+        )
+    )
+
+    types2.forEach {
+        it.writeTo(File("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/test_new_types"))
     }
 
 //    generateTypes(typesForAwsNative).forEach {x

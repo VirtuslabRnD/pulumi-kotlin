@@ -2,8 +2,30 @@ package xyz.mf7.kotlinpoet.`fun`
 
 import com.squareup.kotlinpoet.*
 
-fun generateTypes(typeMap: TypeMap): List<FileSpec> {
-    return typeMap.map { (name, spec) ->
+fun generateTypes2(typesWithMetadata: List<TypeWithMetadata>): List<FileSpec> {
+    return typesWithMetadata.map { type ->
+        val typeSpec = type.type
+        generateTypeWithNiceBuilders(
+            type.names.typeClassName,
+            type.names.packageName,
+            type.names.typeClassName,
+            type.names.typeBuilderClassName,
+            type.names.functionBuilderClassName,
+            "args",
+            ClassName("a", "b"),
+            when(typeSpec) {
+                is Resources.ObjectProperty -> {
+                    typeSpec.properties.map { (name, spec) ->
+                        Field(name.value, referenceName(spec), false, emptyList())
+                    }
+                }
+                else -> emptyList()
+            }
+        )
+    }
+}
+fun generateTypes(typesMap: TypesMap): List<FileSpec> {
+    return typesMap.map { (name, spec) ->
         val fileName = fileNameForName(name)
         val className = classNameForName(name)
         val packageName = packageNameForName(name)

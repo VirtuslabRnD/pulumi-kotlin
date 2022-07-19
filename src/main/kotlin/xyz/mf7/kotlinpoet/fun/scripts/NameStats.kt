@@ -7,7 +7,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import xyz.mf7.kotlinpoet.`fun`.FunctionsMap
 import xyz.mf7.kotlinpoet.`fun`.ResourcesMap
-import xyz.mf7.kotlinpoet.`fun`.TypeMap
+import xyz.mf7.kotlinpoet.`fun`.TypesMap
 import java.io.File
 
 @kotlinx.serialization.Serializable
@@ -42,7 +42,7 @@ fun main() {
         val decoded = json.parseToJsonElement(File(file).readText())
 
 
-        val types = decoded.decodeSection<TypeMap>("types")
+        val types = decoded.decodeSection<TypesMap>("types")
         val functions = decoded.decodeSection<FunctionsMap>("functions")
         val resources = decoded.decodeSection<ResourcesMap>("resources")
 
@@ -71,7 +71,7 @@ fun main() {
         val decoded = json.parseToJsonElement(File(file).readText())
 
 
-        val types = decoded.decodeSection<TypeMap>("types")
+        val types = decoded.decodeSection<TypesMap>("types")
         val functions = decoded.decodeSection<FunctionsMap>("functions")
         val resources = decoded.decodeSection<ResourcesMap>("resources")
 
