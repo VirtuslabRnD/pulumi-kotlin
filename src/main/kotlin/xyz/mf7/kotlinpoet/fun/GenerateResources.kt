@@ -54,7 +54,7 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
             val outputWrappedTypeName = PulumiClassesAndMembers.output.parameterizedBy(typeName)
             val nonOutputOverload = FieldOverload(
                 typeName,
-                { from, to -> CodeBlock.of("val %N = %T.%M(%N)", from, PulumiClassesAndMembers.output, PulumiClassesAndMembers.outputOf, to ) }
+                { from, to -> CodeBlock.of("val %N = %T.%M(%N)", to, PulumiClassesAndMembers.output, PulumiClassesAndMembers.outputOf, from) }
             )
             Field(it.key.value, outputWrappedTypeName, required = false, listOf(nonOutputOverload))
         }

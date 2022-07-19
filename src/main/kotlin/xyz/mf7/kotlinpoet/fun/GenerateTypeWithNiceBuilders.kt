@@ -131,8 +131,14 @@ private fun generateFunctionsForInput2(field: Field): List<FunSpec> {
                 FunSpec
                     .builder(field.name)
                     .addParameter("value", it.type.copy(nullable = !field.required))
+                    .addCode("if(%N != null) {", "value")
                     .addCode(it.mappingCode("value", "mapped"))
+                    .addCode("\n")
                     .addCode("this.${field.name} = mapped")
+                    .addCode("}")
+                    .addCode("else {")
+                    .addCode("this.${field.name} = null")
+                    .addCode("}")
                     .build()
             )
         }
