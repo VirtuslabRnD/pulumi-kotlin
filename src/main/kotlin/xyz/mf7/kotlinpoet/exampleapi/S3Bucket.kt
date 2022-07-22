@@ -36,6 +36,10 @@ class S3ArgsBuilder {
         this.tags = value
     }
 
+    fun tags(vararg value: Pair<String, String>) {
+        this.tags = Output.of(value.toMap())
+    }
+
     fun build(): S3Args {
         return S3Args(hostedZoneId!!, tags!!)
     }
@@ -128,17 +132,17 @@ suspend fun args(block: suspend S3ArgsBuilder.() -> Unit): S3Args {
     return builder.build()
 }
 
+
+
 suspend fun createInfra() {
 
-    val standaloneArgs = args {
-        hostedZoneId("whatever")
-        tags(
-            mapOf("a" to "b")
-        )
-    }
-
-    s3Bucket("bucket-name-here") {
-        args = standaloneArgs
+    val bucket = s3Bucket("bucket-name-here") {
+        args {
+            hostedZoneId("whatever")
+            tags(
+                "a" to "b"
+            )
+        }
 
         custom {
             deleteBeforeReplace(true)

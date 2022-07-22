@@ -9,7 +9,13 @@ fun constructDataClass(
     classModifier: (TypeSpec.Builder).() -> Unit = {},
     propertyModifier: (PropertySpec.Builder).(Resources.PropertyName, Resources.PropertySpecification, Boolean /*required?*/) -> Unit = { _, _, _ -> },
     shouldAddCustomTypeAnnotations: Boolean = false
-): TypeSpec = constructDataClass(className, objectProperty?.properties, classModifier, propertyModifier, shouldAddCustomTypeAnnotations)
+): TypeSpec = constructDataClass(
+    className,
+    objectProperty?.properties,
+    classModifier,
+    propertyModifier,
+    shouldAddCustomTypeAnnotations
+)
 
 fun constructDataClass(
     className: ClassName, properties: Map<Resources.PropertyName, Resources.PropertySpecification>?,
@@ -20,87 +26,72 @@ fun constructDataClass(
 ): TypeSpec {
     val customTypeAnnotation = ClassName("com.pulumi.core.annotations", "CustomType")
 
-    val classB = TypeSpec.classBuilder(className)
-        .let {
-            if(shouldAddCustomTypeAnnotations) {
-                it.addAnnotation(customTypeAnnotation)
-            } else {
-                it
-            }
-        }
-        .addModifiers(KModifier.DATA)
-        .apply(classModifier)
-
-    val constructor = FunSpec.constructorBuilder()
-        .let {
-            if(shouldAddCustomTypeAnnotations) {
-                it.addAnnotation(customTypeAnnotation.nestedClass("Constructor"))
-            } else {
-                it
-            }
-        }
-
     if (properties == null || properties.isEmpty()) {
         return TypeSpec.objectBuilder(className)
             .apply(classModifier)
             .build()
     }
+    data class ParameterAndProperty(val parameter: ParameterSpec, val property: PropertySpec)
 
-    properties.map { (innerPropertyName, innerPropertySpec) ->
+    val parameterAndProperties = properties.map { (innerPropertyName, innerPropertySpec) ->
         val isRequired = false /*objectProperty.required.contains(innerPropertyName)*/
-        val typeName = referenceName(innerPropertySpec).copy(nullable = !isRequired).let {
-            if(shouldWrapWithOutput) {
-                if(it.isNullable) {
-                    ClassName("com.pulumi.core", "Output").parameterizedBy(it.copy(nullable = false)).copy(nullable = true)
-                } else {
-                    ClassName("com.pulumi.core", "Output").parameterizedBy(it.copy(nullable = false))
-                }
-            } else {
-                it
-            }
-        }
-        classB
-            .addProperty(
-                PropertySpec.builder(innerPropertyName.value, typeName)
-                    .apply { this.propertyModifier(innerPropertyName, innerPropertySpec, isRequired) }
-                    .initializer(innerPropertyName.value)
-                    .build()
-            )
 
-        constructor
-            .addParameter(
-                ParameterSpec.builder(innerPropertyName.value, typeName)
-                    .let {
-                        if (!isRequired) {
-                            it.defaultValue("%L", null)
-                        } else {
-                            it
-                        }
-                    }.let {
-                        if(shouldAddCustomTypeAnnotations) {
-                            it.addAnnotation(
-                                AnnotationSpec.builder(customTypeAnnotation.nestedClass("Parameter"))
-                                    .addMember("%S", innerPropertyName.value)
-                                    .build()
-                            )
-                        } else {
-                            it
-                        }
-                    }
-                    .build()
-            )
+        val typeName = referenceName(innerPropertySpec)
+            .copy(nullable = !isRequired)
+            .letIf(shouldWrapWithOutput) {
+                val output: TypeName = ClassName("com.pulumi.core", "Output").parameterizedBy(it.copy(nullable = false))
+                output.letIf({ it.isNullable }) {
+                    it.copy(nullable = true)
+                }
+            }
+
+        val classProperty = PropertySpec.builder(innerPropertyName.value, typeName)
+            .apply { this.propertyModifier(innerPropertyName, innerPropertySpec, isRequired) }
+            .initializer(innerPropertyName.value)
+            .build()
+
+        val constructorParameter = ParameterSpec.builder(innerPropertyName.value, typeName)
+            .letIf(!isRequired) {
+                it.defaultValue("%L", null)
+            }
+            .letIf(shouldAddCustomTypeAnnotations) {
+                it.addAnnotation(
+                    AnnotationSpec.builder(customTypeAnnotation.nestedClass("Parameter"))
+                        .addMember("%S", innerPropertyName.value)
+                        .build()
+                )
+            }
+            .build()
+
+        ParameterAndProperty(constructorParameter, classProperty)
     }
 
-    classB.primaryConstructor(constructor.build())
+    val constructor = FunSpec.constructorBuilder()
+        .letIf(shouldAddCustomTypeAnnotations) {
+            it.addAnnotation(customTypeAnnotation.nestedClass("Constructor"))
+        }
+        .addParameters(parameterAndProperties.map { it.parameter })
+        .build()
 
-    return classB.build()
+    return TypeSpec.classBuilder(className)
+        .letIf(shouldAddCustomTypeAnnotations) {
+            it.addAnnotation(customTypeAnnotation)
+        }
+        .addModifiers(KModifier.DATA)
+        .primaryConstructor(constructor)
+        .apply(classModifier)
+        .build()
 }
 
 enum class Language {
     KOTLIN, JAVA
 }
 
-fun referenceName(propertySpec: Resources.PropertySpecification, suffix: String = "", language: Language = Language.KOTLIN): TypeName {
+fun referenceName(
+    propertySpec: Resources.PropertySpecification,
+    suffix: String = "",
+    language: Language = Language.KOTLIN
+): TypeName {
     return when (propertySpec) {
         is Resources.ArrayProperty -> LIST.parameterizedBy(referenceName(propertySpec.items, suffix))
         is Resources.BooleanProperty -> BOOLEAN
@@ -108,7 +99,10 @@ fun referenceName(propertySpec: Resources.PropertySpecification, suffix: String 
         is Resources.NumberProperty -> DOUBLE
         is Resources.OneOf -> ANY
         is Resources.StringProperty -> STRING
-        is Resources.MapProperty -> MAP.parameterizedBy(STRING, referenceName(propertySpec.additionalProperties, suffix))
+        is Resources.MapProperty -> MAP.parameterizedBy(
+            STRING,
+            referenceName(propertySpec.additionalProperties, suffix)
+        )
 
         is Resources.ObjectProperty -> if (propertySpec.properties.isEmpty() && propertySpec.additionalProperties != null) {
             referenceName(propertySpec.additionalProperties)
@@ -120,14 +114,14 @@ fun referenceName(propertySpec: Resources.PropertySpecification, suffix: String 
             if (refTypeName == "pulumi.json#/Any") {
                 ClassName("kotlin", "Any")
             } else if (refTypeName.startsWith("#/types/")) {
-                when(language) {
+                when (language) {
                     Language.KOTLIN -> classNameForNameSuffix(refTypeName.removePrefix("#/types/"), suffix)
                     Language.JAVA -> classNameForNameSuffix(refTypeName.removePrefix("#/types/"), suffix)
                 }
 
-            } else if(refTypeName == "pulumi.json#/Archive") {
+            } else if (refTypeName == "pulumi.json#/Archive") {
                 ClassName("kotlin", "Any") // TODO: this should be archive
-            } else if(refTypeName == "pulumi.json#/Asset") {
+            } else if (refTypeName == "pulumi.json#/Asset") {
                 ClassName("kotlin", "Any") // TODO: this should be archive
             } else {
                 error("type reference not recognized: $refTypeName")
