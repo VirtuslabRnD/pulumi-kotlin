@@ -49,12 +49,6 @@ fun main(args: Array<String>) {
     types2.forEach {
         it.writeTo(File("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/test_new_types"))
     }
-
-//    generateTypes(typesForAwsNative).forEach {x
-//        it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated_functions/src/main/kotlin"))
-//    }
-
-
     generateFunctions(functionsForAwsClassic).generatedFiles.forEach {
         it.writeTo(File(destination))
     }
@@ -67,49 +61,6 @@ fun main(args: Array<String>) {
 
     generateAndSaveVersionAndPluginFile(File(File(destination).parent, "resources").absolutePath, "com.pulumi.kotlin.aws")
 
-//    data class A(val string: String, val znt: Int)
-//
-//    val omg = A("asd", 1)
-//
-//    val kotlin = ClusterBootstrapAction(
-//        listOf("1", "2"),
-//        "omg",
-//        "a123123asdasd"
-//    )
-//
-//    val omg2 = GetReleaseLabelsArgs(
-//        GetReleaseLabelsFilters(
-//            application = "Asd",
-//            prefix = "omgomg"
-//        )
-//    )
-//
-//    val mappingRegistry = mapOf(
-//        ClusterCoreInstanceGroup::class.java to com.pulumi.aws.emr.outputs.ClusterCoreInstanceGroup::class.java,
-//        ClusterCoreInstanceGroupEbsConfig::class.java to com.pulumi.aws.emr.outputs.ClusterCoreInstanceGroupEbsConfig::class.java
-//    )
-//
-//    val omg3 = ClusterCoreInstanceGroup(
-//        "a",
-//        "b",
-//        listOf(ClusterCoreInstanceGroupEbsConfig(1, 2, "a", 3), ClusterCoreInstanceGroupEbsConfig(5, 6, "b", 13)),
-//        "asdasd",
-//        123,
-//        "asdomasd",
-//        "aomsdaomsdoamsd"
-//    )
-//
-//    fun <K, V> Map<K, V>.inversed(): Map<V, K> {
-//        return this.map { (k, v) -> v to k }.toMap()
-//    }
-//
-//    val converted = pulumiArgsFromKotlinToJava(mappingRegistry, omg3)
-//
-//    val convertedBack = pulumiArgsFromJavaToKotlin(mappingRegistry.inversed(), converted)
-//
-////    val converted = justTesting(omg)
-//
-//    println("whatev")
 }
 
 fun generateAndSaveVersionAndPluginFile(baseResourcesPath: String, packageName: String) {
