@@ -17,8 +17,9 @@ fun generateTypeWithNiceBuilders(
     builderClassName: String,
 
     builderMethodName: String,
-    builderPropertyToSet: String,
-    receiverClassNameForBuilderMethod: ClassName,
+    builderPropertyToSet: String?,
+    shouldJustReturn: Boolean,
+    receiverClassNameForBuilderMethod: ClassName?,
 
     fields: List<Field>
 ): FileSpec {
@@ -94,17 +95,33 @@ fun generateTypeWithNiceBuilders(
 
     val builderMethod = FunSpec
         .builder(builderMethodName)
-        .receiver(receiverClassNameForBuilderMethod)
+        .let {
+            if(shouldJustReturn) {
+                it
+            } else {
+                it.receiver(receiverClassNameForBuilderMethod!!)
+            }
+        }
         .addModifiers(KModifier.SUSPEND)
         .addParameter(
             "block", LambdaTypeName.get(
                 argsBuilderClassName,
-                returnType = UNIT
+                returnType = if(shouldJustReturn) {
+                    ClassName(packageName, mainClassName)
+                } else {
+                    UNIT
+                }
             ).copy(suspending = true)
         )
         .addStatement("val builder = %T()", argsBuilderClassName)
         .addStatement("block(builder)")
-        .addStatement("this.%N = builder.build()", builderPropertyToSet)
+        .let {
+            if(shouldJustReturn) {
+                it.addStatement("this.%N = builder.build()", builderPropertyToSet!!)
+            } else {
+                it.addStatement("return builder.build()")
+            }
+        }
         .build()
 
     fileSpec

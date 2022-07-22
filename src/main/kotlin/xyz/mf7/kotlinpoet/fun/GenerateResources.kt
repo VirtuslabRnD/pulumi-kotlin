@@ -42,23 +42,23 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
 
     val argsClassName = ClassName(resourcePackageNameForName(name), fileNameForName(name) + "Args")
 
-    val niceBuilderFileSpec = generateTypeWithNiceBuilders(
-        fileNameForName(name),
-        resourcePackageNameForName(name), fileNameForName(name) + "Args",
-        fileNameForName(name) + "ArgsBuilder",
-        "args",
-        "args",
-        resourceBuilderClassName,
-        spec.inputProperties.map {
-            val typeName = referenceName(it.value)
-            val outputWrappedTypeName = PulumiClassesAndMembers.output.parameterizedBy(typeName)
-            val nonOutputOverload = FieldOverload(
-                typeName,
-                { from, to -> CodeBlock.of("val %N = %T.%M(%N)", to, PulumiClassesAndMembers.output, PulumiClassesAndMembers.outputOf, from) }
-            )
-            Field(it.key.value, outputWrappedTypeName, required = false, listOf(nonOutputOverload))
-        }
-    )
+//    val niceBuilderFileSpec = generateTypeWithNiceBuilders(
+//        fileNameForName(name),
+//        resourcePackageNameForName(name), fileNameForName(name) + "Args",
+//        fileNameForName(name) + "ArgsBuilder",
+//        "args",
+//        "args",
+//        resourceBuilderClassName,
+//        spec.inputProperties.map {
+//            val typeName = referenceName(it.value)
+//            val outputWrappedTypeName = PulumiClassesAndMembers.output.parameterizedBy(typeName)
+//            val nonOutputOverload = FieldOverload(
+//                typeName,
+//                { from, to -> CodeBlock.of("val %N = %T.%M(%N)", to, PulumiClassesAndMembers.output, PulumiClassesAndMembers.outputOf, from) }
+//            )
+//            Field(it.key.value, outputWrappedTypeName, required = false, listOf(nonOutputOverload))
+//        }
+//    )
 
     val resourceBuilderClass = TypeSpec
         .classBuilder(resourceBuilderClassName)
