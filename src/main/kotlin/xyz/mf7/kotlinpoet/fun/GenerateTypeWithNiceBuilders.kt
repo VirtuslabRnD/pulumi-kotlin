@@ -19,7 +19,7 @@ data class NormalField<T : Type>(val type: T, val mappingCode: MappingCode) : Fi
 
 data class OutputWrappedField<T : Type>(val type: T) : FieldType<T>() {
     override fun toTypeName(): TypeName {
-        return ClassName("com.pulumi.core", "Output").parameterizedBy(type.toTypeName())
+        return MoreTypes.Pulumi.Output(type.toTypeName())
     }
 }
 
@@ -236,13 +236,13 @@ private fun specialMethodsForList(
 object MoreTypes {
 
     object Kotlin {
-        fun pair(leftType: TypeName, rightType: TypeName): ParameterizedTypeName {
+        fun Pair(leftType: TypeName, rightType: TypeName): ParameterizedTypeName {
             return ClassName("kotlin", "Pair").parameterizedBy(leftType, rightType)
         }
     }
 
     object Pulumi {
-        fun output(type: TypeName): ParameterizedTypeName {
+        fun Output(type: TypeName): ParameterizedTypeName {
             return ClassName("com.pulumi.core", "Output").parameterizedBy(type)
         }
     }
@@ -264,7 +264,7 @@ private fun specialMethodsForMap(
                 .withMappingCode(field.mappingCode)
 
             listOf(
-                builderPattern(name, MoreTypes.Kotlin.pair(leftInnerType.toTypeName(), builderLambda(rightInnerType)), commonCodeBlock, parameterModifiers = listOf(VARARG))
+                builderPattern(name, MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), builderLambda(rightInnerType)), commonCodeBlock, parameterModifiers = listOf(VARARG))
             )
         }
 
@@ -274,7 +274,7 @@ private fun specialMethodsForMap(
     val justValuesPassedAsVarargArguments = listOf(
         FunSpec
             .builder(name)
-            .addParameter("values", MoreTypes.Kotlin.pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()), VARARG)
+            .addParameter("values", MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()), VARARG)
             .addCode(mappingCodeBlock(field.mappingCode, name, "values.toList()"))
             .build()
     )
