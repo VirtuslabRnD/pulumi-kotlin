@@ -1,6 +1,7 @@
 package xyz.mf7.kotlinpoet.`fun`
 
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.KModifier.SUSPEND
 import com.squareup.kotlinpoet.KModifier.VARARG
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
@@ -118,6 +119,7 @@ fun mappingCodeBlock(mappingCode: MappingCode, name: String, code: String, varar
     return CodeBlock.builder()
         .addStatement("val toBeMapped = $code", *args)
         .add(mappingCode("toBeMapped", "mapped"))
+        .addStatement("")
         .addStatement("this.${name} = mapped")
         .build()
 }
@@ -149,6 +151,7 @@ data class CodeBlock2(val mappingCode: MappingCode? = null, val code: String, va
             CodeBlock.builder()
                 .addStatement("val toBeMapped = $code", *args.toTypedArray())
                 .add(mc("toBeMapped", "mapped"))
+                .addStatement("")
                 .addStatement("this.${fieldToSetName} = mapped")
                 .build()
         } else {
@@ -171,6 +174,7 @@ fun builderPattern(
 ): FunSpec {
     return FunSpec
         .builder(name)
+        .addModifiers(SUSPEND)
         .addParameter(
             "argument",
             parameterType,
@@ -220,7 +224,57 @@ private fun specialMethodsForList(
     val justValuesPassedAsVarargArguments = listOf(
         FunSpec
             .builder(name)
+            .addModifiers(SUSPEND)
             .addParameter("values", innerType.toTypeName(), VARARG)
+            .addCode(mappingCodeBlock(field.mappingCode, name, "values.toList()"))
+            .build()
+    )
+
+    return builderPattern + justValuesPassedAsVarargArguments
+}
+
+object MoreTypes {
+
+    object Kotlin {
+        fun pair(leftType: TypeName, rightType: TypeName): ParameterizedTypeName {
+            return ClassName("kotlin", "Pair").parameterizedBy(leftType, rightType)
+        }
+    }
+
+    object Pulumi {
+        fun output(type: TypeName): ParameterizedTypeName {
+            return ClassName("com.pulumi.core", "Output").parameterizedBy(type)
+        }
+    }
+}
+private fun specialMethodsForMap(
+    name: String,
+    field: NormalField<MapType>,
+): List<FunSpec> {
+    val leftInnerType = field.type.firstType
+    val rightInnerType = field.type.secondType
+
+    val builderPattern = when (rightInnerType) {
+         is ComplexType -> {
+            val commonCodeBlock = CodeBlock2
+                .create(
+                    "argument.toList().map { (left, right) -> left to %T().apply { right() }.build() }",
+                    rightInnerType.toBuilderTypeName()
+                )
+                .withMappingCode(field.mappingCode)
+
+            listOf(
+                builderPattern(name, MoreTypes.Kotlin.pair(leftInnerType.toTypeName(), builderLambda(rightInnerType)), commonCodeBlock, parameterModifiers = listOf(VARARG))
+            )
+        }
+
+        else -> emptyList()
+    }
+
+    val justValuesPassedAsVarargArguments = listOf(
+        FunSpec
+            .builder(name)
+            .addParameter("values", MoreTypes.Kotlin.pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()), VARARG)
             .addCode(mappingCodeBlock(field.mappingCode, name, "values.toList()"))
             .build()
     )
@@ -259,7 +313,7 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
             when (fieldType.type) {
                 is ComplexType -> specialMethodsForComplexType(name, fieldType as NormalField<ComplexType>)
                 is ListType -> specialMethodsForList(name, fieldType as NormalField<ListType>)
-                is MapType -> listOf()
+                is MapType -> specialMethodsForMap(name, fieldType as NormalField<MapType>)
                 is PrimitiveType -> listOf()
             }
         }
@@ -270,6 +324,7 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
     val basicFunction =
         FunSpec
             .builder(name)
+            .addModifiers(SUSPEND)
             .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
             .addCode("this.${name} = value")
             .build()

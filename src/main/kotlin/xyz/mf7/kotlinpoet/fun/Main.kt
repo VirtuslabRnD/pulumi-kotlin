@@ -82,7 +82,8 @@ fun main(args: Array<String>) {
     val generatedFuns = generateTypeWithNiceBuilders("whatever", "whatever", "whatever", "whatever2", listOf(
         Field("someField", OutputWrappedField(complexType), true, listOf(
             NormalField(complexType, { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") }),
-            NormalField(ListType(complexType), { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") })
+            NormalField(ListType(complexType), { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") }),
+            NormalField(MapType(PrimitiveType("String"), complexType), { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") })
         ))
     ))
 
