@@ -1,23 +1,12 @@
-For each type:
+Next:
 
-- [ ] create data class
-- [ ] create a builder class
-- [ ] create a builder method with lambda as an argument (with builder class receiver)
-  - [ ] it should either return the data class or operate on some receiver
-- [ ] dsl markers
-- [ ] delegate work to java
+- [ ] Add integration tests with kotlin compile tests (input: partial schema, output: compiling example)
+- [ ] Fully working recursive type generation (+ root resource type and root function type)
+- [ ] Clean up types and organize the code a bit better
 
+Hard:
 
-For each resource:
-
-- [ ] infer input type and use the above services to create it
-- [ ] infer output type and use the above services to create it
-
-For each function:
-
-- [ ] infer input type and use the above services to create it
-- [ ] infer output type and use the above services to create it
-
+- [ ] model HCL2 language and convert it to Kotlin code (maybe YAML or JSON representation would be enough)
 
 Other:
 
