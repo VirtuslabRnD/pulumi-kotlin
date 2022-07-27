@@ -216,7 +216,7 @@ data class PulumiName(
 
     fun toPackage(namingFlags: NamingFlags): String {
         val modifiers = getModifiers(namingFlags)
-        return packageToString(relativeToComPulumiKotlin(namespace)) + modifiers.packageSuffix
+        return packageToString(relativeToComPulumiKotlin(namespace) + modifiers.packageSuffix)
     }
 
     fun toFunctionName(namingFlags: NamingFlags): String {

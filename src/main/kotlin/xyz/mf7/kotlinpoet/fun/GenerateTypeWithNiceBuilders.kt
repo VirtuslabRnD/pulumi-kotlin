@@ -184,11 +184,12 @@ private fun specialMethodsForComplexType(
     name: String,
     field: NormalField<ComplexType>,
 ): List<FunSpec> {
+    val builderTypeName = field.type.toBuilderTypeName()
     return listOf(
         builderPattern(
             name,
-            builderLambda(field.type.toBuilderTypeName()),
-            CodeBlock2.create("%T().apply { argument() }.build()").withMappingCode(field.mappingCode),
+            builderLambda(builderTypeName),
+            CodeBlock2.create("%T().apply { argument() }.build()", builderTypeName).withMappingCode(field.mappingCode),
         )
     )
 }

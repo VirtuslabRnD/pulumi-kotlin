@@ -50,15 +50,40 @@ fun main(args: Array<String>) {
 //        it.writeTo(File("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/test_new_types"))
 //    }
 
-    val complexType = ComplexType(
-        TypeMetadata(PulumiName("test", listOf("a", "b", "C"), "name"), InputOrOutput.Input, UseCharacteristic.ResourceRoot),
+    println(
+        PulumiName("test", listOf("a", "b", "O"), "name")
+            .toClassName(
+                NamingFlags(InputOrOutput.Input, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
+            )
+    )
+
+    println(
+        PulumiName("test", listOf("a", "b", "O"), "name")
+            .toBuilderClassName(
+                NamingFlags(InputOrOutput.Input, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
+            )
+    )
+
+    val complexType2 = ComplexType(
+        TypeMetadata(PulumiName("test2", listOf("a2", "b2", "O2"), "name2"), InputOrOutput.Input, UseCharacteristic.ResourceNested),
         mapOf(
-            "whatever" to PrimitiveType("String")
+            "whatever2" to PrimitiveType("String")
         )
     )
 
+    val complexType = ComplexType(
+        TypeMetadata(PulumiName("test", listOf("a", "b", "O"), "name"), InputOrOutput.Input, UseCharacteristic.ResourceRoot),
+        mapOf(
+            "whatever" to complexType2
+        )
+    )
+
+
     val generatedFuns = generateTypeWithNiceBuilders("whatever", "whatever", "whatever", "whatever2", listOf(
-        Field("someField", OutputWrappedField(complexType), true, emptyList())
+        Field("someField", OutputWrappedField(complexType), true, listOf(
+            NormalField(complexType, { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") }),
+            NormalField(ListType(complexType), { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") })
+        ))
     ))
 
 
