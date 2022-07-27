@@ -8,7 +8,8 @@ import kotlinx.coroutines.runBlocking
 
 data class S3Args(
     val hostedZoneId: Output<String>,
-    val tags: Output<Map<String, String>>
+    val tags: Output<Map<String, String>>,
+    val someOtherArgs: Output<SomeOtherArgs>
 )
 
 @DslMarker
@@ -19,6 +20,7 @@ annotation class PulumiTagMarker
 class S3ArgsBuilder {
     private var hostedZoneId: Output<String>? = null
     private var tags: Output<Map<String, String>>? = null
+    private var someOtherArgs: Output<SomeOtherArgs>? = null
 
     fun hostedZoneId(value: String) {
         this.hostedZoneId = Output.of(value)
@@ -40,8 +42,12 @@ class S3ArgsBuilder {
         this.tags = Output.of(value.toMap())
     }
 
+    fun someOtherArgs(args: SomeOtherArgs) {
+        this.someOtherArgs = Output.of(args)
+    }
+
     fun build(): S3Args {
-        return S3Args(hostedZoneId!!, tags!!)
+        return S3Args(hostedZoneId!!, tags!!, someOtherArgs!!)
     }
 }
 
@@ -142,6 +148,12 @@ suspend fun createInfra() {
             tags(
                 "a" to "b"
             )
+            someOtherArgs {
+                someOtherNestedArgs {
+                    name("whatever")
+                    number(50)
+                }
+            }
         }
 
         custom {
