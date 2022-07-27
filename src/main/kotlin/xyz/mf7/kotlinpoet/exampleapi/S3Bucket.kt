@@ -21,6 +21,7 @@ class S3ArgsBuilder {
     private var hostedZoneId: Output<String>? = null
     private var tags: Output<Map<String, String>>? = null
     private var someOtherArgs: Output<SomeOtherArgs>? = null
+    private var someOtherArgs2: Output<List<SomeOtherArgs>>? = null
 
     fun hostedZoneId(value: String) {
         this.hostedZoneId = Output.of(value)
@@ -44,6 +45,17 @@ class S3ArgsBuilder {
 
     fun someOtherArgs(args: SomeOtherArgs) {
         this.someOtherArgs = Output.of(args)
+    }
+
+    fun someOtherArgs(args: SomeOtherArgsBuilder.() -> Unit) {
+        this.someOtherArgs = Output.of(SomeOtherArgsBuilder().apply { args() }.build())
+    }
+
+    fun someOtherArgs2(vararg args: SomeOtherArgsBuilder.() -> Unit) {
+        val built = args.map {method ->
+            SomeOtherArgsBuilder().apply { method() }.build()
+        }
+        this.someOtherArgs2 = Output.of(built)
     }
 
     fun build(): S3Args {
@@ -154,6 +166,20 @@ suspend fun createInfra() {
                     number(50)
                 }
             }
+            someOtherArgs2(
+                {
+                    someOtherNestedArgs {
+                        name("whatever2")
+                        number(50)
+                    }
+                },
+                {
+                    someOtherNestedArgs {
+                        name("whatever3")
+                        number(60)
+                    }
+                }
+            )
         }
 
         custom {

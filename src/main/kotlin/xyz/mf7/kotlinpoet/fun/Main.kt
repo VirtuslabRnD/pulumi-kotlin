@@ -10,56 +10,71 @@ import kotlin.io.path.absolutePathString
 
 fun main(args: Array<String>) {
 //
-    val loadedSchema = {}::class.java.getResourceAsStream("/schema.json")!!
+//    val loadedSchema = {}::class.java.getResourceAsStream("/schema.json")!!
+//
+//    val schemaFromJson = Json.parseToJsonElement(
+//        loadedSchema.bufferedReader().readText()
+//    )
+//
+//    val loadedSchemaClassic = { }::class.java.getResourceAsStream("/schema-aws-classic.json")!!
+//
+//    val schemaFromJsonClassic = Json.parseToJsonElement(
+//        loadedSchemaClassic.bufferedReader().readText()
+//    )
+//
+//    val typesForAwsNative = Json.decodeFromJsonElement<TypesMap>(schemaFromJson.jsonObject["types"]!!)
+//
+//    val typesForAwsClassic = Json.decodeFromJsonElement<TypesMap>(schemaFromJsonClassic.jsonObject["types"]!!)
+//
+//    val functionsForAwsClassic =
+//        Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
+//
+//    val resourcesForAwsClassic =
+//        Json.decodeFromJsonElement<ResourcesMap>(schemaFromJsonClassic.jsonObject["resources"]!!)
+//
+//    val destination = "/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java"
+//
+//    generateTypes(typesForAwsClassic).forEach {
+//        it.writeTo(File(destination))
+//    }
 
-    val schemaFromJson = Json.parseToJsonElement(
-        loadedSchema.bufferedReader().readText()
-    )
+//    val types2 = generateTypes2(
+//        getTypeSpecs(
+//            resourcesForAwsClassic,
+//            typesForAwsClassic,
+//            functionsForAwsClassic
+//        )
+//    )
+//
+//    types2.forEach {
+//        it.writeTo(File("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/test_new_types"))
+//    }
 
-    val loadedSchemaClassic = { }::class.java.getResourceAsStream("/schema-aws-classic.json")!!
-
-    val schemaFromJsonClassic = Json.parseToJsonElement(
-        loadedSchemaClassic.bufferedReader().readText()
-    )
-
-    val typesForAwsNative = Json.decodeFromJsonElement<TypesMap>(schemaFromJson.jsonObject["types"]!!)
-
-    val typesForAwsClassic = Json.decodeFromJsonElement<TypesMap>(schemaFromJsonClassic.jsonObject["types"]!!)
-
-    val functionsForAwsClassic =
-        Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
-
-    val resourcesForAwsClassic =
-        Json.decodeFromJsonElement<ResourcesMap>(schemaFromJsonClassic.jsonObject["resources"]!!)
-
-    val destination = "/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java"
-
-    generateTypes(typesForAwsClassic).forEach {
-        it.writeTo(File(destination))
-    }
-
-    val types2 = generateTypes2(
-        getTypeSpecs(
-            resourcesForAwsClassic,
-            typesForAwsClassic,
-            functionsForAwsClassic
+    val complexType = ComplexType(
+        TypeMetadata(PulumiName("test", listOf("a", "b", "C"), "name"), InputOrOutput.Input, UseCharacteristic.ResourceRoot),
+        mapOf(
+            "whatever" to PrimitiveType("String")
         )
     )
 
-    types2.forEach {
-        it.writeTo(File("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/test_new_types"))
-    }
-    generateFunctions(functionsForAwsClassic).generatedFiles.forEach {
-        it.writeTo(File(destination))
-    }
+    val generatedFuns = generateTypeWithNiceBuilders("whatever", "whatever", "whatever", "whatever2", listOf(
+        Field("someField", OutputWrappedField(complexType), true, emptyList())
+    ))
 
-    generateResources(resourcesForAwsClassic).generatedFiles.forEach {
-        it.writeTo(File(destination))
-    }
 
-    generateAndSaveCommon(destination, "com.pulumi.kotlin.aws")
+    generatedFuns.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated-funs"))
 
-    generateAndSaveVersionAndPluginFile(File(File(destination).parent, "resources").absolutePath, "com.pulumi.kotlin.aws")
+//    generateFunctions(functionsForAwsClassic).generatedFiles.forEach {
+//        it.writeTo(File(destination))
+//    }
+//
+//    generateResources(resourcesForAwsClassic).generatedFiles.forEach {
+//        it.writeTo(File(destination))
+//    }
+//
+//    generateAndSaveCommon(destination, "com.pulumi.kotlin.aws")
+//
+//    generateAndSaveVersionAndPluginFile(File(File(destination).parent, "resources").absolutePath, "com.pulumi.kotlin.aws")
 
 }
 

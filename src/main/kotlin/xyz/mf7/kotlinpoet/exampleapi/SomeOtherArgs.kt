@@ -15,6 +15,13 @@ data class SomeOtherArgsBuilder(
         this.someOtherNestedArgs = Output.of(args)
     }
 
+    fun someOtherNestedArgs(block: SomeOtherNestedArgsBuilder.() -> Unit) {
+        val builder = SomeOtherNestedArgsBuilder()
+        builder.block()
+        someOtherNestedArgs(builder.build())
+    }
+
+
     fun build(): SomeOtherArgs {
         return SomeOtherArgs(someOtherNestedArgs!!)
     }

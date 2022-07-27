@@ -36,28 +36,28 @@ internal class GenerateTypeWithNiceBuildersTest {
 //        assertTrue(true)
 //    }
 
-    @Test
-    fun `test packaging strategy`() {
-        val loadedSchemaClassic = { }::class.java.getResourceAsStream("/schema-aws-classic.json")!!
-
-        val schemaFromJsonClassic = Json.parseToJsonElement(
-            loadedSchemaClassic.bufferedReader().readText()
-        )
-
-        val typesForAwsClassic = Json.decodeFromJsonElement<TypesMap>(schemaFromJsonClassic.jsonObject["types"]!!)
-
-        val functionsForAwsClassic =
-            Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
-
-        val resourcesForAwsClassic =
-            Json.decodeFromJsonElement<ResourcesMap>(schemaFromJsonClassic.jsonObject["resources"]!!)
-
-        println(
-            getTypeSpecs(
-                resourcesForAwsClassic,
-                typesForAwsClassic,
-                functionsForAwsClassic
-            )
-        )
-    }
+//    @Test
+//    fun `test packaging strategy`() {
+//        val loadedSchemaClassic = { }::class.java.getResourceAsStream("/schema-aws-classic.json")!!
+//
+//        val schemaFromJsonClassic = Json.parseToJsonElement(
+//            loadedSchemaClassic.bufferedReader().readText()
+//        )
+//
+//        val typesForAwsClassic = Json.decodeFromJsonElement<TypesMap>(schemaFromJsonClassic.jsonObject["types"]!!)
+//
+//        val functionsForAwsClassic =
+//            Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
+//
+//        val resourcesForAwsClassic =
+//            Json.decodeFromJsonElement<ResourcesMap>(schemaFromJsonClassic.jsonObject["resources"]!!)
+//
+//        println(
+//            getTypeSpecs(
+//                resourcesForAwsClassic,
+//                typesForAwsClassic,
+//                functionsForAwsClassic
+//            )
+//        )
+//    }
 }

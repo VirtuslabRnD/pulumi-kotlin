@@ -3,23 +3,25 @@ package xyz.mf7.kotlinpoet.`fun`
 import com.squareup.kotlinpoet.*
 
 fun generateType(type: ComplexType): FileSpec {
-    val fields = type.fields.map { (key, value) ->
-        Field(key, value.toTypeName(), false, emptyList())
-    }
+//    val fields = type.fields.map { (key, value) ->
+//        Field(key, value.toTypeName(), false, emptyList())
+//    }
+//
+//    val b = generateTypeWithNiceBuilders(
+//        type.metadata.toClassName(LanguageType.Kotlin),
+//        type.metadata.toPackage(LanguageType.Kotlin),
+//        type.metadata.toClassName(LanguageType.Kotlin),
+//        type.metadata.toClassName(LanguageType.Kotlin).decapitalize(),
+//        type.metadata.toClassName(LanguageType.Kotlin) + "Builder",
+//        type.parent.toTypeName(),
+//        shouldJustReturn = false,
+//        receiverClassNameForBuilderMethod = type.parent.toTypeName(),
+//        fields
+//    )
+//
+//    return b
 
-    val b = generateTypeWithNiceBuilders(
-        type.metadata.toClassName(LanguageType.Kotlin),
-        type.metadata.toPackage(LanguageType.Kotlin),
-        type.metadata.toClassName(LanguageType.Kotlin),
-        type.metadata.toClassName(LanguageType.Kotlin).decapitalize(),
-        type.metadata.toClassName(LanguageType.Kotlin) + "Builder",
-        null,
-        shouldJustReturn = true,
-        receiverClassNameForBuilderMethod = null,
-        fields
-    )
-
-    return b
+    return FileSpec.builder("a", "b").build()
 }
 
 fun generateTypes2(typesWithMetadata: List<TypeWithMetadata>): List<FileSpec> {

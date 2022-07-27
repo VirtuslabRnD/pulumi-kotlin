@@ -18,3 +18,9 @@ For each function:
 - [ ] infer input type and use the above services to create it
 - [ ] infer output type and use the above services to create it
 
+
+Other:
+
+- [ ] Support for oneOf (Either?)
+- [ ] Support for asset / archive
+

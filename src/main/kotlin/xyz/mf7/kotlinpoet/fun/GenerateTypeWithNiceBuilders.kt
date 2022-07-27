@@ -1,14 +1,33 @@
 package xyz.mf7.kotlinpoet.`fun`
 
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.KModifier.VARARG
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
-data class FieldOverload(
-    val type: TypeName,
-    val mappingCode: (from: String, to: String) -> CodeBlock
-)
+typealias MappingCode = (from: String, to: String) -> CodeBlock
 
-data class Field(val name: String, val type: TypeName, val required: Boolean, val overloads: List<FieldOverload>)
+sealed class FieldType<T : Type> {
+    abstract fun toTypeName(): TypeName
+}
+
+data class NormalField<T : Type>(val type: T, val mappingCode: MappingCode) : FieldType<T>() {
+    override fun toTypeName(): TypeName {
+        return type.toTypeName()
+    }
+}
+
+data class OutputWrappedField<T : Type>(val type: T) : FieldType<T>() {
+    override fun toTypeName(): TypeName {
+        return ClassName("com.pulumi.core", "Output").parameterizedBy(type.toTypeName())
+    }
+}
+
+data class Field<T : Type>(
+    val name: String,
+    val fieldType: FieldType<T>,
+    val required: Boolean,
+    val overloads: List<FieldType<*>>
+)
 
 fun generateTypeWithNiceBuilders(
     fileName: String,
@@ -16,12 +35,7 @@ fun generateTypeWithNiceBuilders(
     mainClassName: String,
     builderClassName: String,
 
-    builderMethodName: String,
-    builderPropertyToSet: String?,
-    shouldJustReturn: Boolean,
-    receiverClassNameForBuilderMethod: ClassName?,
-
-    fields: List<Field>
+    fields: List<Field<*>>
 ): FileSpec {
     val fileSpec = FileSpec.builder(
         packageName, fileName
@@ -36,7 +50,7 @@ fun generateTypeWithNiceBuilders(
 
     fields.forEach { field ->
         val isRequired = field.required
-        val typeName = field.type.copy(nullable = !isRequired)
+        val typeName = field.fieldType.toTypeName().copy(nullable = !isRequired)
         classB
             .addProperty(
                 PropertySpec.builder(field.name, typeName)
@@ -73,7 +87,7 @@ fun generateTypeWithNiceBuilders(
         .addProperties(
             fields.map {
                 PropertySpec
-                    .builder(it.name, it.type.copy(nullable = !it.required))
+                    .builder(it.name, it.fieldType.toTypeName().copy(nullable = !it.required))
                     .initializer("null")
                     .mutable(true)
                     .addModifiers(KModifier.PRIVATE)
@@ -82,7 +96,7 @@ fun generateTypeWithNiceBuilders(
         )
         .addFunctions(
             fields.flatMap { field ->
-                generateFunctionsForInput2(field)
+                generateFunctionsForInput(field)
             }
         )
         .addFunction(
@@ -93,140 +107,173 @@ fun generateTypeWithNiceBuilders(
         )
         .build()
 
-    val builderMethod = FunSpec
-        .builder(builderMethodName)
-        .let {
-            if(shouldJustReturn) {
-                it
-            } else {
-                it.receiver(receiverClassNameForBuilderMethod!!)
-            }
-        }
-        .addModifiers(KModifier.SUSPEND)
-        .addParameter(
-            "block", LambdaTypeName.get(
-                argsBuilderClassName,
-                returnType = if(shouldJustReturn) {
-                    ClassName(packageName, mainClassName)
-                } else {
-                    UNIT
-                }
-            ).copy(suspending = true)
-        )
-        .addStatement("val builder = %T()", argsBuilderClassName)
-        .addStatement("block(builder)")
-        .let {
-            if(shouldJustReturn) {
-                it.addStatement("this.%N = builder.build()", builderPropertyToSet!!)
-            } else {
-                it.addStatement("return builder.build()")
-            }
-        }
-        .build()
-
     fileSpec
         .addType(argsBuilderClass)
         .addType(argsClass)
-        .addFunction(builderMethod)
 
     return fileSpec.build()
 }
 
-private fun generateFunctionsForInput2(field: Field): List<FunSpec> {
-    val fieldType = field.type
+fun mappingCodeBlock(mappingCode: MappingCode, name: String, code: String, vararg args: Any?): CodeBlock {
+    return CodeBlock.builder()
+        .addStatement("val toBeMapped = $code", *args)
+        .add(mappingCode("toBeMapped", "mapped"))
+        .addStatement("this.${name} = mapped")
+        .build()
+}
 
-    return buildList {
-        add(
-            FunSpec
-                .builder(field.name)
-                .addParameter("value", fieldType.copy(nullable = !field.required))
-                .addCode("this.${field.name} = value")
+fun listOfLambdas(innerType: TypeName): TypeName {
+    return LIST.parameterizedBy(builderLambda(innerType))
+}
+
+fun listOfLambdas(innerType: ComplexType): TypeName {
+    return listOfLambdas(innerType.toBuilderTypeName())
+}
+
+fun builderLambda(innerType: ComplexType): TypeName = builderLambda(innerType.toBuilderTypeName())
+fun builderLambda(innerType: TypeName): TypeName {
+    return LambdaTypeName
+        .get(receiver = innerType, returnType = UNIT)
+        .copy(suspending = true)
+}
+
+data class CodeBlock2(val mappingCode: MappingCode? = null, val code: String, val args: List<Any?>) {
+
+    fun withMappingCode(mappingCode: MappingCode): CodeBlock2 {
+        return copy(mappingCode = mappingCode)
+    }
+
+    fun toCodeBlock(fieldToSetName: String): CodeBlock {
+        val mc = mappingCode
+        return if (mc != null) {
+            CodeBlock.builder()
+                .addStatement("val toBeMapped = $code", *args.toTypedArray())
+                .add(mc("toBeMapped", "mapped"))
+                .addStatement("this.${fieldToSetName} = mapped")
                 .build()
-        )
-        field.overloads.forEach {
-            add(
-                FunSpec
-                    .builder(field.name)
-                    .addParameter("value", it.type.copy(nullable = !field.required))
-                    .addCode("if(%N != null) {", "value")
-                    .addCode(it.mappingCode("value", "mapped"))
-                    .addCode("\n")
-                    .addCode("this.${field.name} = mapped")
-                    .addCode("}")
-                    .addCode("else {")
-                    .addCode("this.${field.name} = null")
-                    .addCode("}")
-                    .build()
-            )
-        }
-        if (fieldType is ParameterizedTypeName) {
-            val typeArguments = fieldType.typeArguments
-            when (fieldType.rawType) {
-                LIST ->
-                    add(
-                        FunSpec
-                            .builder(field.name)
-                            .addParameter("values", typeArguments[0], KModifier.VARARG)
-                            .addCode(
-                                "this.${field.name} = values.toList()",
-                            )
-                            .build()
-                    )
-                MAP ->
-                    add(
-                        FunSpec
-                            .builder(field.name)
-                            .addParameter(
-                                "values",
-                                ClassName("kotlin", "Pair").parameterizedBy(
-                                    typeArguments[0],
-                                    typeArguments[1]
-                                ),
-                                KModifier.VARARG
-                            )
-                            .addCode(
-                                "this.${field.name} = values.toList().toMap()"
-                            )
-                            .build()
-                    )
-            }
-        }
-        field.overloads.forEach {
-            val fieldType = it.type
-            if (fieldType is ParameterizedTypeName) {
-                val typeArguments = fieldType.typeArguments
-                when (fieldType.rawType) {
-                    LIST ->
-                        add(
-                            FunSpec
-                                .builder(field.name)
-                                .addParameter("values", typeArguments[0], KModifier.VARARG)
-                                .addCode("val list = values.toList()",)
-                                .addCode(it.mappingCode("list", "mapped"))
-                                .addCode("this.${field.name} = mapped")
-                                .build()
-                        )
-                    MAP ->
-                        add(
-                            FunSpec
-                                .builder(field.name)
-                                .addParameter(
-                                    "values",
-                                    ClassName("kotlin", "Pair").parameterizedBy(
-                                        typeArguments[0],
-                                        typeArguments[1]
-                                    ),
-                                    KModifier.VARARG
-                                )
-                                .addCode("val list = values.toList().toMap()",)
-                                .addCode(it.mappingCode("list", "mapped"))
-                                .addCode("this.${field.name} = mapped")
-                                .build()
-                        )
-                }
-            }
+        } else {
+            CodeBlock.builder()
+                .addStatement("this.${fieldToSetName} = $code", *args.toTypedArray())
+                .build()
         }
     }
+
+    companion object {
+        fun create(code: String, vararg args: Any?) = CodeBlock2(null, code, args.toList())
+    }
+}
+
+fun builderPattern(
+    name: String,
+    parameterType: TypeName,
+    codeBlock: CodeBlock2,
+    parameterModifiers: List<KModifier> = emptyList()
+): FunSpec {
+    return FunSpec
+        .builder(name)
+        .addParameter(
+            "argument",
+            parameterType,
+            parameterModifiers
+        )
+        .addCode(codeBlock.toCodeBlock(name))
+        .build()
+}
+
+private fun specialMethodsForComplexType(
+    name: String,
+    field: NormalField<ComplexType>,
+): List<FunSpec> {
+    return listOf(
+        builderPattern(
+            name,
+            builderLambda(field.type.toBuilderTypeName()),
+            CodeBlock2.create("%T().apply { argument() }.build()").withMappingCode(field.mappingCode),
+        )
+    )
+}
+
+private fun specialMethodsForList(
+    name: String,
+    field: NormalField<ListType>,
+): List<FunSpec> {
+    val innerType = field.type.innerType
+    val builderPattern = when (innerType) {
+        is ComplexType -> {
+            val commonCodeBlock = CodeBlock2
+                .create(
+                    "argument.toList().map { %T().apply { it() }.build() }",
+                    innerType.toBuilderTypeName()
+                )
+                .withMappingCode(field.mappingCode)
+
+            listOf(
+                builderPattern(name, listOfLambdas(innerType), commonCodeBlock),
+                builderPattern(name, builderLambda(innerType), commonCodeBlock, parameterModifiers = listOf(VARARG))
+            )
+        }
+
+        else -> emptyList()
+    }
+
+    val justValuesPassedAsVarargArguments = listOf(
+        FunSpec
+            .builder(name)
+            .addParameter("values", innerType.toTypeName(), VARARG)
+            .addCode(mappingCodeBlock(field.mappingCode, name, "values.toList()"))
+            .build()
+    )
+
+    return builderPattern + justValuesPassedAsVarargArguments
+}
+
+//fun whatever(): FunSpec {
+//    return FunSpec
+//        .builder(field.name)
+//        .addParameter("value", it.type.copy(nullable = !field.required))
+//        .addCode("if(%N != null) {", "value")
+//        .addCode(it.mappingCode("value", "mapped"))
+//        .addCode("\n")
+//        .addCode("this.${field.name} = mapped")
+//        .addCode("}")
+//        .addCode("else {")
+//        .addCode("this.${field.name} = null")
+//        .addCode("}")
+//        .build()
+//}
+
+private fun generateFunctionsForInput(field: Field<*>): List<FunSpec> {
+    val functionsForDefaultField = generateFunctionsForInput2(field.name, field.required, field.fieldType)
+
+    val functionsForOverloads = field.overloads.flatMap {
+        generateFunctionsForInput2(field.name, field.required, it)
+    }
+
+    return functionsForDefaultField + functionsForOverloads
+}
+
+private fun generateFunctionsForInput2(name: String, required: Boolean, fieldType: FieldType<*>): List<FunSpec> {
+    val specialFunctions = when (fieldType) {
+        is NormalField -> {
+            when (fieldType.type) {
+                is ComplexType -> specialMethodsForComplexType(name, fieldType as NormalField<ComplexType>)
+                is ListType -> specialMethodsForList(name, fieldType as NormalField<ListType>)
+                is MapType -> listOf()
+                is PrimitiveType -> listOf()
+            }
+        }
+
+        is OutputWrappedField -> listOf()
+    }
+
+    val basicFunction =
+        FunSpec
+            .builder(name)
+            .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
+            .addCode("this.${name} = value")
+            .build()
+
+    return specialFunctions + basicFunction
 }
 //
 //fun generateBuilderWrapperFunction(): FunSpec {
