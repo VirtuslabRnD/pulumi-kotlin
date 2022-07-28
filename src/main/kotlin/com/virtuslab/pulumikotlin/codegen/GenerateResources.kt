@@ -5,7 +5,7 @@ import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 object PulumiClassesAndMembers {
-    val output = ClassName("com.pulumi.core", "Output")
+    val output = MoreTypes.Pulumi.Output()
     val outputOf = output.member("of")
 }
 
@@ -112,12 +112,10 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, name: String, spec: Resour
                                     pName.value,
                                     ClassName("com.pulumi.kotlin", "PulumiJavaKotlinInterop"),
                                     ClassName("com.pulumi.kotlin", "PulumiJavaKotlinInterop").member("toJava"),
-                                    ClassName("com.pulumi.core", "Output").parameterizedBy(
-                                        referenceName(
-                                            pSpec,
-                                            suffix = "Args"
-                                        )
-                                    ),
+                                    MoreTypes.Pulumi.Output(referenceName(
+                                        pSpec,
+                                        suffix = "Args"
+                                    )),
                                     pName.value
                                 )
                             }.toTypedArray(),

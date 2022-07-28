@@ -39,7 +39,7 @@ fun constructDataClass(
         val typeName = referenceName(innerPropertySpec)
             .copy(nullable = !isRequired)
             .letIf(shouldWrapWithOutput) {
-                val output: TypeName = ClassName("com.pulumi.core", "Output").parameterizedBy(it.copy(nullable = false))
+                val output: TypeName = MoreTypes.Pulumi.Output(it.copy(nullable = false))
                 output.letIf({ it.isNullable }) {
                     it.copy(nullable = true)
                 }

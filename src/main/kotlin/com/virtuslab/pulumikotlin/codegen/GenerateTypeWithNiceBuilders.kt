@@ -233,20 +233,6 @@ private fun specialMethodsForList(
     return builderPattern + justValuesPassedAsVarargArguments
 }
 
-object MoreTypes {
-
-    object Kotlin {
-        fun Pair(leftType: TypeName, rightType: TypeName): ParameterizedTypeName {
-            return ClassName("kotlin", "Pair").parameterizedBy(leftType, rightType)
-        }
-    }
-
-    object Pulumi {
-        fun Output(type: TypeName): ParameterizedTypeName {
-            return ClassName("com.pulumi.core", "Output").parameterizedBy(type)
-        }
-    }
-}
 private fun specialMethodsForMap(
     name: String,
     field: NormalField<MapType>,
