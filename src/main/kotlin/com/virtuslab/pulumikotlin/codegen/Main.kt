@@ -59,10 +59,7 @@ fun main(args: Array<String>) {
 
     val generatedBuilders = specs.filterIsInstance<ComplexType>().map { a ->
         generateTypeWithNiceBuilders(
-            a.metadata.toClassName(LanguageType.Kotlin),
-            a.metadata.toPackage(LanguageType.Kotlin),
-            a.metadata.toClassName(LanguageType.Kotlin),
-            a.metadata.toBuilderClassName(LanguageType.Kotlin),
+            a.metadata,
             a.fields.map { (name, type) -> Field(name, OutputWrappedField(type), true,
                 listOf(
                     NormalField(type) { from, to -> CodeBlock.of("val $to = Output.of($from)") }
@@ -104,16 +101,16 @@ fun main(args: Array<String>) {
     )
 
 
-    val generatedFuns = generateTypeWithNiceBuilders("whatever", "whatever", "whatever", "whatever2", listOf(
-        Field("someField", OutputWrappedField(complexType), true, listOf(
-            NormalField(complexType, { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") }),
-            NormalField(ListType(complexType), { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") }),
-            NormalField(MapType(PrimitiveType("String"), complexType), { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") })
-        ))
-    ))
-
-
-    generatedFuns.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated-funs"))
+//    val generatedFuns = generateTypeWithNiceBuilders("whatever", "whatever", "whatever", "whatever2", listOf(
+//        Field("someField", OutputWrappedField(complexType), true, listOf(
+//            NormalField(complexType, { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") }),
+//            NormalField(ListType(complexType), { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") }),
+//            NormalField(MapType(PrimitiveType("String"), complexType), { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") })
+//        ))
+//    ))
+//
+//
+//    generatedFuns.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated-funs"))
 
 //    generateFunctions(functionsForAwsClassic).generatedFiles.forEach {
 //        it.writeTo(File(destination))

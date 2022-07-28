@@ -31,18 +31,17 @@ data class Field<T : Type>(
 )
 
 fun generateTypeWithNiceBuilders(
-    fileName: String,
-    packageName: String,
-    mainClassName: String,
-    builderClassName: String,
-
+    typeMetadata: TypeMetadata,
     fields: List<Field<*>>
 ): FileSpec {
+
+    val names = typeMetadata.names(LanguageType.Kotlin)
+
     val fileSpec = FileSpec.builder(
-        packageName, fileName
+        names.packageName, names.className + ".kt"
     )
 
-    val argsClassName = ClassName(packageName, mainClassName)
+    val argsClassName = ClassName(names.packageName, names.className)
 
     val classB = TypeSpec.classBuilder(argsClassName)
         .addModifiers(KModifier.DATA)
@@ -76,7 +75,7 @@ fun generateTypeWithNiceBuilders(
     classB.primaryConstructor(constructor.build())
     val argsClass = classB.build()
 
-    val argsBuilderClassName = ClassName(packageName, builderClassName)
+    val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
 
     val argNames = fields.map {
         "${it.name} = ${it.name}"

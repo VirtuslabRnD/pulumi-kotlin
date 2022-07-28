@@ -18,6 +18,17 @@ data class FunctionSpec(
     val function: Function
 )
 
+data class NameGeneration(private val pulumiName: PulumiName, private val namingFlags: NamingFlags) {
+
+    val className get() = pulumiName.toClassName(namingFlags)
+
+    val builderClassName get() = pulumiName.toBuilderClassName(namingFlags)
+
+    val packageName get() = pulumiName.toPackage(namingFlags)
+
+    val functionName get() = pulumiName.toFunctionName(namingFlags)
+}
+
 data class TypeMetadata(
     val pulumiName: PulumiName,
     val inputOrOutput: InputOrOutput,
@@ -27,20 +38,8 @@ data class TypeMetadata(
     private fun namingFlags(language: LanguageType) =
         NamingFlags(inputOrOutput, useCharacteristic, language)
 
-    fun toClassName(language: LanguageType): String {
-        return pulumiName.toClassName(namingFlags(language))
-    }
-
-    fun toBuilderClassName(language: LanguageType): String {
-        return pulumiName.toBuilderClassName(namingFlags(language))
-    }
-
-    fun toPackage(language: LanguageType): String {
-        return pulumiName.toPackage(namingFlags(language))
-    }
-
-    fun toFunctionName(language: LanguageType): String {
-        return pulumiName.toFunctionName(namingFlags(language))
+    fun names(language: LanguageType): NameGeneration {
+        return NameGeneration(pulumiName, namingFlags(language))
     }
 }
 
@@ -64,16 +63,19 @@ object AnyType: Type() {
 
 data class ComplexType(val metadata: TypeMetadata, val fields: Map<String, Type>) : AutonomousType() {
     override fun toTypeName(): TypeName {
-        return ClassName(metadata.toPackage(LanguageType.Kotlin), metadata.toClassName(LanguageType.Kotlin))
+        val names = metadata.names(Kotlin)
+        return ClassName(names.packageName, names.className)
     }
     fun toBuilderTypeName(): TypeName {
-        return ClassName(metadata.toPackage(LanguageType.Kotlin), metadata.toBuilderClassName(LanguageType.Kotlin))
+        val names = metadata.names(Kotlin)
+        return ClassName(names.packageName, names.builderClassName)
     }
 }
 
 data class EnumType(val metadata: TypeMetadata, val possibleValues: List<String>): AutonomousType() {
     override fun toTypeName(): TypeName {
-        return ClassName(metadata.toPackage(LanguageType.Kotlin), metadata.toClassName(LanguageType.Kotlin))
+        val names = metadata.names(Kotlin)
+        return ClassName(names.packageName, names.className)
     }
 }
 

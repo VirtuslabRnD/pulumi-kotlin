@@ -14,42 +14,43 @@ internal class GenerateTypeWithNiceBuildersTest {
 
     @Test
     fun `just test something`() {
+        val firstType = TypeMetadata(
+            PulumiName("aws", listOf("aws"), "FirstType"),
+            InputOrOutput.Input,
+            UseCharacteristic.ResourceNested
+        )
+        val secondType = TypeMetadata(
+            PulumiName("aws", listOf("aws"), "SecondType"),
+            InputOrOutput.Input,
+            UseCharacteristic.ResourceNested
+        )
+
         val generatedSpec1 = generateTypeWithNiceBuilders(
-            "FirstTypeArgs.kt",
-            "com.pulumi.kotlin.aws",
-            "FirstTypeArgs",
-            "FirstTypeArgsBuilder",
+            firstType,
             listOf(
                 Field(
                     "field1",
                     NormalField(PrimitiveType("String"), { from, to -> CodeBlock.of("val $to = $from") }),
-                    true,
+                    required = true,
                     listOf()
                 )
             )
         )
         val generatedSpec2 = generateTypeWithNiceBuilders(
-            "SecondTypeArgs.kt",
-            "com.pulumi.kotlin.aws",
-            "SecondTypeArgs",
-            "SecondTypeArgsBuilder",
+            secondType,
             listOf(
                 Field(
                     "field2",
                     NormalField(
                         ComplexType(
-                            TypeMetadata(
-                                PulumiName("aws", listOf("aws"), "FirstType"),
-                                InputOrOutput.Input,
-                                UseCharacteristic.ResourceRoot
-                            ),
+                            firstType,
                             mapOf(
                                 "firstType" to PrimitiveType("String")
                             )
                         ),
                         { from, to -> CodeBlock.of("val $to = $from") }
                     ),
-                    true,
+                    required = true,
                     listOf()
                 )
             )
