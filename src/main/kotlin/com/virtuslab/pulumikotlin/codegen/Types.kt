@@ -1,4 +1,4 @@
-package xyz.mf7.kotlinpoet.`fun`
+package com.virtuslab.pulumikotlin.codegen
 
 typealias TypesMap = Map<String, Resources.PropertySpecification>
 typealias FunctionsMap = Map<String, Function>

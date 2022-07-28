@@ -1,4 +1,4 @@
-package xyz.mf7.kotlinpoet.`fun`
+package com.virtuslab.pulumikotlin.codegen
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member

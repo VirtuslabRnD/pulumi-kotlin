@@ -1,4 +1,4 @@
-package xyz.mf7.kotlinpoet.`fun`
+package com.virtuslab.pulumikotlin.codegen
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*

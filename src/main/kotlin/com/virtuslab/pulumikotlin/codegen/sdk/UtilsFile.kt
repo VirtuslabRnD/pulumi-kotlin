@@ -1,6 +1,4 @@
-package xyz.mf7.kotlinpoet.`fun`
-
-import com.squareup.kotlinpoet.FileSpec
+package com.virtuslab.pulumikotlin.codegen
 
 fun generateUtilsFile(packagePath: String, packageName: String): String {
     return """

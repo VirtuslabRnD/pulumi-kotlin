@@ -1,10 +1,10 @@
-package xyz.mf7.kotlinpoet.`fun`
+package com.virtuslab.pulumikotlin.codegen
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import xyz.mf7.kotlinpoet.`fun`.InputOrOutput.*
-import xyz.mf7.kotlinpoet.`fun`.LanguageType.Kotlin
-import xyz.mf7.kotlinpoet.`fun`.UseCharacteristic.*
+import com.virtuslab.pulumikotlin.codegen.InputOrOutput.*
+import com.virtuslab.pulumikotlin.codegen.LanguageType.Kotlin
+import com.virtuslab.pulumikotlin.codegen.UseCharacteristic.*
 
 @JvmInline
 value class Package(val value: String)

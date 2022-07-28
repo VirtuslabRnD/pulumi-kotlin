@@ -1,7 +1,6 @@
-package xyz.mf7.kotlinpoet.sdk
+package com.virtuslab.pulumikotlin.codegen.sdk
 
 import com.pulumi.core.Output
-import javax.annotation.Nullable
 
 @DslMarker
 annotation class PulumiTagMarker
@@ -69,14 +68,14 @@ data class CustomArgsBuilder(
 ) {
     fun protect(value : Boolean): Unit { this.protect = value } 
     fun id(value : Output<String>?): Unit { this.id = value } 
-    fun parent(value : Resource?): Unit { this.parent = value } 
-    fun dependsOn(value: Output<List<Resource>>?): Unit { this.dependsOn = value } 
+    fun parent(value : Resource?): Unit { this.parent = value }
+    fun dependsOn(value: Output<List<Resource>>?): Unit { this.dependsOn = value }
     fun ignoreChanges(value: List<String>?): Unit { this.ignoreChanges = value } 
     fun version(value : String?): Unit { this.version = value } 
-    fun provider(value : ProviderResource?): Unit { this.provider = value } 
+    fun provider(value : ProviderResource?): Unit { this.provider = value }
     fun customTimeouts(value: CustomTimeouts?): Unit { this.customTimeouts = value }
     fun resourceTransformations(value: List<ResourceTransformation>?): Unit { this.resourceTransformations = value }
-    fun aliases(value : List<Output<Alias>>?): Unit { this.aliases = value } 
+    fun aliases(value : List<Output<Alias>>?): Unit { this.aliases = value }
     fun urn(value : String?): Unit { this.urn = value } 
     fun deleteBeforeReplace(value: Boolean): Unit { this.deleteBeforeReplace = value }
     fun additionalSecretOutputs(value: List<String>?): Unit { this.additionalSecretOutputs = value } 

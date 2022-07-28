@@ -1,4 +1,4 @@
-package xyz.mf7.kotlinpoet.`fun`
+package com.virtuslab.pulumikotlin.codegen
 
 fun <T> T.letIf(what: (T) -> Boolean, mapper: (T) -> T): T {
     return if (what(this)) {

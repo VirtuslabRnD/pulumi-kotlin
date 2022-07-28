@@ -1,16 +1,13 @@
-package xyz.mf7.kotlinpoet.`fun`
+package com.virtuslab.pulumikotlin.codegen
 
-import com.pulumi.core.Output
 import com.pulumi.core.TypeShape
 import com.pulumi.deployment.Deployment
 import com.pulumi.deployment.DeploymentInstance
 import com.pulumi.kotlin.PulumiJavaKotlinInterop
-import com.pulumi.resources.InvokeArgs
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KFunction3
 
 inline fun <reified T> classNameOf(): ClassName {
     return T::class.asClassName()

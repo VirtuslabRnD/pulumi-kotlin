@@ -1,14 +1,4 @@
-package xyz.mf7.kotlinpoet.`fun`
-
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.STRING
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.jsonObject
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
-import java.io.File
+package com.virtuslab.pulumikotlin.codegen
 
 internal class GenerateTypeWithNiceBuildersTest {
 

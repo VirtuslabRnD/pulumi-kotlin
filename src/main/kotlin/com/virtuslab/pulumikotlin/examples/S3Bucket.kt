@@ -1,4 +1,4 @@
-package xyz.mf7.kotlinpoet.exampleapi
+package com.virtuslab.pulumikotlin.examples
 
 import com.pulumi.aws.s3.BucketV2
 import com.pulumi.aws.s3.BucketV2Args

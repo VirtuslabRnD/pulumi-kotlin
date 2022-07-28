@@ -1,13 +1,13 @@
-package xyz.mf7.kotlinpoet.`fun`.scripts
+package com.virtuslab.pulumikotlin.scripts
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import xyz.mf7.kotlinpoet.`fun`.FunctionsMap
-import xyz.mf7.kotlinpoet.`fun`.ResourcesMap
-import xyz.mf7.kotlinpoet.`fun`.TypesMap
+import com.virtuslab.pulumikotlin.codegen.FunctionsMap
+import com.virtuslab.pulumikotlin.codegen.ResourcesMap
+import com.virtuslab.pulumikotlin.codegen.TypesMap
 import java.io.File
 
 @kotlinx.serialization.Serializable
