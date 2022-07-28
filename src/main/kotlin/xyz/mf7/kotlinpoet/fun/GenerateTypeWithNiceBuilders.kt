@@ -315,6 +315,8 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
                 is ListType -> specialMethodsForList(name, fieldType as NormalField<ListType>)
                 is MapType -> specialMethodsForMap(name, fieldType as NormalField<MapType>)
                 is PrimitiveType -> listOf()
+                is EitherType -> listOf()
+                else -> listOf()
             }
         }
 

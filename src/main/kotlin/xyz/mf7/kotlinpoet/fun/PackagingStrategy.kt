@@ -54,12 +54,25 @@ sealed class Type {
     abstract fun toTypeName(): TypeName
 }
 
+sealed class AutonomousType: Type()
 
-data class ComplexType(val metadata: TypeMetadata, val fields: Map<String, Type>) : Type() {
+object AnyType: Type() {
+    override fun toTypeName(): TypeName {
+        return ANY
+    }
+}
+
+data class ComplexType(val metadata: TypeMetadata, val fields: Map<String, Type>) : AutonomousType() {
     override fun toTypeName(): TypeName {
         return ClassName(metadata.toPackage(LanguageType.Kotlin), metadata.toClassName(LanguageType.Kotlin))
     }
     fun toBuilderTypeName(): TypeName {
+        return ClassName(metadata.toPackage(LanguageType.Kotlin), metadata.toClassName(LanguageType.Kotlin))
+    }
+}
+
+data class EnumType(val metadata: TypeMetadata, val possibleValues: List<String>): AutonomousType() {
+    override fun toTypeName(): TypeName {
         return ClassName(metadata.toPackage(LanguageType.Kotlin), metadata.toClassName(LanguageType.Kotlin))
     }
 }
@@ -76,7 +89,12 @@ data class MapType(val firstType: Type, val secondType: Type) : Type() {
             listOf(firstType.toTypeName(), secondType.toTypeName())
         )
     }
+}
 
+data class EitherType(val firstType: Type, val secondType: Type): Type() {
+    override fun toTypeName(): TypeName {
+        return ANY // TODO: improve
+    }
 }
 
 data class PrimitiveType(val name: String) : Type() {
@@ -233,19 +251,78 @@ data class PulumiName(
     }
 }
 
+fun toTypeRoot(complexTypes: Map<String, Resources.PropertySpecification>, name: String, spec: Resources.PropertySpecification): AutonomousType {
+    return when(spec) {
+        is Resources.ArrayProperty -> error("unexpected")
+        is Resources.BooleanProperty -> error("unexpected")
+        is Resources.IntegerProperty -> error("unexpected")
+        is Resources.MapProperty -> error("unexpected")
+        is Resources.NumberProperty -> error("unexpected")
+        is Resources.ObjectProperty -> ComplexType(
+            TypeMetadata(PulumiName.from(name), Input, ResourceNested),
+            spec.properties.map { (key, value) ->
+                key.value to toType(complexTypes, value)
+            }.toMap()
+        )
+        is Resources.OneOf -> error("unexpected")
+        is Resources.ReferredProperty -> error("unexpected")
+        is Resources.StringEnumProperty -> {
+            EnumType(
+                TypeMetadata(PulumiName.from(name), Input, ResourceNested),
+                spec.enum.map { it.value }
+            )
+        }
+        is Resources.StringProperty -> error("unexpected")
+    }
+}
 
+fun toType(complexTypes: Map<String, Resources.PropertySpecification>, spec: Resources.PropertySpecification): Type {
+    return when(spec) {
+        is Resources.ArrayProperty -> ListType(toType(complexTypes, spec.items))
+        is Resources.BooleanProperty -> PrimitiveType("Boolean")
+        is Resources.IntegerProperty -> PrimitiveType("Int")
+        is Resources.MapProperty -> MapType(PrimitiveType("String"), toType(complexTypes, spec.additionalProperties))
+        is Resources.NumberProperty -> PrimitiveType("Double") // TODO: Double or Long or BigDecimal?
+        is Resources.ObjectProperty -> error("nested objects not supported")
+        is Resources.OneOf -> EitherType(toType(complexTypes, spec.oneOf.get(0)), toType(complexTypes, spec.oneOf.get(1)))
+        is Resources.ReferredProperty -> {
+            val referencedType = spec.`$ref`.value.removePrefix("#/types/")
+            if(referencedType.startsWith("pulumi")) {
+                AnyType
+            } else {
+                val foundType = complexTypes.get(referencedType)
+                if(foundType == null) {
+                    println("Not found type for ${referencedType}, defaulting to Any")
+                    AnyType
+                } else {
+                    toTypeRoot(complexTypes, referencedType, foundType)
+                }
+            }
+        }
+        is Resources.StringEnumProperty -> PrimitiveType("String") // TODO: support enum
+        is Resources.StringProperty -> PrimitiveType("String")
+    }
+}
 
-//fun getTypeSpecs(
-//    resourceMap: ResourcesMap,
-//    typesMap: TypesMap,
-//    functionsMap: FunctionsMap
-//): List<ComplexType> {
-//    data class Temp(
-//        val grouping: Map<String, List<String>>,
-//        val inputOrOutput: InputOrOutput,
-//        val useCharacteristic: UseCharacteristic
-//    )
-//
+fun getTypeSpecs(
+    resourceMap: ResourcesMap,
+    typesMap: TypesMap,
+    functionsMap: FunctionsMap
+): List<AutonomousType> {
+    data class Temp(
+        val grouping: Map<String, List<String>>,
+        val inputOrOutput: InputOrOutput,
+        val useCharacteristic: UseCharacteristic
+    )
+
+    val resolvedComplexTypes = typesMap.map { (name, spec) ->
+        toTypeRoot(typesMap, name, spec) as AutonomousType
+    }
+
+    return resolvedComplexTypes
+
+//    allComplexTypesFor(Map<String, >)
+
 //    val functionRootInputTypes = functionsMap
 //        .filter { (_, function) -> function.inputs != null }
 //        .map { (name, function) ->
@@ -313,8 +390,8 @@ data class PulumiName(
 //    }
 //    return (allTypeMetadata + functionRootInputTypes + functionRootOutputTypes + resourceRootInputTypes)
 //        .associateBy { it.metadata.pulumiName }
-//}
-//
+}
+
 //private fun getReferencedOutputTypes(resource: Resources.Resource): List<String> {
 //    return resource.properties.flatMap { (name, propertySpec) ->
 //        getReferencedTypes(propertySpec)
@@ -359,5 +436,5 @@ data class PulumiName(
 //        is Resources.NumberProperty -> emptyList()
 //    }
 //}
-//
-//
+
+

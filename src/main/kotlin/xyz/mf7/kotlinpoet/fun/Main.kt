@@ -10,30 +10,30 @@ import kotlin.io.path.absolutePathString
 
 fun main(args: Array<String>) {
 //
-//    val loadedSchema = {}::class.java.getResourceAsStream("/schema.json")!!
-//
-//    val schemaFromJson = Json.parseToJsonElement(
-//        loadedSchema.bufferedReader().readText()
-//    )
-//
-//    val loadedSchemaClassic = { }::class.java.getResourceAsStream("/schema-aws-classic.json")!!
-//
-//    val schemaFromJsonClassic = Json.parseToJsonElement(
-//        loadedSchemaClassic.bufferedReader().readText()
-//    )
-//
-//    val typesForAwsNative = Json.decodeFromJsonElement<TypesMap>(schemaFromJson.jsonObject["types"]!!)
-//
-//    val typesForAwsClassic = Json.decodeFromJsonElement<TypesMap>(schemaFromJsonClassic.jsonObject["types"]!!)
-//
-//    val functionsForAwsClassic =
-//        Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
-//
-//    val resourcesForAwsClassic =
-//        Json.decodeFromJsonElement<ResourcesMap>(schemaFromJsonClassic.jsonObject["resources"]!!)
-//
-//    val destination = "/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java"
-//
+    val loadedSchema = {}::class.java.getResourceAsStream("/schema.json")!!
+
+    val schemaFromJson = Json.parseToJsonElement(
+        loadedSchema.bufferedReader().readText()
+    )
+
+    val loadedSchemaClassic = { }::class.java.getResourceAsStream("/schema-aws-classic.json")!!
+
+    val schemaFromJsonClassic = Json.parseToJsonElement(
+        loadedSchemaClassic.bufferedReader().readText()
+    )
+
+    val typesForAwsNative = Json.decodeFromJsonElement<TypesMap>(schemaFromJson.jsonObject["types"]!!)
+
+    val typesForAwsClassic = Json.decodeFromJsonElement<TypesMap>(schemaFromJsonClassic.jsonObject["types"]!!)
+
+    val functionsForAwsClassic =
+        Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
+
+    val resourcesForAwsClassic =
+        Json.decodeFromJsonElement<ResourcesMap>(schemaFromJsonClassic.jsonObject["resources"]!!)
+
+    val destination = "/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java"
+
 //    generateTypes(typesForAwsClassic).forEach {
 //        it.writeTo(File(destination))
 //    }
@@ -49,6 +49,31 @@ fun main(args: Array<String>) {
 //    types2.forEach {
 //        it.writeTo(File("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/test_new_types"))
 //    }
+//
+
+    val specs = getTypeSpecs(
+        resourcesForAwsClassic,
+        typesForAwsClassic,
+        functionsForAwsClassic
+    )
+
+    val generatedBuilders = specs.filterIsInstance<ComplexType>().map { a ->
+        generateTypeWithNiceBuilders(
+            a.metadata.toClassName(LanguageType.Kotlin),
+            a.metadata.toPackage(LanguageType.Kotlin),
+            a.metadata.toClassName(LanguageType.Kotlin),
+            a.metadata.toBuilderClassName(LanguageType.Kotlin),
+            a.fields.map { (name, type) -> Field(name, OutputWrappedField(type), true,
+                listOf(
+                    NormalField(type) { from, to -> CodeBlock.of("val $to = Output.of($from)") }
+                )
+            ) }
+        )
+    }
+
+    generatedBuilders.forEach {
+        it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated-funs2"))
+    }
 
     println(
         PulumiName("test", listOf("a", "b", "O"), "name")
