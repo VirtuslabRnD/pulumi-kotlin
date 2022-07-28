@@ -88,7 +88,7 @@ fun generateTypeWithNiceBuilders(
         .addProperties(
             fields.map {
                 PropertySpec
-                    .builder(it.name, it.fieldType.toTypeName().copy(nullable = !it.required))
+                    .builder(it.name, it.fieldType.toTypeName().copy(nullable = true))
                     .initializer("null")
                     .mutable(true)
                     .addModifiers(KModifier.PRIVATE)

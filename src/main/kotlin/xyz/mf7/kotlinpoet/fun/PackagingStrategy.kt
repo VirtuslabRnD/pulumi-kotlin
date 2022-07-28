@@ -32,7 +32,7 @@ data class TypeMetadata(
     }
 
     fun toBuilderClassName(language: LanguageType): String {
-        return pulumiName.toClassName(namingFlags(language))
+        return pulumiName.toBuilderClassName(namingFlags(language))
     }
 
     fun toPackage(language: LanguageType): String {
@@ -67,7 +67,7 @@ data class ComplexType(val metadata: TypeMetadata, val fields: Map<String, Type>
         return ClassName(metadata.toPackage(LanguageType.Kotlin), metadata.toClassName(LanguageType.Kotlin))
     }
     fun toBuilderTypeName(): TypeName {
-        return ClassName(metadata.toPackage(LanguageType.Kotlin), metadata.toClassName(LanguageType.Kotlin))
+        return ClassName(metadata.toPackage(LanguageType.Kotlin), metadata.toBuilderClassName(LanguageType.Kotlin))
     }
 }
 
