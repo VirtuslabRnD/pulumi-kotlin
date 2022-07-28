@@ -139,9 +139,9 @@ fun builderLambda(innerType: TypeName): TypeName {
         .copy(suspending = true)
 }
 
-data class CodeBlock2(val mappingCode: MappingCode? = null, val code: String, val args: List<Any?>) {
+data class BuilderSettingCodeBlock(val mappingCode: MappingCode? = null, val code: String, val args: List<Any?>) {
 
-    fun withMappingCode(mappingCode: MappingCode): CodeBlock2 {
+    fun withMappingCode(mappingCode: MappingCode): BuilderSettingCodeBlock {
         return copy(mappingCode = mappingCode)
     }
 
@@ -162,14 +162,14 @@ data class CodeBlock2(val mappingCode: MappingCode? = null, val code: String, va
     }
 
     companion object {
-        fun create(code: String, vararg args: Any?) = CodeBlock2(null, code, args.toList())
+        fun create(code: String, vararg args: Any?) = BuilderSettingCodeBlock(null, code, args.toList())
     }
 }
 
 fun builderPattern(
     name: String,
     parameterType: TypeName,
-    codeBlock: CodeBlock2,
+    codeBlock: BuilderSettingCodeBlock,
     parameterModifiers: List<KModifier> = emptyList()
 ): FunSpec {
     return FunSpec
@@ -193,7 +193,7 @@ private fun specialMethodsForComplexType(
         builderPattern(
             name,
             builderLambda(builderTypeName),
-            CodeBlock2.create("%T().apply { argument() }.build()", builderTypeName).withMappingCode(field.mappingCode),
+            BuilderSettingCodeBlock.create("%T().apply { argument() }.build()", builderTypeName).withMappingCode(field.mappingCode),
         )
     )
 }
@@ -205,7 +205,7 @@ private fun specialMethodsForList(
     val innerType = field.type.innerType
     val builderPattern = when (innerType) {
         is ComplexType -> {
-            val commonCodeBlock = CodeBlock2
+            val commonCodeBlock = BuilderSettingCodeBlock
                 .create(
                     "argument.toList().map { %T().apply { it() }.build() }",
                     innerType.toBuilderTypeName()
@@ -256,7 +256,7 @@ private fun specialMethodsForMap(
 
     val builderPattern = when (rightInnerType) {
          is ComplexType -> {
-            val commonCodeBlock = CodeBlock2
+            val commonCodeBlock = BuilderSettingCodeBlock
                 .create(
                     "argument.toList().map { (left, right) -> left to %T().apply { right() }.build() }",
                     rightInnerType.toBuilderTypeName()
