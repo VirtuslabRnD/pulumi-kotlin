@@ -3,6 +3,7 @@ package com.virtuslab.pulumikotlin.codegen
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.virtuslab.pulumikotlin.codegen.InputOrOutput.*
+import com.virtuslab.pulumikotlin.codegen.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.UseCharacteristic.*
 
@@ -19,6 +20,8 @@ data class FunctionSpec(
 )
 
 data class NameGeneration(private val pulumiName: PulumiName, private val namingFlags: NamingFlags) {
+
+    val kotlinPoetClassName get() = ClassName(pulumiName.toPackage(namingFlags), pulumiName.toClassName(namingFlags))
 
     val className get() = pulumiName.toClassName(namingFlags)
 
@@ -191,33 +194,64 @@ data class PulumiName(
         return when (namingFlags) {
             NamingFlags(Input, FunctionNested, Kotlin) -> Modifiers(
                 "Args",
-                listOf("input"),
+                listOf("kotlin", "inputs"),
                 shouldConstructBuilders = true
             )
             NamingFlags(Input, ResourceNested, Kotlin) -> Modifiers(
                 "Args",
-                listOf("input"),
+                listOf("kotlin", "inputs"),
                 shouldConstructBuilders = true
             )
-            NamingFlags(Input, ResourceRoot, Kotlin) -> Modifiers("Args", listOf(), shouldConstructBuilders = true)
+            NamingFlags(Input, ResourceRoot, Kotlin) -> Modifiers("Args", listOf("kotlin"), shouldConstructBuilders = true)
             NamingFlags(Input, FunctionRoot, Kotlin) -> Modifiers(
                 "Args",
-                listOf("input"),
+                listOf("kotlin", "inputs"),
                 shouldConstructBuilders = true
             )
             NamingFlags(Output, FunctionNested, Kotlin) -> Modifiers(
                 "Result",
-                listOf("output"),
+                listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false
             )
             NamingFlags(Output, ResourceNested, Kotlin) -> Modifiers(
                 "",
-                listOf("output"),
+                listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false
             )
             NamingFlags(Output, FunctionRoot, Kotlin) -> Modifiers(
                 "Result",
-                listOf("output"),
+                listOf("kotlin", "outputs"),
+                shouldConstructBuilders = false
+            )
+            NamingFlags(Input, FunctionNested, Java) -> Modifiers(
+                "Args",
+                listOf("inputs"),
+                shouldConstructBuilders = true
+            )
+            NamingFlags(Input, ResourceNested, Java) -> Modifiers(
+                "Args",
+                listOf("inputs"),
+                shouldConstructBuilders = true
+            )
+            NamingFlags(Input, ResourceRoot, Java) -> Modifiers("Args", listOf("inputs"), shouldConstructBuilders = true)
+            NamingFlags(Input, FunctionRoot, Java) -> Modifiers(
+                "Args",
+                listOf("inputs"),
+                shouldConstructBuilders = true
+            )
+            NamingFlags(Output, FunctionNested, Java) -> Modifiers(
+                "Result",
+                listOf("outputs"),
+                shouldConstructBuilders = false
+            )
+            NamingFlags(Output, ResourceNested, Java) -> Modifiers(
+                "",
+                listOf("outputs"),
+                shouldConstructBuilders = false
+            )
+            NamingFlags(Output, FunctionRoot, Java) -> Modifiers(
+                "Result",
+                listOf("outputs"),
                 shouldConstructBuilders = false
             )
             else -> error("not possible")
@@ -236,7 +270,7 @@ data class PulumiName(
 
     fun toPackage(namingFlags: NamingFlags): String {
         val modifiers = getModifiers(namingFlags)
-        return packageToString(relativeToComPulumiKotlin(namespace) + modifiers.packageSuffix)
+        return packageToString(relativeToProviderPackage(namespace) + modifiers.packageSuffix)
     }
 
     fun toFunctionName(namingFlags: NamingFlags): String {
@@ -248,8 +282,8 @@ data class PulumiName(
         return packageList.joinToString(".")
     }
 
-    private fun relativeToComPulumiKotlin(packageList: List<String>): List<String> {
-        return listOf("com", "pulumi", "kotlin") + packageList
+    private fun relativeToProviderPackage(packageList: List<String>): List<String> {
+        return listOf("com", "pulumi", providerName) + packageList
     }
 }
 

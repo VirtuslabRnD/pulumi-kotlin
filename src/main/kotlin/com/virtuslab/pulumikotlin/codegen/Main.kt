@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.*
 import kotlinx.serialization.json.*
 
 import java.io.File
+import java.nio.file.Files
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
@@ -68,8 +69,10 @@ fun main(args: Array<String>) {
         )
     }
 
+    moveSdk("/Users/mfudala/workspace/pulumi-kotlin/src/main/kotlin/com/virtuslab/pulumikotlin/codegen/sdk", "/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/com/pulumi/kotlin")
+
     generatedBuilders.forEach {
-        it.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated-funs2"))
+        it.writeTo(File("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/"))
     }
 
     println(
@@ -144,12 +147,8 @@ fun generateAndSaveVersionAndPluginFile(baseResourcesPath: String, packageName: 
     )
 }
 
-fun generateAndSaveCommon(baseJavaPath: String, packageName: String) {
-    val preparedPackageName = packageName.replace("-", "")
-
-    val packagePath = preparedPackageName.replace(".", "/")
-
-    File(baseJavaPath, "$packagePath/Utilities.java").writeText(generateUtilsFile(packagePath, preparedPackageName))
+fun moveSdk(fromPath: String, toPath: String) {
+    File(fromPath).copyRecursively(target = File(toPath), overwrite = true)
 }
 
 fun packageNameForName(name: String): String {

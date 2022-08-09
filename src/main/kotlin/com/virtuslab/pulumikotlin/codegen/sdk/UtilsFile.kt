@@ -1,90 +1,79 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.pulumi.kotlin
 
-fun generateUtilsFile(packagePath: String, packageName: String): String {
-    return """
-        package ${packageName};
-        
-        import java.io.BufferedReader;
-        import java.io.InputStreamReader;
-        import java.util.Optional;
-        import java.util.stream.Collectors;
-        import javax.annotation.Nullable;
-        import com.pulumi.core.internal.Environment;
-        import com.pulumi.deployment.InvokeOptions;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import com.pulumi.core.internal.Environment;
+import com.pulumi.deployment.InvokeOptions;
 
-        public class Utilities {
+object Utilities {
 
-        	public static Optional<String> getEnv(String... names) {
-                for (var n : names) {
-                    var value = Environment.getEnvironmentVariable(n);
-                    if (value.isValue()) {
-                        return Optional.of(value.value());
-                    }
-                }
-                return Optional.empty();
-            }
+    var version: String
 
-        	public static Optional<Boolean> getEnvBoolean(String... names) {
-                for (var n : names) {
-                    var value = Environment.getBooleanEnvironmentVariable(n);
-                    if (value.isValue()) {
-                        return Optional.of(value.value());
-                    }
-                }
-                return Optional.empty();
-        	}
+    init {
+        val resourceName = "{{{PACKAGE_PATH}}}/version.txt";
+        val versionFile = Utilities::class.java.classLoader.getResourceAsStream(resourceName);
+        checkNotNull(versionFile) {
+            "expected resource '${resourceName}' on Classpath, not found"
+        }
+        version = BufferedReader(InputStreamReader(versionFile))
+            .lines()
+            .collect(Collectors.joining("\n"))
+            .trim();
+    }
 
-        	public static Optional<Integer> getEnvInteger(String... names) {
-                for (var n : names) {
-                    var value = Environment.getIntegerEnvironmentVariable(n);
-                    if (value.isValue()) {
-                        return Optional.of(value.value());
-                    }
-                }
-                return Optional.empty();
-        	}
-
-        	public static Optional<Double> getEnvDouble(String... names) {
-                for (var n : names) {
-                    var value = Environment.getDoubleEnvironmentVariable(n);
-                    if (value.isValue()) {
-                        return Optional.of(value.value());
-                    }
-                }
-                return Optional.empty();
-        	}
-
-        	// TODO: this probably should be done via a mutator on the InvokeOptions
-        	public static InvokeOptions withVersion(@Nullable InvokeOptions options) {
-                    if (options != null && options.getVersion().isPresent()) {
-                        return options;
-                    }
-                    return new InvokeOptions(
-                        options == null ? null : options.getParent().orElse(null),
-                        options == null ? null : options.getProvider().orElse(null),
-                        getVersion()
-                    );
-                }
-
-            private static final String version;
-            public static String getVersion() {
-                return version;
-            }
-
-            static {
-                var resourceName = "${packagePath}/version.txt";
-                var versionFile = Utilities.class.getClassLoader().getResourceAsStream(resourceName);
-                if (versionFile == null) {
-                    throw new IllegalStateException(
-                            String.format("expected resource '%s' on Classpath, not found", resourceName)
-                    );
-                }
-                version = new BufferedReader(new InputStreamReader(versionFile))
-                        .lines()
-                        .collect(Collectors.joining("\n"))
-                        .trim();
+    fun getEnv(vararg names: String): String? {
+        names.forEach {
+            val value = Environment.getEnvironmentVariable(it);
+            if (value.isValue) {
+                return value.value()
             }
         }
+        return null
+    }
 
-    """.trimIndent()
+    fun getEnvBoolean(vararg names: String): Boolean? {
+        names.forEach {
+            val value = Environment.getBooleanEnvironmentVariable(it);
+            if (value.isValue) {
+                return value.value()
+            }
+        }
+        return null
+    }
+
+    fun getEnvInteger(vararg names: String): Int? {
+        names.forEach {
+            val value = Environment.getIntegerEnvironmentVariable(it);
+            if (value.isValue) {
+                return value.value()
+            }
+        }
+        return null
+    }
+
+    fun getEnvDouble(vararg names: String): Double? {
+        names.forEach {
+            val value = Environment.getDoubleEnvironmentVariable(it);
+            if (value.isValue) {
+                return value.value()
+            }
+        }
+        return null
+    }
+
+    // TODO: this probably should be done via a mutator on the InvokeOptions
+    fun withVersion(options: InvokeOptions?): InvokeOptions {
+        if (options != null && options.version.isPresent) {
+            return options;
+        }
+        return InvokeOptions(
+            options?.parent?.orElse(null),
+            options?.provider?.orElse(null),
+            version
+        )
+    }
+
 }

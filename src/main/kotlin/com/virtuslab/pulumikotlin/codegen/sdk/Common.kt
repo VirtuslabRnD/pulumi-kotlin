@@ -1,4 +1,4 @@
-package com.virtuslab.pulumikotlin.codegen.sdk
+package com.pulumi.kotlin
 
 import com.pulumi.core.Output
 
@@ -85,6 +85,21 @@ data class CustomArgsBuilder(
     fun pluginDownloadURL(value: String?) = null
 }
 
+fun <T> List<ConvertibleToJava<T>>.toJava(): List<T> {
+    return map { it.toJava() }
+}
+
+fun <T, T2> Map<T, ConvertibleToJava<T2>>.toJava(): Map<T, T2> {
+    return map { (key, value) -> key to value.toJava() }.toMap()
+}
+
+fun <T> Output<out ConvertibleToJava<T>>.toJava(): Output<T> {
+    return applyValue { it.toJava() }
+}
+
+interface ConvertibleToJava<T> {
+    fun toJava(): T
+}
 
 /* Copied from aws-java
 *

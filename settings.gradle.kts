@@ -1,3 +1,3 @@
 
-rootProject.name = "kotlin-poet-fun"
+rootProject.name = "pulumi-kotlin"
 

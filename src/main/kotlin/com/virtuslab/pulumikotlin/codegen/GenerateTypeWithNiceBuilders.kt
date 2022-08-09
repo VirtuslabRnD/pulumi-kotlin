@@ -1,25 +1,27 @@
 package com.virtuslab.pulumikotlin.codegen
 
 import com.squareup.kotlinpoet.*
-import com.squareup.kotlinpoet.KModifier.SUSPEND
-import com.squareup.kotlinpoet.KModifier.VARARG
+import com.squareup.kotlinpoet.KModifier.*
+import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 typealias MappingCode = (from: String, to: String) -> CodeBlock
 
 sealed class FieldType<T : Type> {
     abstract fun toTypeName(): TypeName
+
+    abstract val type: T
 }
 
-data class NormalField<T : Type>(val type: T, val mappingCode: MappingCode) : FieldType<T>() {
+data class NormalField<T : Type>(override val type: T, val mappingCode: MappingCode) : FieldType<T>() {
     override fun toTypeName(): TypeName {
         return type.toTypeName()
     }
 }
 
-data class OutputWrappedField<T : Type>(val type: T) : FieldType<T>() {
+data class OutputWrappedField<T : Type>(override val type: T) : FieldType<T>() {
     override fun toTypeName(): TypeName {
-        return MoreTypes.Pulumi.Output(type.toTypeName())
+        return MoreTypes.Java.Pulumi.Output(type.toTypeName())
     }
 }
 
@@ -30,6 +32,40 @@ data class Field<T : Type>(
     val overloads: List<FieldType<*>>
 )
 
+fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
+
+    val codeBlocks = fields.map { field ->
+        val block = CodeBlock.of(
+            ".%N(%N)", field.name, field.name
+        )
+        val toJavaBlock = CodeBlock.of(".%N(%N.%N())", field.name, field.name, MoreTypes.Kotlin.Pulumi.CommonToJava())
+        when(field.fieldType.type) {
+            AnyType -> block
+            is PrimitiveType -> block
+            is ComplexType -> toJavaBlock
+            is EnumType -> toJavaBlock
+            is EitherType -> toJavaBlock
+            is ListType -> toJavaBlock
+            is MapType -> toJavaBlock
+        }
+
+    }
+
+    val names = typeMetadata.names(LanguageType.Java)
+    val javaArgsClass = ClassName(names.packageName, names.className)
+
+    return FunSpec.builder("toJava")
+        .returns(javaArgsClass)
+        .addModifiers(OVERRIDE)
+        .addCode(CodeBlock.of("return %T.%M()", javaArgsClass, javaArgsClass.member("builder")))
+        .apply {
+            codeBlocks.forEach {block ->
+                addCode(block)
+            }
+        }
+        .addCode(CodeBlock.of(".build()"))
+        .build()
+}
 fun generateTypeWithNiceBuilders(
     typeMetadata: TypeMetadata,
     fields: List<Field<*>>
@@ -44,6 +80,7 @@ fun generateTypeWithNiceBuilders(
     val argsClassName = ClassName(names.packageName, names.className)
 
     val classB = TypeSpec.classBuilder(argsClassName)
+        .addSuperinterface(MoreTypes.Kotlin.Pulumi.ConvertibleToJava(typeMetadata.names(LanguageType.Java).kotlinPoetClassName))
         .addModifiers(KModifier.DATA)
 
     val constructor = FunSpec.constructorBuilder()
@@ -73,6 +110,8 @@ fun generateTypeWithNiceBuilders(
     }
 
     classB.primaryConstructor(constructor.build())
+
+    classB.addFunction(toJavaFunction(typeMetadata, fields))
     val argsClass = classB.build()
 
     val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
