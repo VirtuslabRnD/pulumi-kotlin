@@ -74,7 +74,7 @@ data class PulumiName(
                 shouldConstructBuilders = true
             )
             NamingFlags(InputOrOutput.Output, UseCharacteristic.FunctionNested, LanguageType.Java) -> Modifiers(
-                "Result",
+                "",
                 listOf("outputs"),
                 shouldConstructBuilders = false
             )
@@ -95,7 +95,7 @@ data class PulumiName(
             )
             NamingFlags(InputOrOutput.Output,  UseCharacteristic.ResourceRoot, LanguageType.Kotlin) -> Modifiers(
                 "",
-                listOf("outputs"),
+                listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false
             )
             else -> error("not possible")

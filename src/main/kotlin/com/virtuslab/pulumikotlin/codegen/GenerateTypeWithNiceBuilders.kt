@@ -70,9 +70,15 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
         .addCode(CodeBlock.of(".build()"))
         .build()
 }
+
+data class GenerationOptions(
+    val shouldGenerateBuilders: Boolean = true
+)
+
 fun generateTypeWithNiceBuilders(
     typeMetadata: TypeMetadata,
-    fields: List<Field<*>>
+    fields: List<Field<*>>,
+    options: GenerationOptions = GenerationOptions()
 ): FileSpec {
 
     val names = typeMetadata.names(LanguageType.Kotlin)
@@ -153,7 +159,13 @@ fun generateTypeWithNiceBuilders(
     fileSpec
         .addImport("com.pulumi.kotlin", "applySuspend")
         .addImport("com.pulumi.kotlin", "toJava")
-        .addType(argsBuilderClass)
+        .let {
+            if(options.shouldGenerateBuilders) {
+                it.addType(argsBuilderClass)
+            } else {
+                it
+            }
+        }
         .addType(argsClass)
 
     return fileSpec.build()
@@ -296,7 +308,7 @@ private fun specialMethodsForMap(
          is ComplexType -> {
             val commonCodeBlock = BuilderSettingCodeBlock
                 .create(
-                    "argument.toList().map { (left, right) -> left to %T().apply { right() }.build() }",
+                    "argument.toList().map { (left, right) -> left to %T().applySuspend { right() }.build() }",
                     rightInnerType.toBuilderTypeName()
                 )
                 .withMappingCode(field.mappingCode)

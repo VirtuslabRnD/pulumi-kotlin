@@ -59,17 +59,41 @@ fun main(args: Array<String>) {
     )
 
     val generatedBuilders = specs.filterIsInstance<ComplexType>().map { a ->
-        generateTypeWithNiceBuilders(
-            a.metadata,
-            a.fields.map { (name, type) -> Field(name, OutputWrappedField(type), true,
-                listOf(
-                    NormalField(type) { from, to -> CodeBlock.of("val $to = Output.of($from)") }
+        when {
+            a.metadata.useCharacteristic.toNested() == UseCharacteristic.FunctionNested || a.metadata.inputOrOutput == InputOrOutput.Output -> {
+                generateTypeWithNiceBuilders(
+                    a.metadata,
+                    a.fields.map { (name, type) ->
+                        Field(
+                            name,
+                            NormalField(type) { from, to -> CodeBlock.of("val $to = $from") },
+                            true,
+                            overloads = emptyList()
+                        )
+                    }
                 )
-            ) }
-        )
+            }
+
+            else -> {
+                generateTypeWithNiceBuilders(
+                    a.metadata,
+                    a.fields.map { (name, type) ->
+                        Field(name, OutputWrappedField(type), true,
+                            listOf(
+                                NormalField(type) { from, to -> CodeBlock.of("val $to = Output.of($from)") }
+                            )
+                        )
+                    }
+                )
+            }
+        }
+
     }
 
-    moveSdk("/Users/mfudala/workspace/pulumi-kotlin/src/main/kotlin/com/virtuslab/pulumikotlin/codegen/sdk", "/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/com/pulumi/kotlin")
+    moveSdk(
+        "/Users/mfudala/workspace/pulumi-kotlin/src/main/kotlin/com/virtuslab/pulumikotlin/codegen/sdk",
+        "/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/com/pulumi/kotlin"
+    )
 
     generatedBuilders.forEach {
         it.writeTo(File("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/"))
@@ -90,14 +114,22 @@ fun main(args: Array<String>) {
     )
 
     val complexType2 = ComplexType(
-        TypeMetadata(PulumiName("test2", listOf("a2", "b2", "O2"), "name2"), InputOrOutput.Input, UseCharacteristic.ResourceNested),
+        TypeMetadata(
+            PulumiName("test2", listOf("a2", "b2", "O2"), "name2"),
+            InputOrOutput.Input,
+            UseCharacteristic.ResourceNested
+        ),
         mapOf(
             "whatever2" to PrimitiveType("String")
         )
     )
 
     val complexType = ComplexType(
-        TypeMetadata(PulumiName("test", listOf("a", "b", "O"), "name"), InputOrOutput.Input, UseCharacteristic.ResourceRoot),
+        TypeMetadata(
+            PulumiName("test", listOf("a", "b", "O"), "name"),
+            InputOrOutput.Input,
+            UseCharacteristic.ResourceRoot
+        ),
         mapOf(
             "whatever" to complexType2
         )
