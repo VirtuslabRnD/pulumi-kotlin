@@ -10,8 +10,12 @@ object MoreTypes {
 
     object Kotlin {
         object Pulumi {
-            fun CommonToJava(): MemberName {
+            fun toJava(): MemberName {
                 return MemberName("com.pulumi.kotlin", "toJava")
+            }
+
+            fun applySuspend(): MemberName {
+                return MemberName("com.pulumi.kotlin", "applySuspend")
             }
 
             fun ConvertibleToJava(type: TypeName): ParameterizedTypeName =

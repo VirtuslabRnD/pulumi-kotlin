@@ -1,6 +1,8 @@
 package com.pulumi.kotlin
 
 import com.pulumi.core.Output
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @DslMarker
 annotation class PulumiTagMarker
@@ -85,6 +87,8 @@ data class CustomArgsBuilder(
     fun pluginDownloadURL(value: String?) = null
 }
 
+// TODO: make sure these helpers do not leak to the SDK
+
 fun <T> List<ConvertibleToJava<T>>.toJava(): List<T> {
     return map { it.toJava() }
 }
@@ -95,6 +99,11 @@ fun <T, T2> Map<T, ConvertibleToJava<T2>>.toJava(): Map<T, T2> {
 
 fun <T> Output<out ConvertibleToJava<T>>.toJava(): Output<T> {
     return applyValue { it.toJava() }
+}
+
+suspend inline fun <T> T.applySuspend(block: suspend T.() -> Unit): T {
+    block()
+    return this
 }
 
 interface ConvertibleToJava<T> {

@@ -1,9 +1,13 @@
 package com.virtuslab.pulumikotlin.codegen
 
+import com.google.common.primitives.Chars
+import com.pulumi.kotlin.applySuspend
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.KModifier.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import java.util.Random
+import kotlin.streams.asSequence
 
 typealias MappingCode = (from: String, to: String) -> CodeBlock
 
@@ -38,7 +42,7 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
         val block = CodeBlock.of(
             ".%N(%N)", field.name, field.name
         )
-        val toJavaBlock = CodeBlock.of(".%N(%N.%N())", field.name, field.name, MoreTypes.Kotlin.Pulumi.CommonToJava())
+        val toJavaBlock = CodeBlock.of(".%N(%N.%N())", field.name, field.name, "toJava")
         when(field.fieldType.type) {
             AnyType -> block
             is PrimitiveType -> block
@@ -117,7 +121,7 @@ fun generateTypeWithNiceBuilders(
     val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
 
     val argNames = fields.map {
-        "${it.name} = ${it.name}"
+        "${it.name} = ${it.name}!!"
     }.joinToString(", ")
 
     val argsBuilderClass = TypeSpec
@@ -147,6 +151,8 @@ fun generateTypeWithNiceBuilders(
         .build()
 
     fileSpec
+        .addImport("com.pulumi.kotlin", "applySuspend")
+        .addImport("com.pulumi.kotlin", "toJava")
         .addType(argsBuilderClass)
         .addType(argsClass)
 
@@ -213,6 +219,7 @@ fun builderPattern(
     return FunSpec
         .builder(name)
         .addModifiers(SUSPEND)
+//        .preventJvmPlatformNameClash()
         .addParameter(
             "argument",
             parameterType,
@@ -221,6 +228,12 @@ fun builderPattern(
         .addCode(codeBlock.toCodeBlock(name))
         .build()
 }
+
+private fun FunSpec.Builder.preventJvmPlatformNameClash(): FunSpec.Builder {
+    return addAnnotation(AnnotationSpec.builder(JvmName::class).addMember("%S", randomStringWith16Characters()).build())
+}
+
+private fun randomStringWith16Characters() = Random().ints('a'.code, 'z'.code).asSequence().map { it.toChar() }.take(16).joinToString("")
 
 private fun specialMethodsForComplexType(
     name: String,
@@ -231,7 +244,8 @@ private fun specialMethodsForComplexType(
         builderPattern(
             name,
             builderLambda(builderTypeName),
-            BuilderSettingCodeBlock.create("%T().apply { argument() }.build()", builderTypeName).withMappingCode(field.mappingCode),
+            BuilderSettingCodeBlock.create("%T().applySuspend { argument() }.build()", builderTypeName)
+                .withMappingCode(field.mappingCode),
         )
     )
 }
@@ -245,7 +259,7 @@ private fun specialMethodsForList(
         is ComplexType -> {
             val commonCodeBlock = BuilderSettingCodeBlock
                 .create(
-                    "argument.toList().map { %T().apply { it() }.build() }",
+                    "argument.toList().map { %T().applySuspend { it() }.build() }",
                     innerType.toBuilderTypeName()
                 )
                 .withMappingCode(field.mappingCode)
@@ -328,13 +342,29 @@ private fun generateFunctionsForInput(field: Field<*>): List<FunSpec> {
         generateFunctionsForInput2(field.name, field.required, it)
     }
 
-    return functionsForDefaultField + functionsForOverloads
+    val allFunctions = functionsForDefaultField + functionsForOverloads
+
+    return allFunctions.map {
+        it
+            .toBuilder()
+            .preventJvmPlatformNameClash()
+            .build()
+    }
 }
 
 private fun generateFunctionsForInput2(name: String, required: Boolean, fieldType: FieldType<*>): List<FunSpec> {
-    val specialFunctions = when (fieldType) {
+    val functions = when (fieldType) {
         is NormalField -> {
-            when (fieldType.type) {
+            val basicFunction =
+                FunSpec
+                    .builder(name)
+                    .addModifiers(SUSPEND)
+//                    .preventJvmPlatformNameClash()
+                    .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
+                    .addCode(mappingCodeBlock(fieldType.mappingCode, name, "value"))
+                    .build()
+
+            val otherFunctions = when (fieldType.type) {
                 is ComplexType -> specialMethodsForComplexType(name, fieldType as NormalField<ComplexType>)
                 is ListType -> specialMethodsForList(name, fieldType as NormalField<ListType>)
                 is MapType -> specialMethodsForMap(name, fieldType as NormalField<MapType>)
@@ -342,20 +372,24 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
                 is EitherType -> listOf()
                 else -> listOf()
             }
+
+            otherFunctions + basicFunction
         }
 
-        is OutputWrappedField -> listOf()
+        is OutputWrappedField -> listOf(
+            FunSpec
+                .builder(name)
+                .addModifiers(SUSPEND)
+//                .preventJvmPlatformNameClash()
+                .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
+                .addCode("this.${name} = value")
+                .build()
+        )
     }
 
-    val basicFunction =
-        FunSpec
-            .builder(name)
-            .addModifiers(SUSPEND)
-            .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
-            .addCode("this.${name} = value")
-            .build()
 
-    return specialFunctions + basicFunction
+
+    return functions
 }
 //
 //fun generateBuilderWrapperFunction(): FunSpec {
