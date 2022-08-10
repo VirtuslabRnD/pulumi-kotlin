@@ -101,6 +101,33 @@ fun <T> Output<out ConvertibleToJava<T>>.toJava(): Output<T> {
     return applyValue { it.toJava() }
 }
 
+@JvmName("A0E1B7D29")
+fun <T1, T2> Output<out Map<T1, ConvertibleToJava<T2>>>.toJava(): Output<Map<T1,T2>> {
+    return applyValue { it.toJava() }
+}
+
+@JvmName("AB82F3249")
+fun <T> Output<out List<ConvertibleToJava<T>>>.toJava(): Output<List<T>> {
+    return applyValue { it.toJava() }
+}
+
+fun omg() {
+    val a: Output<List<A>>? = null
+
+    a?.toJava()
+}
+
+class B {
+
+}
+
+class A: ConvertibleToJava<B> {
+    override fun toJava(): B {
+        return B()
+    }
+
+}
+
 suspend inline fun <T> T.applySuspend(block: suspend T.() -> Unit): T {
     block()
     return this

@@ -58,7 +58,7 @@ data class PulumiName(
                 shouldConstructBuilders = false
             )
             NamingFlags(InputOrOutput.Input, UseCharacteristic.FunctionNested, LanguageType.Java) -> Modifiers(
-                "Args",
+                "",
                 listOf("inputs"),
                 shouldConstructBuilders = true
             )
@@ -69,7 +69,7 @@ data class PulumiName(
             )
             NamingFlags(InputOrOutput.Input, UseCharacteristic.ResourceRoot, LanguageType.Java) -> Modifiers("Args", listOf("inputs"), shouldConstructBuilders = true)
             NamingFlags(InputOrOutput.Input, UseCharacteristic.FunctionRoot, LanguageType.Java) -> Modifiers(
-                "Args",
+                "",
                 listOf("inputs"),
                 shouldConstructBuilders = true
             )
@@ -85,6 +85,16 @@ data class PulumiName(
             )
             NamingFlags(InputOrOutput.Output, UseCharacteristic.FunctionRoot, LanguageType.Java) -> Modifiers(
                 "Result",
+                listOf("outputs"),
+                shouldConstructBuilders = false
+            )
+            NamingFlags(InputOrOutput.Output,  UseCharacteristic.ResourceRoot, LanguageType.Java) -> Modifiers(
+                "",
+                listOf("outputs"),
+                shouldConstructBuilders = false
+            )
+            NamingFlags(InputOrOutput.Output,  UseCharacteristic.ResourceRoot, LanguageType.Kotlin) -> Modifiers(
+                "",
                 listOf("outputs"),
                 shouldConstructBuilders = false
             )

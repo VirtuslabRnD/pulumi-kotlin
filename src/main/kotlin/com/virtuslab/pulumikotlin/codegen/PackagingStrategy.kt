@@ -3,29 +3,13 @@ package com.virtuslab.pulumikotlin.codegen
 import com.virtuslab.pulumikotlin.codegen.InputOrOutput.*
 import com.virtuslab.pulumikotlin.codegen.UseCharacteristic.*
 
-fun <T> Map<String, T>.grouping(f: (T) -> Iterable<String>): Map<String, Set<String>> {
-    return this
-        .flatMap { (name, resource) ->
-            val referencedTypes = f(resource)
-            referencedTypes.map {
-                it to name
-            }
-        }
-        .groupBy(
-            { (typeName, resourceName) ->
-                typeName
-            },
-            { (typeName, resourceName) ->
-                resourceName
-            },
-        )
-        .mapValues { (_, values) -> values.toSet() }
-}
 
 data class Usage(
     val inputOrOutput: InputOrOutput,
     val useCharacteristic: UseCharacteristic
-)
+) {
+    fun toNested() = copy(useCharacteristic = useCharacteristic.toNested())
+}
 
 enum class InputOrOutput {
     Input, Output
@@ -128,7 +112,7 @@ fun toType(
                     AnyType
                 } else {
                     toTypeRoot(references, complexTypes, referencedType, foundType).find {
-                        it.metadata.inputOrOutput == chosenUsage.inputOrOutput && it.metadata.useCharacteristic == chosenUsage.useCharacteristic
+                        it.metadata.inputOrOutput == chosenUsage.inputOrOutput
                     }!!
                 }
             }
@@ -147,6 +131,7 @@ fun getTypeSpecs(
 //    resourceMap.map { it.value.properties }
 
     // TODO: resources can also be types
+    // TODO: update2 ^ probably not, it's just that some types do not exist despite being referenced
 
     val lowercasedTypesMap = typesMap.map { (key, value) -> key.lowercase() to value }.toMap()
 
@@ -181,73 +166,48 @@ fun computeReferences(
     )
 
     val lists = listOf(
-        Temp(resourceMap.grouping { x -> getReferencedInputTypes(typesMap, x) }, Input, ResourceNested),
-        Temp(resourceMap.grouping { x -> getReferencedOutputTypes(typesMap, x) }, Output, ResourceNested),
-        Temp(functionsMap.grouping { x -> getReferencedInputTypes(typesMap, x) }, Input, FunctionNested),
-        Temp(functionsMap.grouping { x -> getReferencedInputTypes(typesMap, x) }, Output, FunctionNested)
+        resourceMap.values.flatMap { getReferencedTypes1(typesMap, Usage(Input, ResourceRoot), it.inputProperties.values.toList()) },
+
+        resourceMap.values.flatMap { getReferencedTypes1(typesMap, Usage(Output, ResourceRoot), it.properties.values.toList()) },
+
+        functionsMap.values.flatMap { getReferencedTypes1(typesMap, Usage(Output, FunctionRoot), it.outputs.properties.values.toList()) },
+
+        functionsMap.values.flatMap { getReferencedTypes1(typesMap, Usage(Input, FunctionRoot), it.inputs?.properties?.values.orEmpty().toList()) }
     )
 
-    val allTypeMetadata = typesMap.map { (name, spec) ->
-        val referenced = lists
-            .flatMap { list ->
-                list.grouping[name].orEmpty()
-                    .map {
-                        Referenced(
-                            name,
-                            list.inputOrOutput,
-                            list.useCharacteristic
-                        )
-                    }
-                    .toSet()
-            }
-
-        name.lowercase() to referenced.map { Usage(it.inputOrOutput, it.usage) }
-    }
-        .toMap()
+    val allTypeMetadata = lists.flatten().groupBy({ it.content.lowercase() }, { it.usage })
 
     return allTypeMetadata
 }
 
-private fun getReferencedOutputTypes(typeMap: TypesMap, resource: Resources.Resource): List<String> {
-    return resource.properties.flatMap { (name, propertySpec) ->
-        getReferencedTypes(typeMap, propertySpec)
-    }
-        .map { it.lowercase() }
+private fun getReferencedTypes1(
+    typeMap: TypesMap,
+    usage: Usage,
+    specs: List<Resources.PropertySpecification>
+): List<UsageWithName> {
+    return specs
+        .flatMap { propertySpec ->
+            getReferencedTypes(typeMap, propertySpec, usage)
+        }
+        .map { it.copy(it.content.lowercase()) }
 }
 
-private fun getReferencedOutputTypes(typeMap: TypesMap, function: Function): List<String> {
-    return function.outputs.properties.flatMap { (name, propertySpec) ->
-        getReferencedTypes(typeMap, propertySpec)
-    }
-        .map { it.lowercase() }
-}
-
-private fun getReferencedInputTypes(typeMap: TypesMap, function: Function): List<String> {
-    return function.inputs?.properties.orEmpty().flatMap { (name, propertySpec) ->
-        getReferencedTypes(typeMap, propertySpec)
-    }
-        .map { it.lowercase() }
-}
-
-private fun getReferencedInputTypes(typeMap: TypesMap, resource: Resources.Resource): List<String> {
-    return resource.inputProperties.flatMap { (name, propertySpec) ->
-        getReferencedTypes(typeMap, propertySpec)
-    }
-        .map { it.lowercase() }
-}
+data class UsageWith<T>(val content: T, val usage: Usage)
+typealias UsageWithName = UsageWith<String>
 
 private fun getReferencedTypes(
     typeMap: TypesMap,
-    propertySpec: Resources.PropertySpecification
-): List<String> {
+    propertySpec: Resources.PropertySpecification,
+    usage: Usage
+): List<UsageWithName> {
     return when (propertySpec) {
-        is Resources.ArrayProperty -> getReferencedTypes(typeMap, propertySpec.items)
-        is Resources.MapProperty -> getReferencedTypes(typeMap, propertySpec.additionalProperties)
-        is Resources.ObjectProperty -> propertySpec.properties.values.flatMap { getReferencedTypes(typeMap, it) }
-        is Resources.OneOf -> propertySpec.oneOf.flatMap { getReferencedTypes(typeMap, it) }
+        is Resources.ArrayProperty -> getReferencedTypes(typeMap, propertySpec.items, usage)
+        is Resources.MapProperty -> getReferencedTypes(typeMap, propertySpec.additionalProperties, usage)
+        is Resources.ObjectProperty -> propertySpec.properties.values.flatMap { getReferencedTypes(typeMap, it, usage) }
+        is Resources.OneOf -> propertySpec.oneOf.flatMap { getReferencedTypes(typeMap, it, usage) }
         is Resources.ReferredProperty -> {
             val typeName = propertySpec.`$ref`.value.removePrefix("#/types/")
-            listOf(typeName) + (typeMap[typeName.lowercase()] ?. let { getReferencedTypes(typeMap, it) } ?: run {
+            listOf(UsageWith(typeName, usage)) + (typeMap[typeName.lowercase()] ?. let { getReferencedTypes(typeMap, it, usage.toNested()) } ?: run {
                 println("could not for ${typeName}")
                 emptyList()
             })
