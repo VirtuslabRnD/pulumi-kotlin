@@ -1,126 +1,9 @@
 package com.virtuslab.pulumikotlin.codegen
 
-import com.squareup.kotlinpoet.*
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.virtuslab.pulumikotlin.codegen.InputOrOutput.*
-import com.virtuslab.pulumikotlin.codegen.LanguageType.Java
-import com.virtuslab.pulumikotlin.codegen.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.UseCharacteristic.*
 
-@JvmInline
-value class Package(val value: String)
-
-data class PackageWithSpec<T>(val thePackage: String, val spec: T)
-
-data class FunctionSpec(
-    val packageName: String,
-    val className: String,
-    val functionName: String,
-    val function: Function
-)
-
-data class NameGeneration(private val pulumiName: PulumiName, private val namingFlags: NamingFlags) {
-
-    val kotlinPoetClassName get() = ClassName(pulumiName.toPackage(namingFlags), pulumiName.toClassName(namingFlags))
-
-    val className get() = pulumiName.toClassName(namingFlags)
-
-    val builderClassName get() = pulumiName.toBuilderClassName(namingFlags)
-
-    val packageName get() = pulumiName.toPackage(namingFlags)
-
-    val functionName get() = pulumiName.toFunctionName(namingFlags)
-}
-
-data class TypeMetadata(
-    val pulumiName: PulumiName,
-    val inputOrOutput: InputOrOutput,
-    val useCharacteristic: UseCharacteristic,
-) {
-
-    private fun namingFlags(language: LanguageType) =
-        NamingFlags(inputOrOutput, useCharacteristic, language)
-
-    fun names(language: LanguageType): NameGeneration {
-        return NameGeneration(pulumiName, namingFlags(language))
-    }
-}
-
-data class TypeWithMetadata(
-    val metadata: TypeMetadata,
-    val parent: Type,
-    val type: Type
-)
-
-sealed class Type {
-    abstract fun toTypeName(): TypeName
-}
-
-sealed class AutonomousType: Type()
-
-object AnyType: Type() {
-    override fun toTypeName(): TypeName {
-        return ANY
-    }
-}
-
-data class ComplexType(val metadata: TypeMetadata, val fields: Map<String, Type>) : AutonomousType() {
-    override fun toTypeName(): TypeName {
-        val names = metadata.names(Kotlin)
-        return ClassName(names.packageName, names.className)
-    }
-    fun toBuilderTypeName(): TypeName {
-        val names = metadata.names(Kotlin)
-        return ClassName(names.packageName, names.builderClassName)
-    }
-}
-
-data class EnumType(val metadata: TypeMetadata, val possibleValues: List<String>): AutonomousType() {
-    override fun toTypeName(): TypeName {
-        val names = metadata.names(Kotlin)
-        return ClassName(names.packageName, names.className)
-    }
-}
-
-data class ListType(val innerType: Type) : Type() {
-    override fun toTypeName(): TypeName {
-        return LIST.parameterizedBy(innerType.toTypeName())
-    }
-}
-
-data class MapType(val firstType: Type, val secondType: Type) : Type() {
-    override fun toTypeName(): TypeName {
-        return MAP.parameterizedBy(
-            listOf(firstType.toTypeName(), secondType.toTypeName())
-        )
-    }
-}
-
-data class EitherType(val firstType: Type, val secondType: Type): Type() {
-    override fun toTypeName(): TypeName {
-        return ANY // TODO: improve
-    }
-}
-
-data class PrimitiveType(val name: String) : Type() {
-    override fun toTypeName(): TypeName {
-        return ClassName("kotlin", name)
-    }
-}
-
-data class ResourceSpec(
-    val packageName: String,
-    val className: String,
-    val resource: Resources.Resource
-)
-
-data class Specs(
-    val resourceSpec: ResourceSpec,
-    val typeSpec: TypeWithMetadata,
-    val functionSpec: FunctionSpec
-)
-
-fun <T> Map<String, T>.grouping(f: (T) -> List<String>): Map<String, List<String>> {
+fun <T> Map<String, T>.grouping(f: (T) -> Iterable<String>): Map<String, Set<String>> {
     return this
         .flatMap { (name, resource) ->
             val referencedTypes = f(resource)
@@ -136,11 +19,12 @@ fun <T> Map<String, T>.grouping(f: (T) -> List<String>): Map<String, List<String
                 resourceName
             },
         )
+        .mapValues { (_, values) -> values.toSet() }
 }
 
-data class PackageAndClassName(
-    val packageString: String,
-    val className: String
+data class Usage(
+    val inputOrOutput: InputOrOutput,
+    val useCharacteristic: UseCharacteristic
 )
 
 enum class InputOrOutput {
@@ -153,8 +37,8 @@ enum class UseCharacteristic {
     fun toNested() = when (this) {
         FunctionNested -> FunctionNested
         ResourceNested -> ResourceNested
-        ResourceRoot -> ResourceRoot
-        FunctionRoot -> FunctionRoot
+        ResourceRoot -> ResourceNested
+        FunctionRoot -> FunctionNested
     }
 }
 
@@ -168,159 +52,71 @@ data class NamingFlags(
     val language: LanguageType
 )
 
-data class PulumiName(
-    val providerName: String,
-    val namespace: List<String>,
-    val name: String
-) {
-    companion object {
-        fun from(string: String): PulumiName {
-            val segments = string.split("/").first().split(":")
-            val providerName = segments.get(0)
-            val namespace = segments.drop(1)
-            val name = string.split("/").last().split(":").last()
 
-            return PulumiName(providerName, namespace, name)
-        }
-    }
+typealias References = Map<String, List<Usage>>
 
-    private data class Modifiers(
-        val nameSuffix: String,
-        val packageSuffix: List<String>,
-        val shouldConstructBuilders: Boolean
-    )
-
-    private fun getModifiers(namingFlags: NamingFlags): Modifiers {
-        return when (namingFlags) {
-            NamingFlags(Input, FunctionNested, Kotlin) -> Modifiers(
-                "Args",
-                listOf("kotlin", "inputs"),
-                shouldConstructBuilders = true
-            )
-            NamingFlags(Input, ResourceNested, Kotlin) -> Modifiers(
-                "Args",
-                listOf("kotlin", "inputs"),
-                shouldConstructBuilders = true
-            )
-            NamingFlags(Input, ResourceRoot, Kotlin) -> Modifiers("Args", listOf("kotlin"), shouldConstructBuilders = true)
-            NamingFlags(Input, FunctionRoot, Kotlin) -> Modifiers(
-                "Args",
-                listOf("kotlin", "inputs"),
-                shouldConstructBuilders = true
-            )
-            NamingFlags(Output, FunctionNested, Kotlin) -> Modifiers(
-                "Result",
-                listOf("kotlin", "outputs"),
-                shouldConstructBuilders = false
-            )
-            NamingFlags(Output, ResourceNested, Kotlin) -> Modifiers(
-                "",
-                listOf("kotlin", "outputs"),
-                shouldConstructBuilders = false
-            )
-            NamingFlags(Output, FunctionRoot, Kotlin) -> Modifiers(
-                "Result",
-                listOf("kotlin", "outputs"),
-                shouldConstructBuilders = false
-            )
-            NamingFlags(Input, FunctionNested, Java) -> Modifiers(
-                "Args",
-                listOf("inputs"),
-                shouldConstructBuilders = true
-            )
-            NamingFlags(Input, ResourceNested, Java) -> Modifiers(
-                "Args",
-                listOf("inputs"),
-                shouldConstructBuilders = true
-            )
-            NamingFlags(Input, ResourceRoot, Java) -> Modifiers("Args", listOf("inputs"), shouldConstructBuilders = true)
-            NamingFlags(Input, FunctionRoot, Java) -> Modifiers(
-                "Args",
-                listOf("inputs"),
-                shouldConstructBuilders = true
-            )
-            NamingFlags(Output, FunctionNested, Java) -> Modifiers(
-                "Result",
-                listOf("outputs"),
-                shouldConstructBuilders = false
-            )
-            NamingFlags(Output, ResourceNested, Java) -> Modifiers(
-                "",
-                listOf("outputs"),
-                shouldConstructBuilders = false
-            )
-            NamingFlags(Output, FunctionRoot, Java) -> Modifiers(
-                "Result",
-                listOf("outputs"),
-                shouldConstructBuilders = false
-            )
-            else -> error("not possible")
-        }
-    }
-
-    fun toClassName(namingFlags: NamingFlags): String {
-        val modifiers = getModifiers(namingFlags)
-        return name.capitalize() + modifiers.nameSuffix
-    }
-
-    fun toBuilderClassName(namingFlags: NamingFlags): String {
-        val modifiers = getModifiers(namingFlags)
-        return name.capitalize() + modifiers.nameSuffix + "Builder"
-    }
-
-    fun toPackage(namingFlags: NamingFlags): String {
-        val modifiers = getModifiers(namingFlags)
-        return packageToString(relativeToProviderPackage(namespace) + modifiers.packageSuffix)
-    }
-
-    fun toFunctionName(namingFlags: NamingFlags): String {
-        val modifiers = getModifiers(namingFlags)
-        return name.decapitalize()
-    }
-
-    private fun packageToString(packageList: List<String>): String {
-        return packageList.joinToString(".")
-    }
-
-    private fun relativeToProviderPackage(packageList: List<String>): List<String> {
-        return listOf("com", "pulumi", providerName) + packageList
-    }
-}
-
-fun toTypeRoot(complexTypes: Map<String, Resources.PropertySpecification>, name: String, spec: Resources.PropertySpecification): AutonomousType {
+fun toTypeRoot(
+    references: References,
+    complexTypes: Map<String, Resources.PropertySpecification>,
+    name: String,
+    spec: Resources.PropertySpecification
+): List<AutonomousType> {
     return when(spec) {
         is Resources.ArrayProperty -> error("unexpected")
         is Resources.BooleanProperty -> error("unexpected")
         is Resources.IntegerProperty -> error("unexpected")
         is Resources.MapProperty -> error("unexpected")
         is Resources.NumberProperty -> error("unexpected")
-        is Resources.ObjectProperty -> ComplexType(
-            TypeMetadata(PulumiName.from(name), Input, ResourceNested),
-            spec.properties.map { (key, value) ->
-                key.value to toType(complexTypes, value)
-            }.toMap()
-        )
+        is Resources.ObjectProperty -> {
+            val allReferences = references[name] ?: emptyList()
+
+            if(allReferences.isEmpty()) {
+                println("${name} references were empty")
+            }
+
+            allReferences.map { usage ->
+                ComplexType(
+                    TypeMetadata(PulumiName.from(name), usage),
+                    spec.properties.map { (key, value) ->
+                        key.value to toType(references, usage, complexTypes, value)
+                    }.toMap()
+                )
+            }
+        }
         is Resources.OneOf -> error("unexpected")
         is Resources.ReferredProperty -> error("unexpected")
         is Resources.StringEnumProperty -> {
-            EnumType(
-                TypeMetadata(PulumiName.from(name), Input, ResourceNested),
-                spec.enum.map { it.value }
-            )
+            val allReferences = references[name] ?: emptyList()
+
+            if(allReferences.isEmpty()) {
+                println("${name} references were empty")
+            }
+
+            allReferences.map { usage ->
+                EnumType(
+                    TypeMetadata(PulumiName.from(name), usage),
+                    spec.enum.map { it.value }
+                )
+            }
         }
         is Resources.StringProperty -> error("unexpected")
     }
 }
 
-fun toType(complexTypes: Map<String, Resources.PropertySpecification>, spec: Resources.PropertySpecification): Type {
+fun toType(
+    references: References,
+    chosenUsage: Usage,
+    complexTypes: Map<String, Resources.PropertySpecification>,
+    spec: Resources.PropertySpecification
+): Type {
     return when(spec) {
-        is Resources.ArrayProperty -> ListType(toType(complexTypes, spec.items))
+        is Resources.ArrayProperty -> ListType(toType(references, chosenUsage, complexTypes, spec.items))
         is Resources.BooleanProperty -> PrimitiveType("Boolean")
         is Resources.IntegerProperty -> PrimitiveType("Int")
-        is Resources.MapProperty -> MapType(PrimitiveType("String"), toType(complexTypes, spec.additionalProperties))
+        is Resources.MapProperty -> MapType(PrimitiveType("String"), toType(references, chosenUsage, complexTypes, spec.additionalProperties))
         is Resources.NumberProperty -> PrimitiveType("Double") // TODO: Double or Long or BigDecimal?
         is Resources.ObjectProperty -> error("nested objects not supported")
-        is Resources.OneOf -> EitherType(toType(complexTypes, spec.oneOf.get(0)), toType(complexTypes, spec.oneOf.get(1)))
+        is Resources.OneOf -> EitherType(toType(references, chosenUsage, complexTypes, spec.oneOf.get(0)), toType(references, chosenUsage, complexTypes, spec.oneOf.get(1)))
         is Resources.ReferredProperty -> {
             val referencedType = spec.`$ref`.value.removePrefix("#/types/")
             if(referencedType.startsWith("pulumi")) {
@@ -331,7 +127,9 @@ fun toType(complexTypes: Map<String, Resources.PropertySpecification>, spec: Res
                     println("Not found type for ${referencedType}, defaulting to Any")
                     AnyType
                 } else {
-                    toTypeRoot(complexTypes, referencedType, foundType)
+                    toTypeRoot(references, complexTypes, referencedType, foundType).find {
+                        it.metadata.inputOrOutput == chosenUsage.inputOrOutput && it.metadata.useCharacteristic == chosenUsage.useCharacteristic
+                    }!!
                 }
             }
         }
@@ -345,132 +143,103 @@ fun getTypeSpecs(
     typesMap: TypesMap,
     functionsMap: FunctionsMap
 ): List<AutonomousType> {
-    data class Temp(
-        val grouping: Map<String, List<String>>,
-        val inputOrOutput: InputOrOutput,
-        val useCharacteristic: UseCharacteristic
-    )
+
+    val references = computeReferences(resourceMap, typesMap, functionsMap)
 
     val resolvedComplexTypes = typesMap.map { (name, spec) ->
-        toTypeRoot(typesMap, name, spec) as AutonomousType
+        toTypeRoot(references, typesMap, name, spec) as AutonomousType
     }
 
     return resolvedComplexTypes
 
 //    allComplexTypesFor(Map<String, >)
-
-//    val functionRootInputTypes = functionsMap
-//        .filter { (_, function) -> function.inputs != null }
-//        .map { (name, function) ->
-//            TypeWithMetadata(
-//                TypeMetadata(
-//                    PulumiName.from(name),
-//                    PulumiName.from(name),
-//                    Input,
-//                    FunctionRoot
-//                ),
-//                function.inputs!!
-//            )
-//        }
-//
-//    val functionRootOutputTypes = functionsMap
-//        .map { (name, function) ->
-//            TypeWithMetadata(
-//                TypeMetadata(
-//                    PulumiName.from(name),
-//                    PulumiName.from(name),
-//                    Output,
-//                    FunctionRoot
-//                ),
-//                function.outputs
-//            )
-//        }
-//
-//    val resourceRootInputTypes = resourceMap
-//        .map { (name, resource) ->
-//            TypeWithMetadata(
-//                TypeMetadata(
-//                    PulumiName.from(name),
-//                    PulumiName.from(name),
-//                    Input,
-//                    ResourceRoot
-//                ),
-//                Resources.ObjectProperty(
-//                    properties = resource.inputProperties
-//                )
-//            )
-//        }
-//
-//    val lists = listOf(
-//        Temp(resourceMap.grouping(::getReferencedInputTypes), Input, ResourceNested),
-//        Temp(resourceMap.grouping(::getReferencedOutputTypes), Output, ResourceNested),
-//        Temp(functionsMap.grouping(::getReferencedInputTypes), Input, FunctionNested),
-//        Temp(functionsMap.grouping(::getReferencedOutputTypes), Output, FunctionNested)
-//    )
-//
-//    val allTypeMetadata = typesMap.flatMap { (name, spec) ->
-//        lists
-//            .flatMap { list ->
-//                list.grouping[name].orEmpty()
-//                    .map {
-//                        TypeMetadata(
-//                            PulumiName.from(name),
-//                            PulumiName.from(it),
-//                            list.inputOrOutput,
-//                            list.useCharacteristic
-//                        )
-//                    }
-//                    .toSet()
-//            }
-//            .map { metadata -> TypeWithMetadata(metadata, spec) }
-//    }
-//    return (allTypeMetadata + functionRootInputTypes + functionRootOutputTypes + resourceRootInputTypes)
-//        .associateBy { it.metadata.pulumiName }
 }
 
-//private fun getReferencedOutputTypes(resource: Resources.Resource): List<String> {
-//    return resource.properties.flatMap { (name, propertySpec) ->
-//        getReferencedTypes(propertySpec)
-//    }
-//}
-//
-//private fun getReferencedOutputTypes(function: Function): List<String> {
-//    return function.outputs.properties.flatMap { (name, propertySpec) ->
-//        getReferencedTypes(propertySpec)
-//    }
-//}
-//
-//private fun getReferencedInputTypes(function: Function): List<String> {
-//    return function.inputs?.properties.orEmpty().flatMap { (name, propertySpec) ->
-//        getReferencedTypes(propertySpec)
-//    }
-//}
-//
-//private fun getReferencedInputTypes(resource: Resources.Resource): List<String> {
-//    return resource.inputProperties.flatMap { (name, propertySpec) ->
-//        getReferencedTypes(propertySpec)
-//    }
-//}
-//
-//private fun getReferencedTypes(
-//    parent: Type,
-//    inputOrOutput: InputOrOutput,
-//    useChar: UseCharacteristic,
-//    propertySpec: Resources.PropertySpecification
-//): Type {
-//    return when (propertySpec) {
-//        is Resources.ArrayProperty -> getReferencedTypes(parent, inputOrOutput, useChar.toNested(), propertySpec.items)
-//        is Resources.MapProperty -> getReferencedTypes(parent, inputOrOutput, useChar.toNested(), propertySpec.additionalProperties)
-//        is Resources.ObjectProperty -> propertySpec.properties.values.flatMap { getReferencedTypes(it) }
-//        is Resources.OneOf -> propertySpec.oneOf.flatMap { getReferencedTypes(it) }
-//        is Resources.ReferredProperty -> listOf(propertySpec.`$ref`.value.removePrefix("#/types/"))
-//
-//        is Resources.StringEnumProperty -> PrimitiveType()
-//        is Resources.StringProperty -> emptyList()
-//        is Resources.BooleanProperty -> emptyList()
-//        is Resources.IntegerProperty -> emptyList()
-//        is Resources.NumberProperty -> emptyList()
-//    }
-//}
+data class Referenced(
+    val byName: String,
+    val inputOrOutput: InputOrOutput,
+    val usage: UseCharacteristic
+)
+
+fun computeReferences(
+    resourceMap: ResourcesMap,
+    typesMap: TypesMap,
+    functionsMap: FunctionsMap
+): References {
+    data class Temp(
+        val grouping: Map<String, Set<String>>,
+        val inputOrOutput: InputOrOutput,
+        val useCharacteristic: UseCharacteristic
+    )
+
+    val lists = listOf(
+        Temp(resourceMap.grouping(::getReferencedInputTypes), Input, ResourceNested),
+        Temp(resourceMap.grouping(::getReferencedOutputTypes), Output, ResourceNested),
+        Temp(functionsMap.grouping(::getReferencedInputTypes), Input, FunctionNested),
+        Temp(functionsMap.grouping(::getReferencedOutputTypes), Output, FunctionNested)
+    )
+
+    val allTypeMetadata = typesMap.map { (name, spec) ->
+        val referenced = lists
+            .flatMap { list ->
+                list.grouping[name].orEmpty()
+                    .map {
+                        Referenced(
+                            name,
+                            list.inputOrOutput,
+                            list.useCharacteristic
+                        )
+                    }
+                    .toSet()
+            }
+
+        name to referenced.map { Usage(it.inputOrOutput, it.usage) }
+    }
+        .toMap()
+
+    return allTypeMetadata
+}
+
+private fun getReferencedOutputTypes(resource: Resources.Resource): List<String> {
+    return resource.properties.flatMap { (name, propertySpec) ->
+        getReferencedTypes(propertySpec)
+    }
+}
+
+private fun getReferencedOutputTypes(function: Function): List<String> {
+    return function.outputs.properties.flatMap { (name, propertySpec) ->
+        getReferencedTypes(propertySpec)
+    }
+}
+
+private fun getReferencedInputTypes(function: Function): List<String> {
+    return function.inputs?.properties.orEmpty().flatMap { (name, propertySpec) ->
+        getReferencedTypes(propertySpec)
+    }
+}
+
+private fun getReferencedInputTypes(resource: Resources.Resource): List<String> {
+    return resource.inputProperties.flatMap { (name, propertySpec) ->
+        getReferencedTypes(propertySpec)
+    }
+}
+
+private fun getReferencedTypes(
+    propertySpec: Resources.PropertySpecification
+): List<String> {
+    return when (propertySpec) {
+        is Resources.ArrayProperty -> getReferencedTypes(propertySpec.items)
+        is Resources.MapProperty -> getReferencedTypes(propertySpec.additionalProperties)
+        is Resources.ObjectProperty -> propertySpec.properties.values.flatMap { getReferencedTypes(it) }
+        is Resources.OneOf -> propertySpec.oneOf.flatMap { getReferencedTypes(it) }
+        is Resources.ReferredProperty -> listOf(propertySpec.`$ref`.value.removePrefix("#/types/"))
+
+        is Resources.StringEnumProperty -> emptyList()
+        is Resources.StringProperty -> emptyList()
+        is Resources.BooleanProperty -> emptyList()
+        is Resources.IntegerProperty -> emptyList()
+        is Resources.NumberProperty -> emptyList()
+    }
+}
 
 
