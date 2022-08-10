@@ -1,9 +1,18 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.virtuslab.pulumikotlin.codegen.step1_schema_parse
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
+typealias TypesMap = Map<String, Resources.PropertySpecification>
+typealias FunctionsMap = Map<String, Function>
+typealias ResourcesMap = Map<String, Resources.Resource>
+
+data class ParsedSchema(
+    val types: TypesMap,
+    val functions: FunctionsMap,
+    val resources: ResourcesMap
+)
 object Resources {
 
     object PropertySpecificationSerializer :

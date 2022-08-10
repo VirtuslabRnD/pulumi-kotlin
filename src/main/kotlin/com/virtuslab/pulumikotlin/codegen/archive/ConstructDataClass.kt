@@ -1,7 +1,11 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.virtuslab.pulumikotlin.codegen.archive
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.virtuslab.pulumikotlin.codegen.MoreTypes
+import com.virtuslab.pulumikotlin.codegen.classNameForNameSuffix
+import com.virtuslab.pulumikotlin.codegen.letIf
+import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.Resources
 
 
 fun constructDataClass(

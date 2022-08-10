@@ -2,6 +2,7 @@ package com.virtuslab.pulumikotlin.codegen
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.virtuslab.pulumikotlin.codegen.step2_intermediate.*
 
 data class TypeMetadata(
     val pulumiName: PulumiName,

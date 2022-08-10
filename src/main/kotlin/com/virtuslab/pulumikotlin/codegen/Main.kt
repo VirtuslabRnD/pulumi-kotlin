@@ -1,163 +1,26 @@
 package com.virtuslab.pulumikotlin.codegen
 
 import com.squareup.kotlinpoet.*
-import kotlinx.serialization.json.*
+import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.Decoder
+import com.virtuslab.pulumikotlin.codegen.step2_intermediate.*
+import com.virtuslab.pulumikotlin.codegen.step3_codegen.Generate
 
 import java.io.File
-import java.nio.file.Files
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 
 fun main(args: Array<String>) {
-//
-    val loadedSchema = {}::class.java.getResourceAsStream("/schema.json")!!
-
-    val schemaFromJson = Json.parseToJsonElement(
-        loadedSchema.bufferedReader().readText()
-    )
-
     val loadedSchemaClassic = { }::class.java.getResourceAsStream("/schema-aws-classic.json")!!
 
-    val schemaFromJsonClassic = Json.parseToJsonElement(
-        loadedSchemaClassic.bufferedReader().readText()
-    )
+    val parsedSchemas = Decoder.decode(loadedSchemaClassic)
+    val autonomousTypes = getTypeSpecs(parsedSchemas)
+    val generatedFiles = Generate.generate(autonomousTypes)
 
-    val typesForAwsNative = Json.decodeFromJsonElement<TypesMap>(schemaFromJson.jsonObject["types"]!!)
-
-    val typesForAwsClassic = Json.decodeFromJsonElement<TypesMap>(schemaFromJsonClassic.jsonObject["types"]!!)
-
-    val functionsForAwsClassic =
-        Json.decodeFromJsonElement<FunctionsMap>(schemaFromJsonClassic.jsonObject["functions"]!!)
-
-    val resourcesForAwsClassic =
-        Json.decodeFromJsonElement<ResourcesMap>(schemaFromJsonClassic.jsonObject["resources"]!!)
-
-    val destination = "/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java"
-
-//    generateTypes(typesForAwsClassic).forEach {
-//        it.writeTo(File(destination))
-//    }
-
-//    val types2 = generateTypes2(
-//        getTypeSpecs(
-//            resourcesForAwsClassic,
-//            typesForAwsClassic,
-//            functionsForAwsClassic
-//        )
-//    )
-//
-//    types2.forEach {
-//        it.writeTo(File("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/test_new_types"))
-//    }
-//
-
-    val specs = getTypeSpecs(
-        resourcesForAwsClassic,
-        typesForAwsClassic,
-        functionsForAwsClassic
-    )
-
-    val generatedBuilders = specs.filterIsInstance<ComplexType>().map { a ->
-        when {
-            a.metadata.useCharacteristic.toNested() == UseCharacteristic.FunctionNested || a.metadata.inputOrOutput == InputOrOutput.Output -> {
-                generateTypeWithNiceBuilders(
-                    a.metadata,
-                    a.fields.map { (name, type) ->
-                        Field(
-                            name,
-                            NormalField(type) { from, to -> CodeBlock.of("val $to = $from") },
-                            true,
-                            overloads = emptyList()
-                        )
-                    }
-                )
-            }
-
-            else -> {
-                generateTypeWithNiceBuilders(
-                    a.metadata,
-                    a.fields.map { (name, type) ->
-                        Field(name, OutputWrappedField(type), true,
-                            listOf(
-                                NormalField(type) { from, to -> CodeBlock.of("val $to = Output.of($from)") }
-                            )
-                        )
-                    }
-                )
-            }
-        }
-
+    generatedFiles.forEach {
+        it.writeTo("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/")
     }
 
-    moveSdk(
-        "/Users/mfudala/workspace/pulumi-kotlin/src/main/kotlin/com/virtuslab/pulumikotlin/codegen/sdk",
-        "/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/com/pulumi/kotlin"
-    )
-
-    generatedBuilders.forEach {
-        it.writeTo(File("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/"))
-    }
-
-    println(
-        PulumiName("test", listOf("a", "b", "O"), "name")
-            .toClassName(
-                NamingFlags(InputOrOutput.Input, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
-            )
-    )
-
-    println(
-        PulumiName("test", listOf("a", "b", "O"), "name")
-            .toBuilderClassName(
-                NamingFlags(InputOrOutput.Input, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
-            )
-    )
-
-    val complexType2 = ComplexType(
-        TypeMetadata(
-            PulumiName("test2", listOf("a2", "b2", "O2"), "name2"),
-            InputOrOutput.Input,
-            UseCharacteristic.ResourceNested
-        ),
-        mapOf(
-            "whatever2" to PrimitiveType("String")
-        )
-    )
-
-    val complexType = ComplexType(
-        TypeMetadata(
-            PulumiName("test", listOf("a", "b", "O"), "name"),
-            InputOrOutput.Input,
-            UseCharacteristic.ResourceRoot
-        ),
-        mapOf(
-            "whatever" to complexType2
-        )
-    )
-
-
-//    val generatedFuns = generateTypeWithNiceBuilders("whatever", "whatever", "whatever", "whatever2", listOf(
-//        Field("someField", OutputWrappedField(complexType), true, listOf(
-//            NormalField(complexType, { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") }),
-//            NormalField(ListType(complexType), { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") }),
-//            NormalField(MapType(PrimitiveType("String"), complexType), { from, to -> CodeBlock.of("val ${to} = Output.of(${from})") })
-//        ))
-//    ))
-//
-//
-//    generatedFuns.writeTo(File("/Users/mfudala/workspace/kotlin-poet-fun/generated-funs"))
-
-//    generateFunctions(functionsForAwsClassic).generatedFiles.forEach {
-//        it.writeTo(File(destination))
-//    }
-//
-//    generateResources(resourcesForAwsClassic).generatedFiles.forEach {
-//        it.writeTo(File(destination))
-//    }
-//
-//    generateAndSaveCommon(destination, "com.pulumi.kotlin.aws")
-//
-//    generateAndSaveVersionAndPluginFile(File(File(destination).parent, "resources").absolutePath, "com.pulumi.kotlin.aws")
 
 }
 

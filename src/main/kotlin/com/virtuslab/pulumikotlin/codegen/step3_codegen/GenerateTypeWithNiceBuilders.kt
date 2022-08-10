@@ -1,11 +1,10 @@
 package com.virtuslab.pulumikotlin.codegen
 
-import com.google.common.primitives.Chars
-import com.pulumi.kotlin.applySuspend
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.KModifier.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.virtuslab.pulumikotlin.codegen.step2_intermediate.LanguageType
 import java.util.Random
 import kotlin.streams.asSequence
 

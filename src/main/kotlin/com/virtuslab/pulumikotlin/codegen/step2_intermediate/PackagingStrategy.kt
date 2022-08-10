@@ -1,7 +1,9 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.virtuslab.pulumikotlin.codegen.step2_intermediate
 
-import com.virtuslab.pulumikotlin.codegen.InputOrOutput.*
-import com.virtuslab.pulumikotlin.codegen.UseCharacteristic.*
+import com.virtuslab.pulumikotlin.codegen.*
+import com.virtuslab.pulumikotlin.codegen.step2_intermediate.InputOrOutput.*
+import com.virtuslab.pulumikotlin.codegen.step2_intermediate.UseCharacteristic.*
+import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.*
 
 
 data class Usage(
@@ -122,24 +124,21 @@ fun toType(
     }
 }
 
-fun getTypeSpecs(
-    resourceMap: ResourcesMap,
-    typesMap: TypesMap,
-    functionsMap: FunctionsMap
-): List<AutonomousType> {
+fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
 
 //    resourceMap.map { it.value.properties }
 
     // TODO: resources can also be types
     // TODO: update2 ^ probably not, it's just that some types do not exist despite being referenced
+    // TODO: do something about lowercaseing
 
-    val lowercasedTypesMap = typesMap.map { (key, value) -> key.lowercase() to value }.toMap()
+    val lowercasedTypesMap = parsedSchema.types.map { (key, value) -> key.lowercase() to value }.toMap()
 
-    val references = computeReferences(resourceMap, lowercasedTypesMap, functionsMap)
+    val references = computeReferences(parsedSchema.resources, lowercasedTypesMap, parsedSchema.functions)
 
     val lowercasedReferences = references.map { (key, value) -> key.lowercase() to value }.toMap()
 
-    val resolvedComplexTypes = typesMap.flatMap { (name, spec) ->
+    val resolvedComplexTypes = parsedSchema.types.flatMap { (name, spec) ->
         toTypeRoot(lowercasedReferences, lowercasedTypesMap, name, spec)
     }
 

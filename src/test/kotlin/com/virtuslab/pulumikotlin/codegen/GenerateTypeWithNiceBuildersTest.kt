@@ -5,9 +5,9 @@ import com.squareup.kotlinpoet.FileSpec
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.*
 import com.tschuchort.compiletesting.SourceFile
-import org.jetbrains.kotlin.cli.common.ExitCode
+import com.virtuslab.pulumikotlin.codegen.step2_intermediate.InputOrOutput
+import com.virtuslab.pulumikotlin.codegen.step2_intermediate.UseCharacteristic
 import org.junit.jupiter.api.Test
-import java.io.File
 import kotlin.test.assertEquals
 
 internal class GenerateTypeWithNiceBuildersTest {

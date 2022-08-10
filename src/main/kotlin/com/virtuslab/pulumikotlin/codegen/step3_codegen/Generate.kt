@@ -1,0 +1,52 @@
+package com.virtuslab.pulumikotlin.codegen.step3_codegen
+
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.virtuslab.pulumikotlin.codegen.*
+import com.virtuslab.pulumikotlin.codegen.step2_intermediate.InputOrOutput
+import com.virtuslab.pulumikotlin.codegen.step2_intermediate.UseCharacteristic
+import java.io.File
+
+object Generate {
+    fun generate(types: List<AutonomousType>): List<WriteableFile> {
+        val generatedTypes = types.filterIsInstance<ComplexType>().map { a ->
+            when {
+                a.metadata.useCharacteristic.toNested() == UseCharacteristic.FunctionNested || a.metadata.inputOrOutput == InputOrOutput.Output -> {
+                    generateTypeWithNiceBuilders(
+                        a.metadata,
+                        a.fields.map { (name, type) ->
+                            Field(
+                                name,
+                                NormalField(type) { from, to -> CodeBlock.of("val $to = $from") },
+                                true,
+                                overloads = emptyList()
+                            )
+                        }
+                    )
+                }
+
+                else -> {
+                    generateTypeWithNiceBuilders(
+                        a.metadata,
+                        a.fields.map { (name, type) ->
+                            Field(name, OutputWrappedField(type), true,
+                                listOf(
+                                    NormalField(type) { from, to -> CodeBlock.of("val $to = Output.of($from)") }
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+        }
+
+        val generatedFiles = generatedTypes.map { InMemoryGeneratedFile(it) }
+
+        val existingFiles = File("/Users/mfudala/workspace/pulumi-kotlin/src/main/kotlin/com/virtuslab/pulumikotlin/codegen/sdk")
+            .listFiles()
+            .orEmpty()
+            .map { ExistingFile("/Users/mfudala/workspace/pulumi-kotlin/src/main/kotlin", it.absolutePath) }
+
+        return generatedFiles + existingFiles
+    }
+}
