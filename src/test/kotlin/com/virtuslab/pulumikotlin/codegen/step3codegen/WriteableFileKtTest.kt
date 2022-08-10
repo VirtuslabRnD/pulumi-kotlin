@@ -12,6 +12,6 @@ class WriteableFileKtTest {
         val shorterPath = Path("/a/b/c")
         val longerPath = Path("/a/b/c/d/e")
         val pathDifference = pathDifference(shorterPath, longerPath)
-        assertEquals(Path("/d/e"), pathDifference)
+        assertEquals(Path("d/e"), pathDifference)
     }
 }
