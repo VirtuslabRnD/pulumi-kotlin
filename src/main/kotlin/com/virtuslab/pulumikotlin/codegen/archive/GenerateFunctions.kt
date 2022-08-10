@@ -1,4 +1,4 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.virtuslab.pulumikotlin.codegen.archive
 
 import com.pulumi.core.TypeShape
 import com.pulumi.deployment.Deployment
@@ -7,8 +7,8 @@ import com.pulumi.kotlin.PulumiJavaKotlinInterop
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.virtuslab.pulumikotlin.codegen.archive.constructDataClass
-import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.FunctionsMap
-import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.Resources
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.FunctionsMap
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 

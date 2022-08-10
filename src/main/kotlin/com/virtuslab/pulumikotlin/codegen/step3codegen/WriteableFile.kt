@@ -1,11 +1,8 @@
-package com.virtuslab.pulumikotlin.codegen.step3_codegen
+package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.virtuslab.pulumikotlin.codegen.moveSdk
 import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.absolute
 
 interface WriteableFile {
     fun writeTo(destination: String)

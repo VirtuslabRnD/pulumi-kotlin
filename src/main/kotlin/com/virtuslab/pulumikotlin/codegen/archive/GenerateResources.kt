@@ -1,11 +1,12 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.virtuslab.pulumikotlin.codegen.archive
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.virtuslab.pulumikotlin.codegen.archive.referenceName
-import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.Resources
-import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.ResourcesMap
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ResourcesMap
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
 
 object PulumiClassesAndMembers {
     val output = MoreTypes.Java.Pulumi.Output()

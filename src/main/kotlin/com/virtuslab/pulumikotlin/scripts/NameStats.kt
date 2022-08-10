@@ -5,9 +5,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.FunctionsMap
-import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.ResourcesMap
-import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.TypesMap
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.FunctionsMap
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ResourcesMap
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.TypesMap
 import java.io.File
 
 @kotlinx.serialization.Serializable

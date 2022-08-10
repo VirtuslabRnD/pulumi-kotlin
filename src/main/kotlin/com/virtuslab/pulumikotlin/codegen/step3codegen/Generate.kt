@@ -1,10 +1,10 @@
-package com.virtuslab.pulumikotlin.codegen.step3_codegen
+package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.FileSpec
-import com.virtuslab.pulumikotlin.codegen.*
-import com.virtuslab.pulumikotlin.codegen.step2_intermediate.InputOrOutput
-import com.virtuslab.pulumikotlin.codegen.step2_intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.AutonomousType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 import java.io.File
 
 object Generate {

@@ -1,9 +1,9 @@
-package com.virtuslab.pulumikotlin.codegen.step2_intermediate
+package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.virtuslab.pulumikotlin.codegen.*
-import com.virtuslab.pulumikotlin.codegen.step2_intermediate.InputOrOutput.*
-import com.virtuslab.pulumikotlin.codegen.step2_intermediate.UseCharacteristic.*
-import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.*
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.*
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.*
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.*
 
 
 data class Usage(
@@ -41,7 +41,7 @@ data class NamingFlags(
 
 typealias References = Map<String, List<Usage>>
 
-fun toTypeRoot(
+private fun toTypeRoot(
     references: References,
     complexTypes: Map<String, Resources.PropertySpecification>,
     name: String,
@@ -89,7 +89,7 @@ fun toTypeRoot(
     }
 }
 
-fun toType(
+private fun toType(
     references: References,
     chosenUsage: Usage,
     complexTypes: Map<String, Resources.PropertySpecification>,
@@ -126,8 +126,6 @@ fun toType(
 
 fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
 
-//    resourceMap.map { it.value.properties }
-
     // TODO: resources can also be types
     // TODO: update2 ^ probably not, it's just that some types do not exist despite being referenced
     // TODO: do something about lowercaseing
@@ -143,40 +141,49 @@ fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
     }
 
     return resolvedComplexTypes
-
-//    allComplexTypesFor(Map<String, >)
 }
 
-data class Referenced(
-    val byName: String,
-    val inputOrOutput: InputOrOutput,
-    val usage: UseCharacteristic
-)
-
-fun computeReferences(
+private fun computeReferences(
     resourceMap: ResourcesMap,
     typesMap: TypesMap,
     functionsMap: FunctionsMap
 ): References {
-    data class Temp(
-        val grouping: Map<String, Set<String>>,
-        val inputOrOutput: InputOrOutput,
-        val useCharacteristic: UseCharacteristic
-    )
 
     val lists = listOf(
-        resourceMap.values.flatMap { getReferencedTypes1(typesMap, Usage(Input, ResourceRoot), it.inputProperties.values.toList()) },
+        resourceMap.values.flatMap {
+            getReferencedTypes1(
+                typesMap,
+                Usage(Input, ResourceRoot),
+                it.inputProperties.values.toList()
+            )
+        },
 
-        resourceMap.values.flatMap { getReferencedTypes1(typesMap, Usage(Output, ResourceRoot), it.properties.values.toList()) },
+        resourceMap.values.flatMap {
+            getReferencedTypes1(
+                typesMap,
+                Usage(Output, ResourceRoot),
+                it.properties.values.toList()
+            )
+        },
 
-        functionsMap.values.flatMap { getReferencedTypes1(typesMap, Usage(Output, FunctionRoot), it.outputs.properties.values.toList()) },
+        functionsMap.values.flatMap {
+            getReferencedTypes1(
+                typesMap,
+                Usage(Output, FunctionRoot),
+                it.outputs.properties.values.toList()
+            )
+        },
 
-        functionsMap.values.flatMap { getReferencedTypes1(typesMap, Usage(Input, FunctionRoot), it.inputs?.properties?.values.orEmpty().toList()) }
+        functionsMap.values.flatMap {
+            getReferencedTypes1(
+                typesMap,
+                Usage(Input, FunctionRoot),
+                it.inputs?.properties?.values.orEmpty().toList()
+            )
+        }
     )
 
-    val allTypeMetadata = lists.flatten().groupBy({ it.content.lowercase() }, { it.usage })
-
-    return allTypeMetadata
+    return lists.flatten().groupBy({ it.content.lowercase() }, { it.usage })
 }
 
 private fun getReferencedTypes1(
@@ -191,8 +198,8 @@ private fun getReferencedTypes1(
         .map { it.copy(it.content.lowercase()) }
 }
 
-data class UsageWith<T>(val content: T, val usage: Usage)
-typealias UsageWithName = UsageWith<String>
+private data class UsageWith<T>(val content: T, val usage: Usage)
+private typealias UsageWithName = UsageWith<String>
 
 private fun getReferencedTypes(
     typeMap: TypesMap,

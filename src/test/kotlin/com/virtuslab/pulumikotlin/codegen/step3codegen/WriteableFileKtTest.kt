@@ -1,4 +1,4 @@
-package com.virtuslab.pulumikotlin.codegen.step3_codegen
+package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path

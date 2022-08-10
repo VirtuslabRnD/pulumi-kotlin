@@ -1,4 +1,4 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.virtuslab.pulumikotlin.codegen.utils
 
 fun <T> T.letIf(what: (T) -> Boolean, mapper: (T) -> T): T {
     return if (what(this)) {

@@ -1,4 +1,4 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.MemberName

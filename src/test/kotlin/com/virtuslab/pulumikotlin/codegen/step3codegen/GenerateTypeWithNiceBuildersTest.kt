@@ -1,12 +1,11 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.*
 import com.tschuchort.compiletesting.SourceFile
-import com.virtuslab.pulumikotlin.codegen.step2_intermediate.InputOrOutput
-import com.virtuslab.pulumikotlin.codegen.step2_intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 

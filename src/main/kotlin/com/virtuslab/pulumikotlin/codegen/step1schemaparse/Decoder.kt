@@ -1,4 +1,4 @@
-package com.virtuslab.pulumikotlin.codegen.step1_schema_parse
+package com.virtuslab.pulumikotlin.codegen.step1schemaparse
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement

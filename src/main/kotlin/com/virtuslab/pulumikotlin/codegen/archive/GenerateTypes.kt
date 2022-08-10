@@ -1,9 +1,11 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.virtuslab.pulumikotlin.codegen.archive
 
 import com.squareup.kotlinpoet.*
 import com.virtuslab.pulumikotlin.codegen.archive.constructDataClass
-import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.Resources
-import com.virtuslab.pulumikotlin.codegen.step1_schema_parse.TypesMap
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.TypesMap
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeWithMetadata
 
 fun generateType(type: ComplexType): FileSpec {
 //    val fields = type.fields.map { (key, value) ->

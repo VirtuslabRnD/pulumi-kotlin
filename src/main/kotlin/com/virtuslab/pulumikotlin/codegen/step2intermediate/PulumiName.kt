@@ -1,10 +1,6 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.squareup.kotlinpoet.ClassName
-import com.virtuslab.pulumikotlin.codegen.step2_intermediate.InputOrOutput
-import com.virtuslab.pulumikotlin.codegen.step2_intermediate.LanguageType
-import com.virtuslab.pulumikotlin.codegen.step2_intermediate.NamingFlags
-import com.virtuslab.pulumikotlin.codegen.step2_intermediate.UseCharacteristic
 
 data class PulumiName(
     val providerName: String,
