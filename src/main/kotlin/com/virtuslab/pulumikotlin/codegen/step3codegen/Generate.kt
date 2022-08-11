@@ -8,7 +8,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 import java.io.File
 
 object Generate {
-    fun generate(types: List<AutonomousType>): List<WriteableFile> {
+    fun generate(types: List<AutonomousType>, options: GenerationOptions = GenerationOptions()): List<WriteableFile> {
         val generatedTypes = types.filterIsInstance<ComplexType>().map { a ->
             when {
                 a.metadata.useCharacteristic.toNested() == UseCharacteristic.FunctionNested || a.metadata.inputOrOutput == InputOrOutput.Output -> {
@@ -21,7 +21,8 @@ object Generate {
                                 true,
                                 overloads = emptyList()
                             )
-                        }
+                        },
+                        options
                     )
                 }
 
@@ -34,7 +35,8 @@ object Generate {
                                     NormalField(type) { from, to -> CodeBlock.of("val $to = Output.of($from)") }
                                 )
                             )
-                        }
+                        },
+                        options
                     )
                 }
             }

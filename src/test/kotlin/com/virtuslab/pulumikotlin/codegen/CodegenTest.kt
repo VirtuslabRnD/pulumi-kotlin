@@ -63,7 +63,7 @@ class CodegenTest {
             messageOutputStream = System.out
         }
 
-        assertEquals(compilation.compile().exitCode, KotlinCompilation.ExitCode.OK)
+        assertEquals(KotlinCompilation.ExitCode.OK, compilation.compile().exitCode)
     }
 
     private fun artifact(coordinate: String) = ArtifactDownloader.download(coordinate).toFile()

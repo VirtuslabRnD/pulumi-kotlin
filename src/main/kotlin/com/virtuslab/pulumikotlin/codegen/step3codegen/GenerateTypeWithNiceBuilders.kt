@@ -5,6 +5,7 @@ import com.squareup.kotlinpoet.KModifier.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
+import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import java.util.Random
 import kotlin.streams.asSequence
 
@@ -71,7 +72,8 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
 }
 
 data class GenerationOptions(
-    val shouldGenerateBuilders: Boolean = true
+    val shouldGenerateBuilders: Boolean = true,
+    val implementToJava: Boolean = true
 )
 
 fun generateTypeWithNiceBuilders(
@@ -89,7 +91,9 @@ fun generateTypeWithNiceBuilders(
     val argsClassName = ClassName(names.packageName, names.className)
 
     val classB = TypeSpec.classBuilder(argsClassName)
-        .addSuperinterface(MoreTypes.Kotlin.Pulumi.ConvertibleToJava(typeMetadata.names(LanguageType.Java).kotlinPoetClassName))
+        .letIf(options.implementToJava) {
+            it.addSuperinterface(MoreTypes.Kotlin.Pulumi.ConvertibleToJava(typeMetadata.names(LanguageType.Java).kotlinPoetClassName))
+        }
         .addModifiers(KModifier.DATA)
 
     val constructor = FunSpec.constructorBuilder()
@@ -120,7 +124,9 @@ fun generateTypeWithNiceBuilders(
 
     classB.primaryConstructor(constructor.build())
 
-    classB.addFunction(toJavaFunction(typeMetadata, fields))
+    classB.letIf(options.implementToJava) {
+        it.addFunction(toJavaFunction(typeMetadata, fields))
+    }
     val argsClass = classB.build()
 
     val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)

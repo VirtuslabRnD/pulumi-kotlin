@@ -1,11 +1,28 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.squareup.kotlinpoet.FileSpec
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.OutputStream
+import java.io.OutputStreamWriter
 import java.nio.file.Path
+import kotlin.io.path.name
+
+typealias FileName = String
+typealias Contents = String
 
 interface WriteableFile {
     fun writeTo(destination: String)
+    fun writeTo(outputStream: OutputStream): FileName
+
+    fun get(): Pair<FileName, Contents> {
+        return ByteArrayOutputStream().let {
+            val fileName = writeTo(it)
+            val result = fileName to it.toString(Charsets.UTF_8)
+            it.close()
+            result
+        }
+    }
 }
 
 /**
@@ -30,11 +47,25 @@ class ExistingFile(private val basePath: String, private val path: String, priva
 
         File(path).copyRecursively(Path.of(destination).resolve(packagePath).toFile(), overwrite = true)
     }
+
+    override fun writeTo(outputStream: OutputStream): FileName {
+        outputStream.bufferedWriter().use {
+            it.write(File(path).readText())
+        }
+        return Path.of(path).name
+    }
 }
 
-class InMemoryGeneratedFile(private val funSpec: FileSpec): WriteableFile {
+class InMemoryGeneratedFile(private val fileSpec: FileSpec): WriteableFile {
     override fun writeTo(destination: String) {
-        funSpec.writeTo(File(destination))
+        fileSpec.writeTo(File(destination))
+    }
+
+    override fun writeTo(outputStream: OutputStream): FileName {
+        OutputStreamWriter(outputStream).use {
+            fileSpec.writeTo(it)
+        }
+        return fileSpec.name
     }
 
 }
