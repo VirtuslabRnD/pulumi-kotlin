@@ -330,7 +330,7 @@ private fun specialMethodsForMap(
         FunSpec
             .builder(name)
             .addParameter("values", MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()), VARARG)
-            .addCode(mappingCodeBlock(field.mappingCode, name, "values.toList()"))
+            .addCode(mappingCodeBlock(field.mappingCode, name, "values.toMap()"))
             .build()
     )
 
