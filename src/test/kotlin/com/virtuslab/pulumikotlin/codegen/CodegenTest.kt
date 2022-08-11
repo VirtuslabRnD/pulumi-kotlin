@@ -3,6 +3,7 @@ package com.virtuslab.pulumikotlin.codegen
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.io.path.Path
@@ -188,6 +189,25 @@ class CodegenTest {
 
         val compilation = KotlinCompilation().apply {
             sources = listOf(exampleFile) + generatedKotlinFiles
+
+            classpaths = classPath
+            messageOutputStream = System.out
+        }
+
+        assertEquals(KotlinCompilation.ExitCode.OK, compilation.compile().exitCode)
+    }
+
+    @Tag("slow")
+    @Test
+    fun codegenTestWholeAwsClassicSchema() {
+        val outputDirectory = Codegen.codegen(File("/Users/mfudala/workspace/pulumi-kotlin/src/test/resources/test-schema-bigger.json"))
+
+        println(outputDirectory)
+
+        val generatedKotlinFiles = readFilesRecursively(outputDirectory).map { (fileName, contents) -> SourceFile.kotlin(fileName, contents) }
+
+        val compilation = KotlinCompilation().apply {
+            sources = generatedKotlinFiles
 
             classpaths = classPath
             messageOutputStream = System.out

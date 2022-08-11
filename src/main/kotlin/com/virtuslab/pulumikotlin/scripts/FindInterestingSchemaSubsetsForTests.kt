@@ -68,8 +68,8 @@ fun main() {
         return q1 && q2
     }
 
-    val resource = candidateResources.first { query(it) }
-    val function = candidateFunctions.first { query2(it) }
+    val resource = candidateResources.filter { query(it) }.take(20)
+    val function = candidateFunctions.filter { query2(it) }.take(20)
 
     val json = Json {
         prettyPrint = true
@@ -81,8 +81,8 @@ fun main() {
 fun serializeResource(
     json: Json,
     parsedSchema: ParsedSchema,
-    candidateResource: CandidateEntity,
-    candidateFunction: CandidateEntity
+    candidateResources: List<CandidateEntity>,
+    candidateFunctions: List<CandidateEntity>
 ): String {
 
     fun encodeTypes(candidate: CandidateEntity): Map<String, JsonElement> {
@@ -95,16 +95,16 @@ fun serializeResource(
             .toMap()
     }
 
-    val resourceBody = parsedSchema.resources.get(candidateResource.name)
-    val functionBody = parsedSchema.functions.get(candidateFunction.name)
+    val types = candidateResources.flatMap { encodeTypes(it).map { it.toPair() } } + candidateFunctions.flatMap { encodeTypes(it).map { it.toPair() } }
 
-    val types = encodeTypes(candidateResource) + encodeTypes(candidateFunction)
+    val resourceBody = candidateResources.map { it.name to parsedSchema.resources.get(it.name) }.toMap()
+    val functionBody = candidateFunctions.map { it.name to parsedSchema.functions.get(it.name) }.toMap()
 
     val finalJsonObject = JsonObject(
         mapOf(
-            "resources" to JsonObject(mapOf(candidateResource.name to json.encodeToJsonElement(resourceBody))),
-            "functions" to JsonObject(mapOf(candidateFunction.name to json.encodeToJsonElement(functionBody))),
-            "types" to JsonObject(types)
+            "resources" to JsonObject(resourceBody.mapValues { (_, value) -> json.encodeToJsonElement(value) }),
+            "functions" to JsonObject(functionBody.mapValues { (_, value) -> json.encodeToJsonElement(value) }),
+            "types" to JsonObject(types.toMap())
         )
     )
 

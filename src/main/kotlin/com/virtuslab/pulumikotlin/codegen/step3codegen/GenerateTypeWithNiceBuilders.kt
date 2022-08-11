@@ -40,9 +40,9 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
 
     val codeBlocks = fields.map { field ->
         val block = CodeBlock.of(
-            ".%N(%N)", field.name, field.name
+            ".%N(%N)", KeywordsEscaper.escape(field.name), field.name
         )
-        val toJavaBlock = CodeBlock.of(".%N(%N.%N())", field.name, field.name, "toJava")
+        val toJavaBlock = CodeBlock.of(".%N(%N.%N())", KeywordsEscaper.escape(field.name), field.name, "toJava")
         when (val type = field.fieldType.type) {
             AnyType -> block
             is PrimitiveType -> block
@@ -261,7 +261,7 @@ private fun specialMethodsForComplexType(
         builderPattern(
             name,
             builderLambda(builderTypeName),
-            BuilderSettingCodeBlock.create("%T().applySuspend { argument() }.build()", builderTypeName)
+            BuilderSettingCodeBlock.create("%T().applySuspend{ argument() }.build()", builderTypeName)
                 .withMappingCode(field.mappingCode),
         )
     )
@@ -276,7 +276,7 @@ private fun specialMethodsForList(
         is ComplexType -> {
             val commonCodeBlock = BuilderSettingCodeBlock
                 .create(
-                    "argument.toList().map { %T().applySuspend { it() }.build() }",
+                    "argument.toList().map { %T().applySuspend{ it() }.build() }",
                     innerType.toBuilderTypeName()
                 )
                 .withMappingCode(field.mappingCode)
@@ -313,7 +313,7 @@ private fun specialMethodsForMap(
          is ComplexType -> {
             val commonCodeBlock = BuilderSettingCodeBlock
                 .create(
-                    "argument.toList().map { (left, right) -> left to %T().applySuspend { right() }.build() }",
+                    "argument.toList().map { (left, right) -> left to %T().applySuspend{ right() }.build() }",
                     rightInnerType.toBuilderTypeName()
                 )
                 .withMappingCode(field.mappingCode)
