@@ -115,6 +115,18 @@ data class PulumiName(
         }
     }
 
+    fun toResourcePackage(namingFlags: NamingFlags): String {
+        // TODO: todo
+        return when(namingFlags.language) {
+            Kotlin -> packageToString(relativeToProviderPackage(namespace) + listOf("kotlin"))
+            Java -> packageToString(relativeToProviderPackage(namespace))
+        }
+    }
+
+    fun toResourceName(namingFlags: NamingFlags): String {
+        return name
+    }
+
     fun toClassName(namingFlags: NamingFlags): String {
         val modifiers = getModifiers(namingFlags)
         return name.capitalize() + modifiers.nameSuffix

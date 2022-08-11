@@ -1,6 +1,7 @@
 package com.pulumi.kotlin
 
 import com.pulumi.core.Output
+import com.pulumi.resources.CustomResourceOptions
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
@@ -47,7 +48,11 @@ data class CustomArgs(
     val replaceOnChanges: List<String>? = null,
     val retainOnDelete: Boolean = false,
     val pluginDownloadURL: String? = null
-)
+) {
+    fun toJava(): CustomResourceOptions {
+        return CustomResourceOptions.builder().build()
+    }
+}
 
 data class CustomArgsBuilder(
     var protect: Boolean = false,
@@ -85,6 +90,12 @@ data class CustomArgsBuilder(
     fun replaceOnChanges(value: List<String>?): Unit { this.replaceOnChanges = value } 
     fun retainOnDelete(value: Boolean): Unit { this.retainOnDelete = value } 
     fun pluginDownloadURL(value: String?) = null
+
+    fun build(): CustomArgs {
+        return CustomArgs(
+            protect, id, parent, dependsOn, ignoreChanges, version, provider, customTimeouts, resourceTransformations, aliases, urn, deleteBeforeReplace, additionalSecretOutputs, importId, replaceOnChanges, retainOnDelete, pluginDownloadURL
+        )
+    }
 }
 
 // TODO: make sure these helpers do not leak to the SDK

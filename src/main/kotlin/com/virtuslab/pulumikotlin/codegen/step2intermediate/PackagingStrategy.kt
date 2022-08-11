@@ -124,6 +124,74 @@ private fun toType(
     }
 }
 
+
+private fun toTypeNestedReference(
+    references: References,
+    complexTypes: Map<String, Resources.PropertySpecification>,
+    spec: Resources.PropertySpecification
+): Type {
+    return when(spec) {
+        is Resources.ArrayProperty -> ListType(toTypeNestedReference(references, complexTypes, spec.items))
+        is Resources.BooleanProperty -> PrimitiveType("Boolean")
+        is Resources.IntegerProperty -> PrimitiveType("Int")
+        is Resources.MapProperty -> MapType(PrimitiveType("String"), toTypeNestedReference(references, complexTypes, spec.additionalProperties))
+        is Resources.NumberProperty -> PrimitiveType("Double") // TODO: Double or Long or BigDecimal?
+        is Resources.ObjectProperty -> error("nested objects not supported")
+        is Resources.OneOf -> EitherType(toTypeNestedReference(references, complexTypes, spec.oneOf.get(0)), toTypeNestedReference(references, complexTypes, spec.oneOf.get(1)))
+        is Resources.ReferredProperty -> {
+            val referencedType = spec.`$ref`.value.removePrefix("#/types/")
+            if(referencedType.startsWith("pulumi")) {
+                AnyType
+            } else {
+                val foundType = complexTypes.get(referencedType.lowercase())
+                if(foundType == null) {
+                    println("Not found type for ${referencedType}, defaulting to Any")
+                    AnyType
+                } else {
+                    when(foundType) {
+                        is Resources.ObjectProperty -> {
+                            ComplexType(
+                                TypeMetadata(PulumiName.from(referencedType), Usage(Output, ResourceNested)),
+                                foundType.properties.map { (name, spec) ->
+                                    name.value to toTypeNestedReference(references, complexTypes, spec)
+                                }.toMap()
+                            )
+                        }
+                        is Resources.StringEnumProperty -> {
+                            println("enum not supported yet") // TODO: support enum
+                            AnyType
+                        }
+                        else -> {
+                            error("not expected")
+                        }
+                    }
+                }
+            }
+        }
+        is Resources.StringEnumProperty -> PrimitiveType("String") // TODO: support enum
+        is Resources.StringProperty -> PrimitiveType("String")
+    }
+}
+
+data class ResourceType(val name: PulumiName, val argsType: Type, val outputFields: Map<String, Type>)
+
+fun getResourceSpecs(parsedSchema: ParsedSchema): List<ResourceType> {
+    // TODO: deduplicate with getTypeSpecs
+    val lowercasedTypesMap = parsedSchema.types.map { (key, value) -> key.lowercase() to value }.toMap()
+
+    val references = computeReferences(parsedSchema.resources, lowercasedTypesMap, parsedSchema.functions)
+
+    return parsedSchema.resources.map { (name, spec) ->
+        val outputFields = spec.properties.map { (propertyName, propertySpec) ->
+            propertyName.value to toTypeNestedReference(references, lowercasedTypesMap, propertySpec)
+        }.toMap()
+
+        val argument = toTypeRoot(references + mapOf(name.lowercase() to listOf(Usage(Input, ResourceRoot))), lowercasedTypesMap, name, Resources.ObjectProperty(properties = spec.inputProperties)).get(0)
+
+        ResourceType(PulumiName.from(name), argument, outputFields)
+    }
+}
+
 fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
 
     // TODO: resources can also be types
@@ -134,15 +202,18 @@ fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
 
     val references = computeReferences(parsedSchema.resources, lowercasedTypesMap, parsedSchema.functions)
 
+    // TODO: improve
     val syntheticInputFunctionTypes = parsedSchema.functions
         .map { (name, spec) -> spec.inputs ?. let { name to it } }
         .filterNotNull()
         .flatMap { (name, value) -> toTypeRoot(references + mapOf(name.lowercase() to listOf(Usage(Input, FunctionRoot))), lowercasedTypesMap, name, value) }
 
+    // TODO: improve
     val syntheticOutputFunctionTypes = parsedSchema.functions
         .map { (name, spec) -> name to spec.outputs }
         .flatMap { (name, value) -> toTypeRoot(references + mapOf(name.lowercase() to listOf(Usage(Output, FunctionRoot))), lowercasedTypesMap, name, value) }
 
+    // TODO: improve
     val syntheticResourceTypes = parsedSchema.resources
         .flatMap { (name, spec) -> toTypeRoot(references + mapOf(name.lowercase() to listOf(Usage(Input, ResourceRoot))), lowercasedTypesMap, name, Resources.ObjectProperty(properties = spec.inputProperties)) }
 

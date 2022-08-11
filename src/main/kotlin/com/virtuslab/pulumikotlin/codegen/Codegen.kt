@@ -1,6 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen
 
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Decoder
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.getResourceSpecs
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.getTypeSpecs
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Generate
 import java.io.File
@@ -17,7 +18,8 @@ object Codegen {
         }
         val parsedSchemas = Decoder.decode(schema.inputStream())
         val autonomousTypes = getTypeSpecs(parsedSchemas)
-        val generatedFiles = Generate.generate(autonomousTypes)
+        val resourceTypes = getResourceSpecs(parsedSchemas)
+        val generatedFiles = Generate.generate(autonomousTypes, resourceTypes)
 
         val tempDirectory = createTempDirectory()
 

@@ -39,7 +39,7 @@ internal class GenerateTypeWithNiceBuildersTest {
             )
         )
 
-        val generatedFiles = Generate.generate(listOf(firstType, secondType), GenerationOptions(implementToJava = false))
+        val generatedFiles = Generate.generate(listOf(firstType, secondType), emptyList(), GenerationOptions(implementToJava = false))
 
         val files = generatedFiles.map {
             it.get()

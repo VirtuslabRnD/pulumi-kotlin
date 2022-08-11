@@ -1,6 +1,5 @@
 package com.virtuslab.pulumikotlin.codegen
 
-import com.squareup.kotlinpoet.*
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Decoder
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Generate
@@ -17,7 +16,8 @@ fun main(args: Array<String>) {
 
     val parsedSchemas = Decoder.decode(loadedSchemaClassic)
     val autonomousTypes = getTypeSpecs(parsedSchemas)
-    val generatedFiles = Generate.generate(autonomousTypes)
+    val resourceTypes = getResourceSpecs(parsedSchemas)
+    val generatedFiles = Generate.generate(autonomousTypes, resourceTypes)
 
     generatedFiles.forEach {
         it.writeTo("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/")

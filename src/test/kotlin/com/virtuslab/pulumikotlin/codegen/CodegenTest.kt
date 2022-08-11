@@ -147,5 +147,54 @@ class CodegenTest {
         assertEquals(KotlinCompilation.ExitCode.OK, compilation.compile().exitCode)
     }
 
+    @Test
+    fun codegenTestWholeResourceCreationWithoutOutputs() {
+        val outputDirectory = Codegen.codegen(File("/Users/mfudala/workspace/pulumi-kotlin/src/test/resources/test-schema.json"))
+
+        println(outputDirectory)
+
+        val generatedKotlinFiles = readFilesRecursively(outputDirectory).map { (fileName, contents) -> SourceFile.kotlin(fileName, contents) }
+
+        val exampleFile = SourceFile.new("Main.kt", """
+            import com.pulumi.aws.acm.kotlin.certificateResource
+            
+            suspend fun main() {
+                certificateResource("name") {
+                    args {
+                        subjectAlternativeNames("one", "two")
+                        validationOptions(
+                            {
+                                domainName("whatever")
+                                validationDomain("whatever")
+                            },
+                            {
+                                domainName("whatever2")
+                                validationDomain("whatever2")
+                            }
+                        )
+                        options {
+                            certificateTransparencyLoggingPreference("test")
+                        }
+                    }
+                    opts {
+                        protect(true)
+                        retainOnDelete(false)
+                        ignoreChanges(listOf("asd"))
+                    }
+                }
+            }
+        """.trimIndent())
+
+
+        val compilation = KotlinCompilation().apply {
+            sources = listOf(exampleFile) + generatedKotlinFiles
+
+            classpaths = classPath
+            messageOutputStream = System.out
+        }
+
+        assertEquals(KotlinCompilation.ExitCode.OK, compilation.compile().exitCode)
+    }
+
     private fun artifact(coordinate: String) = ArtifactDownloader.download(coordinate).toFile()
 }

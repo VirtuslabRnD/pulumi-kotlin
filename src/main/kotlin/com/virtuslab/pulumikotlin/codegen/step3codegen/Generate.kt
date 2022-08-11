@@ -1,14 +1,11 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.squareup.kotlinpoet.CodeBlock
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.AutonomousType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
 import java.io.File
 
 object Generate {
-    fun generate(types: List<AutonomousType>, options: GenerationOptions = GenerationOptions()): List<WriteableFile> {
+    fun generate(types: List<AutonomousType>, resources: List<ResourceType> = emptyList(), options: GenerationOptions = GenerationOptions()): List<WriteableFile> {
         val generatedTypes = types.filterIsInstance<ComplexType>().map { a ->
             when {
                 a.metadata.useCharacteristic.toNested() == UseCharacteristic.FunctionNested || a.metadata.inputOrOutput == InputOrOutput.Output -> {
@@ -42,7 +39,9 @@ object Generate {
             }
         }
 
-        val generatedFiles = generatedTypes.map { InMemoryGeneratedFile(it) }
+        val generatedResources = generateResources(resources)
+
+        val generatedFiles = (generatedTypes + generatedResources).map { InMemoryGeneratedFile(it) }
 
         val existingFiles = File("/Users/mfudala/workspace/pulumi-kotlin/src/main/kotlin/com/virtuslab/pulumikotlin/codegen/sdk")
             .listFiles()
