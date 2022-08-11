@@ -25,12 +25,12 @@ fun main(args: Array<String>) {
 
     val modifiedNameSuffix = "-no-description"
 
-    val filesWithoutAlreadyProcessed = filesToProcess
+    val filesNotAlreadyProcessed = filesToProcess
         .filterNot {
             it.name.contains(modifiedNameSuffix)
         }
 
-    filesWithoutAlreadyProcessed.forEach { file ->
+    filesNotAlreadyProcessed.forEach { file ->
         val jsonContents = json.parseToJsonElement(
             file.bufferedReader().readText()
         )

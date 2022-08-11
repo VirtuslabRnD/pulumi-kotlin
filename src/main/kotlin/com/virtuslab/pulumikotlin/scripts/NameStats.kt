@@ -10,6 +10,16 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ResourcesMap
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.TypesMap
 import java.io.File
 
+
+/**
+ * This is to understand all the possible names structures in Pulumi provider's schema. For example, AWS classic can only have names with the following structure (notice `:` and `/`):
+ *
+ * - aws-native:acmpca:Certificate
+ * - aws:accessanalyzer/analyzer:Analyzer
+ *
+ * (It seems obvious now, but I wasn't so sure before writing this script. I'm also not sure about the other providers like kubernetes.)
+ */
+
 @kotlinx.serialization.Serializable
 data class Example(val value: String, val from: String)
 
@@ -29,8 +39,8 @@ val jsonOutput = Json {
 
 fun main() {
     val files = listOf(
-        "/Users/mfudala/workspace/kotlin-poet-fun/src/main/resources/schema.json",
-        "/Users/mfudala/workspace/kotlin-poet-fun/src/main/resources/schema-aws-classic.json"
+        "/Users/mfudala/workspace/pulumi-kotlin/src/main/resources/schema.json",
+        "/Users/mfudala/workspace/pulumi-kotlin/src/main/resources/schema-aws-classic.json"
     )
 
     val stats = mutableMapOf<String, CountWithExamples>().withDefault { _ ->
