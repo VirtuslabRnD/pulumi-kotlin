@@ -22,6 +22,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.2")
     implementation("org.junit.jupiter:junit-jupiter:5.8.1")
 
+
+
+    implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
+
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
     testImplementation(kotlin("test"))
 }

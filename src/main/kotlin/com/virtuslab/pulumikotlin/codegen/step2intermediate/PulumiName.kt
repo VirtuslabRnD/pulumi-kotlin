@@ -84,7 +84,7 @@ data class PulumiName(
                 shouldConstructBuilders = false
             )
             NamingFlags(InputOrOutput.Output, UseCharacteristic.FunctionRoot, LanguageType.Java) -> Modifiers(
-                "Result",
+                "",
                 listOf("outputs"),
                 shouldConstructBuilders = false
             )
