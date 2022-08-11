@@ -43,7 +43,7 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
             ".%N(%N)", field.name, field.name
         )
         val toJavaBlock = CodeBlock.of(".%N(%N.%N())", field.name, field.name, "toJava")
-        when(field.fieldType.type) {
+        when (val type = field.fieldType.type) {
             AnyType -> block
             is PrimitiveType -> block
             is ComplexType -> toJavaBlock

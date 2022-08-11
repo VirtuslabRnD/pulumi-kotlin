@@ -69,7 +69,7 @@ data class PulumiName(
             )
             NamingFlags(InputOrOutput.Input, UseCharacteristic.ResourceRoot, LanguageType.Java) -> Modifiers("Args", listOf("inputs"), shouldConstructBuilders = true)
             NamingFlags(InputOrOutput.Input, UseCharacteristic.FunctionRoot, LanguageType.Java) -> Modifiers(
-                "",
+                "PlainArgs",
                 listOf("inputs"),
                 shouldConstructBuilders = true
             )
@@ -84,7 +84,7 @@ data class PulumiName(
                 shouldConstructBuilders = false
             )
             NamingFlags(InputOrOutput.Output, UseCharacteristic.FunctionRoot, LanguageType.Java) -> Modifiers(
-                "",
+                "Result",
                 listOf("outputs"),
                 shouldConstructBuilders = false
             )

@@ -111,6 +111,29 @@ fun <T> Output<out List<ConvertibleToJava<T>>>.toJava(): Output<List<T>> {
     return applyValue { it.toJava() }
 }
 
+@JvmName("A35F0A37")
+fun <T> Output<out List<T>>.toJava(): Output<out List<T>> {
+    return this
+}
+
+
+@JvmName("A02128BDE")
+fun <T1, T2> Output<out Map<T1, T2>>.toJava(): Output<out Map<T1, T2>> {
+    return this
+}
+
+
+@JvmName("A1E842B23")
+fun <T> List<T>.toJava(): List<T> {
+    return this
+}
+
+
+@JvmName("A3F01FCF1")
+fun <T1, T2> Map<T1, T2>.toJava(): Map<T1, T2> {
+    return this
+}
+
 fun omg() {
     val a: Output<List<A>>? = null
 

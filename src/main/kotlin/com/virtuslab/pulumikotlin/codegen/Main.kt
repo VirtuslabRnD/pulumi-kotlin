@@ -11,7 +11,9 @@ import kotlin.io.path.absolutePathString
 
 
 fun main(args: Array<String>) {
-    val loadedSchemaClassic = { }::class.java.getResourceAsStream("/schema-aws-classic.json")!!
+//    val loadedSchemaClassic = { }::class.java.getResourceAsStream("/schema-aws-classic.json")!!
+
+    val loadedSchemaClassic = File("/Users/mfudala/workspace/pulumi-kotlin/src/test/resources/test-schema.json").inputStream()
 
     val parsedSchemas = Decoder.decode(loadedSchemaClassic)
     val autonomousTypes = getTypeSpecs(parsedSchemas)
