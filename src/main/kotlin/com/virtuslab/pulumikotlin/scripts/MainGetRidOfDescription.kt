@@ -1,4 +1,4 @@
-package com.virtuslab.pulumikotlin.codegen
+package com.virtuslab.pulumikotlin.scripts
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*

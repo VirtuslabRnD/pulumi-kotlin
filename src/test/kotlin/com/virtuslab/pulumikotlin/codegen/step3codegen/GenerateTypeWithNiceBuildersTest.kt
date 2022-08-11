@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 internal class GenerateTypeWithNiceBuildersTest {
 
     @Test
-    fun `just test something`() {
+    fun `generated kotlin files for some handcrafted types should compile`() {
         val firstType = TypeMetadata(
             PulumiName("aws", listOf("aws"), "FirstType"),
             InputOrOutput.Input,

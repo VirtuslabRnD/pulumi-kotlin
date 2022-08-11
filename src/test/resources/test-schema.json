@@ -1,0 +1,679 @@
+{
+  "name": "aws",
+  "description": "A Pulumi package for creating and managing Amazon Web Services (AWS) cloud resources.",
+  "keywords": [
+    "pulumi",
+    "aws"
+  ],
+  "homepage": "https://pulumi.io",
+  "license": "Apache-2.0",
+  "attribution": "This Pulumi package is based on the [`aws` Terraform Provider](https://github.com/hashicorp/terraform-provider-aws).",
+  "repository": "https://github.com/pulumi/pulumi-aws",
+  "meta": {
+    "moduleFormat": "(.*)(?:/[^/]*)"
+  },
+  "config": {
+    "variables": {
+      "accessKey": {
+        "type": "string",
+        "description": "The access key for API operations. You can retrieve this from the 'Security \u0026 Credentials' section of the AWS console.\n"
+      },
+      "allowedAccountIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "assumeRole": {
+        "$ref": "#/types/aws:config/assumeRole:assumeRole"
+      },
+      "assumeRoleWithWebIdentity": {
+        "$ref": "#/types/aws:config/assumeRoleWithWebIdentity:assumeRoleWithWebIdentity"
+      },
+      "customCaBundle": {
+        "type": "string",
+        "description": "File containing custom root and intermediate certificates. Can also be configured using the `AWS_CA_BUNDLE` environment\nvariable. (Setting `ca_bundle` in the shared config file is not supported.)\n"
+      },
+      "defaultTags": {
+        "$ref": "#/types/aws:config/defaultTags:defaultTags",
+        "description": "Configuration block with settings to default resource tags across all resources.\n"
+      },
+      "ec2MetadataServiceEndpoint": {
+        "type": "string",
+        "description": "Address of the EC2 metadata service endpoint to use. Can also be configured using the\n`AWS_EC2_METADATA_SERVICE_ENDPOINT` environment variable.\n"
+      },
+      "ec2MetadataServiceEndpointMode": {
+        "type": "string",
+        "description": "Protocol to use with EC2 metadata service endpoint.Valid values are `IPv4` and `IPv6`. Can also be configured using the\n`AWS_EC2_METADATA_SERVICE_ENDPOINT_MODE` environment variable.\n"
+      },
+      "endpoints": {
+        "type": "array",
+        "items": {
+          "$ref": "#/types/aws:config/endpoints:endpoints"
+        }
+      },
+      "forbiddenAccountIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "httpProxy": {
+        "type": "string",
+        "description": "The address of an HTTP proxy to use when accessing the AWS API. Can also be configured using the `HTTP_PROXY` or\n`HTTPS_PROXY` environment variables.\n"
+      },
+      "ignoreTags": {
+        "$ref": "#/types/aws:config/ignoreTags:ignoreTags",
+        "description": "Configuration block with settings to ignore resource tags across all resources.\n"
+      },
+      "insecure": {
+        "type": "boolean",
+        "description": "Explicitly allow the provider to perform \"insecure\" SSL requests. If omitted, default value is `false`\n"
+      },
+      "maxRetries": {
+        "type": "integer",
+        "description": "The maximum number of times an AWS API request is being executed. If the API request still fails, an error is thrown.\n"
+      },
+      "profile": {
+        "type": "string",
+        "description": "The profile for API operations. If not set, the default profile created with `aws configure` will be used.\n"
+      },
+      "region": {
+        "type": "string",
+        "$ref": "#/types/aws:index/region:Region",
+        "description": "The region where AWS operations will take place. Examples are us-east-1, us-west-2, etc.\n",
+        "defaultInfo": {
+          "environment": [
+            "AWS_REGION",
+            "AWS_DEFAULT_REGION"
+          ]
+        }
+      },
+      "s3ForcePathStyle": {
+        "type": "boolean",
+        "description": "Set this to true to enable the request to use path-style addressing, i.e., https://s3.amazonaws.com/BUCKET/KEY. By\ndefault, the S3 client will use virtual hosted bucket addressing when possible (https://BUCKET.s3.amazonaws.com/KEY).\nSpecific to the Amazon S3 service.\n",
+        "deprecationMessage": "Use s3_use_path_style instead."
+      },
+      "s3UsePathStyle": {
+        "type": "boolean",
+        "description": "Set this to true to enable the request to use path-style addressing, i.e., https://s3.amazonaws.com/BUCKET/KEY. By\ndefault, the S3 client will use virtual hosted bucket addressing when possible (https://BUCKET.s3.amazonaws.com/KEY).\nSpecific to the Amazon S3 service.\n"
+      },
+      "secretKey": {
+        "type": "string",
+        "description": "The secret key for API operations. You can retrieve this from the 'Security \u0026 Credentials' section of the AWS console.\n"
+      },
+      "sharedConfigFiles": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of paths to shared config files. If not set, defaults to [~/.aws/config].\n"
+      },
+      "sharedCredentialsFile": {
+        "type": "string",
+        "description": "The path to the shared credentials file. If not set, defaults to ~/.aws/credentials.\n",
+        "deprecationMessage": "Use shared_credentials_files instead."
+      },
+      "sharedCredentialsFiles": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of paths to shared credentials files. If not set, defaults to [~/.aws/credentials].\n"
+      },
+      "skipCredentialsValidation": {
+        "type": "boolean",
+        "description": "Skip the credentials validation via STS API. Used for AWS API implementations that do not have STS\navailable/implemented.\n",
+        "default": false
+      },
+      "skipGetEc2Platforms": {
+        "type": "boolean",
+        "description": "Skip getting the supported EC2 platforms. Used by users that don't have ec2:DescribeAccountAttributes permissions.\n",
+        "default": true
+      },
+      "skipMetadataApiCheck": {
+        "type": "boolean",
+        "description": "Skip the AWS Metadata API check. Used for AWS API implementations that do not have a metadata api endpoint.\n",
+        "default": true
+      },
+      "skipRegionValidation": {
+        "type": "boolean",
+        "description": "Skip static validation of region name. Used by users of alternative AWS-like APIs or users w/ access to regions that are\nnot public (yet).\n",
+        "default": true
+      },
+      "skipRequestingAccountId": {
+        "type": "boolean",
+        "description": "Skip requesting the account ID. Used for AWS API implementations that do not have IAM/STS API and/or metadata API.\n"
+      },
+      "stsRegion": {
+        "type": "string",
+        "description": "The region where AWS STS operations will take place. Examples are us-east-1 and us-west-2.\n"
+      },
+      "token": {
+        "type": "string",
+        "description": "session token. A session token is only required if you are using temporary security credentials.\n"
+      },
+      "useDualstackEndpoint": {
+        "type": "boolean",
+        "description": "Resolve an endpoint with DualStack capability\n"
+      },
+      "useFipsEndpoint": {
+        "type": "boolean",
+        "description": "Resolve an endpoint with FIPS capability\n"
+      }
+    }
+  },
+  "resources": {
+    "aws:acm/certificate:Certificate": {
+      "description": "The ACM certificate resource allows requesting and management of certificates\nfrom the Amazon Certificate Manager.\n\nIt deals with requesting certificates and managing their attributes and life-cycle.\nThis resource does not deal with validation of a certificate but can provide inputs\nfor other resources implementing the validation. It does not wait for a certificate to be issued.\nUse a `aws.acm.CertificateValidation` resource for this.\n\nMost commonly, this resource is used together with `aws.route53.Record` and\n`aws.acm.CertificateValidation` to request a DNS validated certificate,\ndeploy the required validation records and wait for validation to complete.\n\nDomain validation through E-Mail is also supported but should be avoided as it requires a manual step outside\nof this provider.\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n### Create Certificate\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst cert = new aws.acm.Certificate(\"cert\", {\n    domainName: \"example.com\",\n    tags: {\n        Environment: \"test\",\n    },\n    validationMethod: \"DNS\",\n});\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\ncert = aws.acm.Certificate(\"cert\",\n    domain_name=\"example.com\",\n    tags={\n        \"Environment\": \"test\",\n    },\n    validation_method=\"DNS\")\n```\n```csharp\nusing Pulumi;\nusing Aws = Pulumi.Aws;\n\nclass MyStack : Stack\n{\n    public MyStack()\n    {\n        var cert = new Aws.Acm.Certificate(\"cert\", new Aws.Acm.CertificateArgs\n        {\n            DomainName = \"example.com\",\n            Tags = \n            {\n                { \"Environment\", \"test\" },\n            },\n            ValidationMethod = \"DNS\",\n        });\n    }\n\n}\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/acm\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := acm.NewCertificate(ctx, \"cert\", &acm.CertificateArgs{\n\t\t\tDomainName: pulumi.String(\"example.com\"),\n\t\t\tTags: pulumi.StringMap{\n\t\t\t\t\"Environment\": pulumi.String(\"test\"),\n\t\t\t},\n\t\t\tValidationMethod: pulumi.String(\"DNS\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport java.util.*;\nimport java.io.*;\nimport java.nio.*;\nimport com.pulumi.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var cert = new Certificate(\"cert\", CertificateArgs.builder()        \n            .domainName(\"example.com\")\n            .tags(Map.of(\"Environment\", \"test\"))\n            .validationMethod(\"DNS\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  cert:\n    type: aws:acm:Certificate\n    properties:\n      domainName: example.com\n      tags:\n        Environment: test\n      validationMethod: DNS\n```\n{{% /example %}}\n{{% example %}}\n### Custom Domain Validation Options\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst cert = new aws.acm.Certificate(\"cert\", {\n    domainName: \"testing.example.com\",\n    validationMethod: \"EMAIL\",\n    validationOptions: [{\n        domainName: \"testing.example.com\",\n        validationDomain: \"example.com\",\n    }],\n});\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\ncert = aws.acm.Certificate(\"cert\",\n    domain_name=\"testing.example.com\",\n    validation_method=\"EMAIL\",\n    validation_options=[aws.acm.CertificateValidationOptionArgs(\n        domain_name=\"testing.example.com\",\n        validation_domain=\"example.com\",\n    )])\n```\n```csharp\nusing Pulumi;\nusing Aws = Pulumi.Aws;\n\nclass MyStack : Stack\n{\n    public MyStack()\n    {\n        var cert = new Aws.Acm.Certificate(\"cert\", new Aws.Acm.CertificateArgs\n        {\n            DomainName = \"testing.example.com\",\n            ValidationMethod = \"EMAIL\",\n            ValidationOptions = \n            {\n                new Aws.Acm.Inputs.CertificateValidationOptionArgs\n                {\n                    DomainName = \"testing.example.com\",\n                    ValidationDomain = \"example.com\",\n                },\n            },\n        });\n    }\n\n}\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/acm\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := acm.NewCertificate(ctx, \"cert\", &acm.CertificateArgs{\n\t\t\tDomainName:       pulumi.String(\"testing.example.com\"),\n\t\t\tValidationMethod: pulumi.String(\"EMAIL\"),\n\t\t\tValidationOptions: acm.CertificateValidationOptionArray{\n\t\t\t\t&acm.CertificateValidationOptionArgs{\n\t\t\t\t\tDomainName:       pulumi.String(\"testing.example.com\"),\n\t\t\t\t\tValidationDomain: pulumi.String(\"example.com\"),\n\t\t\t\t},\n\t\t\t},\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport java.util.*;\nimport java.io.*;\nimport java.nio.*;\nimport com.pulumi.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var cert = new Certificate(\"cert\", CertificateArgs.builder()        \n            .domainName(\"testing.example.com\")\n            .validationMethod(\"EMAIL\")\n            .validationOptions(CertificateValidationOptionArgs.builder()\n                .domainName(\"testing.example.com\")\n                .validationDomain(\"example.com\")\n                .build())\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  cert:\n    type: aws:acm:Certificate\n    properties:\n      domainName: testing.example.com\n      validationMethod: EMAIL\n      validationOptions:\n        - domainName: testing.example.com\n          validationDomain: example.com\n```\n{{% /example %}}\n{{% example %}}\n### Existing Certificate Body Import\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\nimport * as tls from \"@pulumi/tls\";\n\nconst examplePrivateKey = new tls.PrivateKey(\"examplePrivateKey\", {algorithm: \"RSA\"});\nconst exampleSelfSignedCert = new tls.SelfSignedCert(\"exampleSelfSignedCert\", {\n    keyAlgorithm: \"RSA\",\n    privateKeyPem: examplePrivateKey.privateKeyPem,\n    subjects: [{\n        commonName: \"example.com\",\n        organization: \"ACME Examples, Inc\",\n    }],\n    validityPeriodHours: 12,\n    allowedUses: [\n        \"key_encipherment\",\n        \"digital_signature\",\n        \"server_auth\",\n    ],\n});\nconst cert = new aws.acm.Certificate(\"cert\", {\n    privateKey: examplePrivateKey.privateKeyPem,\n    certificateBody: exampleSelfSignedCert.certPem,\n});\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\nimport pulumi_tls as tls\n\nexample_private_key = tls.PrivateKey(\"examplePrivateKey\", algorithm=\"RSA\")\nexample_self_signed_cert = tls.SelfSignedCert(\"exampleSelfSignedCert\",\n    key_algorithm=\"RSA\",\n    private_key_pem=example_private_key.private_key_pem,\n    subjects=[tls.SelfSignedCertSubjectArgs(\n        common_name=\"example.com\",\n        organization=\"ACME Examples, Inc\",\n    )],\n    validity_period_hours=12,\n    allowed_uses=[\n        \"key_encipherment\",\n        \"digital_signature\",\n        \"server_auth\",\n    ])\ncert = aws.acm.Certificate(\"cert\",\n    private_key=example_private_key.private_key_pem,\n    certificate_body=example_self_signed_cert.cert_pem)\n```\n```csharp\nusing Pulumi;\nusing Aws = Pulumi.Aws;\nusing Tls = Pulumi.Tls;\n\nclass MyStack : Stack\n{\n    public MyStack()\n    {\n        var examplePrivateKey = new Tls.PrivateKey(\"examplePrivateKey\", new Tls.PrivateKeyArgs\n        {\n            Algorithm = \"RSA\",\n        });\n        var exampleSelfSignedCert = new Tls.SelfSignedCert(\"exampleSelfSignedCert\", new Tls.SelfSignedCertArgs\n        {\n            KeyAlgorithm = \"RSA\",\n            PrivateKeyPem = examplePrivateKey.PrivateKeyPem,\n            Subjects = \n            {\n                new Tls.Inputs.SelfSignedCertSubjectArgs\n                {\n                    CommonName = \"example.com\",\n                    Organization = \"ACME Examples, Inc\",\n                },\n            },\n            ValidityPeriodHours = 12,\n            AllowedUses = \n            {\n                \"key_encipherment\",\n                \"digital_signature\",\n                \"server_auth\",\n            },\n        });\n        var cert = new Aws.Acm.Certificate(\"cert\", new Aws.Acm.CertificateArgs\n        {\n            PrivateKey = examplePrivateKey.PrivateKeyPem,\n            CertificateBody = exampleSelfSignedCert.CertPem,\n        });\n    }\n\n}\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/acm\"\n\t\"github.com/pulumi/pulumi-tls/sdk/v4/go/tls\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\texamplePrivateKey, err := tls.NewPrivateKey(ctx, \"examplePrivateKey\", &tls.PrivateKeyArgs{\n\t\t\tAlgorithm: pulumi.String(\"RSA\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\texampleSelfSignedCert, err := tls.NewSelfSignedCert(ctx, \"exampleSelfSignedCert\", &tls.SelfSignedCertArgs{\n\t\t\tKeyAlgorithm:  pulumi.String(\"RSA\"),\n\t\t\tPrivateKeyPem: examplePrivateKey.PrivateKeyPem,\n\t\t\tSubjects: SelfSignedCertSubjectArray{\n\t\t\t\t&SelfSignedCertSubjectArgs{\n\t\t\t\t\tCommonName:   pulumi.String(\"example.com\"),\n\t\t\t\t\tOrganization: pulumi.String(\"ACME Examples, Inc\"),\n\t\t\t\t},\n\t\t\t},\n\t\t\tValidityPeriodHours: pulumi.Int(12),\n\t\t\tAllowedUses: pulumi.StringArray{\n\t\t\t\tpulumi.String(\"key_encipherment\"),\n\t\t\t\tpulumi.String(\"digital_signature\"),\n\t\t\t\tpulumi.String(\"server_auth\"),\n\t\t\t},\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = acm.NewCertificate(ctx, \"cert\", &acm.CertificateArgs{\n\t\t\tPrivateKey:      examplePrivateKey.PrivateKeyPem,\n\t\t\tCertificateBody: exampleSelfSignedCert.CertPem,\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport java.util.*;\nimport java.io.*;\nimport java.nio.*;\nimport com.pulumi.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var examplePrivateKey = new PrivateKey(\"examplePrivateKey\", PrivateKeyArgs.builder()        \n            .algorithm(\"RSA\")\n            .build());\n\n        var exampleSelfSignedCert = new SelfSignedCert(\"exampleSelfSignedCert\", SelfSignedCertArgs.builder()        \n            .keyAlgorithm(\"RSA\")\n            .privateKeyPem(examplePrivateKey.privateKeyPem())\n            .subjects(SelfSignedCertSubjectArgs.builder()\n                .commonName(\"example.com\")\n                .organization(\"ACME Examples, Inc\")\n                .build())\n            .validityPeriodHours(12)\n            .allowedUses(            \n                \"key_encipherment\",\n                \"digital_signature\",\n                \"server_auth\")\n            .build());\n\n        var cert = new Certificate(\"cert\", CertificateArgs.builder()        \n            .privateKey(examplePrivateKey.privateKeyPem())\n            .certificateBody(exampleSelfSignedCert.certPem())\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  examplePrivateKey:\n    type: tls:PrivateKey\n    properties:\n      algorithm: RSA\n  exampleSelfSignedCert:\n    type: tls:SelfSignedCert\n    properties:\n      keyAlgorithm: RSA\n      privateKeyPem: ${examplePrivateKey.privateKeyPem}\n      subjects:\n        - commonName: example.com\n          organization: ACME Examples, Inc\n      validityPeriodHours: 12\n      allowedUses:\n        - key_encipherment\n        - digital_signature\n        - server_auth\n  cert:\n    type: aws:acm:Certificate\n    properties:\n      privateKey: ${examplePrivateKey.privateKeyPem}\n      certificateBody: ${exampleSelfSignedCert.certPem}\n```\n{{% /example %}}\n{{% example %}}\n### Referencing domain_validation_options With for_each Based Resources\n\nSee the `aws.acm.CertificateValidation` resource for a full example of performing DNS validation.\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst example: aws.route53.Record[];\nfor (const range of Object.entries(.reduce((__obj, dvo) => { ...__obj, [dvo.domainName]: {\n    name: dvo.resourceRecordName,\n    record: dvo.resourceRecordValue,\n    type: dvo.resourceRecordType,\n} })).map(([k, v]) => {key: k, value: v})) {\n    example.push(new aws.route53.Record(`example-${range.key}`, {\n        allowOverwrite: true,\n        name: range.value.name,\n        records: [range.value.record],\n        ttl: 60,\n        type: aws.route53.recordtype.RecordType[range.value.type],\n        zoneId: aws_route53_zone.example.zone_id,\n    }));\n}\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\nexample = []\nfor range in [{\"key\": k, \"value\": v} for [k, v] in enumerate({dvo.domainName: {\n    name: dvo.resourceRecordName,\n    record: dvo.resourceRecordValue,\n    type: dvo.resourceRecordType,\n} for dvo in aws_acm_certificate.example.domain_validation_options})]:\n    example.append(aws.route53.Record(f\"example-{range['key']}\",\n        allow_overwrite=True,\n        name=range[\"value\"][\"name\"],\n        records=[range[\"value\"][\"record\"]],\n        ttl=60,\n        type=aws.route53/recordtype.RecordType(range[\"value\"][\"type\"]),\n        zone_id=aws_route53_zone[\"example\"][\"zone_id\"]))\n```\n```yaml\nresources:\n  example:\n    type: aws:route53:Record\n    properties:\n      allowOverwrite: true\n      name: ${range.value.name}\n      records:\n        - ${range.value.record}\n      ttl: 60\n      type: ${range.value.type}\n      zoneId: ${aws_route53_zone.example.zone_id}\n    options: {}\n```\n{{% /example %}}\n{{% /examples %}}\n\n## Import\n\nCertificates can be imported using their ARN, e.g.,\n\n```sh\n $ pulumi import aws:acm/certificate:Certificate cert arn:aws:acm:eu-central-1:123456789012:certificate/7e7a28d2-163f-4b8f-b9cd-822f96c08d6a\n```\n\n ",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "description": "The ARN of the certificate\n"
+        },
+        "certificateAuthorityArn": {
+          "type": "string",
+          "description": "ARN of an ACM PCA\n"
+        },
+        "certificateBody": {
+          "type": "string",
+          "description": "The certificate's PEM-formatted public key\n"
+        },
+        "certificateChain": {
+          "type": "string",
+          "description": "The certificate's PEM-formatted chain\n* Creating a private CA issued certificate\n"
+        },
+        "domainName": {
+          "type": "string",
+          "description": "A fully qualified domain name (FQDN) in the certificate.\n"
+        },
+        "domainValidationOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/aws:acm/CertificateDomainValidationOption:CertificateDomainValidationOption"
+          },
+          "description": "Set of domain validation objects which can be used to complete certificate validation. Can have more than one element, e.g., if SANs are defined. Only set if `DNS`-validation was used.\n"
+        },
+        "options": {
+          "$ref": "#/types/aws:acm/CertificateOptions:CertificateOptions",
+          "description": "Configuration block used to set certificate options. Detailed below.\n"
+        },
+        "privateKey": {
+          "type": "string",
+          "description": "The certificate's PEM-formatted private key\n"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the certificate.\n"
+        },
+        "subjectAlternativeNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Set of domains that should be SANs in the issued certificate. To remove all elements of a previously configured list, set this value equal to an empty list (`[]`).\n"
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A map of tags to assign to the resource..\n"
+        },
+        "tagsAll": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A map of tags assigned to the resource, including those inherited from the provider .\n"
+        },
+        "validationEmails": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of addresses that received a validation E-Mail. Only set if `EMAIL`-validation was used.\n"
+        },
+        "validationMethod": {
+          "type": "string",
+          "description": "Which method to use for validation. `DNS` or `EMAIL` are valid, `NONE` can be used for certificates that were imported into ACM and then into the provider.\n"
+        },
+        "validationOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/aws:acm/CertificateValidationOption:CertificateValidationOption"
+          },
+          "description": "Configuration block used to specify information about the initial validation of each domain name. Detailed below.\n* Importing an existing certificate\n"
+        }
+      },
+      "required": [
+        "arn",
+        "domainName",
+        "domainValidationOptions",
+        "status",
+        "subjectAlternativeNames",
+        "tagsAll",
+        "validationEmails",
+        "validationMethod"
+      ],
+      "inputProperties": {
+        "certificateAuthorityArn": {
+          "type": "string",
+          "description": "ARN of an ACM PCA\n",
+          "willReplaceOnChanges": true
+        },
+        "certificateBody": {
+          "type": "string",
+          "description": "The certificate's PEM-formatted public key\n"
+        },
+        "certificateChain": {
+          "type": "string",
+          "description": "The certificate's PEM-formatted chain\n* Creating a private CA issued certificate\n"
+        },
+        "domainName": {
+          "type": "string",
+          "description": "A fully qualified domain name (FQDN) in the certificate.\n",
+          "willReplaceOnChanges": true
+        },
+        "options": {
+          "$ref": "#/types/aws:acm/CertificateOptions:CertificateOptions",
+          "description": "Configuration block used to set certificate options. Detailed below.\n"
+        },
+        "privateKey": {
+          "type": "string",
+          "description": "The certificate's PEM-formatted private key\n"
+        },
+        "subjectAlternativeNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "willReplaceOnChanges": true,
+          "description": "Set of domains that should be SANs in the issued certificate. To remove all elements of a previously configured list, set this value equal to an empty list (`[]`).\n"
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A map of tags to assign to the resource..\n"
+        },
+        "validationMethod": {
+          "type": "string",
+          "description": "Which method to use for validation. `DNS` or `EMAIL` are valid, `NONE` can be used for certificates that were imported into ACM and then into the provider.\n",
+          "willReplaceOnChanges": true
+        },
+        "validationOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/aws:acm/CertificateValidationOption:CertificateValidationOption"
+          },
+          "willReplaceOnChanges": true,
+          "description": "Configuration block used to specify information about the initial validation of each domain name. Detailed below.\n* Importing an existing certificate\n"
+        }
+      },
+      "stateInputs": {
+        "description": "Input properties used for looking up and filtering Certificate resources.\n",
+        "properties": {
+          "arn": {
+            "type": "string",
+            "description": "The ARN of the certificate\n"
+          },
+          "certificateAuthorityArn": {
+            "type": "string",
+            "description": "ARN of an ACM PCA\n",
+            "willReplaceOnChanges": true
+          },
+          "certificateBody": {
+            "type": "string",
+            "description": "The certificate's PEM-formatted public key\n"
+          },
+          "certificateChain": {
+            "type": "string",
+            "description": "The certificate's PEM-formatted chain\n* Creating a private CA issued certificate\n"
+          },
+          "domainName": {
+            "type": "string",
+            "description": "A fully qualified domain name (FQDN) in the certificate.\n",
+            "willReplaceOnChanges": true
+          },
+          "domainValidationOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/aws:acm/CertificateDomainValidationOption:CertificateDomainValidationOption"
+            },
+            "description": "Set of domain validation objects which can be used to complete certificate validation. Can have more than one element, e.g., if SANs are defined. Only set if `DNS`-validation was used.\n"
+          },
+          "options": {
+            "$ref": "#/types/aws:acm/CertificateOptions:CertificateOptions",
+            "description": "Configuration block used to set certificate options. Detailed below.\n"
+          },
+          "privateKey": {
+            "type": "string",
+            "description": "The certificate's PEM-formatted private key\n"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the certificate.\n"
+          },
+          "subjectAlternativeNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Set of domains that should be SANs in the issued certificate. To remove all elements of a previously configured list, set this value equal to an empty list (`[]`).\n",
+            "willReplaceOnChanges": true
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "A map of tags to assign to the resource..\n"
+          },
+          "tagsAll": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "A map of tags assigned to the resource, including those inherited from the provider .\n"
+          },
+          "validationEmails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "A list of addresses that received a validation E-Mail. Only set if `EMAIL`-validation was used.\n"
+          },
+          "validationMethod": {
+            "type": "string",
+            "description": "Which method to use for validation. `DNS` or `EMAIL` are valid, `NONE` can be used for certificates that were imported into ACM and then into the provider.\n",
+            "willReplaceOnChanges": true
+          },
+          "validationOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/aws:acm/CertificateValidationOption:CertificateValidationOption"
+            },
+            "description": "Configuration block used to specify information about the initial validation of each domain name. Detailed below.\n* Importing an existing certificate\n",
+            "willReplaceOnChanges": true
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "functions": {
+    "aws:acmpca/getCertificateAuthority:getCertificateAuthority": {
+      "inputs": {
+        "properties": {
+          "arn": {
+            "type": "string",
+            "description": "Amazon Resource Name (ARN) of the certificate authority.\n"
+          },
+          "revocationConfigurations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/aws:acmpca/getCertificateAuthorityRevocationConfiguration:getCertificateAuthorityRevocationConfiguration"
+            },
+            "description": "Nested attribute containing revocation configuration.\n* `revocation_configuration.0.crl_configuration` - Nested attribute containing configuration of the certificate revocation list (CRL), if any, maintained by the certificate authority.\n* `revocation_configuration.0.crl_configuration.0.custom_cname` - Name inserted into the certificate CRL Distribution Points extension that enables the use of an alias for the CRL distribution point.\n* `revocation_configuration.0.crl_configuration.0.enabled` - Boolean value that specifies whether certificate revocation lists (CRLs) are enabled.\n* `revocation_configuration.0.crl_configuration.0.expiration_in_days` - Number of days until a certificate expires.\n* `revocation_configuration.0.crl_configuration.0.s3_bucket_name` - Name of the S3 bucket that contains the CRL.\n* `revocation_configuration.0.crl_configuration.0.s3_object_acl` - Whether the CRL is publicly readable or privately held in the CRL Amazon S3 bucket.\n"
+          },
+          "tags": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Specifies a key-value map of user-defined tags that are attached to the certificate authority.\n"
+          }
+        },
+        "required": [
+          "arn"
+        ],
+        "description": "A collection of arguments for invoking getCertificateAuthority.\n"
+      },
+      "outputs": {
+        "properties": {
+          "arn": {
+            "type": "string"
+          },
+          "certificate": {
+            "type": "string",
+            "description": "Base64-encoded certificate authority (CA) certificate. Only available after the certificate authority certificate has been imported.\n"
+          },
+          "certificateChain": {
+            "type": "string",
+            "description": "Base64-encoded certificate chain that includes any intermediate certificates and chains up to root on-premises certificate that you used to sign your private CA certificate. The chain does not include your private CA certificate. Only available after the certificate authority certificate has been imported.\n"
+          },
+          "certificateSigningRequest": {
+            "type": "string",
+            "description": "The base64 PEM-encoded certificate signing request (CSR) for your private CA certificate.\n"
+          },
+          "id": {
+            "type": "string",
+            "description": "The provider-assigned unique ID for this managed resource.\n"
+          },
+          "notAfter": {
+            "type": "string",
+            "description": "Date and time after which the certificate authority is not valid. Only available after the certificate authority certificate has been imported.\n"
+          },
+          "notBefore": {
+            "type": "string",
+            "description": "Date and time before which the certificate authority is not valid. Only available after the certificate authority certificate has been imported.\n"
+          },
+          "revocationConfigurations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/aws:acmpca/getCertificateAuthorityRevocationConfiguration:getCertificateAuthorityRevocationConfiguration"
+            },
+            "description": "Nested attribute containing revocation configuration.\n* `revocation_configuration.0.crl_configuration` - Nested attribute containing configuration of the certificate revocation list (CRL), if any, maintained by the certificate authority.\n* `revocation_configuration.0.crl_configuration.0.custom_cname` - Name inserted into the certificate CRL Distribution Points extension that enables the use of an alias for the CRL distribution point.\n* `revocation_configuration.0.crl_configuration.0.enabled` - Boolean value that specifies whether certificate revocation lists (CRLs) are enabled.\n* `revocation_configuration.0.crl_configuration.0.expiration_in_days` - Number of days until a certificate expires.\n* `revocation_configuration.0.crl_configuration.0.s3_bucket_name` - Name of the S3 bucket that contains the CRL.\n* `revocation_configuration.0.crl_configuration.0.s3_object_acl` - Whether the CRL is publicly readable or privately held in the CRL Amazon S3 bucket.\n"
+          },
+          "serial": {
+            "type": "string",
+            "description": "Serial number of the certificate authority. Only available after the certificate authority certificate has been imported.\n"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the certificate authority.\n"
+          },
+          "tags": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Specifies a key-value map of user-defined tags that are attached to the certificate authority.\n"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of the certificate authority.\n"
+          }
+        },
+        "required": [
+          "arn",
+          "certificate",
+          "certificateChain",
+          "certificateSigningRequest",
+          "notAfter",
+          "notBefore",
+          "revocationConfigurations",
+          "serial",
+          "status",
+          "tags",
+          "type",
+          "id"
+        ],
+        "description": "A collection of values returned by getCertificateAuthority.\n"
+      },
+      "description": "Get information on a AWS Certificate Manager Private Certificate Authority (ACM PCA Certificate Authority).\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst example = pulumi.output(aws.acmpca.getCertificateAuthority({\n    arn: \"arn:aws:acm-pca:us-east-1:123456789012:certificate-authority/12345678-1234-1234-1234-123456789012\",\n}));\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\nexample = aws.acmpca.get_certificate_authority(arn=\"arn:aws:acm-pca:us-east-1:123456789012:certificate-authority/12345678-1234-1234-1234-123456789012\")\n```\n```csharp\nusing Pulumi;\nusing Aws = Pulumi.Aws;\n\nclass MyStack : Stack\n{\n    public MyStack()\n    {\n        var example = Output.Create(Aws.Acmpca.GetCertificateAuthority.InvokeAsync(new Aws.Acmpca.GetCertificateAuthorityArgs\n        {\n            Arn = \"arn:aws:acm-pca:us-east-1:123456789012:certificate-authority/12345678-1234-1234-1234-123456789012\",\n        }));\n    }\n\n}\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/acmpca\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := acmpca.LookupCertificateAuthority(ctx, &acmpca.LookupCertificateAuthorityArgs{\n\t\t\tArn: \"arn:aws:acm-pca:us-east-1:123456789012:certificate-authority/12345678-1234-1234-1234-123456789012\",\n\t\t}, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport java.util.*;\nimport java.io.*;\nimport java.nio.*;\nimport com.pulumi.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        final var example = Output.of(AcmpcaFunctions.getCertificateAuthority(GetCertificateAuthorityArgs.builder()\n            .arn(\"arn:aws:acm-pca:us-east-1:123456789012:certificate-authority/12345678-1234-1234-1234-123456789012\")\n            .build()));\n\n    }\n}\n```\n```yaml\nvariables:\n  example:\n    Fn::Invoke:\n      Function: aws:acmpca:getCertificateAuthority\n      Arguments:\n        arn: arn:aws:acm-pca:us-east-1:123456789012:certificate-authority/12345678-1234-1234-1234-123456789012\n```\n{{% /example %}}\n{{% /examples %}}"
+    }
+  },
+  "types": {
+    "aws:acm/CertificateOptions:CertificateOptions": {
+      "properties": {
+        "certificateTransparencyLoggingPreference": {
+          "type": "string",
+          "description": "Specifies whether certificate details should be added to a certificate transparency log. Valid values are `ENABLED` or `DISABLED`. See https://docs.aws.amazon.com/acm/latest/userguide/acm-concepts.html#concept-transparency for more details.\n",
+          "willReplaceOnChanges": true,
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      }
+    },
+    "aws:acm/CertificateValidationOption:CertificateValidationOption": {
+      "properties": {
+        "domainName": {
+          "type": "string",
+          "description": "A fully qualified domain name (FQDN) in the certificate.\n",
+          "willReplaceOnChanges": true,
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "validationDomain": {
+          "type": "string",
+          "description": "The domain name that you want ACM to use to send you validation emails. This domain name is the suffix of the email addresses that you want ACM to use. This must be the same as the `domain_name` value or a superdomain of the `domain_name` value. For example, if you request a certificate for `\"testing.example.com\"`, you can specify `\"example.com\"` for this value.\n",
+          "willReplaceOnChanges": true,
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "required": [
+        "domainName",
+        "validationDomain"
+      ]
+    },
+    "aws:acm/CertificateDomainValidationOption:CertificateDomainValidationOption": {
+      "properties": {
+        "domainName": {
+          "type": "string",
+          "description": "A fully qualified domain name (FQDN) in the certificate.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "resourceRecordName": {
+          "type": "string",
+          "description": "The name of the DNS record to create to validate the certificate\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "resourceRecordType": {
+          "type": "string",
+          "description": "The type of DNS record to create\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "resourceRecordValue": {
+          "type": "string",
+          "description": "The value the DNS record needs to have\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "language": {
+        "nodejs": {
+          "requiredOutputs": [
+            "domainName",
+            "resourceRecordName",
+            "resourceRecordType",
+            "resourceRecordValue"
+          ]
+        }
+      }
+    },
+    "aws:acmpca/getCertificateAuthorityRevocationConfiguration:getCertificateAuthorityRevocationConfiguration": {
+      "properties": {
+        "crlConfigurations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/aws:acmpca/getCertificateAuthorityRevocationConfigurationCrlConfiguration:getCertificateAuthorityRevocationConfigurationCrlConfiguration"
+          },
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "required": [
+        "crlConfigurations"
+      ],
+      "language": {
+        "nodejs": {
+          "requiredInputs": [
+          ]
+        }
+      }
+    },
+    "aws:acmpca/getCertificateAuthorityRevocationConfigurationCrlConfiguration:getCertificateAuthorityRevocationConfigurationCrlConfiguration": {
+      "properties": {
+        "customCname": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "enabled": {
+          "type": "boolean",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "expirationInDays": {
+          "type": "integer",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "s3BucketName": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "s3ObjectAcl": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "required": [
+        "customCname",
+        "enabled",
+        "expirationInDays",
+        "s3BucketName",
+        "s3ObjectAcl"
+      ],
+      "language": {
+        "nodejs": {
+          "requiredInputs": [
+          ]
+        }
+      }
+    }
+  }
+}
