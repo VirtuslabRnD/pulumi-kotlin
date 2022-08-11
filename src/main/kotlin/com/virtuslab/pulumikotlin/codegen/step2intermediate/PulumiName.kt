@@ -1,6 +1,11 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.squareup.kotlinpoet.ClassName
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.Input
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.Output
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.*
 
 data class PulumiName(
     val providerName: String,
@@ -26,74 +31,82 @@ data class PulumiName(
 
     private fun getModifiers(namingFlags: NamingFlags): Modifiers {
         return when (namingFlags) {
-            NamingFlags(InputOrOutput.Input, UseCharacteristic.FunctionNested, LanguageType.Kotlin) -> Modifiers(
+            NamingFlags(Input, FunctionNested, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),
                 shouldConstructBuilders = true
             )
-            NamingFlags(InputOrOutput.Input, UseCharacteristic.ResourceNested, LanguageType.Kotlin) -> Modifiers(
+            NamingFlags(Input, ResourceNested, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),
                 shouldConstructBuilders = true
             )
-            NamingFlags(InputOrOutput.Input, UseCharacteristic.ResourceRoot, LanguageType.Kotlin) -> Modifiers("Args", listOf("kotlin"), shouldConstructBuilders = true)
-            NamingFlags(InputOrOutput.Input, UseCharacteristic.FunctionRoot, LanguageType.Kotlin) -> Modifiers(
+            NamingFlags(Input, ResourceRoot, Kotlin) -> Modifiers(
+                "Args",
+                listOf("kotlin"),
+                shouldConstructBuilders = true
+            )
+            NamingFlags(Input, FunctionRoot, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),
                 shouldConstructBuilders = true
             )
-            NamingFlags(InputOrOutput.Output, UseCharacteristic.FunctionNested, LanguageType.Kotlin) -> Modifiers(
+            NamingFlags(Output, FunctionNested, Kotlin) -> Modifiers(
                 "Result",
                 listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false
             )
-            NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceNested, LanguageType.Kotlin) -> Modifiers(
+            NamingFlags(Output, ResourceNested, Kotlin) -> Modifiers(
                 "",
                 listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false
             )
-            NamingFlags(InputOrOutput.Output, UseCharacteristic.FunctionRoot, LanguageType.Kotlin) -> Modifiers(
+            NamingFlags(Output, FunctionRoot, Kotlin) -> Modifiers(
                 "Result",
                 listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false
             )
-            NamingFlags(InputOrOutput.Input, UseCharacteristic.FunctionNested, LanguageType.Java) -> Modifiers(
+            NamingFlags(Input, FunctionNested, Java) -> Modifiers(
                 "",
                 listOf("inputs"),
                 shouldConstructBuilders = true
             )
-            NamingFlags(InputOrOutput.Input, UseCharacteristic.ResourceNested, LanguageType.Java) -> Modifiers(
+            NamingFlags(Input, ResourceNested, Java) -> Modifiers(
                 "Args",
                 listOf("inputs"),
                 shouldConstructBuilders = true
             )
-            NamingFlags(InputOrOutput.Input, UseCharacteristic.ResourceRoot, LanguageType.Java) -> Modifiers("Args", listOf("inputs"), shouldConstructBuilders = true)
-            NamingFlags(InputOrOutput.Input, UseCharacteristic.FunctionRoot, LanguageType.Java) -> Modifiers(
+            NamingFlags(Input, ResourceRoot, Java) -> Modifiers(
+                "Args",
+                listOf(),
+                shouldConstructBuilders = true
+            )
+            NamingFlags(Input, FunctionRoot, Java) -> Modifiers(
                 "PlainArgs",
                 listOf("inputs"),
                 shouldConstructBuilders = true
             )
-            NamingFlags(InputOrOutput.Output, UseCharacteristic.FunctionNested, LanguageType.Java) -> Modifiers(
+            NamingFlags(Output, FunctionNested, Java) -> Modifiers(
                 "",
                 listOf("outputs"),
                 shouldConstructBuilders = false
             )
-            NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceNested, LanguageType.Java) -> Modifiers(
+            NamingFlags(Output, ResourceNested, Java) -> Modifiers(
                 "",
                 listOf("outputs"),
                 shouldConstructBuilders = false
             )
-            NamingFlags(InputOrOutput.Output, UseCharacteristic.FunctionRoot, LanguageType.Java) -> Modifiers(
+            NamingFlags(Output, FunctionRoot, Java) -> Modifiers(
                 "Result",
                 listOf("outputs"),
                 shouldConstructBuilders = false
             )
-            NamingFlags(InputOrOutput.Output,  UseCharacteristic.ResourceRoot, LanguageType.Java) -> Modifiers(
+            NamingFlags(Output,  ResourceRoot, Java) -> Modifiers(
                 "",
                 listOf("outputs"),
                 shouldConstructBuilders = false
             )
-            NamingFlags(InputOrOutput.Output,  UseCharacteristic.ResourceRoot, LanguageType.Kotlin) -> Modifiers(
+            NamingFlags(Output,  ResourceRoot, Kotlin) -> Modifiers(
                 "",
                 listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false

@@ -143,13 +143,16 @@ fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
         .map { (name, spec) -> name to spec.outputs }
         .flatMap { (name, value) -> toTypeRoot(references + mapOf(name.lowercase() to listOf(Usage(Output, FunctionRoot))), lowercasedTypesMap, name, value) }
 
+    val syntheticResourceTypes = parsedSchema.resources
+        .flatMap { (name, spec) -> toTypeRoot(references + mapOf(name.lowercase() to listOf(Usage(Input, ResourceRoot))), lowercasedTypesMap, name, Resources.ObjectProperty(properties = spec.inputProperties)) }
+
     val lowercasedReferences = references.map { (key, value) -> key.lowercase() to value }.toMap()
 
     val resolvedComplexTypes = parsedSchema.types.flatMap { (name, spec) ->
         toTypeRoot(lowercasedReferences, lowercasedTypesMap, name, spec)
     }
 
-    return resolvedComplexTypes + syntheticInputFunctionTypes + syntheticOutputFunctionTypes
+    return resolvedComplexTypes + syntheticInputFunctionTypes + syntheticOutputFunctionTypes + syntheticResourceTypes
 }
 
 private fun computeReferences(
@@ -162,7 +165,7 @@ private fun computeReferences(
         resourceMap.values.flatMap {
             getReferencedTypes1(
                 typesMap,
-                Usage(Input, ResourceRoot),
+                Usage(Input, ResourceNested),
                 it.inputProperties.values.toList()
             )
         },
@@ -170,7 +173,7 @@ private fun computeReferences(
         resourceMap.values.flatMap {
             getReferencedTypes1(
                 typesMap,
-                Usage(Output, ResourceRoot),
+                Usage(Output, ResourceNested),
                 it.properties.values.toList()
             )
         },

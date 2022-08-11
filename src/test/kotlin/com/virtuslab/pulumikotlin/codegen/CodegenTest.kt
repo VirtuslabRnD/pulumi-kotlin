@@ -112,5 +112,40 @@ class CodegenTest {
         assertEquals(KotlinCompilation.ExitCode.OK, compilation.compile().exitCode)
     }
 
+    @Test
+    fun codegenTestWithTypesDerivedFromResources() {
+        val outputDirectory = Codegen.codegen(File("/Users/mfudala/workspace/pulumi-kotlin/src/test/resources/test-schema.json"))
+
+        println(outputDirectory)
+
+        val generatedKotlinFiles = readFilesRecursively(outputDirectory).map { (fileName, contents) -> SourceFile.kotlin(fileName, contents) }
+
+        val exampleFile = SourceFile.new("Main.kt", """
+            import com.pulumi.aws.acm.kotlin.CertificateArgsBuilder
+            
+            suspend fun main() {
+                val builder = CertificateArgsBuilder()
+                
+                with(builder) {
+                    domainName("whatever")
+                    options {
+                        certificateTransparencyLoggingPreference("Omg")
+                    }
+                    subjectAlternativeNames("one", "two")
+                }
+            }
+        """.trimIndent())
+
+
+        val compilation = KotlinCompilation().apply {
+            sources = listOf(exampleFile) + generatedKotlinFiles
+
+            classpaths = classPath
+            messageOutputStream = System.out
+        }
+
+        assertEquals(KotlinCompilation.ExitCode.OK, compilation.compile().exitCode)
+    }
+
     private fun artifact(coordinate: String) = ArtifactDownloader.download(coordinate).toFile()
 }
