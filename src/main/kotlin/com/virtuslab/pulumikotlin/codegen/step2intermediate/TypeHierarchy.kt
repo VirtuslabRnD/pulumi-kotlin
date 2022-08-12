@@ -44,18 +44,18 @@ object AnyType: Type() {
 }
 
 data class ComplexType(override val metadata: TypeMetadata, val fields: Map<String, Type>) : AutonomousType() {
-    override fun toTypeName(): TypeName {
+    override fun toTypeName(): ClassName {
         val names = metadata.names(LanguageType.Kotlin)
         return ClassName(names.packageName, names.className)
     }
-    fun toBuilderTypeName(): TypeName {
+    fun toBuilderTypeName(): ClassName {
         val names = metadata.names(LanguageType.Kotlin)
         return ClassName(names.packageName, names.builderClassName)
     }
 }
 
 data class EnumType(override val metadata: TypeMetadata, val possibleValues: List<String>): AutonomousType() {
-    override fun toTypeName(): TypeName {
+    override fun toTypeName(): ClassName {
         val names = metadata.names(LanguageType.Kotlin)
         return ClassName(names.packageName, names.className)
     }

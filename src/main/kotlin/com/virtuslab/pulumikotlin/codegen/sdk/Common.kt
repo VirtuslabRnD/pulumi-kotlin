@@ -2,6 +2,7 @@ package com.pulumi.kotlin
 
 import com.pulumi.core.Output
 import com.pulumi.resources.CustomResourceOptions
+import java.util.*
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
@@ -135,6 +136,14 @@ fun <T> List<T>.toJava(): List<T> {
 
 @JvmName("A3F01FCF1")
 fun <T1, T2> Map<T1, T2>.toJava(): Map<T1, T2> {
+    return this
+}
+
+fun <T> Optional<T>.toKotlin(): T? {
+    return this.orElseGet { null }
+}
+
+fun <T> T.toKotlin(): T {
     return this
 }
 

@@ -29,12 +29,129 @@ data class OutputWrappedField<T : Type>(override val type: T) : FieldType<T>() {
     }
 }
 
+sealed class Code
+
+data class Expression(val text: String, val args: List<Any>) {
+    constructor(text: String, vararg args: Any) : this(text, args.toList())
+
+    operator fun invoke(text: String, vararg args: Any): Expression {
+        return copy(text = this.text + text, args = this.args + args)
+    }
+
+    operator fun invoke(expression: Expression): Expression {
+        return copy(text = this.text + expression.text, args = this.args + expression.args)
+    }
+
+    fun toCodeBlock(): CodeBlock {
+        return try {
+            CodeBlock.of(text, *args.toTypedArray())
+        } catch (e: Exception) {
+            println("Text" + text)
+            println("Args" + args)
+            throw e
+        }
+    }
+}
+
+data class Assignment(val to: String, val expression: Expression)
+
+operator fun MemberName.invoke(vararg expression: Expression): Expression {
+    return Expression(
+        "%M(" + expression.joinToString(", ", transform = { it.text }) + ")",
+        listOf(this) + expression.flatMap { it.args }
+    )
+}
+
+fun Expression.`fun`(name: String, expression: Expression): Expression {
+    return Expression(".${name}(")(expression)(")")
+}
+
+fun Expression.invokeOneArgLikeMap(name: String, expression: Expression): Expression {
+    return this(Expression(".${name}{ arg -> ")(expression)("}"))
+}
+
+fun Expression.`invokeZeroArgs`(name: String): Expression {
+    return this(Expression(".${name}()"))
+}
+
+
+val toJava = ClassName("a", "B").member("toJava")
+
 data class Field<T : Type>(
     val name: String,
     val fieldType: FieldType<T>,
     val required: Boolean,
     val overloads: List<FieldType<*>>
 )
+
+fun toKotlinIfOptional(field: Field<*>): String {
+    return if (!field.required) {
+        ".toKotlin()"
+    } else {
+        ""
+    }
+}
+
+fun ToKotlinIfOptional(expression: Expression, required: Boolean): Expression {
+    return if (!required) {
+        expression(".toKotlin()")
+    } else {
+        expression
+    }
+}
+
+fun toKotlinExpression(expression: Expression, type: Type): Expression {
+    return when (val type = type) {
+        AnyType -> expression
+        is ComplexType -> type.toTypeName().member("toKotlin")(expression)
+        is EnumType -> type.toTypeName().member("toKotlin")(expression)
+        is EitherType -> expression
+        is ListType -> expression.invokeOneArgLikeMap("map", toKotlinExpression(Expression("arg"), type.innerType))
+        is MapType -> expression.invokeOneArgLikeMap(
+            "map",
+            Expression("arg.key")(" to ")(toKotlinExpression(Expression("arg.value"), type.secondType))
+        ).invokeZeroArgs("toMap")
+
+        is PrimitiveType -> expression
+    }
+}
+
+fun toKotlinExpressionBase(field: Field<*>): Expression {
+    return Expression("javaType.%N().toKotlin()!!", field.name)
+}
+
+fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
+
+    val codeBlocks = fields.map { field ->
+        val type = field.fieldType.type
+
+        val baseE = toKotlinExpressionBase(field)
+        val firstPart = Expression("%N = ", field.name)
+
+        val secondPart = baseE.invokeOneArgLikeMap("applyValue", toKotlinExpression(Expression("arg"), type))
+
+        firstPart(secondPart).toCodeBlock()
+    }
+
+    val names = typeMetadata.names(LanguageType.Kotlin)
+    val kotlinArgsClass = ClassName(names.packageName, names.className)
+
+    val javaNames = typeMetadata.names(LanguageType.Java)
+    val javaArgsClass = ClassName(javaNames.packageName, javaNames.className)
+
+    return FunSpec.builder("toKotlin")
+        .returns(kotlinArgsClass)
+        .addParameter("javaType", javaArgsClass)
+        .addCode(CodeBlock.of("return %T(", kotlinArgsClass))
+        .apply {
+            codeBlocks.forEach { block ->
+                addCode(block)
+                addCode(",")
+            }
+        }
+        .addCode(CodeBlock.of(")"))
+        .build()
+}
 
 fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
 
@@ -63,7 +180,7 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
         .addModifiers(OVERRIDE)
         .addCode(CodeBlock.of("return %T.%M()", javaArgsClass, javaArgsClass.member("builder")))
         .apply {
-            codeBlocks.forEach {block ->
+            codeBlocks.forEach { block ->
                 addCode(block)
             }
         }
@@ -73,7 +190,8 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
 
 data class GenerationOptions(
     val shouldGenerateBuilders: Boolean = true,
-    val implementToJava: Boolean = true
+    val implementToJava: Boolean = true,
+    val implementToKotlin: Boolean = true
 )
 
 fun generateTypeWithNiceBuilders(
@@ -127,6 +245,13 @@ fun generateTypeWithNiceBuilders(
     classB.letIf(options.implementToJava) {
         it.addFunction(toJavaFunction(typeMetadata, fields))
     }
+    classB.letIf(options.implementToKotlin) {
+        it.addType(
+            TypeSpec.companionObjectBuilder()
+                .addFunction(toKotlinFunction(typeMetadata, fields))
+                .build()
+        )
+    }
     val argsClass = classB.build()
 
     val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
@@ -164,8 +289,9 @@ fun generateTypeWithNiceBuilders(
     fileSpec
         .addImport("com.pulumi.kotlin", "applySuspend")
         .addImport("com.pulumi.kotlin", "toJava")
+        .addImport("com.pulumi.kotlin", "toKotlin")
         .let {
-            if(options.shouldGenerateBuilders) {
+            if (options.shouldGenerateBuilders) {
                 it.addType(argsBuilderClass)
             } else {
                 it
@@ -250,7 +376,8 @@ private fun FunSpec.Builder.preventJvmPlatformNameClash(): FunSpec.Builder {
     return addAnnotation(AnnotationSpec.builder(JvmName::class).addMember("%S", randomStringWith16Characters()).build())
 }
 
-private fun randomStringWith16Characters() = Random().ints('a'.code, 'z'.code).asSequence().map { it.toChar() }.take(16).joinToString("")
+private fun randomStringWith16Characters() =
+    Random().ints('a'.code, 'z'.code).asSequence().map { it.toChar() }.take(16).joinToString("")
 
 private fun specialMethodsForComplexType(
     name: String,
@@ -310,7 +437,7 @@ private fun specialMethodsForMap(
     val rightInnerType = field.type.secondType
 
     val builderPattern = when (rightInnerType) {
-         is ComplexType -> {
+        is ComplexType -> {
             val commonCodeBlock = BuilderSettingCodeBlock
                 .create(
                     "argument.toList().map { (left, right) -> left to %T().applySuspend{ right() }.build() }",
@@ -319,7 +446,12 @@ private fun specialMethodsForMap(
                 .withMappingCode(field.mappingCode)
 
             listOf(
-                builderPattern(name, MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), builderLambda(rightInnerType)), commonCodeBlock, parameterModifiers = listOf(VARARG))
+                builderPattern(
+                    name,
+                    MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), builderLambda(rightInnerType)),
+                    commonCodeBlock,
+                    parameterModifiers = listOf(VARARG)
+                )
             )
         }
 
@@ -329,7 +461,11 @@ private fun specialMethodsForMap(
     val justValuesPassedAsVarargArguments = listOf(
         FunSpec
             .builder(name)
-            .addParameter("values", MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()), VARARG)
+            .addParameter(
+                "values",
+                MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()),
+                VARARG
+            )
             .addCode(mappingCodeBlock(field.mappingCode, name, "values.toMap()"))
             .build()
     )
