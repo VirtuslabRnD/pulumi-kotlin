@@ -24,7 +24,7 @@ data class NormalField<T : Type>(override val type: T, val mappingCode: MappingC
 }
 
 data class OutputWrappedField<T : Type>(override val type: T) : FieldType<T>() {
-    override fun toTypeName(): TypeName {
+    override fun toTypeName(): ParameterizedTypeName {
         return MoreTypes.Java.Pulumi.Output(type.toTypeName())
     }
 }
@@ -257,7 +257,8 @@ fun generateTypeWithNiceBuilders(
     val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
 
     val argNames = fields.map {
-        "${it.name} = ${it.name}!!"
+        val requiredPart = if(it.required) { "!!" } else { "" }
+        "${it.name} = ${it.name}${requiredPart}"
     }.joinToString(", ")
 
     val argsBuilderClass = TypeSpec
@@ -514,7 +515,7 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
                     .builder(name)
                     .addModifiers(SUSPEND)
 //                    .preventJvmPlatformNameClash()
-                    .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
+                    .addParameter("value", fieldType.toTypeName().copy(nullable = true))
                     .addCode(mappingCodeBlock(fieldType.mappingCode, name, "value"))
                     .build()
 

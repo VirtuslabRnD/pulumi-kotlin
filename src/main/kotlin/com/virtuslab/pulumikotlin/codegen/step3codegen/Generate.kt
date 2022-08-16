@@ -14,8 +14,8 @@ object Generate {
                         a.fields.map { (name, type) ->
                             Field(
                                 name,
-                                NormalField(type) { from, to -> CodeBlock.of("val $to = $from") },
-                                true,
+                                NormalField(type.type) { from, to -> CodeBlock.of("val $to = $from") },
+                                type.required,
                                 overloads = emptyList()
                             )
                         },
@@ -27,9 +27,9 @@ object Generate {
                     generateTypeWithNiceBuilders(
                         a.metadata,
                         a.fields.map { (name, type) ->
-                            Field(name, OutputWrappedField(type), true,
+                            Field(name, OutputWrappedField(type.type), type.required,
                                 listOf(
-                                    NormalField(type) { from, to -> CodeBlock.of("val $to = Output.of($from)") }
+                                    NormalField(type.type) { from, to -> CodeBlock.of("val $to = Output.of($from)") }
                                 )
                             )
                         },

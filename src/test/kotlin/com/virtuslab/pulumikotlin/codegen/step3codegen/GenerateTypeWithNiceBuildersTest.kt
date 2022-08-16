@@ -25,7 +25,7 @@ internal class GenerateTypeWithNiceBuildersTest {
             ),
 
             mapOf(
-                "field1" to PrimitiveType("String")
+                "field1" to TypeAndOptionality(PrimitiveType("String"), true)
             )
         )
         val secondType = ComplexType(
@@ -35,7 +35,7 @@ internal class GenerateTypeWithNiceBuildersTest {
                 UseCharacteristic.ResourceNested
             ),
             mapOf(
-                "field2" to firstType
+                "field2" to TypeAndOptionality(firstType, true)
             )
         )
 

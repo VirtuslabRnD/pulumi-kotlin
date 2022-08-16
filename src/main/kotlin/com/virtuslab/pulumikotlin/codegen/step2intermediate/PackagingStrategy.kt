@@ -67,7 +67,7 @@ private fun toTypeRoot(
                 ComplexType(
                     TypeMetadata(PulumiName.from(name), usage),
                     spec.properties.map { (key, value) ->
-                        key.value to toType(references, usage, complexTypes, value)
+                        key.value to TypeAndOptionality(toType(references, usage, complexTypes, value), spec.required.contains(key))
                     }.toMap()
                 )
             }
@@ -156,7 +156,7 @@ private fun toTypeNestedReference(
                             ComplexType(
                                 TypeMetadata(PulumiName.from(referencedType), Usage(Output, ResourceNested)),
                                 foundType.properties.map { (name, spec) ->
-                                    name.value to toTypeNestedReference(references, complexTypes, spec)
+                                    name.value to TypeAndOptionality(toTypeNestedReference(references, complexTypes, spec), foundType.required.contains(name))
                                 }.toMap()
                             )
                         }

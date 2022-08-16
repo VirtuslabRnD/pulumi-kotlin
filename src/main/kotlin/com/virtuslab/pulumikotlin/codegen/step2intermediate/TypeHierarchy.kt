@@ -2,7 +2,6 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
 
 data class TypeMetadata(
     val pulumiName: PulumiName,
@@ -29,6 +28,8 @@ data class TypeWithMetadata(
     val type: Type
 )
 
+data class TypeAndOptionality(val type: Type, val required: Boolean)
+
 sealed class Type {
     abstract fun toTypeName(): TypeName
 }
@@ -43,7 +44,7 @@ object AnyType: Type() {
     }
 }
 
-data class ComplexType(override val metadata: TypeMetadata, val fields: Map<String, Type>) : AutonomousType() {
+data class ComplexType(override val metadata: TypeMetadata, val fields: Map<String, TypeAndOptionality>) : AutonomousType() {
     override fun toTypeName(): ClassName {
         val names = metadata.names(LanguageType.Kotlin)
         return ClassName(names.packageName, names.className)
