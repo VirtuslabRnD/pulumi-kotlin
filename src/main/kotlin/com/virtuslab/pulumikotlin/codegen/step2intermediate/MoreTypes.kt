@@ -2,9 +2,11 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
+import com.virtuslab.pulumikotlin.codegen.archive.member
 
 object MoreTypes {
 
@@ -28,6 +30,11 @@ object MoreTypes {
 
     object Java {
         object Pulumi {
+
+            object Output {
+                val of: MemberName
+                    get() = Output().member("of")
+            }
             fun Output(): ClassName {
                 return ClassName("com.pulumi.core", "Output")
             }

@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.virtuslab.pulumikotlin.codegen.archive.referenceName
+import com.virtuslab.pulumikotlin.codegen.expressions.*
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
 
@@ -12,32 +13,32 @@ object PulumiClassesAndMembers {
     val outputOf = output.member("of")
 }
 
-private fun toKotlinExpressionResource(expression: Expression, type: Type, opt: Boolean = false): Expression {
+private fun toKotlinExpressionResource(expression: Expression, type: Type, optional: Boolean = false): Expression {
     return when (type) {
         AnyType -> expression
-        is ComplexType -> expression.invokeOneArgLikeMap("let", type.toTypeName().nestedClass("Companion").member("toKotlin")(Expression("arg")), opt)
-        is EnumType -> expression.invokeOneArgLikeMap("let", type.toTypeName().nestedClass("Companion").member("toKotlin")(Expression("arg")), opt)
+        is ComplexType -> expression.callLet(optional) { argument -> type.toTypeName().nestedClass("Companion").member("toKotlin")(argument) }
+        is EnumType -> expression.callLet(optional) { argument -> type.toTypeName().nestedClass("Companion").member("toKotlin")(argument) }
         is EitherType -> expression
-        is ListType -> expression.invokeOneArgLikeMap("map", toKotlinExpressionResource(Expression("arg"), type.innerType), opt)
-        is MapType -> expression.invokeOneArgLikeMap(
-            "map",
-            Expression("arg.key")(".to(")(toKotlinExpressionResource(Expression("arg.value"), type.secondType))(")"),
-            opt
-        ).invokeZeroArgs("toMap", opt)
+//        is ListType -> expression.invokeOneArgLikeMap("map", toKotlinExpressionResource(Expression("arg"), type.innerType), opt)
+        is ListType -> expression.callMap(optional) { argument -> toKotlinExpressionResource(argument, type.innerType) }
+        is MapType ->
+            expression
+                .callMap(optional) { argument -> argument.field("key").pairWith(toKotlinExpressionResource(argument.field("value"), type.secondType)) }
+                .call0("toMap", optional)
 
         is PrimitiveType -> expression
     }
 }
 
 private fun toKotlinExpressionBaseResource(name: String): Expression {
-    return Expression("javaResource.%N()", KeywordsEscaper.escape(name))
+    return CustomExpression("javaResource.%N()", KeywordsEscaper.escape(name))
 }
 
-private fun toKotlinFunctionResource(name: String, type: Type, opt: Boolean): CodeBlock {
+private fun toKotlinFunctionResource(name: String, type: Type, optional: Boolean): Code {
     val baseE = toKotlinExpressionBaseResource(name)
-    val secondPart = baseE.invokeOneArgLikeMap("applyValue", toKotlinExpressionResource(Expression("arg.toKotlin()"), type, opt))
+    val secondPart = baseE.callApplyValue { arg -> toKotlinExpressionResource(arg.call0("toKotlin", optional), type, optional) }
 
-    return Expression("return ")(secondPart).toCodeBlock()
+    return Return(secondPart)
 }
 
 fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType) {

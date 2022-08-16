@@ -1,31 +1,80 @@
 package com.virtuslab.pulumikotlin.codegen.expressions
 
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.TypeName
 
 
-sealed class Code
-
-sealed class Expression {
+sealed class Code {
     abstract fun toCodeBlock(): CustomCodeBlock
+
+}
+
+data class Return(val expression: Expression): Code() {
+    override fun toCodeBlock(): CustomCodeBlock {
+        return CustomCodeBlock("return " + expression.toCodeBlock().text, expression.toCodeBlock().args)
+    }
+}
+
+sealed class Expression: Code() {
+}
+
+fun Expression.pairWith(expression: Expression) = this.call1("to", expression)
+fun Expression.field(name: String): Expression = (CustomExpressionBuilder.start() + this + "." + name).build()
+
+fun Expression.call0(name: String, optional: Boolean = false): Expression {
+    val optionalString = if(optional) { "?" } else { "" }
+
+    return (CustomExpressionBuilder.start() + this + "${optionalString}." + name + "()").build()
+}
+
+fun Expression.callMap(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
+    return call1("map", FunctionExpression.create(1, { expr -> expressionMapper(expr.get(0)) }), optional = optional)
+}
+
+fun Expression.callLet(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
+    return call1("let", FunctionExpression.create(1, { expr -> expressionMapper(expr.get(0)) }), optional = optional)
+}
+
+fun Expression.callApplyValue(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
+    return call1("applyValue", FunctionExpression.create(1, { expr -> expressionMapper(expr.get(0)) }), optional = optional)
+}
+
+fun Expression.call1(name: String, expression: Expression, optional: Boolean = false): Expression {
+    val optionalString = if(optional) { "?" } else { "" }
+    return (CustomExpressionBuilder.start() + this + "${optionalString}." + name + "(" + expression + ")").build()
+}
+
+data class NullsafeApply(val expression: Expression, val mapper: (Expression) -> Expression): Expression() {
+    override fun toCodeBlock(): CustomCodeBlock {
+        return (CustomExpressionBuilder.start() + expression + ".let {" + mapper(CustomExpression("it")) + "}").build().toCodeBlock()
+    }
+
+
 }
 
 data class FunctionExpression(val argumentNames: List<String>, val expression: Expression) : Expression() {
     companion object {
-        fun create(arguments: Int, mapper: (List<String>) -> Expression): FunctionExpression {
-            val args = (0 until arguments)
+        fun create(arguments: Int, mapper: (List<Expression>) -> Expression): FunctionExpression {
+            val argNames = (0 until arguments)
                 .map { "args${it}" }
 
-            val expression = CustomExpressionBuilder.start("{") + args.joinToString(", ") + " -> " + mapper(args) + "}"
+            val argExprs = argNames.map { CustomExpression(it) }
 
-            return FunctionExpression(args, expression.build())
+            val expression = CustomExpressionBuilder.start("{") + argNames.joinToString(", ") + " -> " + mapper(argExprs) + "}"
+
+            return FunctionExpression(argNames, expression.build())
         }
     }
 
     override fun toCodeBlock(): CustomCodeBlock {
         return expression.toCodeBlock()
     }
+}
+
+fun FunSpec.Builder.addCode(code: Code): FunSpec.Builder {
+    return this.addCode(code.toCodeBlock().toKotlinPoetCodeBlock())
 }
 
 data class ConstructObjectExpression(val typeName: TypeName, val fields: Map<String, Expression>) : Expression() {
@@ -43,8 +92,13 @@ data class ConstructObjectExpression(val typeName: TypeName, val fields: Map<Str
 
 data class CustomCodeBlock(val text: String, val args: List<Any>) {
     fun toKotlinPoetCodeBlock(): CodeBlock {
-        return CodeBlock.of(text, *args.toTypedArray())
-
+        try {
+            return CodeBlock.of(text, *args.toTypedArray())
+        } catch(e: Exception) {
+            println("Exception debug info: text: ${text}")
+            println("Exception debug info: args: ${args}")
+            throw e
+        }
     }
 
 }
@@ -111,7 +165,11 @@ fun Iterable<CustomCodeBlock>.merge(separator: String): CustomCodeBlock {
     )
 }
 
-data class Assignment(val to: String, val expression: Expression)
+data class Assignment(val to: String, val expression: Expression): Code() {
+    override fun toCodeBlock(): CustomCodeBlock {
+        return CustomCodeBlock("val %N = " + expression.toCodeBlock().text, listOf(to) + expression.toCodeBlock().args)
+    }
+}
 
 operator fun MemberName.invoke(vararg expression: Expression): Expression {
     val builder = CustomExpressionBuilder.start("%M", this) + "(" + expression.map { it.toCodeBlock() }.merge(",") + ")"

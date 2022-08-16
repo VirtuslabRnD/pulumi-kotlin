@@ -4,12 +4,13 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.KModifier.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.virtuslab.pulumikotlin.codegen.expressions.*
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import java.util.Random
 import kotlin.streams.asSequence
 
-typealias MappingCode = (from: String, to: String) -> CodeBlock
+typealias MappingCode = (Expression) -> Expression
 
 sealed class FieldType<T : Type> {
     abstract fun toTypeName(): TypeName
@@ -29,54 +30,6 @@ data class OutputWrappedField<T : Type>(override val type: T) : FieldType<T>() {
     }
 }
 
-sealed class Code
-
-data class Expression(val text: String, val args: List<Any>) {
-    constructor(text: String, vararg args: Any) : this(text, args.toList())
-
-    operator fun invoke(text: String, vararg args: Any): Expression {
-        return copy(text = this.text + text, args = this.args + args)
-    }
-
-    operator fun invoke(expression: Expression): Expression {
-        return copy(text = this.text + expression.text, args = this.args + expression.args)
-    }
-
-    fun toCodeBlock(): CodeBlock {
-        return try {
-            CodeBlock.of(text, *args.toTypedArray())
-        } catch (e: Exception) {
-            println("Text" + text)
-            println("Args" + args)
-            throw e
-        }
-    }
-}
-
-data class Assignment(val to: String, val expression: Expression)
-
-operator fun MemberName.invoke(vararg expression: Expression): Expression {
-    return Expression(
-        "%M(" + expression.joinToString(", ", transform = { it.text }) + ")",
-        listOf(this) + expression.flatMap { it.args }
-    )
-}
-
-fun Expression.`fun`(name: String, expression: Expression): Expression {
-    return Expression(".${name}(")(expression)(")")
-}
-
-fun Expression.invokeOneArgLikeMap(name: String, expression: Expression, opt: Boolean = false): Expression {
-    val optional = if(opt) { "?" } else { "" }
-    return this(Expression("${optional}.${name}{ arg -> ")(expression)("}"))
-}
-
-fun Expression.`invokeZeroArgs`(name: String, opt: Boolean = false): Expression {
-    val optional = if(opt) { "?" } else { "" }
-    return this(Expression("${optional}.${name}()"))
-}
-
-
 data class Field<T : Type>(
     val name: String,
     val fieldType: FieldType<T>,
@@ -84,21 +37,6 @@ data class Field<T : Type>(
     val overloads: List<FieldType<*>>
 )
 
-fun toKotlinIfOptional(field: Field<*>): String {
-    return if (!field.required) {
-        ".toKotlin()"
-    } else {
-        ""
-    }
-}
-
-fun ToKotlinIfOptional(expression: Expression, required: Boolean): Expression {
-    return if (!required) {
-        expression(".toKotlin()")
-    } else {
-        expression
-    }
-}
 
 fun toKotlinExpression(expression: Expression, type: Type): Expression {
     return when (val type = type) {
@@ -106,31 +44,39 @@ fun toKotlinExpression(expression: Expression, type: Type): Expression {
         is ComplexType -> type.toTypeName().member("toKotlin")(expression)
         is EnumType -> type.toTypeName().member("toKotlin")(expression)
         is EitherType -> expression
-        is ListType -> expression.invokeOneArgLikeMap("map", toKotlinExpression(Expression("arg"), type.innerType))
-        is MapType -> expression.invokeOneArgLikeMap(
+        is ListType -> expression.call1(
             "map",
-            Expression("arg.key")(" to ")(toKotlinExpression(Expression("arg.value"), type.secondType))
-        ).invokeZeroArgs("toMap")
+            FunctionExpression.create(1, { args -> toKotlinExpression(args.get(0), type.innerType) })
+        )
+
+        is MapType -> expression
+            .call1(
+                "map", FunctionExpression.create(1, { args ->
+                    args.get(0).field("key")
+                        .call1("to", toKotlinExpression(args.get(0).field("value"), type.secondType))
+                })
+            )
+            .call0("toMap")
 
         is PrimitiveType -> expression
     }
 }
 
 fun toKotlinExpressionBase(name: String): Expression {
-    return Expression("javaType.%N().toKotlin()!!", KeywordsEscaper.escape(name))
+    return CustomExpression("javaType.%N().toKotlin()!!", KeywordsEscaper.escape(name))
 }
 
 fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
 
-    val codeBlocks = fields.map { field ->
+    val arguments = fields.associate { field ->
         val type = field.fieldType.type
 
         val baseE = toKotlinExpressionBase(field.name)
-        val firstPart = Expression("%N = ", field.name)
 
-        val secondPart = baseE.invokeOneArgLikeMap("applyValue", toKotlinExpression(Expression("arg"), type))
+        val secondPart =
+            baseE.call1("applyValue", FunctionExpression.create(1, { args -> toKotlinExpression(args.get(0), type) }))
 
-        firstPart(secondPart).toCodeBlock()
+        field.name to secondPart
     }
 
     val names = typeMetadata.names(LanguageType.Kotlin)
@@ -139,17 +85,12 @@ fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpe
     val javaNames = typeMetadata.names(LanguageType.Java)
     val javaArgsClass = ClassName(javaNames.packageName, javaNames.className)
 
+    val objectCreation = Return(ConstructObjectExpression(kotlinArgsClass, arguments))
+
     return FunSpec.builder("toKotlin")
         .returns(kotlinArgsClass)
         .addParameter("javaType", javaArgsClass)
-        .addCode(CodeBlock.of("return %T(", kotlinArgsClass))
-        .apply {
-            codeBlocks.forEach { block ->
-                addCode(block)
-                addCode(",")
-            }
-        }
-        .addCode(CodeBlock.of(")"))
+        .addCode(objectCreation)
         .build()
 }
 
@@ -159,7 +100,7 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
         val block = CodeBlock.of(
             ".%N(%N)", KeywordsEscaper.escape(field.name), field.name
         )
-        val toJavaBlock = CodeBlock.of(".%N(%N.%N())", KeywordsEscaper.escape(field.name), field.name, "toJava")
+        val toJavaBlock = CodeBlock.of(".%N(%N?.%N())", KeywordsEscaper.escape(field.name), field.name, "toJava")
         when (val type = field.fieldType.type) {
             AnyType -> block
             is PrimitiveType -> block
@@ -203,7 +144,7 @@ fun generateTypeWithNiceBuilders(
     val names = typeMetadata.names(LanguageType.Kotlin)
 
     val fileSpec = FileSpec.builder(
-        names.packageName, names.className + ".kt"
+        names.packageName, names.className
     )
 
     val argsClassName = ClassName(names.packageName, names.className)
@@ -257,7 +198,11 @@ fun generateTypeWithNiceBuilders(
     val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
 
     val argNames = fields.map {
-        val requiredPart = if(it.required) { "!!" } else { "" }
+        val requiredPart = if (it.required) {
+            "!!"
+        } else {
+            ""
+        }
         "${it.name} = ${it.name}${requiredPart}"
     }.joinToString(", ")
 
@@ -304,10 +249,15 @@ fun generateTypeWithNiceBuilders(
     return fileSpec.build()
 }
 
-fun mappingCodeBlock(mappingCode: MappingCode, name: String, code: String, vararg args: Any?): CodeBlock {
+fun CodeBlock.Builder.add(code: Code): CodeBlock.Builder {
+    return this.add(code.toCodeBlock().toKotlinPoetCodeBlock())
+}
+
+private fun mappingCodeBlock(field: NormalField<*>, required: Boolean, name: String, code: String, vararg args: Any?): CodeBlock {
+    val expression = CustomExpression("toBeMapped").callLet(!required) { arg -> field.mappingCode(arg) }
     return CodeBlock.builder()
         .addStatement("val toBeMapped = $code", *args)
-        .add(mappingCode("toBeMapped", "mapped"))
+        .add(Assignment("mapped", expression))
         .addStatement("")
         .addStatement("this.${name} = mapped")
         .build()
@@ -339,7 +289,7 @@ data class BuilderSettingCodeBlock(val mappingCode: MappingCode? = null, val cod
         return if (mc != null) {
             CodeBlock.builder()
                 .addStatement("val toBeMapped = $code", *args.toTypedArray())
-                .add(mc("toBeMapped", "mapped"))
+                .add(Assignment("mapped", mc(CustomExpression("toBeMapped"))))
                 .addStatement("")
                 .addStatement("this.${fieldToSetName} = mapped")
                 .build()
@@ -424,7 +374,7 @@ private fun specialMethodsForList(
             .builder(name)
             .addModifiers(SUSPEND)
             .addParameter("values", innerType.toTypeName(), VARARG)
-            .addCode(mappingCodeBlock(field.mappingCode, name, "values.toList()"))
+            .addCode(mappingCodeBlock(field, false, name, "values.toList()"))
             .build()
     )
 
@@ -468,7 +418,7 @@ private fun specialMethodsForMap(
                 MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()),
                 VARARG
             )
-            .addCode(mappingCodeBlock(field.mappingCode, name, "values.toMap()"))
+            .addCode(mappingCodeBlock(field, false, name, "values.toMap()"))
             .build()
     )
 
@@ -515,8 +465,8 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
                     .builder(name)
                     .addModifiers(SUSPEND)
 //                    .preventJvmPlatformNameClash()
-                    .addParameter("value", fieldType.toTypeName().copy(nullable = true))
-                    .addCode(mappingCodeBlock(fieldType.mappingCode, name, "value"))
+                    .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
+                    .addCode(mappingCodeBlock(fieldType, required, name, "value"))
                     .build()
 
             val otherFunctions = when (fieldType.type) {

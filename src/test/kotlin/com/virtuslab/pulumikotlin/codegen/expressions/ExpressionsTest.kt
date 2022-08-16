@@ -12,8 +12,8 @@ class ExpressionsTest {
             ConstructObjectExpression(
                 MoreTypes.Java.Pulumi.Output(),
                 mapOf(
-                    "whatever" to CustomExpression(args.get(0)),
-                    "whatever2" to CustomExpression(args.get(1))
+                    "whatever" to args.get(0),
+                    "whatever2" to args.get(1).pairWith(args.get(0)).callLet(true, { expr -> expr.pairWith(CustomExpression("%S", "asd")) })
                 )
             )
         }.toCodeBlock().toKotlinPoetCodeBlock()

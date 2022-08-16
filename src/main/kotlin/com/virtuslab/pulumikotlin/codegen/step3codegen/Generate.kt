@@ -1,7 +1,9 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.squareup.kotlinpoet.CodeBlock
+import com.virtuslab.pulumikotlin.codegen.archive.member
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
+import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import java.io.File
 
 object Generate {
@@ -14,7 +16,7 @@ object Generate {
                         a.fields.map { (name, type) ->
                             Field(
                                 name,
-                                NormalField(type.type) { from, to -> CodeBlock.of("val $to = $from") },
+                                NormalField(type.type) { expr ->  expr },
                                 type.required,
                                 overloads = emptyList()
                             )
@@ -29,7 +31,7 @@ object Generate {
                         a.fields.map { (name, type) ->
                             Field(name, OutputWrappedField(type.type), type.required,
                                 listOf(
-                                    NormalField(type.type) { from, to -> CodeBlock.of("val $to = Output.of($from)") }
+                                    NormalField(type.type) { argument -> MoreTypes.Java.Pulumi.Output.of(argument) }
                                 )
                             )
                         },
