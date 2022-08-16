@@ -83,7 +83,8 @@ data class ConstructObjectExpression(val typeName: TypeName, val fields: Map<Str
             .map { (name, value) ->
                 CustomExpressionBuilder.start(name) + "=" + value
             }
-            .reduce { left, right -> left + "," + right }
+            .reduceOrNull { left, right -> left + "," + right }
+            ?: CustomExpressionBuilder.start()
 
         val builder = CustomExpressionBuilder.start("%T", typeName) + "(" + fieldsBuilder + ")"
         return builder.build().toCodeBlock()

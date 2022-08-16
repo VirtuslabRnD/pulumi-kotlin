@@ -143,6 +143,8 @@ fun generateTypeWithNiceBuilders(
 
     val argsClassName = ClassName(names.packageName, names.className)
 
+    val dslTag = ClassName("com.pulumi.kotlin", "PulumiTagMarker")
+
     val classB = TypeSpec.classBuilder(argsClassName)
         .letIf(options.implementToJava) {
             it.addSuperinterface(MoreTypes.Kotlin.Pulumi.ConvertibleToJava(typeMetadata.names(LanguageType.Java).kotlinPoetClassName))
@@ -202,7 +204,7 @@ fun generateTypeWithNiceBuilders(
 
     val argsBuilderClass = TypeSpec
         .classBuilder(argsBuilderClassName)
-//        .addAnnotation(dslTag)
+        .addAnnotation(dslTag)
         .addProperties(
             fields.map {
                 PropertySpec
