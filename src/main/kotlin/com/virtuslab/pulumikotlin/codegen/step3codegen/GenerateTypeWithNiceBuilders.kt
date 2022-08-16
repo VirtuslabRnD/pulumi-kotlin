@@ -75,8 +75,6 @@ fun Expression.`invokeZeroArgs`(name: String): Expression {
 }
 
 
-val toJava = ClassName("a", "B").member("toJava")
-
 data class Field<T : Type>(
     val name: String,
     val fieldType: FieldType<T>,
@@ -117,7 +115,7 @@ fun toKotlinExpression(expression: Expression, type: Type): Expression {
 }
 
 fun toKotlinExpressionBase(field: Field<*>): Expression {
-    return Expression("javaType.%N().toKotlin()!!", field.name)
+    return Expression("javaType.%N().toKotlin()!!", KeywordsEscaper.escape(field.name))
 }
 
 fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
@@ -288,6 +286,7 @@ fun generateTypeWithNiceBuilders(
 
     fileSpec
         .addImport("com.pulumi.kotlin", "applySuspend")
+        .addImport("com.pulumi.kotlin", "applyValue")
         .addImport("com.pulumi.kotlin", "toJava")
         .addImport("com.pulumi.kotlin", "toKotlin")
         .let {

@@ -147,6 +147,10 @@ fun <T> T.toKotlin(): T {
     return this
 }
 
+fun <T, R> T.applyValue(f: (T) -> R): R {
+    return f(this)
+}
+
 fun omg() {
     val a: Output<List<A>>? = null
 
