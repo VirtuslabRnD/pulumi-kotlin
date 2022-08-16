@@ -66,12 +66,14 @@ fun Expression.`fun`(name: String, expression: Expression): Expression {
     return Expression(".${name}(")(expression)(")")
 }
 
-fun Expression.invokeOneArgLikeMap(name: String, expression: Expression): Expression {
-    return this(Expression(".${name}{ arg -> ")(expression)("}"))
+fun Expression.invokeOneArgLikeMap(name: String, expression: Expression, opt: Boolean = false): Expression {
+    val optional = if(opt) { "?" } else { "" }
+    return this(Expression("${optional}.${name}{ arg -> ")(expression)("}"))
 }
 
-fun Expression.`invokeZeroArgs`(name: String): Expression {
-    return this(Expression(".${name}()"))
+fun Expression.`invokeZeroArgs`(name: String, opt: Boolean = false): Expression {
+    val optional = if(opt) { "?" } else { "" }
+    return this(Expression("${optional}.${name}()"))
 }
 
 
@@ -114,8 +116,8 @@ fun toKotlinExpression(expression: Expression, type: Type): Expression {
     }
 }
 
-fun toKotlinExpressionBase(field: Field<*>): Expression {
-    return Expression("javaType.%N().toKotlin()!!", KeywordsEscaper.escape(field.name))
+fun toKotlinExpressionBase(name: String): Expression {
+    return Expression("javaType.%N().toKotlin()!!", KeywordsEscaper.escape(name))
 }
 
 fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
@@ -123,7 +125,7 @@ fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpe
     val codeBlocks = fields.map { field ->
         val type = field.fieldType.type
 
-        val baseE = toKotlinExpressionBase(field)
+        val baseE = toKotlinExpressionBase(field.name)
         val firstPart = Expression("%N = ", field.name)
 
         val secondPart = baseE.invokeOneArgLikeMap("applyValue", toKotlinExpression(Expression("arg"), type))

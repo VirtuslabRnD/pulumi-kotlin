@@ -4,13 +4,40 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.virtuslab.pulumikotlin.codegen.archive.referenceName
-import com.virtuslab.pulumikotlin.codegen.archive.resourcePackageNameForName
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
 
 object PulumiClassesAndMembers {
     val output = MoreTypes.Java.Pulumi.Output()
     val outputOf = output.member("of")
+}
+
+private fun toKotlinExpressionResource(expression: Expression, type: Type, opt: Boolean = false): Expression {
+    return when (type) {
+        AnyType -> expression
+        is ComplexType -> expression.invokeOneArgLikeMap("let", type.toTypeName().nestedClass("Companion").member("toKotlin")(Expression("arg")), opt)
+        is EnumType -> expression.invokeOneArgLikeMap("let", type.toTypeName().nestedClass("Companion").member("toKotlin")(Expression("arg")), opt)
+        is EitherType -> expression
+        is ListType -> expression.invokeOneArgLikeMap("map", toKotlinExpressionResource(Expression("arg"), type.innerType), opt)
+        is MapType -> expression.invokeOneArgLikeMap(
+            "map",
+            Expression("arg.key")(".to(")(toKotlinExpressionResource(Expression("arg.value"), type.secondType))(")"),
+            opt
+        ).invokeZeroArgs("toMap", opt)
+
+        is PrimitiveType -> expression
+    }
+}
+
+private fun toKotlinExpressionBaseResource(name: String): Expression {
+    return Expression("javaResource.%N()", KeywordsEscaper.escape(name))
+}
+
+private fun toKotlinFunctionResource(name: String, type: Type, opt: Boolean): CodeBlock {
+    val baseE = toKotlinExpressionBaseResource(name)
+    val secondPart = baseE.invokeOneArgLikeMap("applyValue", toKotlinExpressionResource(Expression("arg.toKotlin()"), type, opt))
+
+    return Expression("return ")(secondPart).toCodeBlock()
 }
 
 fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType) {
@@ -28,6 +55,13 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
     val javaResourceArgsBuilderClassName =
         ClassName(names.toResourcePackage(javaFlags), names.toResourceName(javaFlags) + "Args")
 
+    val fields = resourceType.outputFields.map { field ->
+        PropertySpec.builder(field.name, MoreTypes.Java.Pulumi.Output(field.fieldType.type.toTypeName().copy(nullable = !field.required)))
+            .getter(FunSpec.getterBuilder().addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required)).build())
+            .build()
+    }
+
+
     val resourceClass = TypeSpec
         .classBuilder(resourceClassName)
         .addProperties(
@@ -42,6 +76,7 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
                 .addParameter("javaResource", javaResourceClassName)
                 .build()
         )
+        .addProperties(fields)
         .build()
 
     val resourceBuilderClassName =
@@ -166,6 +201,7 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
     fileSpecBuilder
         .addType(resourceBuilderClass)
         .addType(resourceClass)
+        .addImport("com.pulumi.kotlin", "toKotlin")
         .addFunction(resourceFunction)
 }
 

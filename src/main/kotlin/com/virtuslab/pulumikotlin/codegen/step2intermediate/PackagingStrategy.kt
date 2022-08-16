@@ -4,6 +4,9 @@ import com.virtuslab.pulumikotlin.codegen.*
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.*
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.*
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.*
+import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
+import com.virtuslab.pulumikotlin.codegen.step3codegen.FieldType
+import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
 
 
 data class Usage(
@@ -173,7 +176,7 @@ private fun toTypeNestedReference(
     }
 }
 
-data class ResourceType(val name: PulumiName, val argsType: Type, val outputFields: Map<String, Type>)
+data class ResourceType(val name: PulumiName, val argsType: Type, val outputFields: List<Field<*>>)
 
 fun getResourceSpecs(parsedSchema: ParsedSchema): List<ResourceType> {
     // TODO: deduplicate with getTypeSpecs
@@ -183,8 +186,9 @@ fun getResourceSpecs(parsedSchema: ParsedSchema): List<ResourceType> {
 
     return parsedSchema.resources.map { (name, spec) ->
         val outputFields = spec.properties.map { (propertyName, propertySpec) ->
-            propertyName.value to toTypeNestedReference(references, lowercasedTypesMap, propertySpec)
-        }.toMap()
+            val isRequired = spec.required.contains(propertyName)
+            Field(propertyName.value, OutputWrappedField(toTypeNestedReference(references, lowercasedTypesMap, propertySpec)), isRequired, emptyList())
+        }
 
         val argument = toTypeRoot(references + mapOf(name.lowercase() to listOf(Usage(Input, ResourceRoot))), lowercasedTypesMap, name, Resources.ObjectProperty(properties = spec.inputProperties)).get(0)
 
