@@ -44,18 +44,12 @@ fun toKotlinExpression(expression: Expression, type: Type): Expression {
         is ComplexType -> type.toTypeName().member("toKotlin")(expression)
         is EnumType -> type.toTypeName().member("toKotlin")(expression)
         is EitherType -> expression
-        is ListType -> expression.call1(
-            "map",
-            FunctionExpression.create(1, { args -> toKotlinExpression(args.get(0), type.innerType) })
-        )
+        is ListType -> expression.callMap { args -> toKotlinExpression(args, type.innerType) }
 
         is MapType -> expression
-            .call1(
-                "map", FunctionExpression.create(1, { args ->
-                    args.get(0).field("key")
-                        .call1("to", toKotlinExpression(args.get(0).field("value"), type.secondType))
-                })
-            )
+            .callMap {
+                    args -> args.field("key").call1("to", toKotlinExpression(args.field("value"), type.secondType))
+            }
             .call0("toMap")
 
         is PrimitiveType -> expression
