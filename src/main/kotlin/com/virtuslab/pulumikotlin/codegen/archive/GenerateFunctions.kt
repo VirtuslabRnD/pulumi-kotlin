@@ -3,7 +3,6 @@ package com.virtuslab.pulumikotlin.codegen.archive
 import com.pulumi.core.TypeShape
 import com.pulumi.deployment.Deployment
 import com.pulumi.deployment.DeploymentInstance
-import com.pulumi.kotlin.PulumiJavaKotlinInterop
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.virtuslab.pulumikotlin.codegen.archive.constructDataClass
@@ -63,19 +62,6 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
 //    val convertFrom = CodeBlock.builder().add()
 
 
-
-    val mappedArgsBlock = CodeBlock.of(
-        "val mappedArgs = %M(args) as %T",
-        classNameOf<PulumiJavaKotlinInterop>().member(PulumiJavaKotlinInterop::toJava),
-        invokeArgs
-    )
-
-    val javaResulTypeBlock = CodeBlock.of(
-        "val javaResultType = %M(%N::class.java)",
-        classNameOf<PulumiJavaKotlinInterop>().member(PulumiJavaKotlinInterop::getTargetClassForFromKotlinToJava),
-        outputType
-    )
-
     val typeShapeBlock = CodeBlock.of(
         "val typeShape = %M(javaResultType)",
         classNameOf<TypeShape<*>>().member("of")
@@ -95,8 +81,6 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
 
     val codeBuilder = CodeBlock.builder()
     listOf(
-        mappedArgsBlock,
-        javaResulTypeBlock,
         typeShapeBlock,
         invokeOptionsBlock,
         resultBlock,
