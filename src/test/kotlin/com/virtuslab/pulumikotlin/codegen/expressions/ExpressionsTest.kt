@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 
 class ExpressionsTest {
 
+    // TODO: improve
     @Test
     fun justHavingFun() {
         val code = FunctionExpression.create(2) { args ->
