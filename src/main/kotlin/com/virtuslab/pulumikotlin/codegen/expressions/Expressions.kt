@@ -13,7 +13,7 @@ sealed class Code {
 
 data class Return(val expression: Expression): Code() {
     override fun toCodeBlock(): CustomCodeBlock {
-        return CustomCodeBlock("return " + expression.toCodeBlock().text, expression.toCodeBlock().args)
+        return CustomCodeBlock("return·" + expression.toCodeBlock().text, expression.toCodeBlock().args)
     }
 }
 
