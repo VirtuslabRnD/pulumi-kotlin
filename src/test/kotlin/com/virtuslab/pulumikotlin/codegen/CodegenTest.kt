@@ -201,6 +201,36 @@ class CodegenTest {
         ))
     }
 
+    @Test
+    fun `functions can be invoked type-safe builder style`() {
+        testCompilationWithSourceFiles("test-schema.json", mapOf(
+            "Main.kt" to """
+            import com.pulumi.aws.acmpca.kotlin.AcmpcaFunctions.getCertificateAuthority
+            
+            suspend fun main() {
+                val cert = getCertificateAuthority {
+                    arn("www.wp.pl")
+                    revocationConfigurations({
+                       crlConfigurations(
+                            { 
+                                customCname("firstCname")
+                                enabled(true)
+                            },
+                            { 
+                                customCname("otherCname")
+                                enabled(false)
+                            }
+                       )
+                    })
+                    tags("a" to "b")
+                }
+
+                cert.arn
+            }
+        """
+        ))
+    }
+
 
     @Tag("slow")
     @Test

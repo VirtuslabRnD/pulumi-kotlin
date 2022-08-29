@@ -170,6 +170,27 @@ data class Assignment(val to: String, val expression: Expression): Code() {
     override fun toCodeBlock(): CustomCodeBlock {
         return CustomCodeBlock("val %N = " + expression.toCodeBlock().text, listOf(to) + expression.toCodeBlock().args)
     }
+
+    fun reference(): VariableReference = VariableReference(to)
+}
+
+data class GroupedCode(val list: List<Code>): Code() {
+    override fun toCodeBlock(): CustomCodeBlock {
+        val blocks = list.map { it.toCodeBlock() }
+
+        val text = blocks.joinToString("\n") { it.text }
+        val args = blocks.flatMap { it.args }
+
+        return CustomCodeBlock(text, args)
+    }
+
+}
+
+data class VariableReference(val name: String): Expression() {
+    override fun toCodeBlock(): CustomCodeBlock {
+        return CustomCodeBlock("%N", listOf(name))
+    }
+
 }
 
 operator fun MemberName.invoke(vararg expression: Expression): Expression {
