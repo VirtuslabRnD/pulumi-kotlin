@@ -421,21 +421,6 @@ private fun specialMethodsForMap(
     return builderPattern + justValuesPassedAsVarargArguments
 }
 
-//fun whatever(): FunSpec {
-//    return FunSpec
-//        .builder(field.name)
-//        .addParameter("value", it.type.copy(nullable = !field.required))
-//        .addCode("if(%N != null) {", "value")
-//        .addCode(it.mappingCode("value", "mapped"))
-//        .addCode("\n")
-//        .addCode("this.${field.name} = mapped")
-//        .addCode("}")
-//        .addCode("else {")
-//        .addCode("this.${field.name} = null")
-//        .addCode("}")
-//        .build()
-//}
-
 private fun generateFunctionsForInput(field: Field<*>): List<FunSpec> {
     val functionsForDefaultField = generateFunctionsForInput2(field.name, field.required, field.fieldType)
 
@@ -460,7 +445,6 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
                 FunSpec
                     .builder(name)
                     .addModifiers(SUSPEND)
-//                    .preventJvmPlatformNameClash()
                     .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
                     .addCode(mappingCodeBlock(fieldType, required, name, "value"))
                     .build()
@@ -481,7 +465,6 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
             FunSpec
                 .builder(name)
                 .addModifiers(SUSPEND)
-//                .preventJvmPlatformNameClash()
                 .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
                 .addCode("this.${name} = value")
                 .build()
@@ -492,7 +475,3 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
 
     return functions
 }
-//
-//fun generateBuilderWrapperFunction(): FunSpec {
-//
-//}
