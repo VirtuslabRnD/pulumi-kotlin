@@ -36,7 +36,7 @@ fun main() {
         }
     val candidateFunctions = findCandidateEntities(types, propertySpecsForFunctions)
 
-    fun query(candidate: CandidateEntity): Boolean {
+    fun resourceQuery(candidate: CandidateEntity): Boolean {
         val inputs = candidate.referencedInputTypes
         val outputs = candidate.referencedOutputTypes
 
@@ -54,7 +54,7 @@ fun main() {
         return q1 && q2
     }
 
-    fun query2(candidate: CandidateEntity): Boolean {
+    fun functionQuery(candidate: CandidateEntity): Boolean {
         val inputs = candidate.referencedInputTypes
         val outputs = candidate.referencedOutputTypes
 
@@ -68,8 +68,8 @@ fun main() {
         return q1 && q2
     }
 
-    val resource = candidateResources.filter { query(it) }.take(20)
-    val function = candidateFunctions.filter { query2(it) }.take(20)
+    val resource = candidateResources.filter { resourceQuery(it) }.take(20)
+    val function = candidateFunctions.filter { functionQuery(it) }.take(20)
 
     val json = Json {
         prettyPrint = true
