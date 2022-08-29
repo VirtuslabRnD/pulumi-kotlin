@@ -123,6 +123,20 @@ data class PulumiName(
         }
     }
 
+    fun toFunctionGroupObjectPackage(namingFlags: NamingFlags): String {
+        return when(namingFlags.language) {
+            Kotlin -> packageToString(relativeToProviderPackage(namespace) + listOf("kotlin"))
+            Java -> packageToString(relativeToProviderPackage(namespace))
+        }
+    }
+
+    fun toFunctionGroupObjectName(namingFlags: NamingFlags): String {
+        return when(namingFlags.language) {
+            Kotlin -> namespace.last().capitalize() + "Functions"
+            Java -> namespace.last().capitalize() + "Functions"
+        }
+    }
+
     fun toResourceName(namingFlags: NamingFlags): String {
         return name
     }
@@ -143,8 +157,10 @@ data class PulumiName(
     }
 
     fun toFunctionName(namingFlags: NamingFlags): String {
-        val modifiers = getModifiers(namingFlags)
-        return name.decapitalize()
+        return when(namingFlags.language) {
+            Kotlin -> name.decapitalize()
+            Java -> name.decapitalize() + "Plain" // TODO: improve
+        }
     }
 
     private fun packageToString(packageList: List<String>): String {

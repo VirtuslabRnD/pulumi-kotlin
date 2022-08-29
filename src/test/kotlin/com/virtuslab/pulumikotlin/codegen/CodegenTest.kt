@@ -186,6 +186,24 @@ class CodegenTest {
         ))
     }
 
+    @Test
+    fun `functions can be invoked`() {
+        testCompilationWithSourceFiles("test-schema.json", mapOf(
+            "Main.kt" to """
+            import com.pulumi.aws.acm.kotlin.AcmFunctions.getCertificate
+            
+            suspend fun main() {
+                val cert = getCertificate(domain = "www.wp.pl", mostRecent = true)
+                val certOutput = getCertificate(domain = Output.of("www.wp.pl"), mostRecent = Output.of(true))
+
+                certOutput.applyValue { it.arn }
+                cert.arn
+            }
+        """
+        ))
+    }
+
+
     @Tag("slow")
     @Test
     fun codegenTestWholeAwsClassicSchema() {
@@ -196,7 +214,8 @@ class CodegenTest {
     private val classPath = listOf(
         artifact("com.pulumi:pulumi:0.5.2"),
         artifact("com.pulumi:aws:5.11.0-alpha.1658776797+e45bda97"),
-        artifact("com.google.code.findbugs:jsr305:3.0.2")
+        artifact("com.google.code.findbugs:jsr305:3.0.2"),
+        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.2")
     )
 
     private fun testCompilationWithSourceFiles(schema: String, sourceFiles: Map<String, String>) {

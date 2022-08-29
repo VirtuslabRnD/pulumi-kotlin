@@ -271,7 +271,7 @@ private fun generateFunctionsForInput(
 
 fun generateResources(resources: List<ResourceType>): List<FileSpec> {
     val files = resources.map { type ->
-        val file = FileSpec.builder(type.name.toResourcePackage(NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)), type.name.toResourceName(NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)))
+        val file = FileSpec.builder(type.name.toResourcePackage(NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)), type.name.toResourceName(NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)) + ".kt")
 
         buildArgsClass(file, type)
 

@@ -138,7 +138,7 @@ fun generateTypeWithNiceBuilders(
     val names = typeMetadata.names(LanguageType.Kotlin)
 
     val fileSpec = FileSpec.builder(
-        names.packageName, names.className
+        names.packageName, names.className + ".kt"
     )
 
     val argsClassName = ClassName(names.packageName, names.className)

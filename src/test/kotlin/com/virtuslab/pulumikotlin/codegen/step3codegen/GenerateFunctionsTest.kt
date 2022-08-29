@@ -13,34 +13,41 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
 
-internal class GenerateTypeWithNiceBuildersTest {
+internal class GenerateFunctionsTest {
 
     @Test
-    fun `generated kotlin files for some handcrafted types should compile`() {
-        val firstType = ComplexType(
+    fun `generated kotlin files for some handcrafted functions should compile`() {
+        // aws:acmpca/getCertificateAuthority:getCertificateAuthority
+        val inputType = ComplexType(
             TypeMetadata(
-                PulumiName("aws", listOf("aws"), "FirstType"),
+                PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
                 InputOrOutput.Input,
-                UseCharacteristic.ResourceNested
+                UseCharacteristic.FunctionRoot
             ),
 
             mapOf(
-                "field1" to TypeAndOptionality(PrimitiveType("String"), true)
+                "arn" to TypeAndOptionality(PrimitiveType("String"), true)
             )
         )
-        val secondType = ComplexType(
+        val outputType = ComplexType(
             TypeMetadata(
-                PulumiName("aws", listOf("aws"), "SecondType"),
-                InputOrOutput.Input,
-                UseCharacteristic.ResourceNested
+                PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
+                InputOrOutput.Output,
+                UseCharacteristic.FunctionRoot
             ),
+
             mapOf(
-                "field2" to TypeAndOptionality(firstType, true)
+                "arn" to TypeAndOptionality(PrimitiveType("String"), true)
             )
+        )
+        val function = FunctionType(
+            PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
+            inputType,
+            outputType
         )
 
-        val generationOptions = GenerationOptions(implementToJava = false, implementToKotlin = false)
-        val generatedFiles = Generate.generate(listOf(firstType, secondType), resources = emptyList(), options = generationOptions)
+        val generationOptions = GenerationOptions()
+        val generatedFiles = Generate.generate(listOf(inputType, outputType), resources = emptyList(), functions = listOf(function), options = generationOptions)
 
         val files = generatedFiles.map {
             it.get()
@@ -51,7 +58,12 @@ internal class GenerateTypeWithNiceBuildersTest {
         }
 
         val sourceFiles = files.map { (name, contents) ->
-            SourceFile.kotlin(name, contents)
+            try {
+                SourceFile.kotlin(name, contents)
+            } catch(e: Exception) {
+                println("Failure for ${name}: ${contents}")
+                throw e
+            }
         }
 
         val compileResult =

@@ -196,6 +196,21 @@ fun getResourceSpecs(parsedSchema: ParsedSchema): List<ResourceType> {
     }
 }
 
+data class FunctionType(val name: PulumiName, val argsType: AutonomousType, val outputType: AutonomousType)
+
+fun getFunctionSpecs(parsedSchema: ParsedSchema): List<FunctionType> {
+    val lowercasedTypesMap = parsedSchema.types.map { (key, value) -> key.lowercase() to value }.toMap()
+
+    val references = computeReferences(parsedSchema.resources, lowercasedTypesMap, parsedSchema.functions)
+
+    return parsedSchema.functions.map { (name, spec) ->
+        val argument = toTypeRoot(references + mapOf(name.lowercase() to listOf(Usage(Input, FunctionRoot))), lowercasedTypesMap, name, spec.inputs ?: Resources.ObjectProperty()).get(0)
+        val output = toTypeRoot(references + mapOf(name.lowercase() to listOf(Usage(Output, FunctionRoot))), lowercasedTypesMap, name, spec.outputs).get(0)
+
+        FunctionType(PulumiName.from(name), argument, output)
+    }
+}
+
 fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
 
     // TODO: resources can also be types

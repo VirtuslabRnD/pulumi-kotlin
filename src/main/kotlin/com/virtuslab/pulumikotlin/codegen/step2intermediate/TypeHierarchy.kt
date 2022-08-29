@@ -31,22 +31,24 @@ data class TypeWithMetadata(
 data class TypeAndOptionality(val type: Type, val required: Boolean)
 
 sealed class Type {
-    abstract fun toTypeName(): TypeName
+    abstract fun toTypeName(languageType: LanguageType = LanguageType.Kotlin): TypeName
 }
 
 sealed class AutonomousType: Type() {
     abstract val metadata: TypeMetadata
+
+    abstract override fun toTypeName(languageType: LanguageType): ClassName
 }
 
 object AnyType: Type() {
-    override fun toTypeName(): TypeName {
+    override fun toTypeName(languageType: LanguageType): TypeName {
         return ANY
     }
 }
 
 data class ComplexType(override val metadata: TypeMetadata, val fields: Map<String, TypeAndOptionality>) : AutonomousType() {
-    override fun toTypeName(): ClassName {
-        val names = metadata.names(LanguageType.Kotlin)
+    override fun toTypeName(languageType: LanguageType): ClassName {
+        val names = metadata.names(languageType)
         return ClassName(names.packageName, names.className)
     }
     fun toBuilderTypeName(): ClassName {
@@ -56,34 +58,35 @@ data class ComplexType(override val metadata: TypeMetadata, val fields: Map<Stri
 }
 
 data class EnumType(override val metadata: TypeMetadata, val possibleValues: List<String>): AutonomousType() {
-    override fun toTypeName(): ClassName {
-        val names = metadata.names(LanguageType.Kotlin)
+    override fun toTypeName(languageType: LanguageType): ClassName {
+        val names = metadata.names(languageType)
         return ClassName(names.packageName, names.className)
     }
 }
 
 data class ListType(val innerType: Type) : Type() {
-    override fun toTypeName(): TypeName {
-        return LIST.parameterizedBy(innerType.toTypeName())
+    override fun toTypeName(languageType: LanguageType): TypeName {
+        return LIST.parameterizedBy(innerType.toTypeName(languageType))
     }
 }
 
 data class MapType(val firstType: Type, val secondType: Type) : Type() {
-    override fun toTypeName(): TypeName {
+    override fun toTypeName(languageType: LanguageType): TypeName {
         return MAP.parameterizedBy(
-            listOf(firstType.toTypeName(), secondType.toTypeName())
+            listOf(firstType.toTypeName(languageType), secondType.toTypeName(languageType))
         )
     }
 }
 
 data class EitherType(val firstType: Type, val secondType: Type): Type() {
-    override fun toTypeName(): TypeName {
+    override fun toTypeName(languageType: LanguageType): TypeName {
         return ANY // TODO: improve
     }
 }
 
 data class PrimitiveType(val name: String) : Type() {
-    override fun toTypeName(): TypeName {
+    override fun toTypeName(languageType: LanguageType): TypeName {
+        require(languageType == LanguageType.Kotlin) { "Types other than ${LanguageType.Kotlin} not expected" }
         return ClassName("kotlin", name)
     }
 }
