@@ -132,13 +132,13 @@ class CodegenTest {
     }
 
     @Test
-    fun codegenTestMultipleResourceCreationWithOutputsUsage() {
+    fun `resource can be created and its outputs can be used elsewhere`() {
         testCompilationWithSourceFiles("test-schema.json", mapOf(
             "Main.kt" to """
             import com.pulumi.aws.acm.kotlin.certificateResource
             
             suspend fun main() {
-                certificateResource("name") {
+                val resource1 = certificateResource("name") {
                     args {
                         subjectAlternativeNames("one", "two")
                         validationOptions(
@@ -149,6 +149,26 @@ class CodegenTest {
                             {
                                 domainName("whatever2")
                                 validationDomain("whatever2")
+                            }
+                        )
+                        options {
+                            certificateTransparencyLoggingPreference("test")
+                        }
+                    }
+                    opts {
+                        protect(true)
+                        retainOnDelete(false)
+                        ignoreChanges(listOf("asd"))
+                    }
+                }
+
+                val resource2 = certificateResource("name") {
+                    args {
+                        subjectAlternativeNames(resource1.status.applyValue { listOf(it) })
+                        validationOptions(
+                            {
+                                domainName(resource1.status)
+                                validationDomain("whatever")
                             }
                         )
                         options {
