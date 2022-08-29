@@ -19,7 +19,6 @@ private fun toKotlinExpressionResource(expression: Expression, type: Type, optio
         is ComplexType -> expression.callLet(optional) { argument -> type.toTypeName().nestedClass("Companion").member("toKotlin")(argument) }
         is EnumType -> expression.callLet(optional) { argument -> type.toTypeName().nestedClass("Companion").member("toKotlin")(argument) }
         is EitherType -> expression
-//        is ListType -> expression.invokeOneArgLikeMap("map", toKotlinExpressionResource(Expression("arg"), type.innerType), opt)
         is ListType -> expression.callMap(optional) { argument -> toKotlinExpressionResource(argument, type.innerType) }
         is MapType ->
             expression
@@ -52,9 +51,6 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
     val names = resourceType.name
     val resourceClassName = ClassName(names.toResourcePackage(kotlinFlags), names.toResourceName(kotlinFlags))
     val javaResourceClassName = ClassName(names.toResourcePackage(javaFlags), names.toResourceName(javaFlags))
-
-    val javaResourceArgsBuilderClassName =
-        ClassName(names.toResourcePackage(javaFlags), names.toResourceName(javaFlags) + "Args")
 
     val fields = resourceType.outputFields.map { field ->
         PropertySpec.builder(field.name, MoreTypes.Java.Pulumi.Output(field.fieldType.type.toTypeName().copy(nullable = !field.required)))
