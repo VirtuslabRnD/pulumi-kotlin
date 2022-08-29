@@ -12,12 +12,13 @@ import kotlin.io.path.absolutePathString
 fun main(args: Array<String>) {
 //    val loadedSchemaClassic = { }::class.java.getResourceAsStream("/schema-aws-classic.json")!!
 
-    val loadedSchemaClassic = File("/Users/mfudala/workspace/pulumi-kotlin/src/main/resources/schema-aws-classic.json").inputStream()
+    val loadedSchemaClassic = File("/Users/mfudala/workspace/pulumi-kotlin/src/test/resources/test-schema.json").inputStream()
 
     val parsedSchemas = Decoder.decode(loadedSchemaClassic)
     val autonomousTypes = getTypeSpecs(parsedSchemas)
     val resourceTypes = getResourceSpecs(parsedSchemas)
-    val generatedFiles = Generate.generate(autonomousTypes, resourceTypes)
+    val functionTypes = getFunctionSpecs(parsedSchemas)
+    val generatedFiles = Generate.generate(autonomousTypes, resources = resourceTypes, functions = functionTypes)
 
     generatedFiles.forEach {
         it.writeTo("/Users/mfudala/workspace/pulumi-fun/calendar-ninja/infra-pulumi/app/src/main/java/")

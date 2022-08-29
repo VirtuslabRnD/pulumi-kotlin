@@ -81,19 +81,24 @@ fun generateFunctions(functions: List<FunctionType>): List<FileSpec> {
         .flatMap { (namespace, types) ->
             val firstType = types.first() ?: return@flatMap emptyList()
             val name = firstType.name
-            val fileSpecBuilder = FileSpec
+
+            val objectSpecBuilder = TypeSpec.objectBuilder(name.toFunctionGroupObjectName(namingFlags))
+
+            val functionSpecs = types.flatMap { generateFunctionSpec(it) }
+            functionSpecs.forEach {
+                objectSpecBuilder.addFunction(it)
+            }
+
+            val fileSpec = FileSpec
                 .builder(
                     name.toFunctionGroupObjectPackage(namingFlags),
                     name.toFunctionGroupObjectName(namingFlags) + ".kt"
                 )
+                .addType(objectSpecBuilder.build())
                 .addImport("kotlinx.coroutines.future", "await")
+                .build()
 
-            val functionSpecs = types.flatMap { generateFunctionSpec(it) }
-            functionSpecs.forEach {
-                fileSpecBuilder.addFunction(it)
-            }
-
-            listOf(fileSpecBuilder.build())
+            listOf(fileSpec)
         }
 
     return files

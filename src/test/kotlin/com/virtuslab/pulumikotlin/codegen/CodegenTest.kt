@@ -190,13 +190,11 @@ class CodegenTest {
     fun `functions can be invoked`() {
         testCompilationWithSourceFiles("test-schema.json", mapOf(
             "Main.kt" to """
-            import com.pulumi.aws.acm.kotlin.AcmFunctions.getCertificate
+            import com.pulumi.aws.acmpca.kotlin.AcmpcaFunctions.getCertificateAuthority
             
             suspend fun main() {
-                val cert = getCertificate(domain = "www.wp.pl", mostRecent = true)
-                val certOutput = getCertificate(domain = Output.of("www.wp.pl"), mostRecent = Output.of(true))
+                val cert = getCertificateAuthority(arn = "www.wp.pl", tags = mapOf("a" to "b"))
 
-                certOutput.applyValue { it.arn }
                 cert.arn
             }
         """
