@@ -7,7 +7,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.absolute
 
 object ArtifactDownloader {
-    private val resolver = ArtifactResolver(cacheDir = Path("/Users/mfudala/workspace/pulumi-kotlin/artifact-cache"))
+    private val resolver = ArtifactResolver(cacheDir = Path(".pulumi-kotlin-artifact-cache"))
 
     fun download(coordinate: String): Path {
         val result = resolver.download(coordinate, downloadSources = false)

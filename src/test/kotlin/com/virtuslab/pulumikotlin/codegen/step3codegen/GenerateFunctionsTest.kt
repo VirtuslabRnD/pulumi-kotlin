@@ -7,11 +7,8 @@ import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
 import org.junit.jupiter.api.Test
-import java.io.BufferedOutputStream
-import java.io.ByteArrayOutputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
-import kotlin.test.assertNotSame
 
 internal class GenerateFunctionsTest {
 
@@ -47,7 +44,12 @@ internal class GenerateFunctionsTest {
         )
 
         val generationOptions = GenerationOptions()
-        val generatedFiles = Generate.generate(listOf(inputType, outputType), resources = emptyList(), functions = listOf(function), options = generationOptions)
+        val generatedFiles = CodeGenerator.run(GeneratorArguments(
+            types = listOf(inputType, outputType),
+            resources = emptyList(),
+            functions = listOf(function),
+            options = generationOptions
+        ))
 
         val files = generatedFiles.map {
             it.get()
