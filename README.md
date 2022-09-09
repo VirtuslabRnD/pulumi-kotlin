@@ -14,7 +14,7 @@ There are two ways:
 
 ### Arguments 
 
-⚠️ *Note: Use `src/main/resources/schema-aws-classic.json` schema for now. Google or Azure won't work yet.*
+⚠️ Note: *Use `src/main/resources/schema-aws-classic.json` schema for now. Google or Azure won't work yet.*
 
 - `--schema-path` – path to provider's schema (see section below for how to download it).
 - `--output-directory-path` – path to a directory where the generated code should be stored. 
@@ -27,7 +27,7 @@ Example in `pulumi-aws-native` repo: [link](https://github.com/pulumi/pulumi-aws
 
 ## How does it work under the hood?
 
-⚠️ Note: Remember, this repo is proof of concept, code is not of highest quality and things can quickly change.
+⚠️ Note: *Remember, this repo is proof of concept, code is not of highest quality and things can quickly change.*
 
 1. The provided schema is deserialized (`step1schemaparse`).
 1. The deserialized schema is converted into intermediate representation – graph of type dependencies (`step2intermediate`).
