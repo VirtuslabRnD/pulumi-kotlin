@@ -30,11 +30,12 @@ Example in `pulumi-aws-native` repo: [link](https://github.com/pulumi/pulumi-aws
 ⚠️ Note: Remember, this repo is proof of concept, code is not of highest quality and things can quickly change.
 
 1. The provided schema is deserialized (`step1schemaparse`).
-2. The deserialized schema is converted into intermediate representation – graph of type dependencies (`step2intermediate`).
-3. The intermediate representation is used to generate Kotlin code (`step3codegen`).
-  - Code is generated with [KotlinPoet](https://github.com/square/kotlinpoet).
-  - The generated SDK allows to write an idiomatic Kotlin code (see [type-safe builders](https://kotlinlang.org/docs/type-safe-builders.html)). 
-  - The generated SDK delegates all the work to Pulumi Java SDK.
+1. The deserialized schema is converted into intermediate representation – graph of type dependencies (`step2intermediate`).
+1. The intermediate representation is used to generate Kotlin code (`step3codegen`).
+
+    - Code is generated with [KotlinPoet](https://github.com/square/kotlinpoet).
+    - The generated SDK allows to write an idiomatic Kotlin code (see [type-safe builders](https://kotlinlang.org/docs/type-safe-builders.html)). 
+    - The generated SDK delegates all the work to Pulumi Java SDK.
 
 
 ## What is possible with Kotlin SDK? (code examples)
