@@ -83,7 +83,7 @@ data class ConstructObjectExpression(val typeName: TypeName, val fields: Map<Str
     override fun toCodeBlock(): CustomCodeBlock {
         val fieldsBuilder = fields
             .map { (name, value) ->
-                CustomExpressionBuilder.start(name) + "=" + value
+                CustomExpressionBuilder.start("%N", name) + "=" + value
             }
             .reduceOrNull { left, right -> left + "," + right }
             ?: CustomExpressionBuilder.start()

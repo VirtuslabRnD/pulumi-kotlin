@@ -230,13 +230,13 @@ fun generateTypeWithNiceBuilders(
 
     val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
 
-    val argNames = fields.joinToString(", ") {
+    val arguments = fields.associate {
         val requiredPart = if (it.required) {
             "!!"
         } else {
             ""
         }
-        "${it.name} = ${it.name}$requiredPart"
+        it.name to CustomExpressionBuilder.start("%N${requiredPart}", it.name).build()
     }
 
     val argsBuilderClass = TypeSpec
@@ -260,8 +260,8 @@ fun generateTypeWithNiceBuilders(
         .addFunction(
             FunSpec.builder("build")
                 .returns(argsClassName)
-                .addCode("return %T($argNames)", argsClassName)
-                .build(),
+                .addCode(Return(ConstructObjectExpression(argsClassName, arguments)))
+                .build()
         )
         .build()
 
@@ -298,7 +298,7 @@ private fun mappingCodeBlock(
         .addStatement("val toBeMapped = $code", *args)
         .add(Assignment("mapped", expression))
         .addStatement("")
-        .addStatement("this.$name = mapped")
+        .addStatement("this.%N = mapped", name)
         .build()
 }
 
@@ -330,11 +330,11 @@ data class BuilderSettingCodeBlock(val mappingCode: MappingCode? = null, val cod
                 .addStatement("val toBeMapped = $code", *args.toTypedArray())
                 .add(Assignment("mapped", mc(CustomExpression("toBeMapped"))))
                 .addStatement("")
-                .addStatement("this.$fieldToSetName = mapped")
+                .addStatement("this.%N = mapped", fieldToSetName)
                 .build()
         } else {
             CodeBlock.builder()
-                .addStatement("this.$fieldToSetName = $code", *args.toTypedArray())
+                .addStatement("this.%N = $code", fieldToSetName, *args.toTypedArray())
                 .build()
         }
     }
@@ -508,8 +508,8 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
                 .builder(name)
                 .addModifiers(SUSPEND)
                 .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
-                .addCode("this.$name = value")
-                .build(),
+                .addCode("this.%N = value", name)
+                .build()
         )
     }
 
