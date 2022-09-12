@@ -36,7 +36,7 @@ internal class GenerateTypeWithNiceBuildersTest {
         )
 
         val generationOptions = GenerationOptions(implementToJava = false, implementToKotlin = false)
-        val generatedFiles = CodeGenerator.run(GeneratorArguments(
+        val generatedFiles = CodeGenerator.run(CodeGenerator.Arguments(
             types = listOf(firstType, secondType),
             options = generationOptions
         ))

@@ -8,7 +8,6 @@ data class TypeMetadata(
     val inputOrOutput: InputOrOutput,
     val useCharacteristic: UseCharacteristic,
 ) {
-
     constructor(
         pulumiName: PulumiName,
         usage: Usage
@@ -21,12 +20,6 @@ data class TypeMetadata(
         return NameGeneration(pulumiName, namingFlags(language))
     }
 }
-
-data class TypeWithMetadata(
-    val metadata: TypeMetadata,
-    val parent: Type,
-    val type: Type
-)
 
 data class TypeAndOptionality(val type: Type, val required: Boolean)
 

@@ -1,4 +1,4 @@
-package com.virtuslab.pulumikotlin.codegen.step2intermediate
+package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.MemberName
@@ -6,7 +6,6 @@ import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
-import com.virtuslab.pulumikotlin.codegen.archive.member
 
 object MoreTypes {
 

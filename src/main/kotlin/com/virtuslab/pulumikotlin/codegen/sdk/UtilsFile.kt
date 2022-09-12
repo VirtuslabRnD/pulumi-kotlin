@@ -2,9 +2,7 @@ package com.pulumi.kotlin
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import com.pulumi.core.internal.Environment;
 import com.pulumi.deployment.InvokeOptions;
 

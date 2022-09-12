@@ -173,7 +173,6 @@ data class PulumiName(
 }
 
 data class NameGeneration(private val pulumiName: PulumiName, private val namingFlags: NamingFlags) {
-
     val kotlinPoetClassName get() = ClassName(pulumiName.toPackage(namingFlags), pulumiName.toClassName(namingFlags))
 
     val className get() = pulumiName.toClassName(namingFlags)

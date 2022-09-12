@@ -5,7 +5,6 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.getFunctionSpecs
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.getResourceSpecs
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.getTypeSpecs
 import com.virtuslab.pulumikotlin.codegen.step3codegen.CodeGenerator
-import com.virtuslab.pulumikotlin.codegen.step3codegen.GeneratorArguments
 import java.io.File
 import java.io.InputStream
 import kotlin.io.path.absolute
@@ -18,11 +17,13 @@ object Codegen {
      */
     fun codegen(inputStreamWithSchema: InputStream): File {
         val parsedSchemas = Decoder.decode(inputStreamWithSchema)
+        
         val autonomousTypes = getTypeSpecs(parsedSchemas)
         val resourceTypes = getResourceSpecs(parsedSchemas)
         val functionTypes = getFunctionSpecs(parsedSchemas)
+
         val generatedFiles = CodeGenerator.run(
-            GeneratorArguments(
+            CodeGenerator.Arguments(
                 types = autonomousTypes,
                 resources = resourceTypes,
                 functions = functionTypes
@@ -30,11 +31,9 @@ object Codegen {
         )
 
         val tempDirectory = createTempDirectory()
-
         generatedFiles.forEach {
             it.writeTo(tempDirectory.absolutePathString())
         }
-
         return tempDirectory.absolute().toFile()
     }
 }

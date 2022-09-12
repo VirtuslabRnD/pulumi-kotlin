@@ -1,13 +1,10 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
-import com.virtuslab.pulumikotlin.codegen.*
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.*
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.*
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.*
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
-import com.virtuslab.pulumikotlin.codegen.step3codegen.FieldType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
-
 
 data class Usage(
     val inputOrOutput: InputOrOutput,
@@ -40,7 +37,6 @@ data class NamingFlags(
     val usage: UseCharacteristic,
     val language: LanguageType
 )
-
 
 typealias References = Map<String, List<Usage>>
 
@@ -212,7 +208,6 @@ fun getFunctionSpecs(parsedSchema: ParsedSchema): List<FunctionType> {
 }
 
 fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
-
     // TODO: resources can also be types
     // TODO: update2 ^ probably not, it's just that some types do not exist despite being referenced
     // TODO: do something about lowercaseing
@@ -328,5 +323,3 @@ private fun getReferencedTypes(
         is Resources.NumberProperty -> emptyList()
     }
 }
-
-

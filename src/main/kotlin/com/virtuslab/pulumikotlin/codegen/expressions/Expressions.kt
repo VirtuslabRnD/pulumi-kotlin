@@ -4,11 +4,10 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.TypeName
-
+import com.virtuslab.pulumikotlin.codegen.utils.ExceptionWithContext
 
 sealed class Code {
     abstract fun toCodeBlock(): CustomCodeBlock
-
 }
 
 data class Return(val expression: Expression): Code() {
@@ -17,8 +16,7 @@ data class Return(val expression: Expression): Code() {
     }
 }
 
-sealed class Expression: Code() {
-}
+sealed class Expression: Code()
 
 fun Expression.pairWith(expression: Expression) = this.call1("to", expression)
 fun Expression.field(name: String): Expression = (CustomExpressionBuilder.start() + this + "." + name).build()
@@ -50,8 +48,6 @@ data class NullsafeApply(val expression: Expression, val mapper: (Expression) ->
     override fun toCodeBlock(): CustomCodeBlock {
         return (CustomExpressionBuilder.start() + expression + ".let {" + mapper(CustomExpression("it")) + "}").build().toCodeBlock()
     }
-
-
 }
 
 data class FunctionExpression(val argumentNames: List<String>, val expression: Expression) : Expression() {
@@ -95,17 +91,13 @@ data class CustomCodeBlock(val text: String, val args: List<Any>) {
     fun toKotlinPoetCodeBlock(): CodeBlock {
         try {
             return CodeBlock.of(text, *args.toTypedArray())
-        } catch(e: Exception) {
-            println("Exception debug info: text: ${text}")
-            println("Exception debug info: args: ${args}")
-            throw e
+        } catch(exception: Exception) {
+            throw ExceptionWithContext(mapOf("text" to text, "args" to args), exception)
         }
     }
-
 }
 
 data class CustomExpressionBuilder(val text: String, val args: List<Any>) {
-
     operator fun plus(string: String): CustomExpressionBuilder {
         return copy(text = this.text + string)
     }
@@ -152,8 +144,6 @@ data class CustomExpression(val text: String, val args: List<Any>) : Expression(
         return try {
             CustomCodeBlock(text, args)
         } catch (e: Exception) {
-            println("Text" + text)
-            println("Args" + args)
             throw e
         }
     }
@@ -183,18 +173,15 @@ data class GroupedCode(val list: List<Code>): Code() {
 
         return CustomCodeBlock(text, args)
     }
-
 }
 
 data class VariableReference(val name: String): Expression() {
     override fun toCodeBlock(): CustomCodeBlock {
         return CustomCodeBlock("%N", listOf(name))
     }
-
 }
 
 operator fun MemberName.invoke(vararg expression: Expression): Expression {
     val builder = CustomExpressionBuilder.start("%M", this) + "(" + expression.map { it.toCodeBlock() }.merge(",") + ")"
     return builder.build()
 }
-

@@ -5,20 +5,12 @@ import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.utils.Paths
 import java.io.File
 
-data class GeneratorArguments(
-    val types: List<AutonomousType>,
-    val sdkFilesToCopyPath: String = Paths.filesToCopyToSdkPath,
-    val resources: List<ResourceType> = emptyList(),
-    val functions: List<FunctionType> = emptyList(),
-    val options: GenerationOptions = GenerationOptions()
-)
-
 object CodeGenerator {
-    fun run(input: GeneratorArguments): List<WriteableFile> {
+    fun run(input: Arguments): List<WriteableFile> {
         val generatedTypes = input.types.filterIsInstance<ComplexType>().map { a ->
             when {
                 a.metadata.useCharacteristic.toNested() == UseCharacteristic.FunctionNested || a.metadata.inputOrOutput == InputOrOutput.Output -> {
-                    generateTypeWithNiceBuilders(
+                    TypeGenerator.generateTypes(
                         a.metadata,
                         a.fields.map { (name, type) ->
                             Field(
@@ -33,7 +25,7 @@ object CodeGenerator {
                 }
 
                 else -> {
-                    generateTypeWithNiceBuilders(
+                    TypeGenerator.generateTypes(
                         a.metadata,
                         a.fields.map { (name, type) ->
                             Field(name, OutputWrappedField(type.type), type.required,
@@ -48,8 +40,8 @@ object CodeGenerator {
             }
         }
 
-        val generatedResources = generateResources(input.resources)
-        val generatedFunctions = generateFunctions(input.functions)
+        val generatedResources = ResourceGenerator.generateResources(input.resources)
+        val generatedFunctions = FunctionGenerator.generateFunctions(input.functions)
 
         val generatedFiles =
             (generatedTypes + generatedResources + generatedFunctions).map { InMemoryGeneratedFile(it) }
@@ -63,4 +55,12 @@ object CodeGenerator {
     }
 
     private fun withPulumiPackagePrefix(it: File) = "com/pulumi/kotlin/${it.name}"
+
+    data class Arguments(
+        val types: List<AutonomousType>,
+        val sdkFilesToCopyPath: String = Paths.filesToCopyToSdkPath,
+        val resources: List<ResourceType> = emptyList(),
+        val functions: List<FunctionType> = emptyList(),
+        val options: TypeGenerator.Options = TypeGenerator.Options()
+    )
 }
