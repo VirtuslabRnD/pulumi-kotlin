@@ -1,6 +1,5 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
-import com.squareup.kotlinpoet.FileSpec
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.*
 import com.tschuchort.compiletesting.SourceFile
@@ -75,12 +74,4 @@ internal class GenerateTypeWithNiceBuildersTest {
     }
 
     private fun artifact(coordinate: String) = ArtifactDownloader.download(coordinate).toFile()
-
-    private fun fileSpecToSourceFile(spec: FileSpec): SourceFile {
-        return SourceFile.kotlin(
-            spec.name,
-            spec.toString()
-        )
-    }
-
 }

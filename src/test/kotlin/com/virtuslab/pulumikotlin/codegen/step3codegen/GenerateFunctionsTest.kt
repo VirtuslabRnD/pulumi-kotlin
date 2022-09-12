@@ -14,7 +14,6 @@ internal class GenerateFunctionsTest {
 
     @Test
     fun `generated kotlin files for some handcrafted functions should compile`() {
-        // aws:acmpca/getCertificateAuthority:getCertificateAuthority
         val inputType = ComplexType(
             TypeMetadata(
                 PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
@@ -89,12 +88,5 @@ internal class GenerateFunctionsTest {
     }
 
     private fun artifact(coordinate: String) = ArtifactDownloader.download(coordinate).toFile()
-
-    private fun fileSpecToSourceFile(spec: FileSpec): SourceFile {
-        return SourceFile.kotlin(
-            spec.name,
-            spec.toString()
-        )
-    }
 
 }
