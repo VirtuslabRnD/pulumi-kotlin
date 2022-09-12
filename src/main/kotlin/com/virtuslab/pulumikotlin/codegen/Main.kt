@@ -39,6 +39,5 @@ class PulumiKotlin : CliktCommand() {
 }
 
 fun main(args: Array<String>) {
-    println(File("path").absolutePath)
     PulumiKotlin().main(args)
 }

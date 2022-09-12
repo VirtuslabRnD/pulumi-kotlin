@@ -50,10 +50,6 @@ class FindInterestingSchemaSubsetsForTestsScript: CliktCommand() {
                 any { it.depth >= 1 } && all { it.depth < 6 } && size >= 1 && size <= 5
             }
 
-            val q3 = inputs.any {
-                outputs.map { it.typeName }.contains(it.typeName)
-            } && inputs.any { !outputs.map { it.typeName }.contains(it.typeName) }
-
             return q1 && q2
         }
 
