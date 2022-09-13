@@ -6,7 +6,6 @@ import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.io.File
-import kotlin.io.path.Path
 import kotlin.test.assertEquals
 
 fun readFilesRecursively(directory: File): Map<String, String> {
@@ -246,9 +245,9 @@ class CodegenTest {
         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.2")
     )
 
-    private fun testCompilationWithSourceFiles(schema: String, sourceFiles: Map<String, String>) {
+    private fun testCompilationWithSourceFiles(schemaPath: String, sourceFiles: Map<String, String>) {
 
-        val outputDirectory = Codegen.codegen(File("/Users/mfudala/workspace/pulumi-kotlin/src/test/resources/").resolve(schema))
+        val outputDirectory = Codegen.codegen(loadResource("/$schemaPath"))
 
         println(outputDirectory)
 
@@ -268,5 +267,9 @@ class CodegenTest {
         assertEquals(KotlinCompilation.ExitCode.OK, compilation.compile().exitCode)
     }
 
-    private fun artifact(coordinate: String) = ArtifactDownloader.download(coordinate).toFile()
+    private fun artifact(coordinate: String) =
+        ArtifactDownloader.download(coordinate).toFile()
+
+    private fun loadResource(path: String) =
+        CodegenTest::class.java.getResourceAsStream(path) ?: error("$path does not exist")
 }

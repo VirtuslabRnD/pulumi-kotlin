@@ -25,38 +25,22 @@ interface WriteableFile {
     }
 }
 
-/**
- * Example: pathDifference("/a/b/c", "/a/b/c/d/e") == "d/e"
- */
-fun pathDifference(shorterPath: Path, longerPath: Path): Path {
-    val shorterList = shorterPath.toList()
-    val longerList = longerPath.toList()
-    require(shorterList.size < longerList.size)
-
-    val differenceSize = longerList.size - shorterList.size
-    val shouldBeShorterList = longerList.dropLast(differenceSize)
-    require(shouldBeShorterList == shorterList)
-
-    return longerList.takeLast(differenceSize).reduce { path1, path2 -> path1.resolve(path2) }
-}
-
-class ExistingFile(private val basePath: String, private val path: String, private val packagePath: String): WriteableFile {
+class ExistingFile(private val absoluteCopyFrom: String, private val relativeCopyTo: String) : WriteableFile {
     override fun writeTo(destination: String) {
-        val pathDiff = pathDifference(Path.of(basePath), Path.of(path))
-        val realDestination = Path.of(destination).resolve(pathDiff)
+        val resolvedDestination = Path.of(destination).resolve(relativeCopyTo)
 
-        File(path).copyRecursively(Path.of(destination).resolve(packagePath).toFile(), overwrite = true)
+        File(absoluteCopyFrom).copyRecursively(resolvedDestination.toFile(), overwrite = true)
     }
 
     override fun writeTo(outputStream: OutputStream): FileName {
         outputStream.bufferedWriter().use {
-            it.write(File(path).readText())
+            it.write(File(absoluteCopyFrom).readText())
         }
-        return Path.of(path).name
+        return Path.of(absoluteCopyFrom).name
     }
 }
 
-class InMemoryGeneratedFile(private val fileSpec: FileSpec): WriteableFile {
+class InMemoryGeneratedFile(private val fileSpec: FileSpec) : WriteableFile {
     override fun writeTo(destination: String) {
         fileSpec.writeTo(File(destination))
     }

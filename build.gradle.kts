@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    application
     kotlin("jvm") version "1.7.0"
     kotlin("plugin.serialization") version "1.7.0"
 }
@@ -22,7 +23,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.2")
     implementation("org.junit.jupiter:junit-jupiter:5.8.1")
 
-
+    implementation("com.github.ajalt.clikt:clikt:3.5.0")
 
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
 
@@ -32,6 +33,10 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+application {
+    mainClass.set("com.virtuslab.pulumikotlin.codegen.MainKt")
 }
 
 tasks.withType<KotlinCompile> {

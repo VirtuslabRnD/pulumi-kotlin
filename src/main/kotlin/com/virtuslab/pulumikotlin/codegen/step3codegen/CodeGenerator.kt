@@ -2,11 +2,20 @@ package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
+import com.virtuslab.pulumikotlin.codegen.utils.Paths
 import java.io.File
 
-object Generate {
-    fun generate(types: List<AutonomousType>, resources: List<ResourceType> = emptyList(), functions: List<FunctionType> = emptyList(), options: GenerationOptions = GenerationOptions()): List<WriteableFile> {
-        val generatedTypes = types.filterIsInstance<ComplexType>().map { a ->
+data class GeneratorArguments(
+    val types: List<AutonomousType>,
+    val sdkFilesToCopyPath: String = Paths.filesToCopyToSdkPath,
+    val resources: List<ResourceType> = emptyList(),
+    val functions: List<FunctionType> = emptyList(),
+    val options: GenerationOptions = GenerationOptions()
+)
+
+object CodeGenerator {
+    fun run(input: GeneratorArguments): List<WriteableFile> {
+        val generatedTypes = input.types.filterIsInstance<ComplexType>().map { a ->
             when {
                 a.metadata.useCharacteristic.toNested() == UseCharacteristic.FunctionNested || a.metadata.inputOrOutput == InputOrOutput.Output -> {
                     generateTypeWithNiceBuilders(
@@ -14,12 +23,12 @@ object Generate {
                         a.fields.map { (name, type) ->
                             Field(
                                 name,
-                                NormalField(type.type) { expr ->  expr },
+                                NormalField(type.type) { expr -> expr },
                                 type.required,
                                 overloads = emptyList()
                             )
                         },
-                        options
+                        input.options
                     )
                 }
 
@@ -33,22 +42,25 @@ object Generate {
                                 )
                             )
                         },
-                        options
+                        input.options
                     )
                 }
             }
         }
 
-        val generatedResources = generateResources(resources)
-        val generatedFunctions = generateFunctions(functions)
+        val generatedResources = generateResources(input.resources)
+        val generatedFunctions = generateFunctions(input.functions)
 
-        val generatedFiles = (generatedTypes + generatedResources + generatedFunctions).map { InMemoryGeneratedFile(it) }
+        val generatedFiles =
+            (generatedTypes + generatedResources + generatedFunctions).map { InMemoryGeneratedFile(it) }
 
-        val existingFiles = File("/Users/mfudala/workspace/pulumi-kotlin/src/main/kotlin/com/virtuslab/pulumikotlin/codegen/sdk")
+        val existingFiles = File(input.sdkFilesToCopyPath)
             .listFiles()
             .orEmpty()
-            .map { ExistingFile("/Users/mfudala/workspace/pulumi-kotlin/src/main/kotlin", it.absolutePath, "com/pulumi/kotlin" + it.name) }
+            .map { ExistingFile(it.absolutePath, withPulumiPackagePrefix(it)) }
 
         return generatedFiles + existingFiles
     }
+
+    private fun withPulumiPackagePrefix(it: File) = "com/pulumi/kotlin/${it.name}"
 }
