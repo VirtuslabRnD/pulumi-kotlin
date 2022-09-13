@@ -39,7 +39,7 @@ class FindInterestingSchemaSubsetsForTestsScript: CliktCommand() {
             }
         val candidateFunctions = findCandidateEntities(types, propertySpecsForFunctions)
 
-        fun resourceQuery(candidate: CandidateEntity): Boolean {
+        fun query(candidate: CandidateEntity): Boolean {
             val inputs = candidate.referencedInputTypes
             val outputs = candidate.referencedOutputTypes
 
@@ -53,22 +53,8 @@ class FindInterestingSchemaSubsetsForTestsScript: CliktCommand() {
             return q1 && q2
         }
 
-        fun functionQuery(candidate: CandidateEntity): Boolean {
-            val inputs = candidate.referencedInputTypes
-            val outputs = candidate.referencedOutputTypes
-
-            val q1 = with(inputs) {
-                any { it.depth >= 1 } && all { it.depth < 6 } && size >= 1 && size <= 5
-            }
-            val q2 = with(outputs) {
-                any { it.depth >= 1 } && all { it.depth < 6 } && size >= 1 && size <= 5
-            }
-
-            return q1 && q2
-        }
-
-        val resource = candidateResources.filter { resourceQuery(it) }.take(20)
-        val function = candidateFunctions.filter { functionQuery(it) }.take(20)
+        val resource = candidateResources.filter { query(it) }.take(20)
+        val function = candidateFunctions.filter { query(it) }.take(20)
 
         val json = Json {
             prettyPrint = true
