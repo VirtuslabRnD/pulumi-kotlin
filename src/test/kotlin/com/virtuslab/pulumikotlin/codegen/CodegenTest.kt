@@ -10,8 +10,8 @@ import kotlin.test.assertEquals
 class CodegenTest {
     @Test
     fun `resource can be created`() {
-       testCompilationWithSourceFiles("aws-small-schema-subset.json", mapOf(
-           "Main.kt" to """
+        // language=kotlin
+        val code = """
            import com.pulumi.aws.acm.kotlin.certificateResource
             
            suspend fun main() {
@@ -40,13 +40,14 @@ class CodegenTest {
                }
            }
            """
-       ))
+
+        assertGeneratedCodeAndSourceFileCompile("aws-small-schema-subset.json", code)
     }
 
     @Test
     fun `resource can be created and its outputs can be used elsewhere`() {
-        testCompilationWithSourceFiles("aws-small-schema-subset.json", mapOf(
-            "Main.kt" to """
+        // language=kotlin
+        val code = """
             import com.pulumi.aws.acm.kotlin.certificateResource
             
             suspend fun main() {
@@ -95,13 +96,14 @@ class CodegenTest {
                 }
             }
             """
-        ))
+
+        assertGeneratedCodeAndSourceFileCompile("aws-small-schema-subset.json", code)
     }
 
     @Test
     fun `functions can be invoked`() {
-        testCompilationWithSourceFiles("aws-small-schema-subset.json", mapOf(
-            "Main.kt" to """
+        // language=kotlin
+        val code = """
             import com.pulumi.aws.acmpca.kotlin.AcmpcaFunctions.getCertificateAuthority
             
             suspend fun main() {
@@ -110,13 +112,14 @@ class CodegenTest {
                 cert.arn
             }
             """
-        ))
+
+        assertGeneratedCodeAndSourceFileCompile("aws-small-schema-subset.json", code)
     }
 
     @Test
     fun `functions can be invoked, type-safe builder variation`() {
-        testCompilationWithSourceFiles("aws-small-schema-subset.json", mapOf(
-            "Main.kt" to """
+        // language=kotlin
+        val code = """
             import com.pulumi.aws.acmpca.kotlin.AcmpcaFunctions.getCertificateAuthority
             
             suspend fun main() {
@@ -140,12 +143,13 @@ class CodegenTest {
                 cert.arn
             }
             """
-        ))
+
+        assertGeneratedCodeAndSourceFileCompile("aws-small-schema-subset.json", code)
     }
 
     @Test
     fun `bigger subset of was schema can be compiled`() {
-        testCompilationWithSourceFiles("aws-big-schema-subset.json", emptyMap())
+        assertGeneratedCodeCompiles("aws-big-schema-subset.json")
     }
 
     private val classPath = listOf(
@@ -155,16 +159,24 @@ class CodegenTest {
         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.2")
     )
 
-    private fun testCompilationWithSourceFiles(schemaPath: String, sourceFiles: Map<String, String>) {
-        val outputDirectory = Codegen.codegen(loadResource("/$schemaPath"))
-        val generatedKotlinFiles = readFilesRecursively(outputDirectory).map { (fileName, contents) -> SourceFile.kotlin(fileName, contents) }
+    private fun assertGeneratedCodeCompiles(schemaPath: String) {
+        assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
+    }
 
-        val hardcodedSources = sourceFiles.map { (fileName, source) ->
-            SourceFile.new(fileName, source.trimIndent())
-        }
+    private fun assertGeneratedCodeAndSourceFileCompile(schemaPath: String, sourceFile: String) {
+        assertGeneratedCodeAndSourceFilesCompile(schemaPath, mapOf("Main.kt" to sourceFile))
+    }
+
+    private fun assertGeneratedCodeAndSourceFilesCompile(schemaPath: String, sourceFiles: Map<String, String>) {
+        val outputDirectory = Codegen.codegen(loadResource("/$schemaPath"))
+        val generatedKotlinFiles = readFilesRecursively(outputDirectory)
+            .map { (fileName, contents) -> SourceFile.kotlin(fileName, contents) }
+
+        val hardcodedSources = sourceFiles
+            .map { (fileName, source) -> SourceFile.new(fileName, source.trimIndent()) }
+
         val compilation = KotlinCompilation().apply {
             sources = hardcodedSources + generatedKotlinFiles
-
             classpaths = classPath
             messageOutputStream = System.out
         }
@@ -183,7 +195,7 @@ class CodegenTest {
 
         return directory.listFiles()?.asSequence().orEmpty()
             .flatMap {
-                if(it.isDirectory) {
+                if (it.isDirectory) {
                     readFilesRecursively(it).map { (name, contents) -> name to contents }.asSequence()
                 } else {
                     sequenceOf(it.absolutePath to it.readText())
