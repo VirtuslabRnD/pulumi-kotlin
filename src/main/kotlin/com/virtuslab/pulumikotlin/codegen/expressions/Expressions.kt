@@ -43,11 +43,7 @@ fun Expression.callApplyValue(optional: Boolean = false, expressionMapper: (Expr
 }
 
 fun Expression.call1(name: String, expression: Expression, optional: Boolean = false): Expression {
-    val optionalString = if (optional) {
-        "?"
-    } else {
-        ""
-    }
+    val optionalString = if (optional) "?" else ""
     return (CustomExpressionBuilder.start() + this + "$optionalString." + name + "(" + expression + ")").build()
 }
 
