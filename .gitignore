@@ -3,8 +3,9 @@
 output-dir
 
 ### IntelliJ ###
-**/*.idea/**
+**/*.idea/*
 *.iml
+!**/*.idea/codeStyles/*
 
 
 ### Kotlin ###
