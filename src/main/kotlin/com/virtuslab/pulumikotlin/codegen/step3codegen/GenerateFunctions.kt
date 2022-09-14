@@ -30,20 +30,19 @@ private fun callAwaitAndDoTheMapping(functionType: FunctionType, argument: Expre
     val toKotlin = functionType.outputType.toTypeName().nestedClass("Companion").member("toKotlin")
     val javaMethodGetName = ClassName(
         functionType.name.toFunctionGroupObjectPackage(javaNamingFlags),
-        functionType.name.toFunctionGroupObjectName(javaNamingFlags)
+        functionType.name.toFunctionGroupObjectName(javaNamingFlags),
     ).member(functionType.name.toFunctionName(javaNamingFlags))
 
     return Return(toKotlin(javaMethodGetName(argument.call0("toJava")).call0("await")))
 }
 
 fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
-
     val spec = FunSpec.builder(functionType.name.name)
         .addParameter("argument", functionType.argsType.toTypeName())
         .addModifiers(KModifier.SUSPEND)
         .returns(functionType.outputType.toTypeName())
         .addCode(
-            callAwaitAndDoTheMapping(functionType, CustomExpression("argument"))
+            callAwaitAndDoTheMapping(functionType, CustomExpression("argument")),
         )
         .build()
 
@@ -59,7 +58,7 @@ fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
                                     .defaultValue("null")
                             }
                             .build()
-                    }
+                    },
                 )
                 .addModifiers(KModifier.SUSPEND)
                 .returns(functionType.outputType.toTypeName())
@@ -68,8 +67,8 @@ fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
                         "argument",
                         ConstructObjectExpression(
                             functionType.argsType.toTypeName(),
-                            parameters.map { (name, _) -> name to CustomExpression(name) }.toMap()
-                        )
+                            parameters.map { (name, _) -> name to CustomExpression(name) }.toMap(),
+                        ),
                     )
                     val returnCode = callAwaitAndDoTheMapping(functionType, assignment.reference())
 
@@ -77,9 +76,9 @@ fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
                         GroupedCode(
                             listOf(
                                 assignment,
-                                returnCode
-                            )
-                        )
+                                returnCode,
+                            ),
+                        ),
                     )
                 }
                 .build()
@@ -103,8 +102,8 @@ fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
                         builderAssignment,
                         callArgument,
                         builtArgumentAssignment,
-                        returnArgument
-                    )
+                        returnArgument,
+                    ),
                 )
 
                 builder.addCode(allCode)
@@ -133,7 +132,7 @@ fun generateFunctions(functions: List<FunctionType>): List<FileSpec> {
             val fileSpec = FileSpec
                 .builder(
                     name.toFunctionGroupObjectPackage(namingFlags),
-                    name.toFunctionGroupObjectName(namingFlags) + ".kt"
+                    name.toFunctionGroupObjectName(namingFlags) + ".kt",
                 )
                 .addType(objectSpecBuilder.build())
                 .addImport("kotlinx.coroutines.future", "await")

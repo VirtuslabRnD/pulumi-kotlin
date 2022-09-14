@@ -35,7 +35,7 @@ fun constructDataClass(
     objectProperty?.properties,
     classModifier,
     propertyModifier,
-    shouldAddCustomTypeAnnotations
+    shouldAddCustomTypeAnnotations,
 )
 
 fun constructDataClass(
@@ -84,7 +84,7 @@ fun constructDataClass(
                 it.addAnnotation(
                     AnnotationSpec.builder(customTypeAnnotation.nestedClass("Parameter"))
                         .addMember("%S", innerPropertyName.value)
-                        .build()
+                        .build(),
                 )
             }
             .build()
@@ -127,17 +127,14 @@ fun referenceName(
         is Resources.StringProperty -> STRING
         is Resources.MapProperty -> MAP.parameterizedBy(
             STRING,
-            referenceName(propertySpec.additionalProperties, suffix)
+            referenceName(propertySpec.additionalProperties, suffix),
         )
 
         is Resources.ObjectProperty ->
             if (propertySpec.properties.isEmpty() && propertySpec.additionalProperties != null) {
                 referenceName(propertySpec.additionalProperties)
             } else {
-                error(
-                    "deeply nested objects are not allowed (only maps are), " +
-                        "description: ${propertySpec.description ?: "<null>"}"
-                )
+                error("deeply nested objects are not allowed (only maps are), description: ${propertySpec.description ?: "<null>"}")
             }
 
         is Resources.ReferredProperty -> {
@@ -159,7 +156,7 @@ fun referenceName(
         }
 
         is Resources.StringEnumProperty -> error(
-            "deeply nested enums are not allowed, description: ${propertySpec.description ?: "<null>"}"
+            "deeply nested enums are not allowed, description: ${propertySpec.description ?: "<null>"}",
         )
     }
 }

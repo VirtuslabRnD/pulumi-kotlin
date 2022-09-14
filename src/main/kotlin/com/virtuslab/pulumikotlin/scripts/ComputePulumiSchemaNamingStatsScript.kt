@@ -74,7 +74,7 @@ class ComputePulumiSchemaNamingStatsScript : CliktCommand() {
         val regexAndRuleToTest = listOf(
             Regex("(.+?):(.+?)/(.+?):(.+?)") to { m: MatchResult ->
                 m.groupValues.get(4).lowercase() == m.groupValues.get(3).lowercase()
-            }
+            },
         )
 
         schemaFiles.forEach { file ->
@@ -117,7 +117,7 @@ data class CountWithExamples(val count: Int = 0, val examples: List<Example> = e
     fun withOneMore(example: Example): CountWithExamples {
         return copy(
             count = count + 1,
-            examples = (examples + example).take(3)
+            examples = (examples + example).take(3),
         )
     }
 }

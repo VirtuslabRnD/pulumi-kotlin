@@ -30,7 +30,7 @@ class PulumiKotlin : CliktCommand() {
                 resources = resourceTypes,
                 functions = functionTypes,
                 sdkFilesToCopyPath = sdkFilesPath,
-            )
+            ),
         )
 
         generatedFiles.forEach {

@@ -73,9 +73,9 @@ private fun toTypeRoot(
                     spec.properties.map { (key, value) ->
                         key.value to TypeAndOptionality(
                             toType(references, usage, complexTypes, value),
-                            spec.required.contains(key)
+                            spec.required.contains(key),
                         )
-                    }.toMap()
+                    }.toMap(),
                 )
             }
         }
@@ -92,7 +92,7 @@ private fun toTypeRoot(
             allReferences.map { usage ->
                 EnumType(
                     TypeMetadata(PulumiName.from(name), usage),
-                    spec.enum.map { it.value }
+                    spec.enum.map { it.value },
                 )
             }
         }
@@ -113,14 +113,14 @@ private fun toType(
         is Resources.IntegerProperty -> PrimitiveType("Int")
         is Resources.MapProperty -> MapType(
             PrimitiveType("String"),
-            toType(references, chosenUsage, complexTypes, spec.additionalProperties)
+            toType(references, chosenUsage, complexTypes, spec.additionalProperties),
         )
 
         is Resources.NumberProperty -> PrimitiveType("Double") // TODO: Double or Long or BigDecimal?
         is Resources.ObjectProperty -> error("nested objects not supported")
         is Resources.OneOf -> EitherType(
             toType(references, chosenUsage, complexTypes, spec.oneOf.get(0)),
-            toType(references, chosenUsage, complexTypes, spec.oneOf.get(1))
+            toType(references, chosenUsage, complexTypes, spec.oneOf.get(1)),
         )
 
         is Resources.ReferredProperty -> {
@@ -156,14 +156,14 @@ private fun toTypeNestedReference(
         is Resources.IntegerProperty -> PrimitiveType("Int")
         is Resources.MapProperty -> MapType(
             PrimitiveType("String"),
-            toTypeNestedReference(references, complexTypes, spec.additionalProperties)
+            toTypeNestedReference(references, complexTypes, spec.additionalProperties),
         )
 
         is Resources.NumberProperty -> PrimitiveType("Double") // TODO: Double or Long or BigDecimal?
         is Resources.ObjectProperty -> error("nested objects not supported")
         is Resources.OneOf -> EitherType(
             toTypeNestedReference(references, complexTypes, spec.oneOf.get(0)),
-            toTypeNestedReference(references, complexTypes, spec.oneOf.get(1))
+            toTypeNestedReference(references, complexTypes, spec.oneOf.get(1)),
         )
 
         is Resources.ReferredProperty -> {
@@ -185,11 +185,11 @@ private fun toTypeNestedReference(
                                         toTypeNestedReference(
                                             references,
                                             complexTypes,
-                                            spec
+                                            spec,
                                         ),
-                                        foundType.required.contains(name)
+                                        foundType.required.contains(name),
                                     )
-                                }.toMap()
+                                }.toMap(),
                             )
                         }
 
@@ -226,7 +226,7 @@ fun getResourceSpecs(parsedSchema: ParsedSchema): List<ResourceType> {
                 propertyName.value,
                 OutputWrappedField(toTypeNestedReference(references, lowercasedTypesMap, propertySpec)),
                 isRequired,
-                emptyList()
+                emptyList(),
             )
         }
 
@@ -234,7 +234,7 @@ fun getResourceSpecs(parsedSchema: ParsedSchema): List<ResourceType> {
             references + mapOf(name.lowercase() to listOf(Usage(Input, ResourceRoot))),
             lowercasedTypesMap,
             name,
-            Resources.ObjectProperty(properties = spec.inputProperties)
+            Resources.ObjectProperty(properties = spec.inputProperties),
         ).get(0)
 
         ResourceType(PulumiName.from(name), argument, outputFields)
@@ -253,13 +253,13 @@ fun getFunctionSpecs(parsedSchema: ParsedSchema): List<FunctionType> {
             references + mapOf(name.lowercase() to listOf(Usage(Input, FunctionRoot))),
             lowercasedTypesMap,
             name,
-            spec.inputs ?: Resources.ObjectProperty()
+            spec.inputs ?: Resources.ObjectProperty(),
         ).get(0)
         val output = toTypeRoot(
             references + mapOf(name.lowercase() to listOf(Usage(Output, FunctionRoot))),
             lowercasedTypesMap,
             name,
-            spec.outputs
+            spec.outputs,
         ).get(0)
 
         FunctionType(PulumiName.from(name), argument, output)
@@ -267,7 +267,6 @@ fun getFunctionSpecs(parsedSchema: ParsedSchema): List<FunctionType> {
 }
 
 fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
-
     // TODO: resources can also be types
     // TODO: update2 ^ probably not, it's just that some types do not exist despite being referenced
     // TODO: do something about lowercaseing
@@ -286,11 +285,13 @@ fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
                     name.lowercase() to listOf(
                         Usage(
                             Input,
-                            FunctionRoot
-                        )
-                    )
+                            FunctionRoot,
+                        ),
+                    ),
                 ),
-                lowercasedTypesMap, name, value
+                lowercasedTypesMap,
+                name,
+                value,
             )
         }
 
@@ -303,11 +304,13 @@ fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
                     name.lowercase() to listOf(
                         Usage(
                             Output,
-                            FunctionRoot
-                        )
-                    )
+                            FunctionRoot,
+                        ),
+                    ),
                 ),
-                lowercasedTypesMap, name, value
+                lowercasedTypesMap,
+                name,
+                value,
             )
         }
 
@@ -319,13 +322,13 @@ fun getTypeSpecs(parsedSchema: ParsedSchema): List<AutonomousType> {
                     name.lowercase() to listOf(
                         Usage(
                             Input,
-                            ResourceRoot
-                        )
-                    )
+                            ResourceRoot,
+                        ),
+                    ),
                 ),
                 lowercasedTypesMap,
                 name,
-                Resources.ObjectProperty(properties = spec.inputProperties)
+                Resources.ObjectProperty(properties = spec.inputProperties),
             )
         }
 
@@ -343,13 +346,12 @@ private fun computeReferences(
     typesMap: TypesMap,
     functionsMap: FunctionsMap,
 ): References {
-
     val lists = listOf(
         resourceMap.values.flatMap {
             getReferencedTypes1(
                 typesMap,
                 Usage(Input, ResourceNested),
-                it.inputProperties.values.toList()
+                it.inputProperties.values.toList(),
             )
         },
 
@@ -357,7 +359,7 @@ private fun computeReferences(
             getReferencedTypes1(
                 typesMap,
                 Usage(Output, ResourceNested),
-                it.properties.values.toList()
+                it.properties.values.toList(),
             )
         },
 
@@ -365,7 +367,7 @@ private fun computeReferences(
             getReferencedTypes1(
                 typesMap,
                 Usage(Output, FunctionNested),
-                it.outputs.properties.values.toList()
+                it.outputs.properties.values.toList(),
             )
         },
 
@@ -373,9 +375,9 @@ private fun computeReferences(
             getReferencedTypes1(
                 typesMap,
                 Usage(Input, FunctionNested),
-                it.inputs?.properties?.values.orEmpty().toList()
+                it.inputs?.properties?.values.orEmpty().toList(),
             )
-        }
+        },
     )
 
     return lists.flatten().groupBy({ it.content.lowercase() }, { it.usage })

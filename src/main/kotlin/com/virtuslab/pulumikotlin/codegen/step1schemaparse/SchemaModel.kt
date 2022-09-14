@@ -24,7 +24,6 @@ object Resources {
     object PropertySpecificationSerializer :
         JsonContentPolymorphicSerializer<PropertySpecification>(PropertySpecification::class) {
         override fun selectDeserializer(element: JsonElement): KSerializer<out PropertySpecification> {
-
             fun hasTypeEqualTo(type: String) =
                 element is JsonObject && "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == type
 

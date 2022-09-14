@@ -43,7 +43,7 @@ class GetRidOfDescriptionInSchemaScript : CliktCommand() {
 
         filesNotAlreadyProcessed.forEach { file ->
             val jsonContents = json.parseToJsonElement(
-                file.bufferedReader().readText()
+                file.bufferedReader().readText(),
             )
 
             val withoutDescription = json.encodeToString(deleteDescription(jsonContents))
@@ -68,7 +68,7 @@ class GetRidOfDescriptionInSchemaScript : CliktCommand() {
                     jsonElement
                         .filterNot { (key, _) -> key == "description" }
                         .map { (key, value) -> key to deleteDescription(value) }
-                        .toMap()
+                        .toMap(),
                 )
 
             is JsonArray -> JsonArray(jsonElement.map { deleteDescription(it) })

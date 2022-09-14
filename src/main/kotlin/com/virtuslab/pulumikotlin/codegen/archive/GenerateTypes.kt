@@ -59,10 +59,10 @@ fun generateTypes(typesMap: TypesMap): List<FileSpec> {
 
                 val classB = TypeSpec.enumBuilder(className)
                     .primaryConstructor(
-                        FunSpec.constructorBuilder().addParameter("value", String::class).build()
+                        FunSpec.constructorBuilder().addParameter("value", String::class).build(),
                     )
                     .addProperty(
-                        PropertySpec.builder("value", String::class, KModifier.PRIVATE).initializer("value").build()
+                        PropertySpec.builder("value", String::class, KModifier.PRIVATE).initializer("value").build(),
                     )
 
                 spec.enum.forEach {
@@ -71,7 +71,7 @@ fun generateTypes(typesMap: TypesMap): List<FileSpec> {
                     } else {
                         classB.addEnumConstant(
                             it.name,
-                            TypeSpec.anonymousClassBuilder().addSuperclassConstructorParameter("%S", it.value).build()
+                            TypeSpec.anonymousClassBuilder().addSuperclassConstructorParameter("%S", it.value).build(),
                         )
                     }
                 }

@@ -12,8 +12,8 @@ internal class PulumiNameTest {
             NamingFlags(
                 InputOrOutput.Input,
                 UseCharacteristic.FunctionRoot,
-                LanguageType.Java
-            )
+                LanguageType.Java,
+            ),
         )
 
         assertEquals("AcmpcaFunctions", result)
@@ -26,8 +26,8 @@ internal class PulumiNameTest {
             NamingFlags(
                 InputOrOutput.Input,
                 UseCharacteristic.FunctionRoot,
-                LanguageType.Kotlin
-            )
+                LanguageType.Kotlin,
+            ),
         )
 
         assertEquals("AcmpcaFunctions", result)
@@ -40,8 +40,8 @@ internal class PulumiNameTest {
             NamingFlags(
                 InputOrOutput.Input,
                 UseCharacteristic.FunctionRoot,
-                LanguageType.Java
-            )
+                LanguageType.Java,
+            ),
         )
 
         assertEquals("com.pulumi.aws.acmpca", result)
@@ -54,8 +54,8 @@ internal class PulumiNameTest {
             NamingFlags(
                 InputOrOutput.Input,
                 UseCharacteristic.FunctionRoot,
-                LanguageType.Kotlin
-            )
+                LanguageType.Kotlin,
+            ),
         )
 
         assertEquals("com.pulumi.aws.acmpca.kotlin", result)

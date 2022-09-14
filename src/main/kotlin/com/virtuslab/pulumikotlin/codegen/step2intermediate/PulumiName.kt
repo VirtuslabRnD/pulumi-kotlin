@@ -37,97 +37,97 @@ data class PulumiName(
             NamingFlags(Input, FunctionNested, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),
-                shouldConstructBuilders = true
+                shouldConstructBuilders = true,
             )
 
             NamingFlags(Input, ResourceNested, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),
-                shouldConstructBuilders = true
+                shouldConstructBuilders = true,
             )
 
             NamingFlags(Input, ResourceRoot, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin"),
-                shouldConstructBuilders = true
+                shouldConstructBuilders = true,
             )
 
             NamingFlags(Input, FunctionRoot, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),
-                shouldConstructBuilders = true
+                shouldConstructBuilders = true,
             )
 
             NamingFlags(Output, FunctionNested, Kotlin) -> Modifiers(
                 "Result",
                 listOf("kotlin", "outputs"),
-                shouldConstructBuilders = false
+                shouldConstructBuilders = false,
             )
 
             NamingFlags(Output, ResourceNested, Kotlin) -> Modifiers(
                 "",
                 listOf("kotlin", "outputs"),
-                shouldConstructBuilders = false
+                shouldConstructBuilders = false,
             )
 
             NamingFlags(Output, FunctionRoot, Kotlin) -> Modifiers(
                 "Result",
                 listOf("kotlin", "outputs"),
-                shouldConstructBuilders = false
+                shouldConstructBuilders = false,
             )
 
             NamingFlags(Input, FunctionNested, Java) -> Modifiers(
                 "",
                 listOf("inputs"),
-                shouldConstructBuilders = true
+                shouldConstructBuilders = true,
             )
 
             NamingFlags(Input, ResourceNested, Java) -> Modifiers(
                 "Args",
                 listOf("inputs"),
-                shouldConstructBuilders = true
+                shouldConstructBuilders = true,
             )
 
             NamingFlags(Input, ResourceRoot, Java) -> Modifiers(
                 "Args",
                 listOf(),
-                shouldConstructBuilders = true
+                shouldConstructBuilders = true,
             )
 
             NamingFlags(Input, FunctionRoot, Java) -> Modifiers(
                 "PlainArgs",
                 listOf("inputs"),
-                shouldConstructBuilders = true
+                shouldConstructBuilders = true,
             )
 
             NamingFlags(Output, FunctionNested, Java) -> Modifiers(
                 "",
                 listOf("outputs"),
-                shouldConstructBuilders = false
+                shouldConstructBuilders = false,
             )
 
             NamingFlags(Output, ResourceNested, Java) -> Modifiers(
                 "",
                 listOf("outputs"),
-                shouldConstructBuilders = false
+                shouldConstructBuilders = false,
             )
 
             NamingFlags(Output, FunctionRoot, Java) -> Modifiers(
                 "Result",
                 listOf("outputs"),
-                shouldConstructBuilders = false
+                shouldConstructBuilders = false,
             )
 
             NamingFlags(Output, ResourceRoot, Java) -> Modifiers(
                 "",
                 listOf("outputs"),
-                shouldConstructBuilders = false
+                shouldConstructBuilders = false,
             )
 
             NamingFlags(Output, ResourceRoot, Kotlin) -> Modifiers(
                 "",
                 listOf("kotlin", "outputs"),
-                shouldConstructBuilders = false
+                shouldConstructBuilders = false,
             )
 
             else -> error("not possible")

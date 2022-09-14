@@ -31,10 +31,10 @@ object CodeGenerator {
                                 name,
                                 NormalField(type.type) { expr -> expr },
                                 type.required,
-                                overloads = emptyList()
+                                overloads = emptyList(),
                             )
                         },
-                        input.options
+                        input.options,
                     )
                 }
 
@@ -47,11 +47,11 @@ object CodeGenerator {
                                 OutputWrappedField(type.type),
                                 type.required,
                                 listOf(
-                                    NormalField(type.type) { argument -> MoreTypes.Java.Pulumi.Output.of(argument) }
-                                )
+                                    NormalField(type.type) { argument -> MoreTypes.Java.Pulumi.Output.of(argument) },
+                                ),
                             )
                         },
-                        input.options
+                        input.options,
                     )
                 }
             }

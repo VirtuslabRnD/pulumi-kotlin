@@ -79,7 +79,7 @@ data class ListType(val innerType: Type) : Type() {
 data class MapType(val firstType: Type, val secondType: Type) : Type() {
     override fun toTypeName(languageType: LanguageType): TypeName {
         return MAP.parameterizedBy(
-            listOf(firstType.toTypeName(languageType), secondType.toTypeName(languageType))
+            listOf(firstType.toTypeName(languageType), secondType.toTypeName(languageType)),
         )
     }
 }

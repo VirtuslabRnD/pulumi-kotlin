@@ -100,12 +100,12 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
         PropertySpec.builder(
             field.name,
             MoreTypes.Java.Pulumi.Output(
-                field.fieldType.type.toTypeName().copy(nullable = !field.required)
-            )
+                field.fieldType.type.toTypeName().copy(nullable = !field.required),
+            ),
         )
             .getter(
                 FunSpec.getterBuilder()
-                    .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required)).build()
+                    .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required)).build(),
             )
             .build()
     }
@@ -116,13 +116,13 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
             listOf(
                 PropertySpec.builder("javaResource", javaResourceClassName)
                     .initializer("javaResource")
-                    .build()
-            )
+                    .build(),
+            ),
         )
         .primaryConstructor(
             FunSpec.constructorBuilder()
                 .addParameter("javaResource", javaResourceClassName)
-                .build()
+                .build(),
         )
         .addProperties(fields)
         .build()
@@ -141,7 +141,7 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
             LambdaTypeName.get(
                 argsBuilderClassName,
                 returnType = UNIT,
-            ).copy(suspending = true)
+            ).copy(suspending = true),
         )
         .addStatement("val builder = %T()", argsBuilderClassName)
         .addStatement("block(builder)")
@@ -156,7 +156,7 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
             LambdaTypeName.get(
                 ClassName("com.pulumi.kotlin", "CustomArgsBuilder"),
                 returnType = UNIT,
-            ).copy(suspending = true)
+            ).copy(suspending = true),
         )
         .addStatement("val builder = %T()", ClassName("com.pulumi.kotlin", "CustomArgsBuilder"))
         .addStatement("block(builder)")
@@ -179,14 +179,14 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
                 PropertySpec.builder("opts", customArgs)
                     .mutable(true)
                     .initializer("%T()", customArgs)
-                    .build()
-            )
+                    .build(),
+            ),
         )
         .addFunction(
             FunSpec.builder("name")
                 .addParameter("value", STRING)
                 .addCode("this.name = value")
-                .build()
+                .build(),
         )
         .addFunction(argsFunction)
         .addFunction(optsFunction)
@@ -201,7 +201,7 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
                             this.opts.toJava()
                         )
                         """,
-                        javaResourceClassName
+                        javaResourceClassName,
                     )
 
                     it.addCode("return %T(builtJavaResource)", resourceClassName)
@@ -220,8 +220,8 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
             "block",
             LambdaTypeName.get(
                 resourceBuilderClassName,
-                returnType = UNIT
-            ).copy(suspending = true)
+                returnType = UNIT,
+            ).copy(suspending = true),
         )
         .addStatement("val builder = %T()", resourceBuilderClassName)
         .addStatement("builder.name(name)")
@@ -247,7 +247,7 @@ private fun generateFunctionsForInput(
                 .builder(name.value)
                 .addParameter("value", PulumiClassesAndMembers.output.parameterizedBy(ref).copy(nullable = true))
                 .addCode("this.${name.value} = value")
-                .build()
+                .build(),
         )
         add(
             FunSpec
@@ -256,9 +256,9 @@ private fun generateFunctionsForInput(
                 .addCode(
                     "this.${name.value} = value?.let { %T.%M(value) }",
                     PulumiClassesAndMembers.output,
-                    PulumiClassesAndMembers.outputOf
+                    PulumiClassesAndMembers.outputOf,
                 )
-                .build()
+                .build(),
         )
         if (ref is ParameterizedTypeName) {
             when (ref.rawType) {
@@ -270,9 +270,9 @@ private fun generateFunctionsForInput(
                             .addCode(
                                 "this.${name.value} = values.toList().let { %T.%M(it) }",
                                 PulumiClassesAndMembers.output,
-                                PulumiClassesAndMembers.outputOf
+                                PulumiClassesAndMembers.outputOf,
                             )
-                            .build()
+                            .build(),
                     )
 
                 MAP ->
@@ -283,16 +283,16 @@ private fun generateFunctionsForInput(
                                 "values",
                                 ClassName("kotlin", "Pair").parameterizedBy(
                                     ref.typeArguments.get(0),
-                                    ref.typeArguments.get(1)
+                                    ref.typeArguments.get(1),
                                 ),
-                                KModifier.VARARG
+                                KModifier.VARARG,
                             )
                             .addCode(
                                 "this.${name.value} = values.toList().toMap().let { %T.%M(it) }",
                                 PulumiClassesAndMembers.output,
-                                PulumiClassesAndMembers.outputOf
+                                PulumiClassesAndMembers.outputOf,
                             )
-                            .build()
+                            .build(),
                     )
             }
         }
@@ -306,16 +306,16 @@ fun generateResources(resources: List<ResourceType>): List<FileSpec> {
                 NamingFlags(
                     InputOrOutput.Output,
                     UseCharacteristic.ResourceRoot,
-                    LanguageType.Kotlin
-                )
+                    LanguageType.Kotlin,
+                ),
             ),
             type.name.toResourceName(
                 NamingFlags(
                     InputOrOutput.Output,
                     UseCharacteristic.ResourceRoot,
-                    LanguageType.Kotlin
-                )
-            ) + ".kt"
+                    LanguageType.Kotlin,
+                ),
+            ) + ".kt",
         )
 
         buildArgsClass(file, type)

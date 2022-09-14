@@ -155,7 +155,7 @@ data class CustomArgsBuilder(
             importId,
             replaceOnChanges,
             retainOnDelete,
-            pluginDownloadURL
+            pluginDownloadURL,
         )
     }
 }

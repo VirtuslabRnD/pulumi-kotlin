@@ -70,7 +70,7 @@ object Utilities {
         return InvokeOptions(
             options?.parent?.orElse(null),
             options?.provider?.orElse(null),
-            version
+            version,
         )
     }
 }

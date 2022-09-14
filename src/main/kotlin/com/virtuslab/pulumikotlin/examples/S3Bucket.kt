@@ -96,7 +96,7 @@ fun toJava(s3Bucket: S3Bucket): BucketV2 {
         CustomResourceOptions.builder()
             .deleteBeforeReplace(s3Bucket.custom.deleteBeforeReplace)
             .protect(s3Bucket.custom.protect)
-            .build()
+            .build(),
     )
 }
 
@@ -128,7 +128,7 @@ class CustomArgsBuilder {
 
     fun build(): CustomArgs = CustomArgs(
         deleteBeforeReplace,
-        protect
+        protect,
     )
 }
 
@@ -149,12 +149,11 @@ suspend fun args(block: suspend S3ArgsBuilder.() -> Unit): S3Args {
 }
 
 suspend fun createInfra() {
-
     val bucket = s3Bucket("bucket-name-here") {
         args {
             hostedZoneId("whatever")
             tags(
-                "a" to "b"
+                "a" to "b",
             )
             someOtherArgs {
                 someOtherNestedArgs {
@@ -174,7 +173,7 @@ suspend fun createInfra() {
                         name("whatever3")
                         number(60)
                     }
-                }
+                },
             )
         }
 

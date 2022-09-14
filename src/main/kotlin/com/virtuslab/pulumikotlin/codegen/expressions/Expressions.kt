@@ -38,7 +38,7 @@ fun Expression.callApplyValue(optional: Boolean = false, expressionMapper: (Expr
     return call1(
         "applyValue",
         FunctionExpression.create(1) { expr -> expressionMapper(expr.get(0)) },
-        optional = optional
+        optional = optional,
     )
 }
 
@@ -167,7 +167,7 @@ data class CustomExpression(val text: String, val args: List<Any>) : Expression(
 fun Iterable<CustomCodeBlock>.merge(separator: String): CustomCodeBlock {
     return CustomCodeBlock(
         map { it.text }.joinToString(separator),
-        flatMap { it.args }
+        flatMap { it.args },
     )
 }
 

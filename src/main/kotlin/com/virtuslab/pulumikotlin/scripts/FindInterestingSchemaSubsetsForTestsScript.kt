@@ -30,7 +30,7 @@ class FindInterestingSchemaSubsetsForTestsScript : CliktCommand() {
             parsedSchema.resources.mapValues { (_, spec) ->
                 PropertySpecs(
                     spec.inputProperties.values.toList(),
-                    spec.properties.values.toList()
+                    spec.properties.values.toList(),
                 )
             }
 
@@ -40,7 +40,7 @@ class FindInterestingSchemaSubsetsForTestsScript : CliktCommand() {
             parsedSchema.functions.mapValues { (_, spec) ->
                 PropertySpecs(
                     spec.inputs?.properties?.values?.toList().orEmpty(),
-                    spec.outputs.properties.values.toList()
+                    spec.outputs.properties.values.toList(),
                 )
             }
         val candidateFunctions = findCandidateEntities(types, propertySpecsForFunctions)
@@ -82,7 +82,6 @@ private fun serializeResource(
     candidateResources: List<CandidateEntity>,
     candidateFunctions: List<CandidateEntity>,
 ): String {
-
     fun encodeTypes(candidate: CandidateEntity): Map<String, JsonElement> {
         val inputs = candidate.referencedInputTypes.map { it.typeName to parsedSchema.types.get(it.typeName) }
         val outputs = candidate.referencedOutputTypes.map { it.typeName to parsedSchema.types.get(it.typeName) }
@@ -103,8 +102,8 @@ private fun serializeResource(
         mapOf(
             "resources" to JsonObject(resourceBody.mapValues { (_, value) -> json.encodeToJsonElement(value) }),
             "functions" to JsonObject(functionBody.mapValues { (_, value) -> json.encodeToJsonElement(value) }),
-            "types" to JsonObject(types.toMap())
-        )
+            "types" to JsonObject(types.toMap()),
+        ),
     )
 
     return json.encodeToString(finalJsonObject)

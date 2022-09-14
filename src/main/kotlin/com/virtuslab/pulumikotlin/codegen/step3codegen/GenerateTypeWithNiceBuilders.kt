@@ -99,7 +99,6 @@ fun toKotlinExpressionBase(name: String): Expression {
 }
 
 fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
-
     val arguments = fields.associate { field ->
         val type = field.fieldType.type
 
@@ -127,10 +126,11 @@ fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpe
 }
 
 fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
-
     val codeBlocks = fields.map { field ->
         val block = CodeBlock.of(
-            ".%N(%N)", KeywordsEscaper.escape(field.name), field.name
+            ".%N(%N)",
+            KeywordsEscaper.escape(field.name),
+            field.name,
         )
         val toJavaBlock = CodeBlock.of(".%N(%N?.%N())", KeywordsEscaper.escape(field.name), field.name, "toJava")
         when (val type = field.fieldType.type) {
@@ -171,11 +171,11 @@ fun generateTypeWithNiceBuilders(
     fields: List<Field<*>>,
     options: GenerationOptions = GenerationOptions(),
 ): FileSpec {
-
     val names = typeMetadata.names(LanguageType.Kotlin)
 
     val fileSpec = FileSpec.builder(
-        names.packageName, names.className + ".kt"
+        names.packageName,
+        names.className + ".kt",
     )
 
     val argsClassName = ClassName(names.packageName, names.className)
@@ -197,7 +197,7 @@ fun generateTypeWithNiceBuilders(
             .addProperty(
                 PropertySpec.builder(field.name, typeName)
                     .initializer(field.name)
-                    .build()
+                    .build(),
             )
 
         constructor
@@ -210,7 +210,7 @@ fun generateTypeWithNiceBuilders(
                             it
                         }
                     }
-                    .build()
+                    .build(),
             )
     }
 
@@ -223,7 +223,7 @@ fun generateTypeWithNiceBuilders(
         it.addType(
             TypeSpec.companionObjectBuilder()
                 .addFunction(toKotlinFunction(typeMetadata, fields))
-                .build()
+                .build(),
         )
     }
     val argsClass = classB.build()
@@ -250,18 +250,18 @@ fun generateTypeWithNiceBuilders(
                     .mutable(true)
                     .addModifiers(KModifier.PRIVATE)
                     .build()
-            }
+            },
         )
         .addFunctions(
             fields.flatMap { field ->
                 generateFunctionsForInput(field)
-            }
+            },
         )
         .addFunction(
             FunSpec.builder("build")
                 .returns(argsClassName)
                 .addCode("return %T($argNames)", argsClassName)
-                .build()
+                .build(),
         )
         .build()
 
@@ -357,7 +357,7 @@ fun builderPattern(
         .addParameter(
             "argument",
             parameterType,
-            parameterModifiers
+            parameterModifiers,
         )
         .addCode(codeBlock.toCodeBlock(name))
         .build()
@@ -381,7 +381,7 @@ private fun specialMethodsForComplexType(
             builderLambda(builderTypeName),
             BuilderSettingCodeBlock.create("%T().applySuspend{ argument() }.build()", builderTypeName)
                 .withMappingCode(field.mappingCode),
-        )
+        ),
     )
 }
 
@@ -395,13 +395,13 @@ private fun specialMethodsForList(
             val commonCodeBlock = BuilderSettingCodeBlock
                 .create(
                     "argument.toList().map { %T().applySuspend{ it() }.build() }",
-                    innerType.toBuilderTypeName()
+                    innerType.toBuilderTypeName(),
                 )
                 .withMappingCode(field.mappingCode)
 
             listOf(
                 builderPattern(name, listOfLambdas(innerType), commonCodeBlock),
-                builderPattern(name, builderLambda(innerType), commonCodeBlock, parameterModifiers = listOf(VARARG))
+                builderPattern(name, builderLambda(innerType), commonCodeBlock, parameterModifiers = listOf(VARARG)),
             )
         }
 
@@ -414,7 +414,7 @@ private fun specialMethodsForList(
             .addModifiers(SUSPEND)
             .addParameter("values", innerType.toTypeName(), VARARG)
             .addCode(mappingCodeBlock(field, false, name, "values.toList()"))
-            .build()
+            .build(),
     )
 
     return builderPattern + justValuesPassedAsVarargArguments
@@ -432,7 +432,7 @@ private fun specialMethodsForMap(
             val commonCodeBlock = BuilderSettingCodeBlock
                 .create(
                     "argument.toList().map { (left, right) -> left to %T().applySuspend{ right() }.build() }",
-                    rightInnerType.toBuilderTypeName()
+                    rightInnerType.toBuilderTypeName(),
                 )
                 .withMappingCode(field.mappingCode)
 
@@ -441,8 +441,8 @@ private fun specialMethodsForMap(
                     name,
                     MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), builderLambda(rightInnerType)),
                     commonCodeBlock,
-                    parameterModifiers = listOf(VARARG)
-                )
+                    parameterModifiers = listOf(VARARG),
+                ),
             )
         }
 
@@ -455,10 +455,10 @@ private fun specialMethodsForMap(
             .addParameter(
                 "values",
                 MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()),
-                VARARG
+                VARARG,
             )
             .addCode(mappingCodeBlock(field, false, name, "values.toMap()"))
-            .build()
+            .build(),
     )
 
     return builderPattern + justValuesPassedAsVarargArguments
@@ -510,7 +510,7 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
                 .addModifiers(SUSPEND)
                 .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
                 .addCode("this.$name = value")
-                .build()
+                .build(),
         )
     }
 

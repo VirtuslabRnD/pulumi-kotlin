@@ -40,7 +40,6 @@ fun ClassName.member(f: KFunction<Any>): MemberName {
 object FunctionTypeLocations
 
 fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec): FunSpec.Builder {
-
     val deployPackage = "com.pulumi.deployment"
     val corePackage = "com.pulumi.core"
     val providerPackage = "com.pulumi.kotlin.aws" // TODO: parametrize
@@ -67,7 +66,7 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
 
     val typeShapeBlock = CodeBlock.of(
         "val typeShape = %M(javaResultType)",
-        classNameOf<TypeShape<*>>().member("of")
+        classNameOf<TypeShape<*>>().member("of"),
     )
 
     val invokeOptionsBlock = CodeBlock.of("val invokeOptions = %M(%M)", utilitiesWithVersion, invokeOptionsEmpty)
@@ -76,7 +75,7 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
         "val result = %M().%N(%S, typeShape, args, invokeOptions)",
         classNameOf<Deployment>().member(Deployment::getInstance),
         classNameOf<DeploymentInstance>().member("invoke"),
-        name
+        name,
     )
 
     val awaitedResult = CodeBlock.of("val awaitedResult = result.%M()", awaitFuture)
@@ -89,7 +88,7 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
         invokeOptionsBlock,
         resultBlock,
         awaitedResult,
-        returnValue
+        returnValue,
     ).forEach { block -> codeBuilder.add(block) }
 
     return it
