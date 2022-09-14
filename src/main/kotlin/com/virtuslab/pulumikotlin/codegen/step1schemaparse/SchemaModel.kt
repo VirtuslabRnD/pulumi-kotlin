@@ -57,6 +57,10 @@ object Resources {
     value class Language(val map: Map<String, JsonElement>?)
 
     @Serializable
+    @Suppress(
+        "ktlint:enum-entry-name-case",
+        "EnumNaming",
+    ) // this enum reflects the possible field values in the Pulumi schema
     enum class PropertyType {
         array, string, `object`, boolean, integer, number
     }
