@@ -5,6 +5,7 @@ plugins {
     kotlin("jvm") version "1.7.0"
     kotlin("plugin.serialization") version "1.7.0"
     id("org.jmailen.kotlinter") version "3.12.0"
+    id("io.gitlab.arturbosch.detekt") version "1.21.0"
 }
 
 group = "org.example"
@@ -46,4 +47,9 @@ tasks.withType<KotlinCompile> {
 
 kotlinter {
     reporters = arrayOf("html", "plain")
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config = files("$projectDir/.detekt-config.yml")
 }
