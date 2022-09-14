@@ -4,7 +4,10 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -15,8 +18,7 @@ fun main(args: Array<String>) {
     GetRidOfDescriptionInSchemaScript().main(args)
 }
 
-
-class GetRidOfDescriptionInSchemaScript: CliktCommand() {
+class GetRidOfDescriptionInSchemaScript : CliktCommand() {
     private val schemaPath: String by option().required()
 
     override fun run() {
@@ -26,7 +28,7 @@ class GetRidOfDescriptionInSchemaScript: CliktCommand() {
 
         val inputSchema = File(schemaPath)
 
-        val filesToProcess = if(inputSchema.isDirectory) {
+        val filesToProcess = if (inputSchema.isDirectory) {
             inputSchema.listFiles()?.toList().orEmpty()
         } else {
             listOf(inputSchema)
@@ -56,7 +58,7 @@ class GetRidOfDescriptionInSchemaScript: CliktCommand() {
 
         val name = originalPath.nameWithoutExtension
         val extension = originalPath.extension
-        return originalPath.parent.resolve("$name${suffix}.${extension}")
+        return originalPath.parent.resolve("$name$suffix.$extension")
     }
 
     private fun deleteDescription(jsonElement: JsonElement): JsonElement {
@@ -64,10 +66,11 @@ class GetRidOfDescriptionInSchemaScript: CliktCommand() {
             is JsonObject ->
                 JsonObject(
                     jsonElement
-                        .filterNot { (key, value) -> key == "description" }
+                        .filterNot { (key, _) -> key == "description" }
                         .map { (key, value) -> key to deleteDescription(value) }
                         .toMap()
                 )
+
             is JsonArray -> JsonArray(jsonElement.map { deleteDescription(it) })
             else -> jsonElement
         }

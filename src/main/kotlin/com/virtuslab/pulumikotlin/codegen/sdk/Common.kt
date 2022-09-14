@@ -2,32 +2,29 @@ package com.pulumi.kotlin
 
 import com.pulumi.core.Output
 import com.pulumi.resources.CustomResourceOptions
-import java.util.*
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
+import java.util.Optional
 
 @DslMarker
 annotation class PulumiTagMarker
 
-
 data class Resource(
-    val whatever: String
+    val whatever: String,
 )
 
 data class ProviderResource(
-    val whatever: String
+    val whatever: String,
 )
 
 data class CustomTimeouts(
-    val whatever: String
+    val whatever: String,
 )
 
 data class ResourceTransformation(
-    val whatever: String
+    val whatever: String,
 )
 
 data class Alias(
-    val whatever: String
+    val whatever: String,
 )
 
 // should these defaults be set explicitly?
@@ -48,7 +45,7 @@ data class CustomArgs(
     val importId: String? = null,
     val replaceOnChanges: List<String>? = null,
     val retainOnDelete: Boolean = false,
-    val pluginDownloadURL: String? = null
+    val pluginDownloadURL: String? = null,
 ) {
     fun toJava(): CustomResourceOptions {
         return CustomResourceOptions.builder().build()
@@ -72,29 +69,93 @@ data class CustomArgsBuilder(
     var importId: String? = null,
     var replaceOnChanges: List<String>? = null,
     var retainOnDelete: Boolean = false,
-    var pluginDownloadURL: String? = null
+    var pluginDownloadURL: String? = null,
 ) {
-    fun protect(value : Boolean): Unit { this.protect = value } 
-    fun id(value : Output<String>?): Unit { this.id = value } 
-    fun parent(value : Resource?): Unit { this.parent = value }
-    fun dependsOn(value: Output<List<Resource>>?): Unit { this.dependsOn = value }
-    fun ignoreChanges(value: List<String>?): Unit { this.ignoreChanges = value } 
-    fun version(value : String?): Unit { this.version = value } 
-    fun provider(value : ProviderResource?): Unit { this.provider = value }
-    fun customTimeouts(value: CustomTimeouts?): Unit { this.customTimeouts = value }
-    fun resourceTransformations(value: List<ResourceTransformation>?): Unit { this.resourceTransformations = value }
-    fun aliases(value : List<Output<Alias>>?): Unit { this.aliases = value }
-    fun urn(value : String?): Unit { this.urn = value } 
-    fun deleteBeforeReplace(value: Boolean): Unit { this.deleteBeforeReplace = value }
-    fun additionalSecretOutputs(value: List<String>?): Unit { this.additionalSecretOutputs = value } 
-    fun importId(value: String?): Unit { this.importId = value } 
-    fun replaceOnChanges(value: List<String>?): Unit { this.replaceOnChanges = value } 
-    fun retainOnDelete(value: Boolean): Unit { this.retainOnDelete = value } 
+    fun protect(value: Boolean) {
+        this.protect = value
+    }
+
+    fun id(value: Output<String>?) {
+        this.id = value
+    }
+
+    fun parent(value: Resource?) {
+        this.parent = value
+    }
+
+    fun dependsOn(value: Output<List<Resource>>?) {
+        this.dependsOn = value
+    }
+
+    fun ignoreChanges(value: List<String>?) {
+        this.ignoreChanges = value
+    }
+
+    fun version(value: String?) {
+        this.version = value
+    }
+
+    fun provider(value: ProviderResource?) {
+        this.provider = value
+    }
+
+    fun customTimeouts(value: CustomTimeouts?) {
+        this.customTimeouts = value
+    }
+
+    fun resourceTransformations(value: List<ResourceTransformation>?) {
+        this.resourceTransformations = value
+    }
+
+    fun aliases(value: List<Output<Alias>>?) {
+        this.aliases = value
+    }
+
+    fun urn(value: String?) {
+        this.urn = value
+    }
+
+    fun deleteBeforeReplace(value: Boolean) {
+        this.deleteBeforeReplace = value
+    }
+
+    fun additionalSecretOutputs(value: List<String>?) {
+        this.additionalSecretOutputs = value
+    }
+
+    fun importId(value: String?) {
+        this.importId = value
+    }
+
+    fun replaceOnChanges(value: List<String>?) {
+        this.replaceOnChanges = value
+    }
+
+    fun retainOnDelete(value: Boolean) {
+        this.retainOnDelete = value
+    }
+
     fun pluginDownloadURL(value: String?) = null
 
     fun build(): CustomArgs {
         return CustomArgs(
-            protect, id, parent, dependsOn, ignoreChanges, version, provider, customTimeouts, resourceTransformations, aliases, urn, deleteBeforeReplace, additionalSecretOutputs, importId, replaceOnChanges, retainOnDelete, pluginDownloadURL
+            protect,
+            id,
+            parent,
+            dependsOn,
+            ignoreChanges,
+            version,
+            provider,
+            customTimeouts,
+            resourceTransformations,
+            aliases,
+            urn,
+            deleteBeforeReplace,
+            additionalSecretOutputs,
+            importId,
+            replaceOnChanges,
+            retainOnDelete,
+            pluginDownloadURL
         )
     }
 }
@@ -114,7 +175,7 @@ fun <T> Output<out ConvertibleToJava<T>>.toJava(): Output<T> {
 }
 
 @JvmName("A0E1B7D29")
-fun <T1, T2> Output<out Map<T1, ConvertibleToJava<T2>>>.toJava(): Output<Map<T1,T2>> {
+fun <T1, T2> Output<out Map<T1, ConvertibleToJava<T2>>>.toJava(): Output<Map<T1, T2>> {
     return applyValue { it.toJava() }
 }
 
@@ -132,7 +193,6 @@ fun <T> Output<T>.toJava(): Output<T> {
 fun <T> List<T>.toJava(): List<T> {
     return this
 }
-
 
 @JvmName("A3F01FCF1")
 fun <T1, T2> Map<T1, T2>.toJava(): Map<T1, T2> {
@@ -157,18 +217,15 @@ fun omg() {
     a?.toJava()
 }
 
-class B {
+class B
 
-}
-
-class A: ConvertibleToJava<B> {
+class A : ConvertibleToJava<B> {
     override fun toJava(): B {
         return B()
     }
-
 }
 
-suspend inline fun <T> T.applySuspend(block: suspend T.() -> Unit): T {
+suspend inline fun <T> T.applySuspend(block: T.() -> Unit): T {
     block()
     return this
 }

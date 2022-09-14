@@ -5,17 +5,16 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.options.validate
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.FunctionsMap
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ResourcesMap
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.TypesMap
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.FunctionsMap
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ResourcesMap
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.TypesMap
-import kotlinx.serialization.Serializable
 import java.io.File
-
 
 fun main(args: Array<String>) {
     ComputePulumiSchemaNamingStatsScript().main(args)
@@ -36,9 +35,8 @@ class ComputePulumiSchemaNamingStatsScript : CliktCommand() {
         .split(",")
         .required()
         .validate {
-            it.forEach { require(File(it).exists()) { "File ${it} does not exist" } }
+            it.forEach { path -> require(File(path).exists()) { "File $it does not exist" } }
         }
-
 
     override fun run() {
         val json = Json {
@@ -53,7 +51,6 @@ class ComputePulumiSchemaNamingStatsScript : CliktCommand() {
 
         schemaFiles.forEach { file ->
             val decoded = json.parseToJsonElement(file.readText())
-
 
             val types = decoded.decodeSection<TypesMap>("types")
             val functions = decoded.decodeSection<FunctionsMap>("functions")
@@ -83,7 +80,6 @@ class ComputePulumiSchemaNamingStatsScript : CliktCommand() {
         schemaFiles.forEach { file ->
             val decoded = json.parseToJsonElement(file.readText())
 
-
             val types = decoded.decodeSection<TypesMap>("types")
             val functions = decoded.decodeSection<FunctionsMap>("functions")
             val resources = decoded.decodeSection<ResourcesMap>("resources")
@@ -111,7 +107,6 @@ class ComputePulumiSchemaNamingStatsScript : CliktCommand() {
         println(json.encodeToString(stats))
         println(json.encodeToString(moreStats))
     }
-
 }
 
 @Serializable

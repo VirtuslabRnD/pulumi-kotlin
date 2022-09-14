@@ -51,5 +51,4 @@ class InMemoryGeneratedFile(private val fileSpec: FileSpec) : WriteableFile {
         }
         return fileSpec.name
     }
-
 }

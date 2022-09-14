@@ -1,17 +1,35 @@
 package com.virtuslab.pulumikotlin.codegen.archive
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ANY
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.BOOLEAN
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.DOUBLE
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.INT
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LIST
+import com.squareup.kotlinpoet.MAP
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.STRING
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.TypeSpec
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 
-
 fun constructDataClass(
-    className: ClassName, objectProperty: Resources.ObjectProperty?,
+    className: ClassName,
+    objectProperty: Resources.ObjectProperty?,
     classModifier: (TypeSpec.Builder).() -> Unit = {},
-    propertyModifier: (PropertySpec.Builder).(Resources.PropertyName, Resources.PropertySpecification, Boolean /*required?*/) -> Unit = { _, _, _ -> },
-    shouldAddCustomTypeAnnotations: Boolean = false
+    propertyModifier: (PropertySpec.Builder).(
+        Resources.PropertyName,
+        Resources.PropertySpecification,
+        Boolean, /*required?*/
+    ) -> Unit = { _, _, _ -> },
+    shouldAddCustomTypeAnnotations: Boolean = false,
 ): TypeSpec = constructDataClass(
     className,
     objectProperty?.properties,
@@ -21,11 +39,16 @@ fun constructDataClass(
 )
 
 fun constructDataClass(
-    className: ClassName, properties: Map<Resources.PropertyName, Resources.PropertySpecification>?,
+    className: ClassName,
+    properties: Map<Resources.PropertyName, Resources.PropertySpecification>?,
     classModifier: (TypeSpec.Builder).() -> Unit = {},
-    propertyModifier: (PropertySpec.Builder).(Resources.PropertyName, Resources.PropertySpecification, Boolean /*required?*/) -> Unit = { _, _, _ -> },
+    propertyModifier: (PropertySpec.Builder).(
+        Resources.PropertyName,
+        Resources.PropertySpecification,
+        Boolean, /*required?*/
+    ) -> Unit = { _, _, _ -> },
     shouldAddCustomTypeAnnotations: Boolean = false,
-    shouldWrapWithOutput: Boolean = false
+    shouldWrapWithOutput: Boolean = false,
 ): TypeSpec {
     val customTypeAnnotation = ClassName("com.pulumi.core.annotations", "CustomType")
 
@@ -93,7 +116,7 @@ enum class Language {
 fun referenceName(
     propertySpec: Resources.PropertySpecification,
     suffix: String = "",
-    language: Language = Language.KOTLIN
+    language: Language = Language.KOTLIN,
 ): TypeName {
     return when (propertySpec) {
         is Resources.ArrayProperty -> LIST.parameterizedBy(referenceName(propertySpec.items, suffix))
@@ -107,11 +130,16 @@ fun referenceName(
             referenceName(propertySpec.additionalProperties, suffix)
         )
 
-        is Resources.ObjectProperty -> if (propertySpec.properties.isEmpty() && propertySpec.additionalProperties != null) {
-            referenceName(propertySpec.additionalProperties)
-        } else {
-            error("deeply nested objects are not allowed (only maps are), description: ${propertySpec.description ?: "<null>"}")
-        }
+        is Resources.ObjectProperty ->
+            if (propertySpec.properties.isEmpty() && propertySpec.additionalProperties != null) {
+                referenceName(propertySpec.additionalProperties)
+            } else {
+                error(
+                    "deeply nested objects are not allowed (only maps are), " +
+                        "description: ${propertySpec.description ?: "<null>"}"
+                )
+            }
+
         is Resources.ReferredProperty -> {
             val refTypeName = propertySpec.`$ref`.value
             if (refTypeName == "pulumi.json#/Any") {
@@ -121,7 +149,6 @@ fun referenceName(
                     Language.KOTLIN -> classNameForNameSuffix(refTypeName.removePrefix("#/types/"), suffix)
                     Language.JAVA -> classNameForNameSuffix(refTypeName.removePrefix("#/types/"), suffix)
                 }
-
             } else if (refTypeName == "pulumi.json#/Archive") {
                 ClassName("kotlin", "Any") // TODO: this should be archive
             } else if (refTypeName == "pulumi.json#/Asset") {
@@ -130,6 +157,9 @@ fun referenceName(
                 error("type reference not recognized: $refTypeName")
             }
         }
-        is Resources.StringEnumProperty -> error("deeply nested enums are not allowed, description: ${propertySpec.description ?: "<null>"}")
+
+        is Resources.StringEnumProperty -> error(
+            "deeply nested enums are not allowed, description: ${propertySpec.description ?: "<null>"}"
+        )
     }
 }

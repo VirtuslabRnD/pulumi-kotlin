@@ -1,12 +1,47 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LIST
+import com.squareup.kotlinpoet.LambdaTypeName
+import com.squareup.kotlinpoet.MAP
 import com.squareup.kotlinpoet.MemberName.Companion.member
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.STRING
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.UNIT
 import com.virtuslab.pulumikotlin.codegen.archive.referenceName
-import com.virtuslab.pulumikotlin.codegen.expressions.*
+import com.virtuslab.pulumikotlin.codegen.expressions.Code
+import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.Expression
+import com.virtuslab.pulumikotlin.codegen.expressions.Return
+import com.virtuslab.pulumikotlin.codegen.expressions.addCode
+import com.virtuslab.pulumikotlin.codegen.expressions.call0
+import com.virtuslab.pulumikotlin.codegen.expressions.callApplyValue
+import com.virtuslab.pulumikotlin.codegen.expressions.callLet
+import com.virtuslab.pulumikotlin.codegen.expressions.callMap
+import com.virtuslab.pulumikotlin.codegen.expressions.field
+import com.virtuslab.pulumikotlin.codegen.expressions.invoke
+import com.virtuslab.pulumikotlin.codegen.expressions.pairWith
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Type
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 
 object PulumiClassesAndMembers {
     val output = MoreTypes.Java.Pulumi.Output()
@@ -16,13 +51,21 @@ object PulumiClassesAndMembers {
 private fun toKotlinExpressionResource(expression: Expression, type: Type, optional: Boolean = false): Expression {
     return when (type) {
         AnyType -> expression
-        is ComplexType -> expression.callLet(optional) { argument -> type.toTypeName().nestedClass("Companion").member("toKotlin")(argument) }
-        is EnumType -> expression.callLet(optional) { argument -> type.toTypeName().nestedClass("Companion").member("toKotlin")(argument) }
+        is ComplexType -> expression.callLet(optional) { argument ->
+            type.toTypeName().nestedClass("Companion").member("toKotlin")(argument)
+        }
+
+        is EnumType -> expression.callLet(optional) { argument ->
+            type.toTypeName().nestedClass("Companion").member("toKotlin")(argument)
+        }
+
         is EitherType -> expression
         is ListType -> expression.callMap(optional) { argument -> toKotlinExpressionResource(argument, type.innerType) }
         is MapType ->
             expression
-                .callMap(optional) { argument -> argument.field("key").pairWith(toKotlinExpressionResource(argument.field("value"), type.secondType)) }
+                .callMap(optional) { argument ->
+                    argument.field("key").pairWith(toKotlinExpressionResource(argument.field("value"), type.secondType))
+                }
                 .call0("toMap", optional)
 
         is PrimitiveType -> expression
@@ -35,7 +78,8 @@ private fun toKotlinExpressionBaseResource(name: String): Expression {
 
 private fun toKotlinFunctionResource(name: String, type: Type, optional: Boolean): Code {
     val baseE = toKotlinExpressionBaseResource(name)
-    val secondPart = baseE.callApplyValue { arg -> toKotlinExpressionResource(arg.call0("toKotlin", optional), type, optional) }
+    val secondPart =
+        baseE.callApplyValue { arg -> toKotlinExpressionResource(arg.call0("toKotlin", optional), type, optional) }
 
     return Return(secondPart)
 }
@@ -53,11 +97,18 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
     val javaResourceClassName = ClassName(names.toResourcePackage(javaFlags), names.toResourceName(javaFlags))
 
     val fields = resourceType.outputFields.map { field ->
-        PropertySpec.builder(field.name, MoreTypes.Java.Pulumi.Output(field.fieldType.type.toTypeName().copy(nullable = !field.required)))
-            .getter(FunSpec.getterBuilder().addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required)).build())
+        PropertySpec.builder(
+            field.name,
+            MoreTypes.Java.Pulumi.Output(
+                field.fieldType.type.toTypeName().copy(nullable = !field.required)
+            )
+        )
+            .getter(
+                FunSpec.getterBuilder()
+                    .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required)).build()
+            )
             .build()
     }
-
 
     val resourceClass = TypeSpec
         .classBuilder(resourceClassName)
@@ -86,7 +137,8 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
         .builder("args")
         .addModifiers(KModifier.SUSPEND)
         .addParameter(
-            "block", LambdaTypeName.get(
+            "block",
+            LambdaTypeName.get(
                 argsBuilderClassName,
                 returnType = UNIT,
             ).copy(suspending = true)
@@ -96,12 +148,12 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
         .addStatement("this.args = builder.build()")
         .build()
 
-
     val optsFunction = FunSpec
         .builder("opts")
         .addModifiers(KModifier.SUSPEND)
         .addParameter(
-            "block", LambdaTypeName.get(
+            "block",
+            LambdaTypeName.get(
                 ClassName("com.pulumi.kotlin", "CustomArgsBuilder"),
                 returnType = UNIT,
             ).copy(suspending = true)
@@ -110,7 +162,6 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
         .addStatement("block(builder)")
         .addStatement("this.opts = builder.build()")
         .build()
-
 
     val resourceBuilderClass = TypeSpec
         .classBuilder(resourceBuilderClassName)
@@ -166,7 +217,8 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
         .returns(resourceClassName)
         .addParameter("name", STRING)
         .addParameter(
-            "block", LambdaTypeName.get(
+            "block",
+            LambdaTypeName.get(
                 resourceBuilderClassName,
                 returnType = UNIT
             ).copy(suspending = true)
@@ -222,6 +274,7 @@ private fun generateFunctionsForInput(
                             )
                             .build()
                     )
+
                 MAP ->
                     add(
                         FunSpec
@@ -246,10 +299,24 @@ private fun generateFunctionsForInput(
     }
 }
 
-
 fun generateResources(resources: List<ResourceType>): List<FileSpec> {
     val files = resources.map { type ->
-        val file = FileSpec.builder(type.name.toResourcePackage(NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)), type.name.toResourceName(NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)) + ".kt")
+        val file = FileSpec.builder(
+            type.name.toResourcePackage(
+                NamingFlags(
+                    InputOrOutput.Output,
+                    UseCharacteristic.ResourceRoot,
+                    LanguageType.Kotlin
+                )
+            ),
+            type.name.toResourceName(
+                NamingFlags(
+                    InputOrOutput.Output,
+                    UseCharacteristic.ResourceRoot,
+                    LanguageType.Kotlin
+                )
+            ) + ".kt"
+        )
 
         buildArgsClass(file, type)
 

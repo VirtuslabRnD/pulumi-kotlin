@@ -6,7 +6,6 @@ import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
-import com.virtuslab.pulumikotlin.codegen.archive.member
 
 object MoreTypes {
 
@@ -23,6 +22,7 @@ object MoreTypes {
             fun ConvertibleToJava(type: TypeName): ParameterizedTypeName =
                 ClassName("com.pulumi.kotlin", "ConvertibleToJava").parameterizedBy(type)
         }
+
         fun Pair(leftType: TypeName, rightType: TypeName): ParameterizedTypeName {
             return ClassName("kotlin", "Pair").parameterizedBy(leftType, rightType)
         }
@@ -35,14 +35,14 @@ object MoreTypes {
                 val of: MemberName
                     get() = Output().member("of")
             }
+
             fun Output(): ClassName {
                 return ClassName("com.pulumi.core", "Output")
             }
+
             fun Output(type: TypeName): ParameterizedTypeName {
                 return ClassName("com.pulumi.core", "Output").parameterizedBy(type)
             }
         }
-
     }
-
 }

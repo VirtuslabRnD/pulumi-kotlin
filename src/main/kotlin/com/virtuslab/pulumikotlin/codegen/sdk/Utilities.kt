@@ -1,32 +1,30 @@
 package com.pulumi.kotlin
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import com.pulumi.core.internal.Environment;
-import com.pulumi.deployment.InvokeOptions;
+import com.pulumi.core.internal.Environment
+import com.pulumi.deployment.InvokeOptions
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.util.stream.Collectors
 
 object Utilities {
 
     var version: String
 
     init {
-        val resourceName = "{{{PACKAGE_PATH}}}/version.txt";
-        val versionFile = Utilities::class.java.classLoader.getResourceAsStream(resourceName);
+        val resourceName = "{{{PACKAGE_PATH}}}/version.txt"
+        val versionFile = Utilities::class.java.classLoader.getResourceAsStream(resourceName)
         checkNotNull(versionFile) {
-            "expected resource '${resourceName}' on Classpath, not found"
+            "expected resource '$resourceName' on Classpath, not found"
         }
         version = BufferedReader(InputStreamReader(versionFile))
             .lines()
             .collect(Collectors.joining("\n"))
-            .trim();
+            .trim()
     }
 
     fun getEnv(vararg names: String): String? {
         names.forEach {
-            val value = Environment.getEnvironmentVariable(it);
+            val value = Environment.getEnvironmentVariable(it)
             if (value.isValue) {
                 return value.value()
             }
@@ -36,7 +34,7 @@ object Utilities {
 
     fun getEnvBoolean(vararg names: String): Boolean? {
         names.forEach {
-            val value = Environment.getBooleanEnvironmentVariable(it);
+            val value = Environment.getBooleanEnvironmentVariable(it)
             if (value.isValue) {
                 return value.value()
             }
@@ -46,7 +44,7 @@ object Utilities {
 
     fun getEnvInteger(vararg names: String): Int? {
         names.forEach {
-            val value = Environment.getIntegerEnvironmentVariable(it);
+            val value = Environment.getIntegerEnvironmentVariable(it)
             if (value.isValue) {
                 return value.value()
             }
@@ -56,7 +54,7 @@ object Utilities {
 
     fun getEnvDouble(vararg names: String): Double? {
         names.forEach {
-            val value = Environment.getDoubleEnvironmentVariable(it);
+            val value = Environment.getDoubleEnvironmentVariable(it)
             if (value.isValue) {
                 return value.value()
             }
@@ -67,7 +65,7 @@ object Utilities {
     // TODO: this probably should be done via a mutator on the InvokeOptions
     fun withVersion(options: InvokeOptions?): InvokeOptions {
         if (options != null && options.version.isPresent) {
-            return options;
+            return options
         }
         return InvokeOptions(
             options?.parent?.orElse(null),
@@ -75,5 +73,4 @@ object Utilities {
             version
         )
     }
-
 }
