@@ -90,33 +90,4 @@ suspend fun main() {
 
 ## Development
 
-### Formatter
-
-The shared IntelliJ formatter config can be found in `.idea/codeStyles/Project.xml`. It has been adjusted to be as
-compatible as possible with the plugins described in the following section. It can be triggered with the `⌘⌥L` keyboard
-shortcut (or `Ctrl+Alt+L` on Windows/Linux).
-
-### Static code analysis
-
-Two plugins are included in this project: [Ktlint](https://github.com/jeremymailen/kotlinter-gradle)
-and [Detekt](https://github.com/detekt/detekt). Both need to pass for a pull request to be accepted. ⚠️ Note: *For the
-time being, the pre-existing Detekt warnings are being ignored.*
-
-#### Detekt
-
-* detects code smells
-* can be run with the `detekt` Gradle task
-* TXT, HTML, and Markdown reports are stored in `build/reports/detekt`
-* custom configuration can be placed in the `.detekt-config.yml` file
-* to suppress a rule, use the `@Suppress` annotation (e.g. `@Suppress("EnumNaming")`)
-
-#### Ktlint
-
-* provides linting and formatting
-* to verify if everything is formatted correctly, run the `lintKotlin` Gradle task
-* to fix formatting errors, run the `formatKotlin` Gradle task (note that some
-  errors cannot be fixed automatically and have to be handled manually)
-* TXT and HTML reports are stored in `build/reports/ktlint`
-* follows the custom configuration placed in `.editorconfig`
-* to suppress a rule, use the `@Suppress` annotation and prefix the rule name with "ktlint" (
-  e.g. `@Suppress("ktlint:enum-entry-name-case")`)
+Development guidelines can be found [here](https://github.com/VirtuslabRnD/jvm-lab/blob/main/README.md#development-standards-for-kotlin-repositories).
