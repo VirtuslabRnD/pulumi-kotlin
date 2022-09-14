@@ -21,12 +21,15 @@ fun main(args: Array<String>) {
 }
 
 /**
- * This is to understand all the possible names structures in Pulumi provider's schema. For example, AWS classic can only have names with the following structure (notice `:` and `/`):
+ * This is to understand all the possible names structures in Pulumi provider's schema.
+ *
+ * For example, AWS classic can only have names with the following structure (notice `:` and `/`):
  *
  * - aws-native:acmpca:Certificate
  * - aws:accessanalyzer/analyzer:Analyzer
  *
- * (It seems obvious now, but I wasn't so sure before writing this script. I'm also not sure about the other providers like kubernetes.)
+ * It seems obvious now, but I wasn't so sure before writing this script.
+ * I'm also not sure about the other providers like kubernetes.
  */
 class ComputePulumiSchemaNamingStatsScript : CliktCommand() {
     private val schemaPaths: List<String> by option()

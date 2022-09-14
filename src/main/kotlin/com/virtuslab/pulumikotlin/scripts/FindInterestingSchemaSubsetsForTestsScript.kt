@@ -55,13 +55,8 @@ class FindInterestingSchemaSubsetsForTestsScript : CliktCommand() {
             val q2 = with(outputs) {
                 any { it.depth >= 1 } && all { it.depth < 6 } && size >= 1 && size <= 5
             }
-
-
-
             return q1 && q2
         }
-
-
 
         val resource = candidateResources.filter { query(it) }.take(20)
         val function = candidateFunctions.filter { query(it) }.take(20)
