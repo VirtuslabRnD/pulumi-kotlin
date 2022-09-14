@@ -4,6 +4,7 @@ plugins {
     application
     kotlin("jvm") version "1.7.0"
     kotlin("plugin.serialization") version "1.7.0"
+    id("org.jmailen.kotlinter") version "3.12.0"
 }
 
 group = "org.example"
@@ -41,4 +42,8 @@ application {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+kotlinter {
+    reporters = arrayOf("html", "plain")
 }
