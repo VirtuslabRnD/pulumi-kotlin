@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 
 class CodegenTest {
     @Test
-    fun `resource can be created`() {
+    fun `aws resource can be created`() {
         // language=kotlin
         val code = """
            import com.pulumi.aws.acm.kotlin.certificateResource
@@ -45,7 +45,7 @@ class CodegenTest {
     }
 
     @Test
-    fun `resource can be created and its outputs can be used elsewhere`() {
+    fun `aws resource can be created and its outputs can be used to create another aws resource`() {
         // language=kotlin
         val code = """
             import com.pulumi.aws.acm.kotlin.certificateResource
@@ -101,7 +101,7 @@ class CodegenTest {
     }
 
     @Test
-    fun `functions can be invoked`() {
+    fun `aws functions can be invoked`() {
         // language=kotlin
         val code = """
             import com.pulumi.aws.acmpca.kotlin.AcmpcaFunctions.getCertificateAuthority
@@ -117,7 +117,7 @@ class CodegenTest {
     }
 
     @Test
-    fun `functions can be invoked, type-safe builder variation`() {
+    fun `aws functions can be invoked, type-safe builder variation`() {
         // language=kotlin
         val code = """
             import com.pulumi.aws.acmpca.kotlin.AcmpcaFunctions.getCertificateAuthority
@@ -148,7 +148,7 @@ class CodegenTest {
     }
 
     @Test
-    fun `bigger subset of was schema can be compiled`() {
+    fun `bigger subset of aws schema can be compiled`() {
         assertGeneratedCodeCompiles("aws-big-schema-subset.json")
     }
 
