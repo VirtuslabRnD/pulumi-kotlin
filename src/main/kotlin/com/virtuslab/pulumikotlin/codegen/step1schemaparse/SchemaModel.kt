@@ -30,8 +30,7 @@ object Resources {
             fun isMapType() =
                 element is JsonObject && "additionalProperties" in element.jsonObject && "properties" !in element.jsonObject
 
-            fun mightBeOfTypeObject() =
-                element is JsonObject && "properties" in element.jsonObject
+            fun mightBeOfTypeObject() = element is JsonObject && "properties" in element.jsonObject
 
             return when {
                 element is JsonObject && "\$ref" in element.jsonObject -> ReferredProperty.serializer()
@@ -93,7 +92,7 @@ object Resources {
 
     @Serializable
     data class StringProperty(
-        val type: PropertyType,
+        val type: PropertyType = PropertyType.string,
         val description: String? = null,
         val willReplaceOnChanges: Boolean = false,
         val deprecationMessage: String? = null,
@@ -103,7 +102,7 @@ object Resources {
 
     @Serializable
     data class BooleanProperty(
-        val type: PropertyType,
+        val type: PropertyType = PropertyType.boolean,
         val description: String? = null,
         val willReplaceOnChanges: Boolean = false,
         val deprecationMessage: String? = null,
@@ -113,7 +112,7 @@ object Resources {
 
     @Serializable
     data class IntegerProperty(
-        val type: PropertyType,
+        val type: PropertyType = PropertyType.integer,
         val description: String? = null,
         val willReplaceOnChanges: Boolean = false,
         val deprecationMessage: String? = null,
@@ -123,7 +122,7 @@ object Resources {
 
     @Serializable
     data class NumberProperty(
-        val type: PropertyType,
+        val type: PropertyType = PropertyType.number,
         val willReplaceOnChanges: Boolean = false,
         val deprecationMessage: String? = null,
         val description: String? = null,
@@ -133,7 +132,7 @@ object Resources {
 
     @Serializable
     data class ArrayProperty(
-        val type: PropertyType,
+        val type: PropertyType = PropertyType.array,
         val items: PropertySpecification,
         val willReplaceOnChanges: Boolean = false,
         val deprecationMessage: String? = null,
