@@ -5,3 +5,7 @@ output-reports:
 
 build:
   maxIssues: 85 # TODO: Remove this setting after adjusting the codebase to Detekt
+
+style:
+  MagicNumber:
+    excludes: ["**/test/**"]
