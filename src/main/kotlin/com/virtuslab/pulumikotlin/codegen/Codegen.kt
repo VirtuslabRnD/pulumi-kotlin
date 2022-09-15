@@ -1,9 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen
 
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Decoder
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.getFunctionSpecs
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.getResourceSpecs
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.getTypeSpecs
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.IntermediateRepresentationGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.CodeGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.GeneratorArguments
 import java.io.File
@@ -17,15 +15,13 @@ object Codegen {
      * Generates Pulumi SDK Kotlin for a particular schema and saves it to temporary directory (returned File)
      */
     fun codegen(inputStreamWithSchema: InputStream): File {
-        val parsedSchemas = Decoder.decode(inputStreamWithSchema)
-        val autonomousTypes = getTypeSpecs(parsedSchemas)
-        val resourceTypes = getResourceSpecs(parsedSchemas)
-        val functionTypes = getFunctionSpecs(parsedSchemas)
+        val parsedSchema = Decoder.decode(inputStreamWithSchema)
+        val intermediateRepresentation = IntermediateRepresentationGenerator.getIntermediateRepresentation(parsedSchema)
         val generatedFiles = CodeGenerator.run(
             GeneratorArguments(
-                types = autonomousTypes,
-                resources = resourceTypes,
-                functions = functionTypes,
+                types = intermediateRepresentation.types,
+                resources = intermediateRepresentation.resources,
+                functions = intermediateRepresentation.functions,
             ),
         )
 
