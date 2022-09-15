@@ -9,12 +9,11 @@ import kotlinx.coroutines.runBlocking
 data class S3Args(
     val hostedZoneId: Output<String>,
     val tags: Output<Map<String, String>>,
-    val someOtherArgs: Output<SomeOtherArgs>
+    val someOtherArgs: Output<SomeOtherArgs>,
 )
 
 @DslMarker
 annotation class PulumiTagMarker
-
 
 @PulumiTagMarker
 class S3ArgsBuilder {
@@ -52,7 +51,7 @@ class S3ArgsBuilder {
     }
 
     fun someOtherArgs2(vararg args: SomeOtherArgsBuilder.() -> Unit) {
-        val built = args.map {method ->
+        val built = args.map { method ->
             SomeOtherArgsBuilder().apply { method() }.build()
         }
         this.someOtherArgs2 = Output.of(built)
@@ -97,12 +96,11 @@ fun toJava(s3Bucket: S3Bucket): BucketV2 {
         CustomResourceOptions.builder()
             .deleteBeforeReplace(s3Bucket.custom.deleteBeforeReplace)
             .protect(s3Bucket.custom.protect)
-            .build()
+            .build(),
     )
 }
 
-
-suspend fun S3BucketBuilder.args(block: suspend S3ArgsBuilder.() -> Unit): Unit {
+suspend fun S3BucketBuilder.args(block: suspend S3ArgsBuilder.() -> Unit) {
     val builder = S3ArgsBuilder()
 
     block(builder)
@@ -112,7 +110,7 @@ suspend fun S3BucketBuilder.args(block: suspend S3ArgsBuilder.() -> Unit): Unit 
 
 data class CustomArgs(
     val deleteBeforeReplace: Boolean = false,
-    val protect: Boolean = false
+    val protect: Boolean = false,
 )
 
 @PulumiTagMarker
@@ -130,11 +128,11 @@ class CustomArgsBuilder {
 
     fun build(): CustomArgs = CustomArgs(
         deleteBeforeReplace,
-        protect
+        protect,
     )
 }
 
-suspend fun S3BucketBuilder.custom(block: suspend CustomArgsBuilder.() -> Unit): Unit {
+suspend fun S3BucketBuilder.custom(block: suspend CustomArgsBuilder.() -> Unit) {
     val builder = CustomArgsBuilder()
 
     block(builder)
@@ -150,15 +148,12 @@ suspend fun args(block: suspend S3ArgsBuilder.() -> Unit): S3Args {
     return builder.build()
 }
 
-
-
 suspend fun createInfra() {
-
     val bucket = s3Bucket("bucket-name-here") {
         args {
             hostedZoneId("whatever")
             tags(
-                "a" to "b"
+                "a" to "b",
             )
             someOtherArgs {
                 someOtherNestedArgs {
@@ -178,7 +173,7 @@ suspend fun createInfra() {
                         name("whatever3")
                         number(60)
                     }
-                }
+                },
             )
         }
 

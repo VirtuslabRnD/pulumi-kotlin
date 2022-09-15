@@ -5,11 +5,12 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Decoder
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.getFunctionSpecs
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.getResourceSpecs
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.getTypeSpecs
 import com.virtuslab.pulumikotlin.codegen.step3codegen.CodeGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.GeneratorArguments
 import com.virtuslab.pulumikotlin.codegen.utils.Paths
-
 import java.io.File
 
 class PulumiKotlin : CliktCommand() {
@@ -29,7 +30,7 @@ class PulumiKotlin : CliktCommand() {
                 resources = resourceTypes,
                 functions = functionTypes,
                 sdkFilesToCopyPath = sdkFilesPath,
-            )
+            ),
         )
 
         generatedFiles.forEach {

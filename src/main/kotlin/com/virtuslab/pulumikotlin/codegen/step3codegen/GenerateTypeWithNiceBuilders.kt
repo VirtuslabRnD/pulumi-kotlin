@@ -1,11 +1,49 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
-import com.squareup.kotlinpoet.*
-import com.squareup.kotlinpoet.KModifier.*
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.KModifier.OVERRIDE
+import com.squareup.kotlinpoet.KModifier.SUSPEND
+import com.squareup.kotlinpoet.KModifier.VARARG
+import com.squareup.kotlinpoet.LIST
+import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.MemberName.Companion.member
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.virtuslab.pulumikotlin.codegen.expressions.*
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.UNIT
+import com.virtuslab.pulumikotlin.codegen.expressions.Assignment
+import com.virtuslab.pulumikotlin.codegen.expressions.Code
+import com.virtuslab.pulumikotlin.codegen.expressions.ConstructObjectExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.Expression
+import com.virtuslab.pulumikotlin.codegen.expressions.FunctionExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.Return
+import com.virtuslab.pulumikotlin.codegen.expressions.addCode
+import com.virtuslab.pulumikotlin.codegen.expressions.call0
+import com.virtuslab.pulumikotlin.codegen.expressions.call1
+import com.virtuslab.pulumikotlin.codegen.expressions.callLet
+import com.virtuslab.pulumikotlin.codegen.expressions.callMap
+import com.virtuslab.pulumikotlin.codegen.expressions.field
+import com.virtuslab.pulumikotlin.codegen.expressions.invoke
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Type
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import java.util.Random
 import kotlin.streams.asSequence
@@ -34,9 +72,8 @@ data class Field<T : Type>(
     val name: String,
     val fieldType: FieldType<T>,
     val required: Boolean,
-    val overloads: List<FieldType<*>>
+    val overloads: List<FieldType<*>>,
 )
-
 
 fun toKotlinExpression(expression: Expression, type: Type): Expression {
     return when (val type = type) {
@@ -46,11 +83,12 @@ fun toKotlinExpression(expression: Expression, type: Type): Expression {
         is EitherType -> expression
         is ListType -> expression.callMap { args -> toKotlinExpression(args, type.innerType) }
 
-        is MapType -> expression
-            .callMap {
-                    args -> args.field("key").call1("to", toKotlinExpression(args.field("value"), type.secondType))
-            }
-            .call0("toMap")
+        is MapType ->
+            expression
+                .callMap { args ->
+                    args.field("key").call1("to", toKotlinExpression(args.field("value"), type.secondType))
+                }
+                .call0("toMap")
 
         is PrimitiveType -> expression
     }
@@ -61,7 +99,6 @@ fun toKotlinExpressionBase(name: String): Expression {
 }
 
 fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
-
     val arguments = fields.associate { field ->
         val type = field.fieldType.type
 
@@ -89,10 +126,11 @@ fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpe
 }
 
 fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
-
     val codeBlocks = fields.map { field ->
         val block = CodeBlock.of(
-            ".%N(%N)", KeywordsEscaper.escape(field.name), field.name
+            ".%N(%N)",
+            KeywordsEscaper.escape(field.name),
+            field.name,
         )
         val toJavaBlock = CodeBlock.of(".%N(%N?.%N())", KeywordsEscaper.escape(field.name), field.name, "toJava")
         when (val type = field.fieldType.type) {
@@ -104,7 +142,6 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
             is ListType -> toJavaBlock
             is MapType -> toJavaBlock
         }
-
     }
 
     val names = typeMetadata.names(LanguageType.Java)
@@ -126,19 +163,19 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
 data class GenerationOptions(
     val shouldGenerateBuilders: Boolean = true,
     val implementToJava: Boolean = true,
-    val implementToKotlin: Boolean = true
+    val implementToKotlin: Boolean = true,
 )
 
 fun generateTypeWithNiceBuilders(
     typeMetadata: TypeMetadata,
     fields: List<Field<*>>,
-    options: GenerationOptions = GenerationOptions()
+    options: GenerationOptions = GenerationOptions(),
 ): FileSpec {
-
     val names = typeMetadata.names(LanguageType.Kotlin)
 
     val fileSpec = FileSpec.builder(
-        names.packageName, names.className + ".kt"
+        names.packageName,
+        names.className + ".kt",
     )
 
     val argsClassName = ClassName(names.packageName, names.className)
@@ -160,7 +197,7 @@ fun generateTypeWithNiceBuilders(
             .addProperty(
                 PropertySpec.builder(field.name, typeName)
                     .initializer(field.name)
-                    .build()
+                    .build(),
             )
 
         constructor
@@ -173,7 +210,7 @@ fun generateTypeWithNiceBuilders(
                             it
                         }
                     }
-                    .build()
+                    .build(),
             )
     }
 
@@ -186,21 +223,21 @@ fun generateTypeWithNiceBuilders(
         it.addType(
             TypeSpec.companionObjectBuilder()
                 .addFunction(toKotlinFunction(typeMetadata, fields))
-                .build()
+                .build(),
         )
     }
     val argsClass = classB.build()
 
     val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
 
-    val argNames = fields.map {
+    val argNames = fields.joinToString(", ") {
         val requiredPart = if (it.required) {
             "!!"
         } else {
             ""
         }
-        "${it.name} = ${it.name}${requiredPart}"
-    }.joinToString(", ")
+        "${it.name} = ${it.name}$requiredPart"
+    }
 
     val argsBuilderClass = TypeSpec
         .classBuilder(argsBuilderClassName)
@@ -213,18 +250,18 @@ fun generateTypeWithNiceBuilders(
                     .mutable(true)
                     .addModifiers(KModifier.PRIVATE)
                     .build()
-            }
+            },
         )
         .addFunctions(
             fields.flatMap { field ->
                 generateFunctionsForInput(field)
-            }
+            },
         )
         .addFunction(
             FunSpec.builder("build")
                 .returns(argsClassName)
-                .addCode("return %T(${argNames})", argsClassName)
-                .build()
+                .addCode("return %T($argNames)", argsClassName)
+                .build(),
         )
         .build()
 
@@ -249,13 +286,19 @@ fun CodeBlock.Builder.add(code: Code): CodeBlock.Builder {
     return this.add(code.toCodeBlock().toKotlinPoetCodeBlock())
 }
 
-private fun mappingCodeBlock(field: NormalField<*>, required: Boolean, name: String, code: String, vararg args: Any?): CodeBlock {
+private fun mappingCodeBlock(
+    field: NormalField<*>,
+    required: Boolean,
+    name: String,
+    code: String,
+    vararg args: Any?,
+): CodeBlock {
     val expression = CustomExpression("toBeMapped").callLet(!required) { arg -> field.mappingCode(arg) }
     return CodeBlock.builder()
         .addStatement("val toBeMapped = $code", *args)
         .add(Assignment("mapped", expression))
         .addStatement("")
-        .addStatement("this.${name} = mapped")
+        .addStatement("this.$name = mapped")
         .build()
 }
 
@@ -287,11 +330,11 @@ data class BuilderSettingCodeBlock(val mappingCode: MappingCode? = null, val cod
                 .addStatement("val toBeMapped = $code", *args.toTypedArray())
                 .add(Assignment("mapped", mc(CustomExpression("toBeMapped"))))
                 .addStatement("")
-                .addStatement("this.${fieldToSetName} = mapped")
+                .addStatement("this.$fieldToSetName = mapped")
                 .build()
         } else {
             CodeBlock.builder()
-                .addStatement("this.${fieldToSetName} = $code", *args.toTypedArray())
+                .addStatement("this.$fieldToSetName = $code", *args.toTypedArray())
                 .build()
         }
     }
@@ -305,7 +348,7 @@ fun builderPattern(
     name: String,
     parameterType: TypeName,
     codeBlock: BuilderSettingCodeBlock,
-    parameterModifiers: List<KModifier> = emptyList()
+    parameterModifiers: List<KModifier> = emptyList(),
 ): FunSpec {
     return FunSpec
         .builder(name)
@@ -314,7 +357,7 @@ fun builderPattern(
         .addParameter(
             "argument",
             parameterType,
-            parameterModifiers
+            parameterModifiers,
         )
         .addCode(codeBlock.toCodeBlock(name))
         .build()
@@ -338,7 +381,7 @@ private fun specialMethodsForComplexType(
             builderLambda(builderTypeName),
             BuilderSettingCodeBlock.create("%T().applySuspend{ argument() }.build()", builderTypeName)
                 .withMappingCode(field.mappingCode),
-        )
+        ),
     )
 }
 
@@ -352,13 +395,13 @@ private fun specialMethodsForList(
             val commonCodeBlock = BuilderSettingCodeBlock
                 .create(
                     "argument.toList().map { %T().applySuspend{ it() }.build() }",
-                    innerType.toBuilderTypeName()
+                    innerType.toBuilderTypeName(),
                 )
                 .withMappingCode(field.mappingCode)
 
             listOf(
                 builderPattern(name, listOfLambdas(innerType), commonCodeBlock),
-                builderPattern(name, builderLambda(innerType), commonCodeBlock, parameterModifiers = listOf(VARARG))
+                builderPattern(name, builderLambda(innerType), commonCodeBlock, parameterModifiers = listOf(VARARG)),
             )
         }
 
@@ -371,7 +414,7 @@ private fun specialMethodsForList(
             .addModifiers(SUSPEND)
             .addParameter("values", innerType.toTypeName(), VARARG)
             .addCode(mappingCodeBlock(field, false, name, "values.toList()"))
-            .build()
+            .build(),
     )
 
     return builderPattern + justValuesPassedAsVarargArguments
@@ -389,7 +432,7 @@ private fun specialMethodsForMap(
             val commonCodeBlock = BuilderSettingCodeBlock
                 .create(
                     "argument.toList().map { (left, right) -> left to %T().applySuspend{ right() }.build() }",
-                    rightInnerType.toBuilderTypeName()
+                    rightInnerType.toBuilderTypeName(),
                 )
                 .withMappingCode(field.mappingCode)
 
@@ -398,8 +441,8 @@ private fun specialMethodsForMap(
                     name,
                     MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), builderLambda(rightInnerType)),
                     commonCodeBlock,
-                    parameterModifiers = listOf(VARARG)
-                )
+                    parameterModifiers = listOf(VARARG),
+                ),
             )
         }
 
@@ -412,10 +455,10 @@ private fun specialMethodsForMap(
             .addParameter(
                 "values",
                 MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()),
-                VARARG
+                VARARG,
             )
             .addCode(mappingCodeBlock(field, false, name, "values.toMap()"))
-            .build()
+            .build(),
     )
 
     return builderPattern + justValuesPassedAsVarargArguments
@@ -466,12 +509,10 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
                 .builder(name)
                 .addModifiers(SUSPEND)
                 .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
-                .addCode("this.${name} = value")
-                .build()
+                .addCode("this.$name = value")
+                .build(),
         )
     }
-
-
 
     return functions
 }

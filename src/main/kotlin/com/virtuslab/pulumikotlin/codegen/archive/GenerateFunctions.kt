@@ -3,9 +3,15 @@ package com.virtuslab.pulumikotlin.codegen.archive
 import com.pulumi.core.TypeShape
 import com.pulumi.deployment.Deployment
 import com.pulumi.deployment.DeploymentInstance
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.MemberName.Companion.member
-import com.virtuslab.pulumikotlin.codegen.archive.constructDataClass
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asClassName
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.FunctionsMap
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
 import kotlin.reflect.KClass
@@ -15,11 +21,11 @@ inline fun <reified T> classNameOf(): ClassName {
     return T::class.asClassName()
 }
 
-inline fun <reified T: Any, R> memberOf(f: KFunction<R>): MemberName {
+inline fun <reified T : Any, R> memberOf(f: KFunction<R>): MemberName {
     return classNameOf<T>().member(f.name)
 }
 
-fun <T: Any, R> classWithMember(c: KClass<T>, f: KFunction<R>): MemberName {
+fun <T : Any, R> classWithMember(c: KClass<T>, f: KFunction<R>): MemberName {
     return c.asClassName().member(f.name)
 }
 
@@ -27,16 +33,13 @@ fun ClassName.member(f: KFunction<Any>): MemberName {
     return member(f.name)
 }
 
-//fun ClassName.member3(f: ): MemberName {
+// fun ClassName.member3(f: ): MemberName {
 //    return member(f.toString())
-//}
+// }
 
-object FunctionTypeLocations {
-
-}
+object FunctionTypeLocations
 
 fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec): FunSpec.Builder {
-
     val deployPackage = "com.pulumi.deployment"
     val corePackage = "com.pulumi.core"
     val providerPackage = "com.pulumi.kotlin.aws" // TODO: parametrize
@@ -61,18 +64,18 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
 
 //    val convertFrom = CodeBlock.builder().add()
 
-
     val typeShapeBlock = CodeBlock.of(
         "val typeShape = %M(javaResultType)",
-        classNameOf<TypeShape<*>>().member("of")
+        classNameOf<TypeShape<*>>().member("of"),
     )
 
     val invokeOptionsBlock = CodeBlock.of("val invokeOptions = %M(%M)", utilitiesWithVersion, invokeOptionsEmpty)
 
-    val resultBlock = CodeBlock.of("val result = %M().%N(%S, typeShape, args, invokeOptions)",
+    val resultBlock = CodeBlock.of(
+        "val result = %M().%N(%S, typeShape, args, invokeOptions)",
         classNameOf<Deployment>().member(Deployment::getInstance),
         classNameOf<DeploymentInstance>().member("invoke"),
-        name
+        name,
     )
 
     val awaitedResult = CodeBlock.of("val awaitedResult = result.%M()", awaitFuture)
@@ -85,7 +88,7 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
         invokeOptionsBlock,
         resultBlock,
         awaitedResult,
-        returnValue
+        returnValue,
     ).forEach { block -> codeBuilder.add(block) }
 
     return it
@@ -94,7 +97,7 @@ fun generateMethodBody(it: FunSpec.Builder, name: String, outputType: TypeSpec):
 fun generateFunctions(functionsMap: FunctionsMap): GeneratedFunction {
     val files = functionsMap
         .entries
-        .groupBy { (name, value) -> name.split("/").first() }
+        .groupBy { (name, _) -> name.split("/").first() }
         .flatMap { (groupName, entries) ->
 
             val resultTypes = mutableListOf<FileSpec>()
@@ -114,7 +117,6 @@ fun generateFunctions(functionsMap: FunctionsMap): GeneratedFunction {
                 resultTypes.add(inputFile)
 
                 val o = constructDataClass(outputName, function.outputs, shouldAddCustomTypeAnnotations = true)
-
 
                 val outputFile = FileSpec.builder(packageNameForName(groupName), fileNameForName(name) + "Result")
                     .addType(o)
@@ -151,5 +153,5 @@ fun generateFunctions(functionsMap: FunctionsMap): GeneratedFunction {
 data class GeneratedFunction(
     val generatedFiles: List<FileSpec>,
     val identifiedOutputReferences: Set<Resources.PropertyName>,
-    val identifiedInputReferences: Set<Resources.PropertyName>
+    val identifiedInputReferences: Set<Resources.PropertyName>,
 )

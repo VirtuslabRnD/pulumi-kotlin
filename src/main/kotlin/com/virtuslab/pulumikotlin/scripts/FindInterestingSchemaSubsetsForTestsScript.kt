@@ -3,17 +3,23 @@ package com.virtuslab.pulumikotlin.scripts
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.*
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Decoder
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.TypesMap
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.withoutThePrefix
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 import java.io.File
-
 
 fun main(args: Array<String>) {
     FindInterestingSchemaSubsetsForTestsScript().main(args)
 }
 
-class FindInterestingSchemaSubsetsForTestsScript: CliktCommand() {
+class FindInterestingSchemaSubsetsForTestsScript : CliktCommand() {
     private val schemaPath: String by option().required()
 
     override fun run() {
@@ -24,7 +30,7 @@ class FindInterestingSchemaSubsetsForTestsScript: CliktCommand() {
             parsedSchema.resources.mapValues { (_, spec) ->
                 PropertySpecs(
                     spec.inputProperties.values.toList(),
-                    spec.properties.values.toList()
+                    spec.properties.values.toList(),
                 )
             }
 
@@ -34,7 +40,7 @@ class FindInterestingSchemaSubsetsForTestsScript: CliktCommand() {
             parsedSchema.functions.mapValues { (_, spec) ->
                 PropertySpecs(
                     spec.inputs?.properties?.values?.toList().orEmpty(),
-                    spec.outputs.properties.values.toList()
+                    spec.outputs.properties.values.toList(),
                 )
             }
         val candidateFunctions = findCandidateEntities(types, propertySpecsForFunctions)
@@ -67,17 +73,15 @@ class FindInterestingSchemaSubsetsForTestsScript: CliktCommand() {
 private data class CandidateEntity(
     val name: String,
     val referencedInputTypes: List<TypeAndDepth>,
-    val referencedOutputTypes: List<TypeAndDepth>
+    val referencedOutputTypes: List<TypeAndDepth>,
 )
-
 
 private fun serializeResource(
     json: Json,
     parsedSchema: ParsedSchema,
     candidateResources: List<CandidateEntity>,
-    candidateFunctions: List<CandidateEntity>
+    candidateFunctions: List<CandidateEntity>,
 ): String {
-
     fun encodeTypes(candidate: CandidateEntity): Map<String, JsonElement> {
         val inputs = candidate.referencedInputTypes.map { it.typeName to parsedSchema.types.get(it.typeName) }
         val outputs = candidate.referencedOutputTypes.map { it.typeName to parsedSchema.types.get(it.typeName) }
@@ -88,7 +92,8 @@ private fun serializeResource(
             .toMap()
     }
 
-    val types = candidateResources.flatMap { encodeTypes(it).map { it.toPair() } } + candidateFunctions.flatMap { encodeTypes(it).map { it.toPair() } }
+    val types =
+        candidateResources.flatMap { encodeTypes(it).map { it.toPair() } } + candidateFunctions.flatMap { encodeTypes(it).map { it.toPair() } }
 
     val resourceBody = candidateResources.map { it.name to parsedSchema.resources.get(it.name) }.toMap()
     val functionBody = candidateFunctions.map { it.name to parsedSchema.functions.get(it.name) }.toMap()
@@ -97,8 +102,8 @@ private fun serializeResource(
         mapOf(
             "resources" to JsonObject(resourceBody.mapValues { (_, value) -> json.encodeToJsonElement(value) }),
             "functions" to JsonObject(functionBody.mapValues { (_, value) -> json.encodeToJsonElement(value) }),
-            "types" to JsonObject(types.toMap())
-        )
+            "types" to JsonObject(types.toMap()),
+        ),
     )
 
     return json.encodeToString(finalJsonObject)
@@ -106,7 +111,7 @@ private fun serializeResource(
 
 private data class PropertySpecs(
     val input: List<Resources.PropertySpecification>,
-    val output: List<Resources.PropertySpecification>
+    val output: List<Resources.PropertySpecification>,
 )
 
 private fun findCandidateEntities(
@@ -123,7 +128,7 @@ private fun findCandidateEntities(
             }
 
             CandidateEntity(name, referencedInputTypes, referencedOutputTypes)
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             CandidateEntity(name, emptyList(), emptyList())
         }
     }
@@ -131,7 +136,11 @@ private fun findCandidateEntities(
 
 private data class TypeAndDepth(val typeName: String, val depth: Int)
 
-private fun allReferencedTypes(types: TypesMap, spec: Resources.PropertySpecification, depth: Int = 0): List<TypeAndDepth> {
+private fun allReferencedTypes(
+    types: TypesMap,
+    spec: Resources.PropertySpecification,
+    depth: Int = 0,
+): List<TypeAndDepth> {
     return when (spec) {
         is Resources.ArrayProperty -> allReferencedTypes(types, spec.items, depth + 1)
         is Resources.MapProperty -> allReferencedTypes(types, spec.additionalProperties, depth + 1)
@@ -155,6 +164,5 @@ private fun allReferencedTypes(types: TypesMap, spec: Resources.PropertySpecific
         is Resources.BooleanProperty -> emptyList()
         is Resources.IntegerProperty -> emptyList()
         is Resources.NumberProperty -> emptyList()
-
     }
 }

@@ -1,7 +1,13 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.AutonomousType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.FunctionType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 import com.virtuslab.pulumikotlin.codegen.utils.Paths
 import java.io.File
 
@@ -10,7 +16,7 @@ data class GeneratorArguments(
     val sdkFilesToCopyPath: String = Paths.filesToCopyToSdkPath,
     val resources: List<ResourceType> = emptyList(),
     val functions: List<FunctionType> = emptyList(),
-    val options: GenerationOptions = GenerationOptions()
+    val options: GenerationOptions = GenerationOptions(),
 )
 
 object CodeGenerator {
@@ -25,10 +31,10 @@ object CodeGenerator {
                                 name,
                                 NormalField(type.type) { expr -> expr },
                                 type.required,
-                                overloads = emptyList()
+                                overloads = emptyList(),
                             )
                         },
-                        input.options
+                        input.options,
                     )
                 }
 
@@ -36,13 +42,16 @@ object CodeGenerator {
                     generateTypeWithNiceBuilders(
                         a.metadata,
                         a.fields.map { (name, type) ->
-                            Field(name, OutputWrappedField(type.type), type.required,
+                            Field(
+                                name,
+                                OutputWrappedField(type.type),
+                                type.required,
                                 listOf(
-                                    NormalField(type.type) { argument -> MoreTypes.Java.Pulumi.Output.of(argument) }
-                                )
+                                    NormalField(type.type) { argument -> MoreTypes.Java.Pulumi.Output.of(argument) },
+                                ),
                             )
                         },
-                        input.options
+                        input.options,
                     )
                 }
             }

@@ -1,10 +1,16 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.*
+import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.OK
 import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeAndOptionality
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -17,29 +23,31 @@ internal class GenerateTypeWithNiceBuildersTest {
             TypeMetadata(
                 PulumiName("aws", listOf("aws"), "FirstType"),
                 InputOrOutput.Input,
-                UseCharacteristic.ResourceNested
+                UseCharacteristic.ResourceNested,
             ),
 
             mapOf(
-                "field1" to TypeAndOptionality(PrimitiveType("String"), true)
-            )
+                "field1" to TypeAndOptionality(PrimitiveType("String"), true),
+            ),
         )
         val secondType = ComplexType(
             TypeMetadata(
                 PulumiName("aws", listOf("aws"), "SecondType"),
                 InputOrOutput.Input,
-                UseCharacteristic.ResourceNested
+                UseCharacteristic.ResourceNested,
             ),
             mapOf(
-                "field2" to TypeAndOptionality(firstType, true)
-            )
+                "field2" to TypeAndOptionality(firstType, true),
+            ),
         )
 
         val generationOptions = GenerationOptions(implementToJava = false, implementToKotlin = false)
-        val generatedFiles = CodeGenerator.run(GeneratorArguments(
-            types = listOf(firstType, secondType),
-            options = generationOptions
-        ))
+        val generatedFiles = CodeGenerator.run(
+            GeneratorArguments(
+                types = listOf(firstType, secondType),
+                options = generationOptions,
+            ),
+        )
 
         val files = generatedFiles.map {
             it.get()
@@ -62,13 +70,12 @@ internal class GenerateTypeWithNiceBuildersTest {
                         artifact("com.pulumi:pulumi:0.5.2"),
                         artifact("com.pulumi:aws:5.11.0-alpha.1658776797+e45bda97"),
                         artifact("com.google.code.findbugs:jsr305:3.0.2"),
-                        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.2")
+                        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.2"),
                     )
 
                     messageOutputStream = System.out
                 }
                 .compile()
-
 
         assertEquals(OK, compileResult.exitCode)
     }

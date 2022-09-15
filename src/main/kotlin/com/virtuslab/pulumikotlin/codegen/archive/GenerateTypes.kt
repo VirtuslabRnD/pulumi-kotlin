@@ -1,7 +1,10 @@
 package com.virtuslab.pulumikotlin.codegen.archive
 
-import com.squareup.kotlinpoet.*
-import com.virtuslab.pulumikotlin.codegen.archive.constructDataClass
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeSpec
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.TypesMap
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
@@ -31,12 +34,13 @@ fun generateType(type: ComplexType): FileSpec {
 
 fun generateTypes2(typesWithMetadata: List<TypeWithMetadata>): List<FileSpec> {
     return typesWithMetadata.mapNotNull { type ->
-        when(val o = type.type) {
+        when (val o = type.type) {
             is ComplexType -> generateType(o)
             else -> null
         }
     }
 }
+
 fun generateTypes(typesMap: TypesMap): List<FileSpec> {
     return typesMap.map { (name, spec) ->
         val fileName = fileNameForName(name)
@@ -49,15 +53,16 @@ fun generateTypes(typesMap: TypesMap): List<FileSpec> {
 
                 builder.addType(constructDataClass(className, spec)).build()
             }
+
             is Resources.StringEnumProperty -> {
                 val builder = FileSpec.builder(packageName, fileName)
 
                 val classB = TypeSpec.enumBuilder(className)
                     .primaryConstructor(
-                        FunSpec.constructorBuilder().addParameter("value", String::class).build()
+                        FunSpec.constructorBuilder().addParameter("value", String::class).build(),
                     )
                     .addProperty(
-                        PropertySpec.builder("value", String::class, KModifier.PRIVATE).initializer("value").build()
+                        PropertySpec.builder("value", String::class, KModifier.PRIVATE).initializer("value").build(),
                     )
 
                 spec.enum.forEach {
@@ -66,13 +71,14 @@ fun generateTypes(typesMap: TypesMap): List<FileSpec> {
                     } else {
                         classB.addEnumConstant(
                             it.name,
-                            TypeSpec.anonymousClassBuilder().addSuperclassConstructorParameter("%S", it.value).build()
+                            TypeSpec.anonymousClassBuilder().addSuperclassConstructorParameter("%S", it.value).build(),
                         )
                     }
                 }
 
                 builder.addType(classB.build()).build()
             }
+
             else -> error("unsupported")
         }
     }

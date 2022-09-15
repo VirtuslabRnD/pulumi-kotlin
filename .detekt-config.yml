@@ -1,0 +1,13 @@
+# default settings: https://github.com/detekt/detekt/blob/main/detekt-core/src/main/resources/default-detekt-config.yml
+
+output-reports:
+  active: true
+  exclude:
+    - 'XmlOutputReport'
+
+build:
+  maxIssues: 85 # TODO: Remove this setting after adjusting the codebase to Detekt
+
+style:
+  MagicNumber:
+    excludes: [ "**/test/**" ]

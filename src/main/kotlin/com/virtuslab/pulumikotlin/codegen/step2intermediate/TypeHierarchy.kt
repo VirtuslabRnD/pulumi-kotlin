@@ -1,7 +1,11 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ANY
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.LIST
+import com.squareup.kotlinpoet.MAP
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeName
 
 data class TypeMetadata(
     val pulumiName: PulumiName,
@@ -11,8 +15,8 @@ data class TypeMetadata(
 
     constructor(
         pulumiName: PulumiName,
-        usage: Usage
-    ): this(pulumiName, usage.inputOrOutput, usage.useCharacteristic)
+        usage: Usage,
+    ) : this(pulumiName, usage.inputOrOutput, usage.useCharacteristic)
 
     private fun namingFlags(language: LanguageType) =
         NamingFlags(inputOrOutput, useCharacteristic, language)
@@ -25,7 +29,7 @@ data class TypeMetadata(
 data class TypeWithMetadata(
     val metadata: TypeMetadata,
     val parent: Type,
-    val type: Type
+    val type: Type,
 )
 
 data class TypeAndOptionality(val type: Type, val required: Boolean)
@@ -34,30 +38,32 @@ sealed class Type {
     abstract fun toTypeName(languageType: LanguageType = LanguageType.Kotlin): TypeName
 }
 
-sealed class AutonomousType: Type() {
+sealed class AutonomousType : Type() {
     abstract val metadata: TypeMetadata
 
     abstract override fun toTypeName(languageType: LanguageType): ClassName
 }
 
-object AnyType: Type() {
+object AnyType : Type() {
     override fun toTypeName(languageType: LanguageType): TypeName {
         return ANY
     }
 }
 
-data class ComplexType(override val metadata: TypeMetadata, val fields: Map<String, TypeAndOptionality>) : AutonomousType() {
+data class ComplexType(override val metadata: TypeMetadata, val fields: Map<String, TypeAndOptionality>) :
+    AutonomousType() {
     override fun toTypeName(languageType: LanguageType): ClassName {
         val names = metadata.names(languageType)
         return ClassName(names.packageName, names.className)
     }
+
     fun toBuilderTypeName(): ClassName {
         val names = metadata.names(LanguageType.Kotlin)
         return ClassName(names.packageName, names.builderClassName)
     }
 }
 
-data class EnumType(override val metadata: TypeMetadata, val possibleValues: List<String>): AutonomousType() {
+data class EnumType(override val metadata: TypeMetadata, val possibleValues: List<String>) : AutonomousType() {
     override fun toTypeName(languageType: LanguageType): ClassName {
         val names = metadata.names(languageType)
         return ClassName(names.packageName, names.className)
@@ -73,12 +79,12 @@ data class ListType(val innerType: Type) : Type() {
 data class MapType(val firstType: Type, val secondType: Type) : Type() {
     override fun toTypeName(languageType: LanguageType): TypeName {
         return MAP.parameterizedBy(
-            listOf(firstType.toTypeName(languageType), secondType.toTypeName(languageType))
+            listOf(firstType.toTypeName(languageType), secondType.toTypeName(languageType)),
         )
     }
 }
 
-data class EitherType(val firstType: Type, val secondType: Type): Type() {
+data class EitherType(val firstType: Type, val secondType: Type) : Type() {
     override fun toTypeName(languageType: LanguageType): TypeName {
         return ANY // TODO: improve
     }

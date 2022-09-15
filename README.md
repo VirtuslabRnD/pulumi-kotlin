@@ -37,7 +37,6 @@ Example in `pulumi-aws-native` repo: [link](https://github.com/pulumi/pulumi-aws
     - The generated SDK allows to write an idiomatic Kotlin code (see [type-safe builders](https://kotlinlang.org/docs/type-safe-builders.html)). 
     - The generated SDK delegates all the work to Pulumi Java SDK.
 
-
 ## What is possible with Kotlin SDK? (code examples)
 
 ```kotlin
@@ -88,3 +87,7 @@ suspend fun main() {
     }
 }
 ```
+
+## Development
+
+Development guidelines can be found [here](https://github.com/VirtuslabRnD/jvm-lab/blob/main/README.md#development-standards-for-kotlin-repositories).

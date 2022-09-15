@@ -4,13 +4,13 @@ import com.pulumi.core.Output
 
 data class SomeOtherNestedArgs(
     val name: Output<String>,
-    val number: Output<Int>
+    val number: Output<Int>,
 )
 
 @PulumiTagMarker
 data class SomeOtherNestedArgsBuilder(
     private var name: Output<String>? = null,
-    private var number: Output<Int>? = null
+    private var number: Output<Int>? = null,
 ) {
     fun name(name: String) {
         this.name = Output.of(name)
@@ -25,14 +25,14 @@ data class SomeOtherNestedArgsBuilder(
     }
 }
 
-//fun someOtherNestedArgs(block: SomeOtherNestedArgsBuilder.() -> Unit): SomeOtherNestedArgs {
+// fun someOtherNestedArgs(block: SomeOtherNestedArgsBuilder.() -> Unit): SomeOtherNestedArgs {
 //    val builder = SomeOtherNestedArgsBuilder()
 //    builder.block()
 //    return builder.build()
-//}
+// }
 
-//fun SomeOtherArgsBuilder.someOtherNestedArgs(block: SomeOtherNestedArgsBuilder.() -> Unit) {
+// fun SomeOtherArgsBuilder.someOtherNestedArgs(block: SomeOtherNestedArgsBuilder.() -> Unit) {
 //    val builder = SomeOtherNestedArgsBuilder()
 //    builder.block()
 //    someOtherNestedArgs(builder.build())
-//}
+// }

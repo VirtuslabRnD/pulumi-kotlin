@@ -1,11 +1,28 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName.Companion.member
-import com.virtuslab.pulumikotlin.codegen.expressions.*
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.*
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.TypeSpec
+import com.virtuslab.pulumikotlin.codegen.expressions.Assignment
+import com.virtuslab.pulumikotlin.codegen.expressions.ConstructObjectExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.Expression
+import com.virtuslab.pulumikotlin.codegen.expressions.GroupedCode
+import com.virtuslab.pulumikotlin.codegen.expressions.Return
+import com.virtuslab.pulumikotlin.codegen.expressions.addCode
+import com.virtuslab.pulumikotlin.codegen.expressions.call0
+import com.virtuslab.pulumikotlin.codegen.expressions.invoke
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.FunctionType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
-
 
 private fun callAwaitAndDoTheMapping(functionType: FunctionType, argument: Expression): Return {
     val javaNamingFlags = NamingFlags(InputOrOutput.Input, UseCharacteristic.FunctionRoot, LanguageType.Java)
@@ -13,20 +30,19 @@ private fun callAwaitAndDoTheMapping(functionType: FunctionType, argument: Expre
     val toKotlin = functionType.outputType.toTypeName().nestedClass("Companion").member("toKotlin")
     val javaMethodGetName = ClassName(
         functionType.name.toFunctionGroupObjectPackage(javaNamingFlags),
-        functionType.name.toFunctionGroupObjectName(javaNamingFlags)
+        functionType.name.toFunctionGroupObjectName(javaNamingFlags),
     ).member(functionType.name.toFunctionName(javaNamingFlags))
-
 
     return Return(toKotlin(javaMethodGetName(argument.call0("toJava")).call0("await")))
 }
-fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
 
+fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
     val spec = FunSpec.builder(functionType.name.name)
         .addParameter("argument", functionType.argsType.toTypeName())
         .addModifiers(KModifier.SUSPEND)
         .returns(functionType.outputType.toTypeName())
         .addCode(
-            callAwaitAndDoTheMapping(functionType, CustomExpression("argument"))
+            callAwaitAndDoTheMapping(functionType, CustomExpression("argument")),
         )
         .build()
 
@@ -42,26 +58,30 @@ fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
                                     .defaultValue("null")
                             }
                             .build()
-                    }
+                    },
                 )
                 .addModifiers(KModifier.SUSPEND)
                 .returns(functionType.outputType.toTypeName())
                 .let {
-                    val assignment = Assignment("argument", ConstructObjectExpression(functionType.argsType.toTypeName(),
-                        parameters.map { (name, _) -> name to CustomExpression(name) }.toMap()
-                    ))
+                    val assignment = Assignment(
+                        "argument",
+                        ConstructObjectExpression(
+                            functionType.argsType.toTypeName(),
+                            parameters.map { (name, _) -> name to CustomExpression(name) }.toMap(),
+                        ),
+                    )
                     val returnCode = callAwaitAndDoTheMapping(functionType, assignment.reference())
 
                     it.addCode(
-                        GroupedCode(listOf(
-                            assignment,
-                            returnCode
-                        ))
+                        GroupedCode(
+                            listOf(
+                                assignment,
+                                returnCode,
+                            ),
+                        ),
                     )
                 }
                 .build()
-
-
         }
 
     val spec3 = (functionType.argsType as? ComplexType)?.let { args ->
@@ -77,27 +97,29 @@ fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
                 val builtArgumentAssignment = Assignment("builtArgument", CustomExpression("builder").call0("build"))
                 val returnArgument = callAwaitAndDoTheMapping(functionType, builtArgumentAssignment.reference())
 
-                val allCode = GroupedCode(listOf(
-                    builderAssignment,
-                    callArgument,
-                    builtArgumentAssignment,
-                    returnArgument
-                ))
+                val allCode = GroupedCode(
+                    listOf(
+                        builderAssignment,
+                        callArgument,
+                        builtArgumentAssignment,
+                        returnArgument,
+                    ),
+                )
 
                 builder.addCode(allCode)
             }
             .build()
     }
 
-        return listOfNotNull(spec, spec2, spec3)
+    return listOfNotNull(spec, spec2, spec3)
 }
 
 fun generateFunctions(functions: List<FunctionType>): List<FileSpec> {
     val namingFlags = NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
     val files = functions
         .groupBy { it.name.namespace }
-        .flatMap { (namespace, types) ->
-            val firstType = types.first() ?: return@flatMap emptyList()
+        .flatMap { (_, types) ->
+            val firstType = types.first()
             val name = firstType.name
 
             val objectSpecBuilder = TypeSpec.objectBuilder(name.toFunctionGroupObjectName(namingFlags))
@@ -110,7 +132,7 @@ fun generateFunctions(functions: List<FunctionType>): List<FileSpec> {
             val fileSpec = FileSpec
                 .builder(
                     name.toFunctionGroupObjectPackage(namingFlags),
-                    name.toFunctionGroupObjectName(namingFlags) + ".kt"
+                    name.toFunctionGroupObjectName(namingFlags) + ".kt",
                 )
                 .addType(objectSpecBuilder.build())
                 .addImport("kotlinx.coroutines.future", "await")

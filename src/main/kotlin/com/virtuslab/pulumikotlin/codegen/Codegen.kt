@@ -25,8 +25,8 @@ object Codegen {
             GeneratorArguments(
                 types = autonomousTypes,
                 resources = resourceTypes,
-                functions = functionTypes
-            )
+                functions = functionTypes,
+            ),
         )
 
         val tempDirectory = createTempDirectory()

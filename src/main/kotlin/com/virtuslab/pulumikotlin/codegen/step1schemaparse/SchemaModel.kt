@@ -2,7 +2,12 @@ package com.virtuslab.pulumikotlin.codegen.step1schemaparse
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 typealias TypesMap = Map<String, Resources.PropertySpecification>
 typealias FunctionsMap = Map<String, Function>
@@ -11,14 +16,14 @@ typealias ResourcesMap = Map<String, Resources.Resource>
 data class ParsedSchema(
     val types: TypesMap,
     val functions: FunctionsMap,
-    val resources: ResourcesMap
+    val resources: ResourcesMap,
 )
+
 object Resources {
 
     object PropertySpecificationSerializer :
         JsonContentPolymorphicSerializer<PropertySpecification>(PropertySpecification::class) {
         override fun selectDeserializer(element: JsonElement): KSerializer<out PropertySpecification> {
-
             fun hasTypeEqualTo(type: String) =
                 element is JsonObject && "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == type
 
@@ -41,7 +46,7 @@ object Resources {
                 hasTypeEqualTo("integer") -> IntegerProperty.serializer()
                 hasTypeEqualTo("number") -> NumberProperty.serializer()
                 else -> {
-                    error("Unknown ${element}")
+                    error("Unknown $element")
                 }
             }
         }
@@ -52,6 +57,10 @@ object Resources {
     value class Language(val map: Map<String, JsonElement>?)
 
     @Serializable
+    @Suppress(
+        "ktlint:enum-entry-name-case",
+        "EnumNaming",
+    ) // this enum reflects the possible field values in the Pulumi schema
     enum class PropertyType {
         array, string, `object`, boolean, integer, number
     }
@@ -59,7 +68,7 @@ object Resources {
     @Serializable
     @JvmInline
     value class PropertyName(
-        val value: String
+        val value: String,
     )
 
     @Serializable
@@ -68,7 +77,7 @@ object Resources {
         val value: String,
         val description: String? = null,
         val deprecationMessage: String? = null,
-        val default: JsonElement? = null
+        val default: JsonElement? = null,
     )
 
     @Serializable
@@ -79,7 +88,7 @@ object Resources {
         val willReplaceOnChanges: Boolean = false,
         val deprecationMessage: String? = null,
         val language: Language? = null,
-        val default: JsonElement? = null
+        val default: JsonElement? = null,
     ) : PropertySpecification()
 
     @Serializable
@@ -89,7 +98,7 @@ object Resources {
         val willReplaceOnChanges: Boolean = false,
         val deprecationMessage: String? = null,
         val language: Language? = null,
-        val default: JsonElement? = null
+        val default: JsonElement? = null,
     ) : PropertySpecification()
 
     @Serializable
@@ -99,7 +108,7 @@ object Resources {
         val willReplaceOnChanges: Boolean = false,
         val deprecationMessage: String? = null,
         val language: Language? = null,
-        val default: JsonElement? = null
+        val default: JsonElement? = null,
     ) : PropertySpecification()
 
     @Serializable
@@ -109,7 +118,7 @@ object Resources {
         val willReplaceOnChanges: Boolean = false,
         val deprecationMessage: String? = null,
         val language: Language? = null,
-        val default: JsonElement? = null
+        val default: JsonElement? = null,
     ) : PropertySpecification()
 
     @Serializable
@@ -119,7 +128,7 @@ object Resources {
         val deprecationMessage: String? = null,
         val description: String? = null,
         val language: Language? = null,
-        val default: JsonElement? = null
+        val default: JsonElement? = null,
     ) : PropertySpecification()
 
     @Serializable
@@ -130,7 +139,7 @@ object Resources {
         val deprecationMessage: String? = null,
         val description: String? = null,
         val language: Language? = null,
-        val default: JsonElement? = null
+        val default: JsonElement? = null,
     ) : PropertySpecification()
 
     @Serializable
@@ -141,7 +150,7 @@ object Resources {
         val deprecationMessage: String? = null,
         val description: String? = null,
         val language: Language? = null,
-        val default: JsonElement? = null
+        val default: JsonElement? = null,
     ) : PropertySpecification()
 
     @Serializable
@@ -153,7 +162,7 @@ object Resources {
         val language: Language? = null,
         val default: JsonElement? = null,
         val willReplaceOnChanges: Boolean = false,
-        ) : PropertySpecification()
+    ) : PropertySpecification()
 
     @Serializable
     data class ObjectProperty(
@@ -165,7 +174,7 @@ object Resources {
         val required: Set<PropertyName> = emptySet(),
         val description: String? = null,
         val language: Language? = null,
-        val default: JsonElement? = null
+        val default: JsonElement? = null,
     ) : PropertySpecification()
 
     @Serializable
@@ -196,13 +205,14 @@ object Resources {
         val requiredInputs: List<PropertyName> = emptyList(),
         val stateInputs: JsonObject? = null,
         val aliases: JsonArray? = null,
-        val deprecationMessage: String? = null
+        val deprecationMessage: String? = null,
     )
 }
 
 @Serializable
 data class Function(
-    val inputs: Resources.ObjectProperty? = null, val outputs: Resources.ObjectProperty,
+    val inputs: Resources.ObjectProperty? = null,
+    val outputs: Resources.ObjectProperty,
     val deprecationMessage: String? = null,
-    val description: String? = null
+    val description: String? = null,
 )
