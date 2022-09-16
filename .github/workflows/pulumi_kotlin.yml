@@ -16,7 +16,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Compile and test code
-        run: ./gradlew build -x check
+        run: ./gradlew build test -x check
   analyze:
     name: Analyze pulumi-kotlin
     runs-on: ubuntu-latest
