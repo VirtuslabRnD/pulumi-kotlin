@@ -9,8 +9,8 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.Fu
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.FunctionRoot
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.ResourceNested
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.ResourceRoot
-import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 import com.virtuslab.pulumikotlin.codegen.utils.capitalize
+import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 
 data class PulumiName(
     val providerName: String,
