@@ -23,6 +23,7 @@ import com.virtuslab.pulumikotlin.codegen.expressions.Assignment
 import com.virtuslab.pulumikotlin.codegen.expressions.Code
 import com.virtuslab.pulumikotlin.codegen.expressions.ConstructObjectExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpressionBuilder
 import com.virtuslab.pulumikotlin.codegen.expressions.Expression
 import com.virtuslab.pulumikotlin.codegen.expressions.FunctionExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.Return
@@ -82,14 +83,12 @@ fun toKotlinExpression(expression: Expression, type: Type): Expression {
         is EnumType -> type.toTypeName().member("toKotlin")(expression)
         is EitherType -> expression
         is ListType -> expression.callMap { args -> toKotlinExpression(args, type.innerType) }
-
         is MapType ->
             expression
                 .callMap { args ->
                     args.field("key").call1("to", toKotlinExpression(args.field("value"), type.secondType))
                 }
                 .call0("toMap")
-
         is PrimitiveType -> expression
     }
 }
@@ -118,11 +117,8 @@ fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpe
 
     val objectCreation = Return(ConstructObjectExpression(kotlinArgsClass, arguments))
 
-    return FunSpec.builder("toKotlin")
-        .returns(kotlinArgsClass)
-        .addParameter("javaType", javaArgsClass)
-        .addCode(objectCreation)
-        .build()
+    return FunSpec.builder("toKotlin").returns(kotlinArgsClass).addParameter("javaType", javaArgsClass)
+        .addCode(objectCreation).build()
 }
 
 fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
@@ -147,17 +143,12 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
     val names = typeMetadata.names(LanguageType.Java)
     val javaArgsClass = ClassName(names.packageName, names.className)
 
-    return FunSpec.builder("toJava")
-        .returns(javaArgsClass)
-        .addModifiers(OVERRIDE)
-        .addCode(CodeBlock.of("return %T.%M()", javaArgsClass, javaArgsClass.member("builder")))
-        .apply {
+    return FunSpec.builder("toJava").returns(javaArgsClass).addModifiers(OVERRIDE)
+        .addCode(CodeBlock.of("return %T.%M()", javaArgsClass, javaArgsClass.member("builder"))).apply {
             codeBlocks.forEach { block ->
                 addCode(block)
             }
-        }
-        .addCode(CodeBlock.of(".build()"))
-        .build()
+        }.addCode(CodeBlock.of(".build()")).build()
 }
 
 data class GenerationOptions(
@@ -182,36 +173,28 @@ fun generateTypeWithNiceBuilders(
 
     val dslTag = ClassName("com.pulumi.kotlin", "PulumiTagMarker")
 
-    val classB = TypeSpec.classBuilder(argsClassName)
-        .letIf(options.implementToJava) {
-            it.addSuperinterface(MoreTypes.Kotlin.Pulumi.ConvertibleToJava(typeMetadata.names(LanguageType.Java).kotlinPoetClassName))
-        }
-        .addModifiers(KModifier.DATA)
+    val classB = TypeSpec.classBuilder(argsClassName).letIf(options.implementToJava) {
+        it.addSuperinterface(MoreTypes.Kotlin.Pulumi.ConvertibleToJava(typeMetadata.names(LanguageType.Java).kotlinPoetClassName))
+    }.addModifiers(KModifier.DATA)
 
     val constructor = FunSpec.constructorBuilder()
 
     fields.forEach { field ->
         val isRequired = field.required
         val typeName = field.fieldType.toTypeName().copy(nullable = !isRequired)
-        classB
-            .addProperty(
-                PropertySpec.builder(field.name, typeName)
-                    .initializer(field.name)
-                    .build(),
-            )
+        classB.addProperty(
+            PropertySpec.builder(field.name, typeName).initializer(field.name).build(),
+        )
 
-        constructor
-            .addParameter(
-                ParameterSpec.builder(field.name, typeName)
-                    .let {
-                        if (!isRequired) {
-                            it.defaultValue("%L", null)
-                        } else {
-                            it
-                        }
-                    }
-                    .build(),
-            )
+        constructor.addParameter(
+            ParameterSpec.builder(field.name, typeName).let {
+                if (!isRequired) {
+                    it.defaultValue("%L", null)
+                } else {
+                    it
+                }
+            }.build(),
+        )
     }
 
     classB.primaryConstructor(constructor.build())
@@ -221,9 +204,7 @@ fun generateTypeWithNiceBuilders(
     }
     classB.letIf(options.implementToKotlin) {
         it.addType(
-            TypeSpec.companionObjectBuilder()
-                .addFunction(toKotlinFunction(typeMetadata, fields))
-                .build(),
+            TypeSpec.companionObjectBuilder().addFunction(toKotlinFunction(typeMetadata, fields)).build(),
         )
     }
     val argsClass = classB.build()
@@ -231,53 +212,32 @@ fun generateTypeWithNiceBuilders(
     val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
 
     val arguments = fields.associate {
-        val requiredPart = if (it.required) {
-            "!!"
-        } else {
-            ""
-        }
-        it.name to CustomExpressionBuilder.start("%N${requiredPart}", it.name).build()
+        val requiredPart = if (it.required) "!!" else ""
+        it.name to CustomExpressionBuilder.start("%N$requiredPart", it.name).build()
     }
 
-    val argsBuilderClass = TypeSpec
-        .classBuilder(argsBuilderClassName)
-        .addAnnotation(dslTag)
-        .addProperties(
-            fields.map {
-                PropertySpec
-                    .builder(it.name, it.fieldType.toTypeName().copy(nullable = true))
-                    .initializer("null")
-                    .mutable(true)
-                    .addModifiers(KModifier.PRIVATE)
-                    .build()
-            },
-        )
-        .addFunctions(
-            fields.flatMap { field ->
-                generateFunctionsForInput(field)
-            },
-        )
-        .addFunction(
-            FunSpec.builder("build")
-                .returns(argsClassName)
-                .addCode(Return(ConstructObjectExpression(argsClassName, arguments)))
-                .build()
-        )
-        .build()
+    val argsBuilderClass = TypeSpec.classBuilder(argsBuilderClassName).addAnnotation(dslTag).addProperties(
+        fields.map {
+            PropertySpec.builder(it.name, it.fieldType.toTypeName().copy(nullable = true)).initializer("null")
+                .mutable(true).addModifiers(KModifier.PRIVATE).build()
+        },
+    ).addFunctions(
+        fields.flatMap { field ->
+            generateFunctionsForInput(field)
+        },
+    ).addFunction(
+        FunSpec.builder("build").returns(argsClassName)
+            .addCode(Return(ConstructObjectExpression(argsClassName, arguments))).build(),
+    ).build()
 
-    fileSpec
-        .addImport("com.pulumi.kotlin", "applySuspend")
-        .addImport("com.pulumi.kotlin", "applyValue")
-        .addImport("com.pulumi.kotlin", "toJava")
-        .addImport("com.pulumi.kotlin", "toKotlin")
-        .let {
+    fileSpec.addImport("com.pulumi.kotlin", "applySuspend").addImport("com.pulumi.kotlin", "applyValue")
+        .addImport("com.pulumi.kotlin", "toJava").addImport("com.pulumi.kotlin", "toKotlin").let {
             if (options.shouldGenerateBuilders) {
                 it.addType(argsBuilderClass)
             } else {
                 it
             }
-        }
-        .addType(argsClass)
+        }.addType(argsClass)
 
     return fileSpec.build()
 }
@@ -294,12 +254,8 @@ private fun mappingCodeBlock(
     vararg args: Any?,
 ): CodeBlock {
     val expression = CustomExpression("toBeMapped").callLet(!required) { arg -> field.mappingCode(arg) }
-    return CodeBlock.builder()
-        .addStatement("val toBeMapped = $code", *args)
-        .add(Assignment("mapped", expression))
-        .addStatement("")
-        .addStatement("this.%N = mapped", name)
-        .build()
+    return CodeBlock.builder().addStatement("val toBeMapped = $code", *args).add(Assignment("mapped", expression))
+        .addStatement("").addStatement("this.%N = mapped", name).build()
 }
 
 fun listOfLambdas(innerType: TypeName): TypeName {
@@ -312,9 +268,7 @@ fun listOfLambdas(innerType: ComplexType): TypeName {
 
 fun builderLambda(innerType: ComplexType): TypeName = builderLambda(innerType.toBuilderTypeName())
 fun builderLambda(innerType: TypeName): TypeName {
-    return LambdaTypeName
-        .get(receiver = innerType, returnType = UNIT)
-        .copy(suspending = true)
+    return LambdaTypeName.get(receiver = innerType, returnType = UNIT).copy(suspending = true)
 }
 
 data class BuilderSettingCodeBlock(val mappingCode: MappingCode? = null, val code: String, val args: List<Any?>) {
@@ -326,16 +280,11 @@ data class BuilderSettingCodeBlock(val mappingCode: MappingCode? = null, val cod
     fun toCodeBlock(fieldToSetName: String): CodeBlock {
         val mc = mappingCode
         return if (mc != null) {
-            CodeBlock.builder()
-                .addStatement("val toBeMapped = $code", *args.toTypedArray())
-                .add(Assignment("mapped", mc(CustomExpression("toBeMapped"))))
-                .addStatement("")
-                .addStatement("this.%N = mapped", fieldToSetName)
-                .build()
+            CodeBlock.builder().addStatement("val toBeMapped = $code", *args.toTypedArray())
+                .add(Assignment("mapped", mc(CustomExpression("toBeMapped")))).addStatement("")
+                .addStatement("this.%N = mapped", fieldToSetName).build()
         } else {
-            CodeBlock.builder()
-                .addStatement("this.%N = $code", fieldToSetName, *args.toTypedArray())
-                .build()
+            CodeBlock.builder().addStatement("this.%N = $code", fieldToSetName, *args.toTypedArray()).build()
         }
     }
 
@@ -350,16 +299,11 @@ fun builderPattern(
     codeBlock: BuilderSettingCodeBlock,
     parameterModifiers: List<KModifier> = emptyList(),
 ): FunSpec {
-    return FunSpec
-        .builder(name)
-        .addModifiers(SUSPEND)
-        .addParameter(
-            "argument",
-            parameterType,
-            parameterModifiers,
-        )
-        .addCode(codeBlock.toCodeBlock(name))
-        .build()
+    return FunSpec.builder(name).addModifiers(SUSPEND).addParameter(
+        "argument",
+        parameterType,
+        parameterModifiers,
+    ).addCode(codeBlock.toCodeBlock(name)).build()
 }
 
 private fun FunSpec.Builder.preventJvmPlatformNameClash(): FunSpec.Builder {
@@ -391,12 +335,10 @@ private fun specialMethodsForList(
     val innerType = field.type.innerType
     val builderPattern = when (innerType) {
         is ComplexType -> {
-            val commonCodeBlock = BuilderSettingCodeBlock
-                .create(
-                    "argument.toList().map { %T().applySuspend{ it() }.build() }",
-                    innerType.toBuilderTypeName(),
-                )
-                .withMappingCode(field.mappingCode)
+            val commonCodeBlock = BuilderSettingCodeBlock.create(
+                "argument.toList().map { %T().applySuspend{ it() }.build() }",
+                innerType.toBuilderTypeName(),
+            ).withMappingCode(field.mappingCode)
 
             listOf(
                 builderPattern(name, listOfLambdas(innerType), commonCodeBlock),
@@ -408,12 +350,8 @@ private fun specialMethodsForList(
     }
 
     val justValuesPassedAsVarargArguments = listOf(
-        FunSpec
-            .builder(name)
-            .addModifiers(SUSPEND)
-            .addParameter("values", innerType.toTypeName(), VARARG)
-            .addCode(mappingCodeBlock(field, false, name, "values.toList()"))
-            .build(),
+        FunSpec.builder(name).addModifiers(SUSPEND).addParameter("values", innerType.toTypeName(), VARARG)
+            .addCode(mappingCodeBlock(field, false, name, "values.toList()")).build(),
     )
 
     return builderPattern + justValuesPassedAsVarargArguments
@@ -428,12 +366,10 @@ private fun specialMethodsForMap(
 
     val builderPattern = when (rightInnerType) {
         is ComplexType -> {
-            val commonCodeBlock = BuilderSettingCodeBlock
-                .create(
-                    "argument.toList().map { (left, right) -> left to %T().applySuspend{ right() }.build() }",
-                    rightInnerType.toBuilderTypeName(),
-                )
-                .withMappingCode(field.mappingCode)
+            val commonCodeBlock = BuilderSettingCodeBlock.create(
+                "argument.toList().map { (left, right) -> left to %T().applySuspend{ right() }.build() }",
+                rightInnerType.toBuilderTypeName(),
+            ).withMappingCode(field.mappingCode)
 
             listOf(
                 builderPattern(
@@ -449,15 +385,11 @@ private fun specialMethodsForMap(
     }
 
     val justValuesPassedAsVarargArguments = listOf(
-        FunSpec
-            .builder(name)
-            .addParameter(
-                "values",
-                MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()),
-                VARARG,
-            )
-            .addCode(mappingCodeBlock(field, false, name, "values.toMap()"))
-            .build(),
+        FunSpec.builder(name).addParameter(
+            "values",
+            MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()),
+            VARARG,
+        ).addCode(mappingCodeBlock(field, false, name, "values.toMap()")).build(),
     )
 
     return builderPattern + justValuesPassedAsVarargArguments
@@ -473,23 +405,16 @@ private fun generateFunctionsForInput(field: Field<*>): List<FunSpec> {
     val allFunctions = functionsForDefaultField + functionsForOverloads
 
     return allFunctions.map {
-        it
-            .toBuilder()
-            .preventJvmPlatformNameClash()
-            .build()
+        it.toBuilder().preventJvmPlatformNameClash().build()
     }
 }
 
 private fun generateFunctionsForInput2(name: String, required: Boolean, fieldType: FieldType<*>): List<FunSpec> {
     val functions = when (fieldType) {
         is NormalField -> {
-            val basicFunction =
-                FunSpec
-                    .builder(name)
-                    .addModifiers(SUSPEND)
-                    .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
-                    .addCode(mappingCodeBlock(fieldType, required, name, "value"))
-                    .build()
+            val basicFunction = FunSpec.builder(name).addModifiers(SUSPEND)
+                .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
+                .addCode(mappingCodeBlock(fieldType, required, name, "value")).build()
 
             val otherFunctions = when (fieldType.type) {
                 is ComplexType -> specialMethodsForComplexType(name, fieldType as NormalField<ComplexType>)
@@ -504,12 +429,9 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
         }
 
         is OutputWrappedField -> listOf(
-            FunSpec
-                .builder(name)
-                .addModifiers(SUSPEND)
+            FunSpec.builder(name).addModifiers(SUSPEND)
                 .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
-                .addCode("this.%N = value", name)
-                .build()
+                .addCode("this.%N = value", name).build(),
         )
     }
 

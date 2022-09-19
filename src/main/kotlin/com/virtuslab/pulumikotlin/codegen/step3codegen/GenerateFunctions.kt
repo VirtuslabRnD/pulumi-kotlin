@@ -33,7 +33,7 @@ private fun callAwaitAndDoTheMapping(functionType: FunctionType, argument: Expre
         functionType.name.toFunctionGroupObjectName(javaNamingFlags),
     ).member(functionType.name.toFunctionName(javaNamingFlags))
 
-    val calledJavaMethod = if(argument == null) {
+    val calledJavaMethod = if (argument == null) {
         javaMethodGetName()
     } else {
         javaMethodGetName(argument.call0("toJava"))
@@ -50,12 +50,12 @@ fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
         .addModifiers(KModifier.SUSPEND)
         .returns(functionType.outputType.toTypeName())
         .let {
-            val argumentExpression = if(hasAnyArguments) { CustomExpression("argument") } else { null }
-            it.addCode(callAwaitAndDoTheMapping(functionType, argumentExpression)),
+            val argumentExpression = if (hasAnyArguments) { CustomExpression("argument") } else { null }
+            it.addCode(callAwaitAndDoTheMapping(functionType, argumentExpression))
         }
         .build()
 
-    if(!hasAnyArguments) {
+    if (!hasAnyArguments) {
         return listOf(basicFunSpec)
     }
 
