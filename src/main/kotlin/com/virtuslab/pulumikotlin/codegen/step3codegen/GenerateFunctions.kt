@@ -41,7 +41,7 @@ private fun callAwaitAndDoTheMapping(functionType: FunctionType, argument: Expre
     return Return(toKotlin(calledJavaMethod.call0("await")))
 }
 fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
-    val hasAnyArguments = (functionType.argsType as? ComplexType)?.fields?.keys?.isNotEmpty() ?: true
+    val hasAnyArguments = (functionType.argsType as? ComplexType)?.fields?.isNotEmpty() ?: true
 
     val basicFunSpec = FunSpec.builder(functionType.name.name)
         .letIf(hasAnyArguments) {
