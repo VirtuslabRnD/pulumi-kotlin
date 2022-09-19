@@ -175,7 +175,7 @@ fun generateTypeWithNiceBuilders(
 
     val fileSpec = FileSpec.builder(
         names.packageName,
-        names.className + ".kt",
+        names.className,
     )
 
     val argsClassName = ClassName(names.packageName, names.className)

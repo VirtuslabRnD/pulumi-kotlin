@@ -49,6 +49,6 @@ class InMemoryGeneratedFile(private val fileSpec: FileSpec) : WriteableFile {
         OutputStreamWriter(outputStream).use {
             fileSpec.writeTo(it)
         }
-        return fileSpec.name
+        return "${fileSpec.name}.kt"
     }
 }
