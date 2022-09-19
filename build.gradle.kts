@@ -2,16 +2,18 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     application
-    kotlin("jvm") version "1.7.0"
+    kotlin("jvm")
     kotlin("plugin.serialization") version "1.7.0"
     id("org.jmailen.kotlinter") version "3.12.0"
     id("io.gitlab.arturbosch.detekt") version "1.21.0"
+    id("code-generation")
 }
 
-group = "org.example"
+group = "com.pulumi"
 version = "1.0-SNAPSHOT"
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -45,6 +47,10 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+tasks.withType<Jar> {
+    archiveBaseName.set("${project.rootProject.name}-generator")
+}
+
 kotlinter {
     reporters = arrayOf("html", "plain")
 }
@@ -52,4 +58,20 @@ kotlinter {
 detekt {
     buildUponDefaultConfig = true
     config = files("$projectDir/.detekt-config.yml")
+}
+
+val schemaMap = mapOf(
+    "aws" to "src/main/resources/aws-schema.json",
+    "gcp" to "src/main/resources/gcp-schema.json",
+)
+
+val createTasksForProvider: (String, String, String) -> Unit by extra
+
+schemaMap.forEach { (provider, schemaPath) ->
+    createTasksForProvider("build/generated-src", provider, schemaPath)
+}
+
+dependencies {
+    "generatedAwsImplementation"("com.pulumi:aws:5.11.0-alpha.1658776797+e45bda97")
+    "generatedGcpImplementation"("com.pulumi:gcp:6.38.0-alpha.1663342915+e285d89c")
 }
