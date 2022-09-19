@@ -353,7 +353,6 @@ fun builderPattern(
     return FunSpec
         .builder(name)
         .addModifiers(SUSPEND)
-//        .preventJvmPlatformNameClash()
         .addParameter(
             "argument",
             parameterType,

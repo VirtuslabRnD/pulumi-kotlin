@@ -4,17 +4,12 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.LIST
 import com.squareup.kotlinpoet.LambdaTypeName
-import com.squareup.kotlinpoet.MAP
 import com.squareup.kotlinpoet.MemberName.Companion.member
-import com.squareup.kotlinpoet.ParameterizedTypeName
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
-import com.virtuslab.pulumikotlin.codegen.archive.referenceName
 import com.virtuslab.pulumikotlin.codegen.expressions.Code
 import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.Expression
@@ -27,7 +22,6 @@ import com.virtuslab.pulumikotlin.codegen.expressions.callMap
 import com.virtuslab.pulumikotlin.codegen.expressions.field
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.expressions.pairWith
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
@@ -235,69 +229,6 @@ fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType
         .addType(resourceClass)
         .addImport("com.pulumi.kotlin", "toKotlin")
         .addFunction(resourceFunction)
-}
-
-private fun generateFunctionsForInput(
-    name: Resources.PropertyName,
-    spec: Resources.PropertySpecification,
-): List<FunSpec> {
-    return buildList {
-        val ref = referenceName(spec)
-        add(
-            FunSpec
-                .builder(name.value)
-                .addParameter("value", PulumiClassesAndMembers.output.parameterizedBy(ref).copy(nullable = true))
-                .addCode("this.${name.value} = value")
-                .build(),
-        )
-        add(
-            FunSpec
-                .builder(name.value)
-                .addParameter("value", ref.copy(nullable = true))
-                .addCode(
-                    "this.${name.value} = value?.let { %T.%M(value) }",
-                    PulumiClassesAndMembers.output,
-                    PulumiClassesAndMembers.outputOf,
-                )
-                .build(),
-        )
-        if (ref is ParameterizedTypeName) {
-            when (ref.rawType) {
-                LIST ->
-                    add(
-                        FunSpec
-                            .builder(name.value)
-                            .addParameter("values", ref.typeArguments.get(0), KModifier.VARARG)
-                            .addCode(
-                                "this.${name.value} = values.toList().let { %T.%M(it) }",
-                                PulumiClassesAndMembers.output,
-                                PulumiClassesAndMembers.outputOf,
-                            )
-                            .build(),
-                    )
-
-                MAP ->
-                    add(
-                        FunSpec
-                            .builder(name.value)
-                            .addParameter(
-                                "values",
-                                ClassName("kotlin", "Pair").parameterizedBy(
-                                    ref.typeArguments.get(0),
-                                    ref.typeArguments.get(1),
-                                ),
-                                KModifier.VARARG,
-                            )
-                            .addCode(
-                                "this.${name.value} = values.toList().toMap().let { %T.%M(it) }",
-                                PulumiClassesAndMembers.output,
-                                PulumiClassesAndMembers.outputOf,
-                            )
-                            .build(),
-                    )
-            }
-        }
-    }
 }
 
 fun generateResources(resources: List<ResourceType>): List<FileSpec> {
