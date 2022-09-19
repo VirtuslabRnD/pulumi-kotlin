@@ -132,7 +132,7 @@ fun generateFunctions(functions: List<FunctionType>): List<FileSpec> {
             val fileSpec = FileSpec
                 .builder(
                     name.toFunctionGroupObjectPackage(namingFlags),
-                    name.toFunctionGroupObjectName(namingFlags) + ".kt",
+                    name.toFunctionGroupObjectName(namingFlags),
                 )
                 .addType(objectSpecBuilder.build())
                 .addImport("kotlinx.coroutines.future", "await")

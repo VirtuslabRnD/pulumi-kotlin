@@ -247,7 +247,7 @@ fun generateResources(resources: List<ResourceType>): List<FileSpec> {
                     UseCharacteristic.ResourceRoot,
                     LanguageType.Kotlin,
                 ),
-            ) + ".kt",
+            ),
         )
 
         buildArgsClass(file, type)
