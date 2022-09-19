@@ -42,6 +42,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Type
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 
 object PulumiClassesAndMembers {
     val output = MoreTypes.Java.Pulumi.Output()
