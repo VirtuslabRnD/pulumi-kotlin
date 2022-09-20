@@ -499,7 +499,8 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
                 .builder(name)
                 .addModifiers(SUSPEND)
                 .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
-                .addCode("this.%N = value", name).build(),
+                .addCode("this.%N = value", name)
+                .build(),
         )
     }
 
