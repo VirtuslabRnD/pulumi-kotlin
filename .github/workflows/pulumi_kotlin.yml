@@ -1,0 +1,45 @@
+name: Compile, analyze, and test pulumi-kotlin
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  compile-and-test:
+    name: Compile and test pulumi-kotlin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v2
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Compile and test code
+        run: ./gradlew build test -x check
+  analyze:
+    name: Analyze pulumi-kotlin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v2
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Run Ktlint
+        run: ./gradlew lintKotlin
+      - name: Upload Ktlint report
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ktlint-report
+          path: ./build/reports/ktlint/*.html
+          retention-days: 3
+      - name: Run Detekt
+        run: ./gradlew detekt
+      - name: Upload Detekt report
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: detekt-report
+          path: ./build/reports/detekt/*.html
+          retention-days: 3
