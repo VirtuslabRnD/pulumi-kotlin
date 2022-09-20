@@ -5,6 +5,7 @@ import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.OK
 import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.FunctionType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
@@ -16,36 +17,44 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
-internal class GenerateTypeWithNiceBuildersTest {
+internal class CodeGeneratorGenerateFunctionsTest {
 
     @Test
-    fun `generated kotlin files for some handcrafted types should compile`() {
-        val firstType = ComplexType(
+    fun `generated kotlin files for some handcrafted functions should compile`() {
+        val inputType = ComplexType(
             TypeMetadata(
-                PulumiName("aws", listOf("aws"), "FirstType"),
+                PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
                 InputOrOutput.Input,
-                UseCharacteristic.ResourceNested,
+                UseCharacteristic.FunctionRoot,
             ),
 
             mapOf(
-                "field1" to TypeAndOptionality(PrimitiveType("String"), true),
+                "arn" to TypeAndOptionality(PrimitiveType("String"), true),
             ),
         )
-        val secondType = ComplexType(
+        val outputType = ComplexType(
             TypeMetadata(
-                PulumiName("aws", listOf("aws"), "SecondType"),
-                InputOrOutput.Input,
-                UseCharacteristic.ResourceNested,
+                PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
+                InputOrOutput.Output,
+                UseCharacteristic.FunctionRoot,
             ),
+
             mapOf(
-                "field2" to TypeAndOptionality(firstType, true),
+                "arn" to TypeAndOptionality(PrimitiveType("String"), true),
             ),
+        )
+        val function = FunctionType(
+            PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
+            inputType,
+            outputType,
         )
 
-        val generationOptions = TypesGenerator.GenerationOptions(implementToJava = false, implementToKotlin = false)
+        val generationOptions = TypesGenerator.GenerationOptions()
         val generatedFiles = CodeGenerator.run(
             GeneratorArguments(
-                types = listOf(firstType, secondType),
+                types = listOf(inputType, outputType),
+                resources = emptyList(),
+                functions = listOf(function),
                 options = generationOptions,
             ),
         )
@@ -59,7 +68,12 @@ internal class GenerateTypeWithNiceBuildersTest {
         }
 
         val sourceFiles = files.map { (name, contents) ->
-            SourceFile.kotlin(name, contents)
+            try {
+                SourceFile.kotlin(name, contents)
+            } catch (e: Exception) {
+                println("Failure for $name: $contents")
+                throw e
+            }
         }
 
         val compileResult =
