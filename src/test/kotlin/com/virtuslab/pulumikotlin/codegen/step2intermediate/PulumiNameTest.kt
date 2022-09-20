@@ -8,19 +8,19 @@ import org.junit.jupiter.params.provider.EnumSource
 internal class PulumiNameTest {
 
     enum class ValidNameCase(val inputName: String, val expectedPulumiName: PulumiName) {
-        Case1TypeName(
+        TypeName(
             "aws:acm/CertificateOptions:CertificateOptions",
             PulumiName("aws", listOf("acm"), "CertificateOptions"),
         ),
-        Case2ResourceName(
+        ResourceName(
             "aws:acm/certificate:Certificate",
             PulumiName("aws", listOf("acm"), "Certificate"),
         ),
-        Case3FunctionName(
+        FunctionName(
             "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
             PulumiName("aws", listOf("acmpca"), "getCertificateAuthority"),
         ),
-        Case4LongFunctionName(
+        LongFunctionName(
             "aws:acmpca/getCertificateAuthorityRevocationConfigurationCrlConfiguration:getCertificateAuthorityRevocationConfigurationCrlConfiguration",
             PulumiName("aws", listOf("acmpca"), "getCertificateAuthorityRevocationConfigurationCrlConfiguration"),
         ),
