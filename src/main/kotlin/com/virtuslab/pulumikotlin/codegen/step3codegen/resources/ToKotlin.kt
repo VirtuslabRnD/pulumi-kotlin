@@ -46,7 +46,7 @@ object ToKotlin {
             is ListType -> expression.callMap(optional) { argument ->
                 toKotlinExpressionResource(
                     argument,
-                    type.innerType
+                    type.innerType,
                 )
             }
 

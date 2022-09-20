@@ -5,38 +5,18 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
-import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
-import com.virtuslab.pulumikotlin.codegen.expressions.Code
-import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
-import com.virtuslab.pulumikotlin.codegen.expressions.Expression
-import com.virtuslab.pulumikotlin.codegen.expressions.Return
 import com.virtuslab.pulumikotlin.codegen.expressions.addCode
-import com.virtuslab.pulumikotlin.codegen.expressions.call0
-import com.virtuslab.pulumikotlin.codegen.expressions.callApplyValue
-import com.virtuslab.pulumikotlin.codegen.expressions.callLet
-import com.virtuslab.pulumikotlin.codegen.expressions.callMap
-import com.virtuslab.pulumikotlin.codegen.expressions.field
-import com.virtuslab.pulumikotlin.codegen.expressions.invoke
-import com.virtuslab.pulumikotlin.codegen.expressions.pairWith
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.Type
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
-import com.virtuslab.pulumikotlin.codegen.step3codegen.KeywordsEscaper
 import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ToKotlin.toKotlinFunctionResource
 import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 
@@ -218,10 +198,5 @@ object ResourcesGenerator {
             .addType(resourceClass)
             .addImport("com.pulumi.kotlin", "toKotlin")
             .addFunction(resourceFunction)
-    }
-
-    private object PulumiClassesAndMembers {
-        val output = MoreTypes.Java.Pulumi.Output()
-        val outputOf = output.member("of")
     }
 }

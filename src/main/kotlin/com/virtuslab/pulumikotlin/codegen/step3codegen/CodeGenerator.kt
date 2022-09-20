@@ -11,11 +11,11 @@ import com.virtuslab.pulumikotlin.codegen.utils.Paths
 import java.io.File
 
 data class GeneratorArguments(
-        val types: List<AutonomousType>,
-        val sdkFilesToCopyPath: String = Paths.filesToCopyToSdkPath,
-        val resources: List<ResourceType> = emptyList(),
-        val functions: List<FunctionType> = emptyList(),
-        val featureFlags: FeatureFlags = FeatureFlags(),
+    val types: List<AutonomousType>,
+    val sdkFilesToCopyPath: String = Paths.filesToCopyToSdkPath,
+    val resources: List<ResourceType> = emptyList(),
+    val functions: List<FunctionType> = emptyList(),
+    val featureFlags: FeatureFlags = FeatureFlags(),
 )
 
 object CodeGenerator {
@@ -28,9 +28,9 @@ object CodeGenerator {
         val allGeneratedFiles = allGeneratedFileSpecs.map { InMemoryGeneratedFile(it) }
 
         val existingFiles = File(input.sdkFilesToCopyPath)
-                .listFiles()
-                .orEmpty()
-                .map { ExistingFile(it.absolutePath, withPulumiPackagePrefix(it)) }
+            .listFiles()
+            .orEmpty()
+            .map { ExistingFile(it.absolutePath, withPulumiPackagePrefix(it)) }
 
         return allGeneratedFiles + existingFiles
     }
