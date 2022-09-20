@@ -49,13 +49,13 @@ internal class GenerateFunctionsTest {
             outputType,
         )
 
-        val generationOptions = TypesGenerator.FeatureFlags()
+        val generationOptions = TypesGenerator.GenerationOptions()
         val generatedFiles = CodeGenerator.run(
             GeneratorArguments(
                 types = listOf(inputType, outputType),
                 resources = emptyList(),
                 functions = listOf(function),
-                featureFlags = generationOptions,
+                options = generationOptions,
             ),
         )
 

@@ -42,11 +42,11 @@ internal class GenerateTypeWithNiceBuildersTest {
             ),
         )
 
-        val generationOptions = TypesGenerator.FeatureFlags(implementToJava = false, implementToKotlin = false)
+        val generationOptions = TypesGenerator.GenerationOptions(implementToJava = false, implementToKotlin = false)
         val generatedFiles = CodeGenerator.run(
             GeneratorArguments(
                 types = listOf(firstType, secondType),
-                featureFlags = generationOptions,
+                options = generationOptions,
             ),
         )
 

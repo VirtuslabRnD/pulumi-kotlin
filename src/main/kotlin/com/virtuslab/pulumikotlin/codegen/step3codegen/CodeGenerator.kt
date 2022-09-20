@@ -6,7 +6,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.functions.FunctionsGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ResourcesGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypesGenerator
-import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypesGenerator.FeatureFlags
+import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypesGenerator.GenerationOptions
 import com.virtuslab.pulumikotlin.codegen.utils.Paths
 import java.io.File
 
@@ -15,12 +15,12 @@ data class GeneratorArguments(
     val sdkFilesToCopyPath: String = Paths.filesToCopyToSdkPath,
     val resources: List<ResourceType> = emptyList(),
     val functions: List<FunctionType> = emptyList(),
-    val featureFlags: FeatureFlags = FeatureFlags(),
+    val options: GenerationOptions = GenerationOptions(),
 )
 
 object CodeGenerator {
     fun run(input: GeneratorArguments): List<WriteableFile> {
-        val generatedTypes = TypesGenerator.generateTypes(input.types, input.featureFlags)
+        val generatedTypes = TypesGenerator.generateTypes(input.types, input.options)
         val generatedResources = ResourcesGenerator.generateResources(input.resources)
         val generatedFunctions = FunctionsGenerator.generateFunctions(input.functions)
 

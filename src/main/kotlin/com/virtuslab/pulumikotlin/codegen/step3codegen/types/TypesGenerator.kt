@@ -40,7 +40,7 @@ import java.util.Random
 import kotlin.streams.asSequence
 
 object TypesGenerator {
-    data class FeatureFlags(
+    data class GenerationOptions(
         val shouldGenerateBuilders: Boolean = true,
         val implementToJava: Boolean = true,
         val implementToKotlin: Boolean = true,
@@ -48,7 +48,7 @@ object TypesGenerator {
 
     fun generateTypes(
         types: List<AutonomousType>,
-        featureFlags: FeatureFlags = FeatureFlags(),
+        generationOptions: GenerationOptions = GenerationOptions(),
     ): List<FileSpec> {
         val generatedTypes = types.filterIsInstance<ComplexType>().map { type ->
             val isFunctionNested = type.metadata.useCharacteristic.toNested() == UseCharacteristic.FunctionNested
@@ -77,7 +77,7 @@ object TypesGenerator {
                 }
             }
 
-            generateType(type.metadata, fields, featureFlags)
+            generateType(type.metadata, fields, generationOptions)
         }
 
         return generatedTypes
@@ -86,7 +86,7 @@ object TypesGenerator {
     private fun generateType(
         typeMetadata: TypeMetadata,
         fields: List<Field<*>>,
-        options: FeatureFlags = FeatureFlags(),
+        options: GenerationOptions = GenerationOptions(),
     ): FileSpec {
         val names = typeMetadata.names(LanguageType.Kotlin)
 
