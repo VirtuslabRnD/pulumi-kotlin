@@ -23,6 +23,7 @@ import com.virtuslab.pulumikotlin.codegen.expressions.Assignment
 import com.virtuslab.pulumikotlin.codegen.expressions.Code
 import com.virtuslab.pulumikotlin.codegen.expressions.ConstructObjectExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpressionBuilder
 import com.virtuslab.pulumikotlin.codegen.expressions.Expression
 import com.virtuslab.pulumikotlin.codegen.expressions.FunctionExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.Return
@@ -41,6 +42,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.ConvertibleToJava
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Type
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
@@ -82,7 +84,6 @@ fun toKotlinExpression(expression: Expression, type: Type): Expression {
         is EnumType -> type.toTypeName().member("toKotlin")(expression)
         is EitherType -> expression
         is ListType -> expression.callMap { args -> toKotlinExpression(args, type.innerType) }
-
         is MapType ->
             expression
                 .callMap { args ->
@@ -152,9 +153,7 @@ fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec 
         .addModifiers(OVERRIDE)
         .addCode(CodeBlock.of("return %T.%M()", javaArgsClass, javaArgsClass.member("builder")))
         .apply {
-            codeBlocks.forEach { block ->
-                addCode(block)
-            }
+            codeBlocks.forEach { block -> addCode(block) }
         }
         .addCode(CodeBlock.of(".build()"))
         .build()
@@ -184,7 +183,8 @@ fun generateTypeWithNiceBuilders(
 
     val classB = TypeSpec.classBuilder(argsClassName)
         .letIf(options.implementToJava) {
-            it.addSuperinterface(MoreTypes.Kotlin.Pulumi.ConvertibleToJava(typeMetadata.names(LanguageType.Java).kotlinPoetClassName))
+            val convertibleToJava = ConvertibleToJava(typeMetadata.names(LanguageType.Java).kotlinPoetClassName)
+            it.addSuperinterface(convertibleToJava)
         }
         .addModifiers(KModifier.DATA)
 
@@ -193,25 +193,19 @@ fun generateTypeWithNiceBuilders(
     fields.forEach { field ->
         val isRequired = field.required
         val typeName = field.fieldType.toTypeName().copy(nullable = !isRequired)
-        classB
-            .addProperty(
-                PropertySpec.builder(field.name, typeName)
-                    .initializer(field.name)
-                    .build(),
-            )
+        classB.addProperty(
+            PropertySpec.builder(field.name, typeName)
+                .initializer(field.name)
+                .build(),
+        )
 
-        constructor
-            .addParameter(
-                ParameterSpec.builder(field.name, typeName)
-                    .let {
-                        if (!isRequired) {
-                            it.defaultValue("%L", null)
-                        } else {
-                            it
-                        }
-                    }
-                    .build(),
-            )
+        constructor.addParameter(
+            ParameterSpec.builder(field.name, typeName)
+                .letIf(!isRequired) {
+                    it.defaultValue("%L", null)
+                }
+                .build(),
+        )
     }
 
     classB.primaryConstructor(constructor.build())
@@ -230,13 +224,9 @@ fun generateTypeWithNiceBuilders(
 
     val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
 
-    val argNames = fields.joinToString(", ") {
-        val requiredPart = if (it.required) {
-            "!!"
-        } else {
-            ""
-        }
-        "${it.name} = ${it.name}$requiredPart"
+    val arguments = fields.associate {
+        val requiredPart = if (it.required) "!!" else ""
+        it.name to CustomExpressionBuilder.start("%N$requiredPart", it.name).build()
     }
 
     val argsBuilderClass = TypeSpec
@@ -260,7 +250,7 @@ fun generateTypeWithNiceBuilders(
         .addFunction(
             FunSpec.builder("build")
                 .returns(argsClassName)
-                .addCode("return %T($argNames)", argsClassName)
+                .addCode(Return(ConstructObjectExpression(argsClassName, arguments)))
                 .build(),
         )
         .build()
@@ -298,7 +288,7 @@ private fun mappingCodeBlock(
         .addStatement("val toBeMapped = $code", *args)
         .add(Assignment("mapped", expression))
         .addStatement("")
-        .addStatement("this.$name = mapped")
+        .addStatement("this.%N = mapped", name)
         .build()
 }
 
@@ -330,11 +320,11 @@ data class BuilderSettingCodeBlock(val mappingCode: MappingCode? = null, val cod
                 .addStatement("val toBeMapped = $code", *args.toTypedArray())
                 .add(Assignment("mapped", mc(CustomExpression("toBeMapped"))))
                 .addStatement("")
-                .addStatement("this.$fieldToSetName = mapped")
+                .addStatement("this.%N = mapped", fieldToSetName)
                 .build()
         } else {
             CodeBlock.builder()
-                .addStatement("this.$fieldToSetName = $code", *args.toTypedArray())
+                .addStatement("this.%N = $code", fieldToSetName, *args.toTypedArray())
                 .build()
         }
     }
@@ -378,7 +368,8 @@ private fun specialMethodsForComplexType(
         builderPattern(
             name,
             builderLambda(builderTypeName),
-            BuilderSettingCodeBlock.create("%T().applySuspend{ argument() }.build()", builderTypeName)
+            BuilderSettingCodeBlock
+                .create("%T().applySuspend{ argument() }.build()", builderTypeName)
                 .withMappingCode(field.mappingCode),
         ),
     )
@@ -508,7 +499,7 @@ private fun generateFunctionsForInput2(name: String, required: Boolean, fieldTyp
                 .builder(name)
                 .addModifiers(SUSPEND)
                 .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
-                .addCode("this.$name = value")
+                .addCode("this.%N = value", name)
                 .build(),
         )
     }
