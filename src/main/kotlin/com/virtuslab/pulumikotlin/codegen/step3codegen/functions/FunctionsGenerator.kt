@@ -56,7 +56,7 @@ object FunctionsGenerator {
         return files
     }
 
-    private fun callAwaitAndDoTheMapping(functionType: FunctionType, argument: Expression): Return {
+    private fun callAwaitAndDoTheMapping(functionType: FunctionType, argument: Expression?): Return {
         val javaNamingFlags = NamingFlags(InputOrOutput.Input, UseCharacteristic.FunctionRoot, LanguageType.Java)
 
         val toKotlin = functionType.outputType.toTypeName().nestedClass("Companion").member("toKotlin")
@@ -65,20 +65,38 @@ object FunctionsGenerator {
             functionType.name.toFunctionGroupObjectName(javaNamingFlags),
         ).member(functionType.name.toFunctionName(javaNamingFlags))
 
-        return Return(toKotlin(javaMethodGetName(argument.call0("toJava")).call0("await")))
+        val calledJavaMethod = if (argument == null) {
+            javaMethodGetName()
+        } else {
+            javaMethodGetName(argument.call0("toJava"))
+        }
+        return Return(toKotlin(calledJavaMethod.call0("await")))
     }
 
     private fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
-        val spec = FunSpec.builder(functionType.name.name)
-            .addParameter("argument", functionType.argsType.toTypeName())
+        val hasAnyArguments = (functionType.argsType as? ComplexType)?.fields?.isNotEmpty() ?: true
+
+        val basicFunSpec = FunSpec.builder(functionType.name.name)
+            .letIf(hasAnyArguments) {
+                it.addParameter("argument", functionType.argsType.toTypeName())
+            }
             .addModifiers(KModifier.SUSPEND)
             .returns(functionType.outputType.toTypeName())
-            .addCode(
-                callAwaitAndDoTheMapping(functionType, CustomExpression("argument")),
-            )
+            .let {
+                val argumentExpression = if (hasAnyArguments) {
+                    CustomExpression("argument")
+                } else {
+                    null
+                }
+                it.addCode(callAwaitAndDoTheMapping(functionType, argumentExpression))
+            }
             .build()
 
-        val spec2 = (functionType.argsType as? ComplexType)
+        if (!hasAnyArguments) {
+            return listOf(basicFunSpec)
+        }
+
+        val separateArgumentsOverloadFunSpec = (functionType.argsType as? ComplexType)
             ?.fields
             ?.let { parameters ->
                 FunSpec.builder(functionType.name.name)
@@ -116,7 +134,7 @@ object FunctionsGenerator {
                     .build()
             }
 
-        val spec3 = (functionType.argsType as? ComplexType)?.let { args ->
+        val typeSafeBuilderOverloadFunSpec = (functionType.argsType as? ComplexType)?.let { args ->
             FunSpec.builder(functionType.name.name)
                 .addParameter("argument", builderLambda(args.toBuilderTypeName()))
                 .addModifiers(KModifier.SUSPEND)
@@ -144,6 +162,6 @@ object FunctionsGenerator {
                 .build()
         }
 
-        return listOfNotNull(spec, spec2, spec3)
+        return listOfNotNull(basicFunSpec, separateArgumentsOverloadFunSpec, typeSafeBuilderOverloadFunSpec)
     }
 }
