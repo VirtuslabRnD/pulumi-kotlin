@@ -9,12 +9,13 @@ import com.squareup.kotlinpoet.UNIT
 import com.virtuslab.pulumikotlin.codegen.expressions.Assignment
 import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.Expression
+import com.virtuslab.pulumikotlin.codegen.expressions.add
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
-import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypesGenerator.add
 
 typealias MappingCode = (Expression) -> Expression
 
 object KotlinPoetPatterns {
+
     fun listOfLambdas(innerType: TypeName): TypeName =
         LIST.parameterizedBy(builderLambda(innerType))
 

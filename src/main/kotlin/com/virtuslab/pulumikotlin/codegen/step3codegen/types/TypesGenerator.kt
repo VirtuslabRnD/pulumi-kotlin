@@ -13,8 +13,12 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.virtuslab.pulumikotlin.codegen.expressions.Assignment
-import com.virtuslab.pulumikotlin.codegen.expressions.Code
+import com.virtuslab.pulumikotlin.codegen.expressions.ConstructObjectExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpressionBuilder
+import com.virtuslab.pulumikotlin.codegen.expressions.Return
+import com.virtuslab.pulumikotlin.codegen.expressions.add
+import com.virtuslab.pulumikotlin.codegen.expressions.addCode
 import com.virtuslab.pulumikotlin.codegen.expressions.callLet
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AutonomousType
@@ -25,6 +29,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.ConvertibleToJava
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
@@ -35,6 +40,8 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builde
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.listOfLambdas
 import com.virtuslab.pulumikotlin.codegen.step3codegen.NormalField
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
+import com.virtuslab.pulumikotlin.codegen.step3codegen.types.ToJava.toJavaFunction
+import com.virtuslab.pulumikotlin.codegen.step3codegen.types.ToKotlin.toKotlinFunction
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import java.util.Random
 import kotlin.streams.asSequence
@@ -101,7 +108,8 @@ object TypesGenerator {
 
         val classB = TypeSpec.classBuilder(argsClassName)
             .letIf(options.implementToJava) {
-                it.addSuperinterface(MoreTypes.Kotlin.Pulumi.ConvertibleToJava(typeMetadata.names(LanguageType.Java).kotlinPoetClassName))
+                val convertibleToJava = ConvertibleToJava(typeMetadata.names(LanguageType.Java).kotlinPoetClassName)
+                it.addSuperinterface(convertibleToJava)
             }
             .addModifiers(KModifier.DATA)
 
@@ -110,36 +118,30 @@ object TypesGenerator {
         fields.forEach { field ->
             val isRequired = field.required
             val typeName = field.fieldType.toTypeName().copy(nullable = !isRequired)
-            classB
-                .addProperty(
-                    PropertySpec.builder(field.name, typeName)
-                        .initializer(field.name)
-                        .build(),
-                )
+            classB.addProperty(
+                PropertySpec.builder(field.name, typeName)
+                    .initializer(field.name)
+                    .build(),
+            )
 
-            constructor
-                .addParameter(
-                    ParameterSpec.builder(field.name, typeName)
-                        .let {
-                            if (!isRequired) {
-                                it.defaultValue("%L", null)
-                            } else {
-                                it
-                            }
-                        }
-                        .build(),
-                )
+            constructor.addParameter(
+                ParameterSpec.builder(field.name, typeName)
+                    .letIf(!isRequired) {
+                        it.defaultValue("%L", null)
+                    }
+                    .build(),
+            )
         }
 
         classB.primaryConstructor(constructor.build())
 
         classB.letIf(options.implementToJava) {
-            it.addFunction(ToJava.toJavaFunction(typeMetadata, fields))
+            it.addFunction(toJavaFunction(typeMetadata, fields))
         }
         classB.letIf(options.implementToKotlin) {
             it.addType(
                 TypeSpec.companionObjectBuilder()
-                    .addFunction(ToKotlin.toKotlinFunction(typeMetadata, fields))
+                    .addFunction(toKotlinFunction(typeMetadata, fields))
                     .build(),
             )
         }
@@ -147,13 +149,9 @@ object TypesGenerator {
 
         val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
 
-        val argNames = fields.joinToString(", ") {
-            val requiredPart = if (it.required) {
-                "!!"
-            } else {
-                ""
-            }
-            "${it.name} = ${it.name}$requiredPart"
+        val arguments = fields.associate {
+            val requiredPart = if (it.required) "!!" else ""
+            it.name to CustomExpressionBuilder.start("%N$requiredPart", it.name).build()
         }
 
         val argsBuilderClass = TypeSpec
@@ -177,7 +175,7 @@ object TypesGenerator {
             .addFunction(
                 FunSpec.builder("build")
                     .returns(argsClassName)
-                    .addCode("return %T($argNames)", argsClassName)
+                    .addCode(Return(ConstructObjectExpression(argsClassName, arguments)))
                     .build(),
             )
             .build()
@@ -199,10 +197,6 @@ object TypesGenerator {
         return fileSpec.build()
     }
 
-    fun CodeBlock.Builder.add(code: Code): CodeBlock.Builder {
-        return this.add(code.toCodeBlock().toKotlinPoetCodeBlock())
-    }
-
     private fun mappingCodeBlock(
         field: NormalField<*>,
         required: Boolean,
@@ -215,7 +209,7 @@ object TypesGenerator {
             .addStatement("val toBeMapped = $code", *args)
             .add(Assignment("mapped", expression))
             .addStatement("")
-            .addStatement("this.$name = mapped")
+            .addStatement("this.%N = mapped", name)
             .build()
     }
 
@@ -238,9 +232,7 @@ object TypesGenerator {
     }
 
     private fun FunSpec.Builder.preventJvmPlatformNameClash(): FunSpec.Builder {
-        return addAnnotation(
-            AnnotationSpec.builder(JvmName::class).addMember("%S", randomStringWith16Characters()).build(),
-        )
+        return addAnnotation(AnnotationSpec.builder(JvmName::class).addMember("%S", randomStringWith16Characters()).build())
     }
 
     private fun randomStringWith16Characters() =
@@ -255,10 +247,8 @@ object TypesGenerator {
             builderPattern(
                 name,
                 builderLambda(builderTypeName),
-                KotlinPoetPatterns.BuilderSettingCodeBlock.create(
-                    "%T().applySuspend{ argument() }.build()",
-                    builderTypeName,
-                )
+                KotlinPoetPatterns.BuilderSettingCodeBlock
+                    .create("%T().applySuspend{ argument() }.build()", builderTypeName)
                     .withMappingCode(field.mappingCode),
             ),
         )
@@ -280,12 +270,7 @@ object TypesGenerator {
 
                 listOf(
                     builderPattern(name, listOfLambdas(innerType), commonCodeBlock),
-                    builderPattern(
-                        name,
-                        builderLambda(innerType),
-                        commonCodeBlock,
-                        parameterModifiers = listOf(VARARG),
-                    ),
+                    builderPattern(name, builderLambda(innerType), commonCodeBlock, parameterModifiers = listOf(VARARG)),
                 )
             }
 
@@ -393,7 +378,7 @@ object TypesGenerator {
                     .builder(name)
                     .addModifiers(SUSPEND)
                     .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
-                    .addCode("this.$name = value")
+                    .addCode("this.%N = value", name)
                     .build(),
             )
         }

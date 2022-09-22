@@ -83,7 +83,7 @@ data class ConstructObjectExpression(val typeName: TypeName, val fields: Map<Str
     override fun toCodeBlock(): CustomCodeBlock {
         val fieldsBuilder = fields
             .map { (name, value) ->
-                CustomExpressionBuilder.start(name) + "=" + value
+                CustomExpressionBuilder.start("%N", name) + "=" + value
             }
             .reduceOrNull { left, right -> left + "," + right }
             ?: CustomExpressionBuilder.start()
@@ -196,3 +196,6 @@ operator fun MemberName.invoke(vararg expression: Expression): Expression {
     val builder = CustomExpressionBuilder.start("%M", this) + "(" + expression.map { it.toCodeBlock() }.merge(",") + ")"
     return builder.build()
 }
+
+fun CodeBlock.Builder.add(code: Code): CodeBlock.Builder =
+    add(code.toCodeBlock().toKotlinPoetCodeBlock())

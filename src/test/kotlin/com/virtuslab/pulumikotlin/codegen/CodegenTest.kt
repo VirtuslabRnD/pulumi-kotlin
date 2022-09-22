@@ -3,6 +3,7 @@ package com.virtuslab.pulumikotlin.codegen
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.assertEquals
@@ -150,6 +151,35 @@ class CodegenTest {
     @Test
     fun `bigger subset of aws schema can be compiled`() {
         assertGeneratedCodeCompiles("aws-big-schema-subset.json")
+    }
+
+    @Test
+    @Disabled("https://github.com/VirtuslabRnD/pulumi-kotlin/issues/11")
+    fun `test smaller google cloud schema`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.gcp.appengine.kotlin.applicationUrlDispatchRulesResource
+            
+            suspend fun main() {
+                applicationUrlDispatchRulesResource("resource-name") {
+                    args {
+                        project("example-project")
+                        dispatchRules(
+                            {
+                                domain("domain")
+                                path("path")
+                            },
+                            {
+                                domain("domain2")
+                                path("path2")
+                            }
+                        )
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile("gcp-medium-schema-subset.json", code)
     }
 
     private val classPath = listOf(

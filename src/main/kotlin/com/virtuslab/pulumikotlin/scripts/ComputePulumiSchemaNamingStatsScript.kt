@@ -22,6 +22,7 @@ fun main(args: Array<String>) {
 
 /**
  * This is to understand all the possible names structures in Pulumi provider's schema.
+ *
  * For example, AWS classic can only have names with the following structure (notice `:` and `/`):
  *
  * - aws-native:acmpca:Certificate

@@ -5,9 +5,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Decoder
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.getFunctionSpecs
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.getResourceSpecs
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.getTypeSpecs
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.IntermediateRepresentationGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.CodeGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.GeneratorArguments
 import com.virtuslab.pulumikotlin.codegen.utils.Paths
@@ -20,15 +18,13 @@ class PulumiKotlin : CliktCommand() {
     override fun run() {
         val loadedSchemaClassic = File(schemaPath).inputStream()
 
-        val parsedSchemas = Decoder.decode(loadedSchemaClassic)
-        val autonomousTypes = getTypeSpecs(parsedSchemas)
-        val resourceTypes = getResourceSpecs(parsedSchemas)
-        val functionTypes = getFunctionSpecs(parsedSchemas)
+        val parsedSchema = Decoder.decode(loadedSchemaClassic)
+        val intermediateRepresentation = IntermediateRepresentationGenerator.getIntermediateRepresentation(parsedSchema)
         val generatedFiles = CodeGenerator.run(
             GeneratorArguments(
-                types = autonomousTypes,
-                resources = resourceTypes,
-                functions = functionTypes,
+                types = intermediateRepresentation.types,
+                resources = intermediateRepresentation.resources,
+                functions = intermediateRepresentation.functions,
                 sdkFilesToCopyPath = sdkFilesPath,
             ),
         )

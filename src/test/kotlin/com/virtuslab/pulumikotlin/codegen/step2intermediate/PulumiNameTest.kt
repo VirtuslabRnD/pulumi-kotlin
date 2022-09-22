@@ -2,8 +2,36 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 internal class PulumiNameTest {
+
+    enum class ValidNameCase(val inputName: String, val expectedPulumiName: PulumiName) {
+        TypeName(
+            "aws:acm/CertificateOptions:CertificateOptions",
+            PulumiName("aws", listOf("acm"), "CertificateOptions"),
+        ),
+        ResourceName(
+            "aws:acm/certificate:Certificate",
+            PulumiName("aws", listOf("acm"), "Certificate"),
+        ),
+        FunctionName(
+            "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
+            PulumiName("aws", listOf("acmpca"), "getCertificateAuthority"),
+        ),
+        LongFunctionName(
+            "aws:acmpca/getCertificateAuthorityRevocationConfigurationCrlConfiguration:getCertificateAuthorityRevocationConfigurationCrlConfiguration",
+            PulumiName("aws", listOf("acmpca"), "getCertificateAuthorityRevocationConfigurationCrlConfiguration"),
+        ),
+    }
+
+    @ParameterizedTest
+    @EnumSource(ValidNameCase::class)
+    fun `PulumiName#from correctly parses the name`(case: ValidNameCase) {
+        val pulumiName = PulumiName.from(case.inputName)
+        assertEquals(case.expectedPulumiName, pulumiName)
+    }
 
     @Test
     fun `toFunctionGroupObjectName should return a proper object name when targeting Java`() {
