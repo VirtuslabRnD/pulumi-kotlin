@@ -196,3 +196,6 @@ operator fun MemberName.invoke(vararg expression: Expression): Expression {
     val builder = CustomExpressionBuilder.start("%M", this) + "(" + expression.map { it.toCodeBlock() }.merge(",") + ")"
     return builder.build()
 }
+
+fun CodeBlock.Builder.add(code: Code): CodeBlock.Builder =
+    add(code.toCodeBlock().toKotlinPoetCodeBlock())

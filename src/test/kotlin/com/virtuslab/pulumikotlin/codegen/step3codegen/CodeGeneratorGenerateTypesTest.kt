@@ -11,11 +11,12 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeAndOptionality
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
-internal class GenerateTypeWithNiceBuildersTest {
+internal class CodeGeneratorGenerateTypesTest {
 
     @Test
     fun `generated kotlin files for some handcrafted types should compile`() {
@@ -41,7 +42,7 @@ internal class GenerateTypeWithNiceBuildersTest {
             ),
         )
 
-        val generationOptions = GenerationOptions(implementToJava = false, implementToKotlin = false)
+        val generationOptions = TypeGenerator.GenerationOptions(implementToJava = false, implementToKotlin = false)
         val generatedFiles = CodeGenerator.run(
             GeneratorArguments(
                 types = listOf(firstType, secondType),

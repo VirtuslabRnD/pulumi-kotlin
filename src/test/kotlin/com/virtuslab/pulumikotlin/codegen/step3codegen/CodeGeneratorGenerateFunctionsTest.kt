@@ -12,11 +12,12 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeAndOptionality
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
-internal class GenerateFunctionsTest {
+internal class CodeGeneratorGenerateFunctionsTest {
 
     @Test
     fun `generated kotlin files for some handcrafted functions should compile`() {
@@ -48,7 +49,7 @@ internal class GenerateFunctionsTest {
             outputType,
         )
 
-        val generationOptions = GenerationOptions()
+        val generationOptions = TypeGenerator.GenerationOptions()
         val generatedFiles = CodeGenerator.run(
             GeneratorArguments(
                 types = listOf(inputType, outputType),
