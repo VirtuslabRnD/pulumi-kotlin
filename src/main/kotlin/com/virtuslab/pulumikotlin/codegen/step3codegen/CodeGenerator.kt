@@ -3,10 +3,10 @@ package com.virtuslab.pulumikotlin.codegen.step3codegen
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AutonomousType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.FunctionType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
-import com.virtuslab.pulumikotlin.codegen.step3codegen.functions.FunctionsGenerator
-import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ResourcesGenerator
-import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypesGenerator
-import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypesGenerator.GenerationOptions
+import com.virtuslab.pulumikotlin.codegen.step3codegen.functions.FunctionGenerator
+import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ResourceGenerator
+import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
+import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator.GenerationOptions
 import com.virtuslab.pulumikotlin.codegen.utils.Paths
 import java.io.File
 
@@ -20,9 +20,9 @@ data class GeneratorArguments(
 
 object CodeGenerator {
     fun run(input: GeneratorArguments): List<WriteableFile> {
-        val generatedTypes = TypesGenerator.generateTypes(input.types, input.options)
-        val generatedResources = ResourcesGenerator.generateResources(input.resources)
-        val generatedFunctions = FunctionsGenerator.generateFunctions(input.functions)
+        val generatedTypes = TypeGenerator.generateTypes(input.types, input.options)
+        val generatedResources = ResourceGenerator.generateResources(input.resources)
+        val generatedFunctions = FunctionGenerator.generateFunctions(input.functions)
 
         val allGeneratedFileSpecs = generatedTypes + generatedResources + generatedFunctions
         val allGeneratedFiles = allGeneratedFileSpecs.map { InMemoryGeneratedFile(it) }

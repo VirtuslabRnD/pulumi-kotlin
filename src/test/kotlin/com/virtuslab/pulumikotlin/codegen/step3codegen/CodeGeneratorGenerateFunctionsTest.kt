@@ -12,7 +12,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeAndOptionality
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
-import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypesGenerator
+import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -49,7 +49,7 @@ internal class CodeGeneratorGenerateFunctionsTest {
             outputType,
         )
 
-        val generationOptions = TypesGenerator.GenerationOptions()
+        val generationOptions = TypeGenerator.GenerationOptions()
         val generatedFiles = CodeGenerator.run(
             GeneratorArguments(
                 types = listOf(inputType, outputType),

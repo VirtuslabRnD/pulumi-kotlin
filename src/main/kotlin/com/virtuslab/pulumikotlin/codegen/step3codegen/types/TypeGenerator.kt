@@ -46,7 +46,7 @@ import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import java.util.Random
 import kotlin.streams.asSequence
 
-object TypesGenerator {
+object TypeGenerator {
     data class GenerationOptions(
         val shouldGenerateBuilders: Boolean = true,
         val implementToJava: Boolean = true,

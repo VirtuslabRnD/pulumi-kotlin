@@ -25,7 +25,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 
-object FunctionsGenerator {
+object FunctionGenerator {
     fun generateFunctions(functions: List<FunctionType>): List<FileSpec> {
         val namingFlags = NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
         val files = functions

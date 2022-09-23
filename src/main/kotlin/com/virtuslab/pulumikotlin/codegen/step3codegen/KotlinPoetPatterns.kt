@@ -36,11 +36,10 @@ object KotlinPoetPatterns {
         }
 
         fun toCodeBlock(fieldToSetName: String): CodeBlock {
-            val mc = mappingCode
-            return if (mc != null) {
+            return if (mappingCode != null) {
                 CodeBlock.builder()
                     .addStatement("val toBeMapped = $code", *args.toTypedArray())
-                    .add(Assignment("mapped", mc(CustomExpression("toBeMapped"))))
+                    .add(Assignment("mapped", mappingCode.invoke(CustomExpression("toBeMapped"))))
                     .addStatement("")
                     .addStatement("this.$fieldToSetName = mapped")
                     .build()

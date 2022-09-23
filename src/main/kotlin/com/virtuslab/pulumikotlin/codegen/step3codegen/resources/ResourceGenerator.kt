@@ -20,7 +20,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ToKotlin.toKotlinFunctionResource
 import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 
-object ResourcesGenerator {
+object ResourceGenerator {
     fun generateResources(resources: List<ResourceType>): List<FileSpec> {
         val files = resources.map { type ->
             val file = FileSpec.builder(
