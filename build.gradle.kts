@@ -47,10 +47,6 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-tasks.withType<Jar> {
-    archiveBaseName.set("${project.rootProject.name}-generator")
-}
-
 kotlinter {
     reporters = arrayOf("html", "plain")
 }
@@ -60,18 +56,23 @@ detekt {
     config = files("$projectDir/.detekt-config.yml")
 }
 
-val schemaMap = mapOf(
-    "aws" to "src/main/resources/aws-schema.json",
-    "gcp" to "src/main/resources/gcp-schema.json",
+tasks.withType<Jar> {
+    archiveBaseName.set("${project.rootProject.name}-generator")
+}
+
+class Schema(val providerName: String, val path: String, val customDependencies: List<String>)
+
+val schemas = listOf(
+    Schema("aws", "src/main/resources/aws-schema.json", listOf("com.pulumi:aws:5.14.0")),
+    Schema("gcp", "src/main/resources/gcp-schema.json", listOf("com.pulumi:gcp:6.37.0")),
 )
 
-val createTasksForProvider: (String, String, String) -> Unit by extra
+val createTasksForProvider: (String, String, String, List<String>) -> Unit by extra
 
-schemaMap.forEach { (provider, schemaPath) ->
-    createTasksForProvider("build/generated-src", provider, schemaPath)
+schemas.forEach { schema ->
+    createTasksForProvider("build/generated-src", schema.providerName, schema.path, schema.customDependencies)
 }
 
-dependencies {
-    "generatedAwsImplementation"("com.pulumi:aws:5.11.0-alpha.1658776797+e45bda97")
-    "generatedGcpImplementation"("com.pulumi:gcp:6.38.0-alpha.1663342915+e285d89c")
-}
+val createGlobalProviderTasks: (List<String>) -> Unit by extra
+
+createGlobalProviderTasks(schemas.map { it.providerName })
