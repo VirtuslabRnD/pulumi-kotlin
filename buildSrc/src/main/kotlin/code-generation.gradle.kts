@@ -17,6 +17,7 @@ val createTasksForProvider by extra {
         val compilationTaskName = "compile${sourceSetName.capitalized()}Kotlin"
         val jarTaskName = "${sourceSetName}SourcesJar"
         val implementationDependency = "${sourceSetName}Implementation"
+        val archiveName = "$providerName-kotlin"
 
         tasks.register<JavaExec>(generationTaskName) {
             classpath = project.sourceSets["main"].runtimeClasspath
@@ -40,14 +41,14 @@ val createTasksForProvider by extra {
             dependsOn(tasks[generationTaskName])
             group = "build"
             from(project.the<SourceSetContainer>()[sourceSetName].output)
-            archiveBaseName.set("${project.rootProject.name}-$providerName")
+            archiveBaseName.set(archiveName)
         }
 
         publishing {
             publications {
                 create<MavenPublication>(sourceSetName) {
                     artifact(tasks[jarTaskName])
-                    artifactId = "${project.rootProject.name}-$providerName"
+                    artifactId = archiveName
                 }
             }
         }
