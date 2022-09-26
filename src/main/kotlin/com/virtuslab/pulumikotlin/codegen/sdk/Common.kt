@@ -1,7 +1,9 @@
 package com.pulumi.kotlin
 
+import com.pulumi.Context
 import com.pulumi.core.Output
 import com.pulumi.resources.CustomResourceOptions
+import kotlinx.coroutines.runBlocking
 import java.util.Optional
 
 @DslMarker
@@ -232,4 +234,14 @@ suspend inline fun <T> T.applySuspend(block: T.() -> Unit): T {
 
 interface ConvertibleToJava<T> {
     fun toJava(): T
+}
+
+object Pulumi {
+    fun run(block: suspend (Context) -> Unit) {
+        com.pulumi.Pulumi.run {
+            runBlocking {
+                block(it)
+            }
+        }
+    }
 }
