@@ -13,7 +13,7 @@ val tasksToDisable: List<(String) -> String> = listOf(
 val createTasksForProvider by extra {
     fun(outputDirectory: String, providerName: String, schemaPath: String, customDependencies: List<String>) {
         val sourceSetName = "pulumi${providerName.capitalized()}"
-        val generationTaskName = "generate${providerName.capitalized()}Sources"
+        val generationTaskName = "generate${sourceSetName.capitalized()}Sources"
         val compilationTaskName = "compile${sourceSetName.capitalized()}Kotlin"
         val jarTaskName = "${sourceSetName}Jar"
         val implementationDependency = "${sourceSetName}Implementation"
@@ -80,17 +80,9 @@ val createTasksForProvider by extra {
 
 val createGlobalProviderTasks by extra {
     fun(providerNames: List<String>) {
-        tasks.register("generateSources") {
-            dependsOn(providerNames.map { tasks["generate${it.capitalized()}Sources"] })
+        tasks.register("generatePulumiSources") {
+            dependsOn(providerNames.map { tasks["generatePulumi${it.capitalized()}Sources"] })
             group = "generation"
-        }
-
-        tasks.register("compileGeneratedJava") {
-            dependsOn(providerNames.map { tasks["compilePulumi${it.capitalized()}Java"] })
-        }
-
-        tasks.register("compileGeneratedKotlin") {
-            dependsOn(providerNames.map { tasks["compilePulumi${it.capitalized()}Kotlin"] })
         }
     }
 }
