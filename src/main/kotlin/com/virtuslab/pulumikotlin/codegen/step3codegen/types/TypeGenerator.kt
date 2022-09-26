@@ -204,7 +204,7 @@ object TypeGenerator {
         code: String,
         vararg args: Any?,
     ): CodeBlock {
-        val expression = CustomExpression("toBeMapped").callLet(!required) { arg -> field.mappingCode(arg) }
+        val expression = CustomExpression("toBeMapped").callLet(required) { arg -> field.mappingCode(arg) }
         return CodeBlock.builder()
             .addStatement("val toBeMapped = $code", *args)
             .add(Assignment("mapped", expression))

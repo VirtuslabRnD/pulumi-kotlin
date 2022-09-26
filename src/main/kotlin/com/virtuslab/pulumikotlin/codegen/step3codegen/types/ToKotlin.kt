@@ -32,12 +32,13 @@ object ToKotlin {
         val arguments = fields.associate { field ->
             val type = field.fieldType.type
 
-            val baseE = toKotlinExpressionBase(field.name)
+            val baseE = toKotlinExpressionBase(field.name, field.required)
 
             val secondPart =
                 baseE.call1(
                     "applyValue",
-                    FunctionExpression.create(1, { args -> toKotlinExpression(args.get(0), type) }),
+                    FunctionExpression.create(1, { args -> toKotlinExpression(args.get(0), type, field.required) }),
+                    required = field.required
                 )
 
             field.name to secondPart
@@ -58,26 +59,27 @@ object ToKotlin {
             .build()
     }
 
-    private fun toKotlinExpression(expression: Expression, type: Type): Expression {
+    private fun toKotlinExpression(expression: Expression, type: Type, required: Boolean): Expression {
         return when (val type = type) {
             AnyType -> expression
             is ComplexType -> type.toTypeName().member("toKotlin")(expression)
             is EnumType -> type.toTypeName().member("toKotlin")(expression)
             is EitherType -> expression
-            is ListType -> expression.callMap { args -> toKotlinExpression(args, type.innerType) }
+            is ListType -> expression.callMap(required = required) { args -> toKotlinExpression(args, type.innerType, true) }
 
             is MapType ->
                 expression
-                    .callMap { args ->
-                        args.field("key").call1("to", toKotlinExpression(args.field("value"), type.secondType))
+                    .callMap(required = required) { args ->
+                        args.field("key").call1("to", toKotlinExpression(args.field("value"), type.secondType, true))
                     }
-                    .call0("toMap")
+                    .call0("toMap", required = required)
 
             is PrimitiveType -> expression
         }
     }
 
-    private fun toKotlinExpressionBase(name: String): Expression {
-        return CustomExpression("javaType.%N().toKotlin()!!", KeywordsEscaper.escape(name))
+    private fun toKotlinExpressionBase(name: String, required: Boolean): Expression {
+        val ending = if(required) "!!" else ""
+        return CustomExpression("javaType.%N().toKotlin()${ending}", KeywordsEscaper.escape(name))
     }
 }

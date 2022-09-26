@@ -20,30 +20,30 @@ sealed class Expression : Code()
 fun Expression.pairWith(expression: Expression) = this.call1("to", expression)
 fun Expression.field(name: String): Expression = (CustomExpressionBuilder.start() + this + "." + name).build()
 
-fun Expression.call0(name: String, optional: Boolean = false): Expression {
-    val optionalString = if (optional) "?" else ""
+fun Expression.call0(name: String, required: Boolean = true): Expression {
+    val optionalString = if (required) "" else "?"
 
     return (CustomExpressionBuilder.start() + this + "$optionalString." + name + "()").build()
 }
 
-fun Expression.callMap(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
-    return call1("map", FunctionExpression.create(1, { expr -> expressionMapper(expr.get(0)) }), optional = optional)
+fun Expression.callMap(required: Boolean = true, expressionMapper: (Expression) -> Expression): Expression {
+    return call1("map", FunctionExpression.create(1, { expr -> expressionMapper(expr.get(0)) }), required = required)
 }
 
-fun Expression.callLet(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
-    return call1("let", FunctionExpression.create(1, { expr -> expressionMapper(expr.get(0)) }), optional = optional)
+fun Expression.callLet(required: Boolean = true, expressionMapper: (Expression) -> Expression): Expression {
+    return call1("let", FunctionExpression.create(1, { expr -> expressionMapper(expr.get(0)) }), required = required)
 }
 
-fun Expression.callApplyValue(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
+fun Expression.callApplyValue(required: Boolean = true, expressionMapper: (Expression) -> Expression): Expression {
     return call1(
         "applyValue",
         FunctionExpression.create(1) { expr -> expressionMapper(expr.get(0)) },
-        optional = optional,
+        required = required,
     )
 }
 
-fun Expression.call1(name: String, expression: Expression, optional: Boolean = false): Expression {
-    val optionalString = if (optional) "?" else ""
+fun Expression.call1(name: String, expression: Expression, required: Boolean = true): Expression {
+    val optionalString = if (required) "" else "?"
     return (CustomExpressionBuilder.start() + this + "$optionalString." + name + "(" + expression + ")").build()
 }
 

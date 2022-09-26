@@ -23,27 +23,27 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Type
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KeywordsEscaper
 
 object ToKotlin {
-    fun toKotlinFunctionResource(name: String, type: Type, optional: Boolean): Code {
+    fun toKotlinFunctionResource(name: String, type: Type, required: Boolean): Code {
         val baseE = toKotlinExpressionBaseResource(name)
         val secondPart =
-            baseE.callApplyValue { arg -> toKotlinExpressionResource(arg.call0("toKotlin", optional), type, optional) }
+            baseE.callApplyValue { arg -> toKotlinExpressionResource(arg.call0("toKotlin", required), type, required) }
 
         return Return(secondPart)
     }
 
-    private fun toKotlinExpressionResource(expression: Expression, type: Type, optional: Boolean = false): Expression {
+    private fun toKotlinExpressionResource(expression: Expression, type: Type, required: Boolean = true): Expression {
         return when (type) {
             AnyType -> expression
-            is ComplexType -> expression.callLet(optional) { argument ->
+            is ComplexType -> expression.callLet(required) { argument ->
                 type.toTypeName().nestedClass("Companion").member("toKotlin")(argument)
             }
 
-            is EnumType -> expression.callLet(optional) { argument ->
+            is EnumType -> expression.callLet(required) { argument ->
                 type.toTypeName().nestedClass("Companion").member("toKotlin")(argument)
             }
 
             is EitherType -> expression
-            is ListType -> expression.callMap(optional) { argument ->
+            is ListType -> expression.callMap(required) { argument ->
                 toKotlinExpressionResource(
                     argument,
                     type.innerType,
@@ -52,11 +52,11 @@ object ToKotlin {
 
             is MapType ->
                 expression
-                    .callMap(optional) { argument ->
+                    .callMap(required) { argument ->
                         argument.field("key")
                             .pairWith(toKotlinExpressionResource(argument.field("value"), type.secondType))
                     }
-                    .call0("toMap", optional)
+                    .call0("toMap", required)
 
             is PrimitiveType -> expression
         }

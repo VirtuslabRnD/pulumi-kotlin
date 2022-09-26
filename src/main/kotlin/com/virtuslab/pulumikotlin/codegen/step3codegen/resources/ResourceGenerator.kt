@@ -69,7 +69,7 @@ object ResourceGenerator {
             )
                 .getter(
                     FunSpec.getterBuilder()
-                        .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required)).build(),
+                        .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, field.required)).build(),
                 )
                 .build()
         }
