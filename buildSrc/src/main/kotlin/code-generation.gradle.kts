@@ -12,12 +12,13 @@ val tasksToDisable: List<(String) -> String> = listOf(
 
 val createTasksForProvider by extra {
     fun(outputDirectory: String, providerName: String, schemaPath: String, customDependencies: List<String>) {
-        val sourceSetName = "generated${providerName.capitalized()}"
+        val sourceSetName = "pulumi${providerName.capitalized()}"
         val generationTaskName = "generate${providerName.capitalized()}Sources"
         val compilationTaskName = "compile${sourceSetName.capitalized()}Kotlin"
-        val jarTaskName = "${sourceSetName}SourcesJar"
+        val jarTaskName = "${sourceSetName}Jar"
         val implementationDependency = "${sourceSetName}Implementation"
-        val archiveName = "$providerName-kotlin"
+        val archiveName = "pulumi-$providerName-kotlin"
+        val sourcesJarTaskName = "${sourceSetName}SourcesJar"
 
         tasks.register<JavaExec>(generationTaskName) {
             classpath = project.sourceSets["main"].runtimeClasspath
@@ -44,10 +45,22 @@ val createTasksForProvider by extra {
             archiveBaseName.set(archiveName)
         }
 
+        tasks.register<Jar>(sourcesJarTaskName) {
+            dependsOn(tasks[generationTaskName])
+            group = "build"
+            from(project.the<SourceSetContainer>()[sourceSetName].allSource)
+            archiveBaseName.set(archiveName)
+            archiveClassifier.set("sources")
+        }
+
         publishing {
             publications {
                 create<MavenPublication>(sourceSetName) {
                     artifact(tasks[jarTaskName])
+                    artifactId = archiveName
+                }
+                create<MavenPublication>("${sourceSetName.capitalized()}Sources") {
+                    artifact(tasks[sourcesJarTaskName])
                     artifactId = archiveName
                 }
             }
@@ -72,17 +85,12 @@ val createGlobalProviderTasks by extra {
             group = "generation"
         }
 
-        tasks.register("generatedSourcesJar") {
-            dependsOn(providerNames.map { tasks["generated${it.capitalized()}SourcesJar"] })
-            group = "build"
-        }
-
         tasks.register("compileGeneratedJava") {
-            dependsOn(providerNames.map { tasks["compileGenerated${it.capitalized()}Java"] })
+            dependsOn(providerNames.map { tasks["compilePulumi${it.capitalized()}Java"] })
         }
 
         tasks.register("compileGeneratedKotlin") {
-            dependsOn(providerNames.map { tasks["compileGenerated${it.capitalized()}Kotlin"] })
+            dependsOn(providerNames.map { tasks["compilePulumi${it.capitalized()}Kotlin"] })
         }
     }
 }
