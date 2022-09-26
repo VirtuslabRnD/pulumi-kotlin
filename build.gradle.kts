@@ -9,7 +9,7 @@ plugins {
     id("code-generation")
 }
 
-group = "com.pulumi"
+group = "com.virtuslab"
 version = "1.0-SNAPSHOT"
 
 repositories {
