@@ -57,7 +57,7 @@ tasks.withType<Jar> {
     archiveBaseName.set("${project.rootProject.name}-generator")
 }
 
-class Schema(val providerName: String, val path: String, val customDependencies: List<String>)
+data class Schema(val providerName: String, val path: String, val customDependencies: List<String>)
 
 val schemas = listOf(
     Schema("aws", "src/main/resources/aws-schema.json", listOf("com.pulumi:aws:5.14.0")),
