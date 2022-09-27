@@ -87,7 +87,6 @@ sourceSets {
 }
 
 tasks.register<Test>("e2eTest") {
-    shouldRunAfter(tasks["test"])
     group = "verification"
     testClassesDirs = sourceSets["e2eTest"].output.classesDirs
     classpath = sourceSets["e2eTest"].runtimeClasspath
