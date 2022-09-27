@@ -3,7 +3,6 @@ package com.virtuslab.pulumikotlin.codegen
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.assertEquals
@@ -154,8 +153,7 @@ class CodegenTest {
     }
 
     @Test
-    @Disabled("https://github.com/VirtuslabRnD/pulumi-kotlin/issues/11")
-    fun `test smaller google cloud schema`() {
+    fun `test medium-sized google cloud schema (without asset or archive types)`() {
         // language=kotlin
         val code = """
             import com.pulumi.gcp.appengine.kotlin.applicationUrlDispatchRulesResource
@@ -183,8 +181,9 @@ class CodegenTest {
     }
 
     private val classPath = listOf(
-        artifact("com.pulumi:pulumi:0.5.2"),
-        artifact("com.pulumi:aws:5.11.0-alpha.1658776797+e45bda97"),
+        artifact("com.pulumi:pulumi:0.6.0"),
+        artifact("com.pulumi:aws:5.14.0"),
+        artifact("com.pulumi:gcp:6.37.0"),
         artifact("com.google.code.findbugs:jsr305:3.0.2"),
         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.2"),
     )
