@@ -63,7 +63,6 @@ jobs:
   e2eTest:
     name: Run end-to-end tests of pulumi-kotlin
     runs-on: ubuntu-latest
-    needs: publish
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v2
@@ -72,6 +71,8 @@ jobs:
         # TODO: add GCP and Pulumi authentication
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
+      - name: Publish Pulumi Kotlin to Maven Local
+        run: ./gradlew publishPulumiGcpPublicationToMavenLocal -x formatKotlinPulumiGcp
       - name: Run E2E tests
         run: ./gradlew e2eTest
         env:
