@@ -25,11 +25,6 @@
             <version>0.6.0</version>
         </dependency>
         <dependency>
-            <groupId>com.pulumi</groupId>
-            <artifactId>gcp</artifactId>
-            <version>(,7.0.0]</version>
-        </dependency>
-        <dependency>
             <groupId>com.virtuslab</groupId>
             <artifactId>pulumi-gcp-kotlin</artifactId>
             <version>1.0-SNAPSHOT</version>
