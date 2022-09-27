@@ -52,18 +52,23 @@ class GcpE2eTest {
     }
 
     private fun Process.findInstanceIdInOutput(): String {
-        return Regex(".*projects/jvm-lab/zones/europe-central2-a/instances/(.*)").find(
-            inputStream.bufferedReader().readText(),
-        )?.groups?.get(1)?.value!!
+        return Regex(".*projects/jvm-lab/zones/europe-central2-a/instances/(.*)")
+            .find(
+                inputStream.bufferedReader().readText(),
+            )
+            ?.groups
+            ?.get(1)
+            ?.value!!
     }
 
     private fun runProcess(vararg command: String): Process {
-        val stackInitProcess = ProcessBuilder(command.asList())
+        val process = ProcessBuilder(command.asList())
             .directory(File("${Paths.get("").toAbsolutePath()}/examples/gcp-sample-project"))
             .redirectOutput(ProcessBuilder.Redirect.PIPE)
+            .redirectError(ProcessBuilder.Redirect.INHERIT)
             .start()
-        stackInitProcess.waitFor()
-        return stackInitProcess!!
+        process.waitFor()
+        return process!!
     }
 
     private fun Process.assertOutputContainsString(assertion: String) {
