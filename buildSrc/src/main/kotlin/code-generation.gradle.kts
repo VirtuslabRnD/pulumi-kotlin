@@ -60,7 +60,7 @@ val createTasksForProvider by extra {
                     artifact(tasks[jarTaskName])
                     artifactId = archiveName
                 }
-                create<MavenPublication>("${sourceSetName.capitalized()}Sources") {
+                create<MavenPublication>("${sourceSetName}Sources") {
                     artifact(tasks[sourcesJarTaskName])
                     artifactId = archiveName
                 }
