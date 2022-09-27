@@ -22,14 +22,16 @@ dependencies {
     implementation("com.squareup:kotlinpoet:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.2")
-    implementation("org.junit.jupiter:junit-jupiter:5.8.1")
 
     implementation("com.github.ajalt.clikt:clikt:3.5.0")
 
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
 
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
     testImplementation(kotlin("test"))
+    testImplementation("com.google.cloud:google-cloud-compute:1.12.1")
+    testImplementation("org.apache.commons:commons-lang3:3.12.0")
 }
 
 tasks.test {
@@ -73,3 +75,21 @@ schemas.forEach { schema ->
 val createGlobalProviderTasks: (List<String>) -> Unit by extra
 
 createGlobalProviderTasks(schemas.map { it.providerName })
+
+sourceSets {
+    create("e2eTest") {
+        java {
+            srcDir("src/e2e/kotlin")
+            compileClasspath += sourceSets["test"].compileClasspath
+            runtimeClasspath += sourceSets["test"].runtimeClasspath
+        }
+    }
+}
+
+tasks.register<Test>("e2eTest") {
+    shouldRunAfter(tasks["test"])
+    group = "verification"
+    testClassesDirs = sourceSets["e2eTest"].output.classesDirs
+    classpath = sourceSets["e2eTest"].runtimeClasspath
+    useJUnitPlatform()
+}
