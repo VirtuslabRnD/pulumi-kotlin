@@ -70,8 +70,13 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         # TODO: add GCP and Pulumi authentication
+      - name: Set up Pulumi CLI
+        uses: pulumi/setup-pulumi@v2
       - name: Run E2E tests
         run: ./gradlew e2eTest
+        env:
+          # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
+          PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
       - name: Upload E2E test report
         if: failure()
         uses: actions/upload-artifact@v3
