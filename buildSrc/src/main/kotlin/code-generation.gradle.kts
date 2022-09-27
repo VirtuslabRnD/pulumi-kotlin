@@ -59,6 +59,18 @@ val createTasksForProvider by extra {
                 create<MavenPublication>(sourceSetName) {
                     artifact(tasks[jarTaskName])
                     artifactId = archiveName
+                    pom {
+                        withXml {
+                            val dependenciesNode = asNode().appendNode("dependencies")
+                            configurations[implementationDependency].dependencies
+                                .forEach {
+                                    val dependencyNode = dependenciesNode.appendNode("dependency")
+                                    dependencyNode.appendNode("groupId", it.group)
+                                    dependencyNode.appendNode("artifactId", it.name)
+                                    dependencyNode.appendNode("version", it.version)
+                                }
+                        }
+                    }
                 }
                 create<MavenPublication>("${sourceSetName}Sources") {
                     artifact(tasks[sourcesJarTaskName])
