@@ -3,31 +3,39 @@ package com.virtuslab.pulumikotlin
 import com.google.cloud.compute.v1.AggregatedListInstancesRequest
 import com.google.cloud.compute.v1.Instance
 import com.google.cloud.compute.v1.InstancesClient
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.file.Paths
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.assertContains
 
 private const val PROJECT_NAME = "jvm-lab"
 
 class GcpE2eTest {
 
+    var stackName: String = ""
+    var fullStackName: String = ""
+
+    @BeforeTest
+    fun setupTest() {
+        stackName = "test${RandomStringUtils.randomNumeric(10)}"
+        fullStackName = "$PROJECT_NAME/gcp-sample-project/$stackName"
+    }
+
     @Test
     fun `gcp VM instance can be created`() {
-        val stackName = "test${RandomStringUtils.randomNumeric(10)}"
-        val fullStackName = "$PROJECT_NAME/gcp-sample-project/$stackName"
-
         runProcess("pulumi", "stack", "init", fullStackName)
-            .assertOutputContainsString("Created stack 'jvm-lab/$stackName'")
-
         runProcess("pulumi", "up", "-y", "-s", fullStackName, "-c", "gcp:project=$PROJECT_NAME")
-            .assertOutputContainsString("+ 2 created")
 
-        val instanceId = runProcess("pulumi", "stack", "-i", "-s", fullStackName)
-            .findInstanceIdInOutput()
+        val stackOutput = runProcess("pulumi", "stack", "output", "-s", fullStackName, "--json")
+        val parsedStackOutput = Json.decodeFromString<StackOutput>(stackOutput)
 
-        val instance = getInstance(instanceId)
+        val instance = getInstance(parsedStackOutput.instanceName)
 
         assertContains(instance.machineType, "e2-micro")
 
@@ -43,39 +51,22 @@ class GcpE2eTest {
         val metadata = instance.metadata.itemsList.map { (it.key to it.value) }
         assertContains(metadata, "foo" to "bar")
         assertContains(metadata, "startup-script" to "echo hi > /test.txt")
+    }
 
+    @AfterTest
+    fun cleanupTest() {
         runProcess("pulumi", "destroy", "-y", "-s", fullStackName)
-            .assertOutputContainsString("- 2 deleted")
-
         runProcess("pulumi", "stack", "rm", "jvm-lab/$stackName", "-y")
-            .assertOutputContainsString("Stack 'jvm-lab/$stackName' has been removed!")
     }
 
-    private fun Process.findInstanceIdInOutput(): String {
-        return Regex(".*projects/jvm-lab/zones/europe-central2-a/instances/(.*)")
-            .find(
-                inputStream.bufferedReader().readText(),
-            )
-            ?.groups
-            ?.get(1)
-            ?.value!!
-    }
-
-    private fun runProcess(vararg command: String): Process {
+    private fun runProcess(vararg command: String): String {
         val process = ProcessBuilder(command.asList())
             .directory(File("${Paths.get("").toAbsolutePath()}/examples/gcp-sample-project"))
             .redirectOutput(ProcessBuilder.Redirect.PIPE)
             .redirectError(ProcessBuilder.Redirect.INHERIT)
             .start()
         process.waitFor()
-        return process!!
-    }
-
-    private fun Process.assertOutputContainsString(assertion: String) {
-        assertContains(
-            inputStream.bufferedReader().readText(),
-            assertion,
-        )
+        return process.inputStream.bufferedReader().readText()
     }
 
     private fun getInstance(instanceId: String): Instance {
@@ -95,4 +86,7 @@ class GcpE2eTest {
             ?.instancesList
             ?.firstOrNull()!!
     }
+
+    @Serializable
+    data class StackOutput(val instanceName: String)
 }
