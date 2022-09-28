@@ -11,6 +11,7 @@ data class TypeMetadata(
     val pulumiName: PulumiName,
     val inputOrOutput: InputOrOutput,
     val useCharacteristic: UseCharacteristic,
+    val isEnum: Boolean = false,
 ) {
 
     constructor(
@@ -18,8 +19,14 @@ data class TypeMetadata(
         usage: Usage,
     ) : this(pulumiName, usage.inputOrOutput, usage.useCharacteristic)
 
+    constructor(
+        pulumiName: PulumiName,
+        usage: Usage,
+        isEnum: Boolean,
+    ) : this(pulumiName, usage.inputOrOutput, usage.useCharacteristic, isEnum)
+
     private fun namingFlags(language: LanguageType) =
-        NamingFlags(inputOrOutput, useCharacteristic, language)
+        NamingFlags(inputOrOutput, useCharacteristic, language, isEnum)
 
     fun names(language: LanguageType): NameGeneration {
         return NameGeneration(pulumiName, namingFlags(language))
@@ -86,7 +93,11 @@ data class MapType(val firstType: Type, val secondType: Type) : Type() {
 
 data class EitherType(val firstType: Type, val secondType: Type) : Type() {
     override fun toTypeName(languageType: LanguageType): TypeName {
-        return ANY // TODO: improve
+        return ClassName("com.pulumi.core", "Either")
+            .parameterizedBy(
+                firstType.toTypeName(languageType),
+                secondType.toTypeName(languageType),
+            )
     }
 }
 

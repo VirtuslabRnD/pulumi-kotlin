@@ -59,11 +59,29 @@ class FindInterestingSchemaSubsetsForTestsScript : CliktCommand() {
             return q1 && q2
         }
 
+        // criteria used to generate subset with type Either
+        fun queryForOneOf(candidate: CandidateEntity): Boolean {
+            val inputs = candidate.referencedInputTypes
+            val outputs = candidate.referencedOutputTypes
+
+            val q1 = with(inputs) {
+                any { it.eitherCount > 0 }
+            }
+
+            // there is no outputs in classic aws with either
+            val q2 = with(outputs) {
+                any { it.eitherCount > 0 }
+            }
+
+            return q1 || q2
+        }
+
         val resource = candidateResources.filter { query(it) }.take(20)
         val function = candidateFunctions.filter { query(it) }.take(20)
 
         val json = Json {
             prettyPrint = true
+            encodeDefaults = true
         }
 
         println(serializeResource(json, parsedSchema, resource, function))
@@ -72,8 +90,8 @@ class FindInterestingSchemaSubsetsForTestsScript : CliktCommand() {
 
 private data class CandidateEntity(
     val name: String,
-    val referencedInputTypes: List<TypeAndDepth>,
-    val referencedOutputTypes: List<TypeAndDepth>,
+    val referencedInputTypes: List<TypeAndDetails>,
+    val referencedOutputTypes: List<TypeAndDetails>,
 )
 
 private fun serializeResource(
@@ -134,28 +152,51 @@ private fun findCandidateEntities(
     }
 }
 
-private data class TypeAndDepth(val typeName: String, val depth: Int)
+private data class TypeAndDetails(val typeName: String, val depth: Int, val eitherCount: Int)
 
 private fun allReferencedTypes(
     types: TypesMap,
     spec: Resources.PropertySpecification,
     depth: Int = 0,
-): List<TypeAndDepth> {
+    eitherCount: Int = 0,
+    visited: Set<Resources.PropertySpecification> = emptySet(),
+): List<TypeAndDetails> {
+    // temporary solution to avoid StackOverflow on circular references
+    if (spec in visited) {
+        return emptyList()
+    }
+
     return when (spec) {
-        is Resources.ArrayProperty -> allReferencedTypes(types, spec.items, depth + 1)
-        is Resources.MapProperty -> allReferencedTypes(types, spec.additionalProperties, depth + 1)
-        is Resources.ObjectProperty -> spec.properties.values.flatMap { allReferencedTypes(types, it, depth + 1) }
-        is Resources.OneOf -> spec.oneOf.flatMap { allReferencedTypes(types, it, depth + 1) }
+        is Resources.ArrayProperty -> allReferencedTypes(types, spec.items, depth + 1, eitherCount, visited)
+        is Resources.MapProperty -> allReferencedTypes(
+            types,
+            spec.additionalProperties,
+            depth + 1,
+            eitherCount,
+            visited,
+        )
+
+        is Resources.ObjectProperty -> spec.properties.values.flatMap {
+            allReferencedTypes(
+                types,
+                it,
+                depth + 1,
+                eitherCount,
+                visited,
+            )
+        }
+
+        is Resources.OneOf -> spec.oneOf.flatMap { allReferencedTypes(types, it, depth + 1, eitherCount + 1, visited) }
 
         is Resources.ReferredProperty -> {
             val typeName = spec.`$ref`.withoutThePrefix()
-            val theType = TypeAndDepth(typeName, depth)
+            val theType = TypeAndDetails(typeName, depth, eitherCount)
             val foundSpec = types.get(typeName)
             if (foundSpec == null) {
                 error("could not find")
 //                listOf(theType)
             } else {
-                listOf(theType) + allReferencedTypes(types, foundSpec, depth + 1)
+                listOf(theType) + allReferencedTypes(types, foundSpec, depth + 1, eitherCount, visited.plus(foundSpec))
             }
         }
 

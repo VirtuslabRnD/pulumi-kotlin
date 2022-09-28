@@ -36,6 +36,30 @@ data class PulumiName(
 
     private fun getModifiers(namingFlags: NamingFlags): Modifiers {
         return when (namingFlags) {
+            NamingFlags(Input, ResourceNested, Kotlin, true) -> Modifiers(
+                "",
+                listOf("kotlin", "enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Output, ResourceNested, Kotlin, true) -> Modifiers(
+                "",
+                listOf("kotlin", "enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Input, ResourceNested, Java, true) -> Modifiers(
+                "",
+                listOf("enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Output, ResourceNested, Java, true) -> Modifiers(
+                "",
+                listOf("enums"),
+                shouldConstructBuilders = false,
+            )
+
             NamingFlags(Input, FunctionNested, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),

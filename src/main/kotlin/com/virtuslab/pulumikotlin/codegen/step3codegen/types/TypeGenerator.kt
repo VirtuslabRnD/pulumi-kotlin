@@ -87,7 +87,7 @@ object TypeGenerator {
             generateType(type.metadata, fields, generationOptions)
         }
 
-        return generatedTypes
+        return generatedTypes.plus(EnumTypeGenerator.generateEnums(types))
     }
 
     private fun generateType(
@@ -232,7 +232,9 @@ object TypeGenerator {
     }
 
     private fun FunSpec.Builder.preventJvmPlatformNameClash(): FunSpec.Builder {
-        return addAnnotation(AnnotationSpec.builder(JvmName::class).addMember("%S", randomStringWith16Characters()).build())
+        return addAnnotation(
+            AnnotationSpec.builder(JvmName::class).addMember("%S", randomStringWith16Characters()).build(),
+        )
     }
 
     private fun randomStringWith16Characters() =
@@ -270,7 +272,12 @@ object TypeGenerator {
 
                 listOf(
                     builderPattern(name, listOfLambdas(innerType), commonCodeBlock),
-                    builderPattern(name, builderLambda(innerType), commonCodeBlock, parameterModifiers = listOf(VARARG)),
+                    builderPattern(
+                        name,
+                        builderLambda(innerType),
+                        commonCodeBlock,
+                        parameterModifiers = listOf(VARARG),
+                    ),
                 )
             }
 

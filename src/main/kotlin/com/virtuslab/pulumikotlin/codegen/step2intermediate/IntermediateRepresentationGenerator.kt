@@ -45,6 +45,7 @@ data class NamingFlags(
     val inputOrOutput: InputOrOutput,
     val usage: UseCharacteristic,
     val language: LanguageType,
+    val isEnum: Boolean = false,
 )
 
 private typealias UsageWithName = UsageWith<String>
@@ -119,8 +120,8 @@ object IntermediateRepresentationGenerator {
 
                 allReferences.map { usage ->
                     EnumType(
-                        TypeMetadata(PulumiName.from(name), usage),
-                        spec.enum.map { it.value },
+                        TypeMetadata(PulumiName.from(name), usage, isEnum = true),
+                        spec.enum.map { it.name ?: it.value },
                     )
                 }
             }

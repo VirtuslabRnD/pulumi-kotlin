@@ -30,6 +30,19 @@ fun Expression.callMap(optional: Boolean = false, expressionMapper: (Expression)
     return call1("map", FunctionExpression.create(1, { expr -> expressionMapper(expr.get(0)) }), optional = optional)
 }
 
+fun Expression.callTransform(
+    optional: Boolean = false,
+    expressionMapperLeft: (Expression) -> Expression,
+    expressionMapperRight: (Expression) -> Expression,
+): Expression {
+    return callWithNArgumentExpressions(
+        "transform",
+        optional = optional,
+        FunctionExpression.create(1) { expr -> expressionMapperLeft(expr[0]) },
+        FunctionExpression.create(1) { expr -> expressionMapperRight(expr[0]) },
+    )
+}
+
 fun Expression.callLet(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
     return call1("let", FunctionExpression.create(1, { expr -> expressionMapper(expr.get(0)) }), optional = optional)
 }
@@ -45,6 +58,19 @@ fun Expression.callApplyValue(optional: Boolean = false, expressionMapper: (Expr
 fun Expression.call1(name: String, expression: Expression, optional: Boolean = false): Expression {
     val optionalString = if (optional) "?" else ""
     return (CustomExpressionBuilder.start() + this + "$optionalString." + name + "(" + expression + ")").build()
+}
+
+fun Expression.callWithNArgumentExpressions(
+    functionNameToCall: String,
+    optional: Boolean = false,
+    vararg expressions: Expression,
+): Expression {
+    val optionalString = if (optional) "?" else ""
+    return (
+        CustomExpressionBuilder.start() +
+            this + "$optionalString." + functionNameToCall + "(" + expressions.map { it.toCodeBlock() }
+            .map { it.toKotlinPoetCodeBlock() }.joinToString(separator = ", ") + ")"
+        ).build()
 }
 
 data class NullsafeApply(val expression: Expression, val mapper: (Expression) -> Expression) : Expression() {
