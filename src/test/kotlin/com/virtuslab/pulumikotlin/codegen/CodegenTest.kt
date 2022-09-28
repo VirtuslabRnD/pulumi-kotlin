@@ -185,7 +185,8 @@ class CodegenTest {
         artifact("com.pulumi:aws:5.14.0"),
         artifact("com.pulumi:gcp:6.37.0"),
         artifact("com.google.code.findbugs:jsr305:3.0.2"),
-        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.2"),
+        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4"),
+        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4"),
     )
 
     private fun assertGeneratedCodeCompiles(schemaPath: String) {
