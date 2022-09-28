@@ -5,10 +5,10 @@ import com.pulumi.Pulumi
 import com.pulumi.gcp.compute.kotlin.instanceResource
 import kotlinx.coroutines.runBlocking
 
-fun main(args: Array<String>) {
-    Pulumi.run { _: Context ->
+fun main() {
+    Pulumi.run { ctx: Context ->
         runBlocking {
-            instanceResource("gcp-sample-project") {
+            val instance = instanceResource("gcp-sample-project") {
                 args {
                     machineType("e2-micro")
                     zone("europe-central2-a")
@@ -30,6 +30,7 @@ fun main(args: Array<String>) {
                     }
                 }
             }
+            ctx.export("instanceName", instance.name)
         }
     }
 }
