@@ -1,4 +1,4 @@
-package myproject
+package project
 
 import com.pulumi.Context
 import com.pulumi.Pulumi
