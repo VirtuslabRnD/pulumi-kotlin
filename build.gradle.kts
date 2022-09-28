@@ -62,8 +62,8 @@ tasks.withType<Jar> {
 data class Schema(val providerName: String, val path: String, val customDependencies: List<String>)
 
 val schemas = listOf(
-    Schema("aws", "src/main/resources/aws-build-schema.json", listOf("com.pulumi:aws:5.14.0")),
-    Schema("gcp", "src/main/resources/gcp-build-schema.json", listOf("com.pulumi:gcp:6.37.0")),
+    Schema("aws", "src/main/resources/aws-build-schema.json", listOf("com.pulumi:aws:5.16.0")),
+    Schema("gcp", "src/main/resources/gcp-build-schema.json", listOf("com.pulumi:gcp:6.38.0")),
 )
 
 val createTasksForProvider: (String, String, String, List<String>) -> Unit by extra
