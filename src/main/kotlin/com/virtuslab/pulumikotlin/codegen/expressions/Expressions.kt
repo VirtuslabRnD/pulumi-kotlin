@@ -66,10 +66,12 @@ fun Expression.callWithNArgumentExpressions(
     vararg expressions: Expression,
 ): Expression {
     val optionalString = if (optional) "?" else ""
+    val joinedExpression = expressions.map { it.toCodeBlock() }
+        .map { it.toKotlinPoetCodeBlock() }
+        .joinToString(separator = ", ")
     return (
         CustomExpressionBuilder.start() +
-            this + "$optionalString." + functionNameToCall + "(" + expressions.map { it.toCodeBlock() }
-            .map { it.toKotlinPoetCodeBlock() }.joinToString(separator = ", ") + ")"
+            this + "$optionalString." + functionNameToCall + "(" + joinedExpression + ")"
         ).build()
 }
 

@@ -204,17 +204,17 @@ fun <T1, T2> Map<T1, T2>.toJava(): Map<T1, T2> {
 
 @JvmName("A3F01FCF2")
 fun <T, R> Output<out Either<T, out ConvertibleToJava<R>>>.toJava(): Output<Either<T, R>> {
-    return applyValue { it.transform({ it }, { it.toJava() }) }
+    return applyValue { either -> either.transform({ it }, { it.toJava() }) }
 }
 
 @JvmName("A3F01FCF3")
 fun <T, R> Output<out Either<out ConvertibleToJava<T>, out ConvertibleToJava<R>>>.toJava(): Output<Either<T, R>> {
-    return applyValue { it.transform({ it.toJava() }, { it.toJava() }) }
+    return applyValue { either -> either.transform({ it.toJava() }, { it.toJava() }) }
 }
 
 @JvmName("A3F01FCF4")
 fun <T, R> Output<out Either<out ConvertibleToJava<T>, R>>.toJava(): Output<Either<T, R>> {
-    return applyValue { it.transform({ it.toJava() }, { it }) }
+    return applyValue { either -> either.transform({ it.toJava() }, { it }) }
 }
 
 fun <T> Optional<T>.toKotlin(): T? {

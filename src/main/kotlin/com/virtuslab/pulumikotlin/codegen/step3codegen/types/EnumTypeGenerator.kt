@@ -49,7 +49,8 @@ object EnumTypeGenerator {
         return FileSpec.builder(
             kotlinNames.packageName,
             kotlinNames.className,
-        ).addType(enumTypeSpec)
+        )
+            .addType(enumTypeSpec)
             .build()
     }
 }
