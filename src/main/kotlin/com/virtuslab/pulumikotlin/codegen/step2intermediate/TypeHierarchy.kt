@@ -11,7 +11,7 @@ data class TypeMetadata(
     val pulumiName: PulumiName,
     val inputOrOutput: InputOrOutput,
     val useCharacteristic: UseCharacteristic,
-    val isEnum: Boolean = false,
+    val generatedClass: GeneratedClass = GeneratedClass.NormalClass,
 ) {
 
     constructor(
@@ -22,11 +22,11 @@ data class TypeMetadata(
     constructor(
         pulumiName: PulumiName,
         usage: Usage,
-        isEnum: Boolean,
-    ) : this(pulumiName, usage.inputOrOutput, usage.useCharacteristic, isEnum)
+        generatedClass: GeneratedClass,
+    ) : this(pulumiName, usage.inputOrOutput, usage.useCharacteristic, generatedClass)
 
     private fun namingFlags(language: LanguageType) =
-        NamingFlags(inputOrOutput, useCharacteristic, language, isEnum)
+        NamingFlags(inputOrOutput, useCharacteristic, language, generatedClass)
 
     fun names(language: LanguageType): NameGeneration {
         return NameGeneration(pulumiName, namingFlags(language))

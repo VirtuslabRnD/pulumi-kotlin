@@ -5,6 +5,7 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ResourcesMap
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.TypesMap
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.GeneratedClass.EnumClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.IntermediateRepresentationGenerator.UsageWith
@@ -41,11 +42,15 @@ enum class LanguageType {
     Kotlin, Java
 }
 
+enum class GeneratedClass {
+    EnumClass, NormalClass
+}
+
 data class NamingFlags(
     val inputOrOutput: InputOrOutput,
     val usage: UseCharacteristic,
     val language: LanguageType,
-    val isEnum: Boolean = false,
+    val generatedClass: GeneratedClass = GeneratedClass.NormalClass,
 )
 
 private typealias UsageWithName = UsageWith<String>
@@ -120,7 +125,7 @@ object IntermediateRepresentationGenerator {
 
                 allReferences.map { usage ->
                     EnumType(
-                        TypeMetadata(PulumiName.from(name), usage, isEnum = true),
+                        TypeMetadata(PulumiName.from(name), usage, EnumClass),
                         spec.enum.map { it.name ?: it.value },
                     )
                 }
