@@ -21,7 +21,7 @@ fun main() {
                         network("default")
                     },
                 )
-                metadata(mapOf("foo" to "bar"))
+                metadata("foo" to "bar")
                 metadataStartupScript("echo hi > /test.txt")
                 serviceAccount {
                     scopes("cloud-platform")
