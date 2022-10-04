@@ -77,6 +77,8 @@ jobs:
         uses: google-github-actions/auth@v0
         id: auth
         with:
+          # the credentials were generated using the following script:
+          # https://github.com/VirtuslabRnD/jvm-lab/blob/main/scripts/setup-github-actions-google-cloud-authentication.sh
           workload_identity_provider: 'projects/954450653667/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
           service_account: 'github-actions@jvm-lab.iam.gserviceaccount.com'
       - name: Publish Pulumi Kotlin to Maven Local
