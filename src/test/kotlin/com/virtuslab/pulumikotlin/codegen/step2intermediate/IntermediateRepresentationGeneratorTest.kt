@@ -33,7 +33,9 @@ internal class IntermediateRepresentationGeneratorTest {
         val types = mapOf(
             typeName1 to ObjectProperty(
                 properties = mapOf(
-                    PropertyName("referencedType2") to ReferredProperty(`$ref` = SpecificationReference(ref(typeName2))),
+                    PropertyName("referencedType2") to ReferredProperty(
+                        `$ref` = SpecificationReference(ref(typeName2)),
+                    ),
                     PropertyName("int") to IntegerProperty(),
                 ),
             ),

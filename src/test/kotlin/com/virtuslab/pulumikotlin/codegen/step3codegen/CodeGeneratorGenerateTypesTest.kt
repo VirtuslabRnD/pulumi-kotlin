@@ -25,10 +25,15 @@ internal class CodeGeneratorGenerateTypesTest {
                 PulumiName("aws", listOf("aws"), "FirstType"),
                 InputOrOutput.Input,
                 UseCharacteristic.ResourceNested,
+                KDoc(null, null),
             ),
 
             mapOf(
-                "field1" to TypeAndOptionality(PrimitiveType("String"), true),
+                "field1" to TypeAndOptionality(
+                    PrimitiveType("String"),
+                    true,
+                    KDoc(null, null),
+                ),
             ),
         )
         val secondType = ComplexType(
@@ -36,9 +41,14 @@ internal class CodeGeneratorGenerateTypesTest {
                 PulumiName("aws", listOf("aws"), "SecondType"),
                 InputOrOutput.Input,
                 UseCharacteristic.ResourceNested,
+                KDoc(null, null),
             ),
             mapOf(
-                "field2" to TypeAndOptionality(firstType, true),
+                "field2" to TypeAndOptionality(
+                    firstType,
+                    true,
+                    KDoc(null, null),
+                ),
             ),
         )
 

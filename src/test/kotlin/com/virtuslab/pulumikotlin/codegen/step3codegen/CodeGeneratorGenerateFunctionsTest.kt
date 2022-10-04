@@ -26,10 +26,15 @@ internal class CodeGeneratorGenerateFunctionsTest {
                 PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
                 InputOrOutput.Input,
                 UseCharacteristic.FunctionRoot,
+                KDoc(null, null),
             ),
 
             mapOf(
-                "arn" to TypeAndOptionality(PrimitiveType("String"), true),
+                "arn" to TypeAndOptionality(
+                    PrimitiveType("String"),
+                    true,
+                    KDoc(null, null),
+                ),
             ),
         )
         val outputType = ComplexType(
@@ -37,16 +42,22 @@ internal class CodeGeneratorGenerateFunctionsTest {
                 PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
                 InputOrOutput.Output,
                 UseCharacteristic.FunctionRoot,
+                KDoc(null, null),
             ),
 
             mapOf(
-                "arn" to TypeAndOptionality(PrimitiveType("String"), true),
+                "arn" to TypeAndOptionality(
+                    PrimitiveType("String"),
+                    true,
+                    KDoc(null, null),
+                ),
             ),
         )
         val function = FunctionType(
             PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
             inputType,
             outputType,
+            KDoc(null, null),
         )
 
         val generationOptions = TypeGenerator.GenerationOptions()

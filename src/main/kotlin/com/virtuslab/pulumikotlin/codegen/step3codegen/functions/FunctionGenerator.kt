@@ -1,5 +1,6 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen.functions
 
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -22,6 +23,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KDocGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 
@@ -76,7 +78,7 @@ object FunctionGenerator {
     private fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
         val hasAnyArguments = (functionType.argsType as? ComplexType)?.fields?.isNotEmpty() ?: true
 
-        val basicFunSpec = FunSpec.builder(functionType.name.name)
+        val basicFunSpecBuilder = FunSpec.builder(functionType.name.name)
             .letIf(hasAnyArguments) {
                 it.addParameter("argument", functionType.argsType.toTypeName())
             }
@@ -90,6 +92,16 @@ object FunctionGenerator {
                 }
                 it.addCode(callAwaitAndDoTheMapping(functionType, argumentExpression))
             }
+
+        val functionDocs = functionType.kDoc.description ?: ""
+        val returnDoc = "@return ${functionType.outputType.metadata.kDoc.description}\n"
+
+        KDocGenerator.addKDoc(
+            { format, args -> basicFunSpecBuilder.addKdoc(format, args) },
+            "$functionDocs@param argument\n$returnDoc",
+        )
+
+        val basicFunSpec = basicFunSpecBuilder
             .build()
 
         if (!hasAnyArguments) {
@@ -131,8 +143,24 @@ object FunctionGenerator {
                             ),
                         )
                     }
-                    .build()
             }
+            .let {
+                val paramDocs = (functionType.argsType as? ComplexType)?.fields?.map {
+                    "@param ${it.key} ${it.value.kDoc.description ?: ""}"
+                }
+                    ?.joinToString("\n")
+                KDocGenerator.addKDoc(
+                    { format, args -> it?.addKdoc(format, args) },
+                    "See [${functionType.name.name}]\n$paramDocs$returnDoc",
+                )
+
+                KDocGenerator.addDeprecationWarning(
+                    { annotationSpec -> it?.addAnnotation(annotationSpec) },
+                    functionType.kDoc,
+                )
+                it
+            }
+            .let { it?.build() }
 
         val typeSafeBuilderOverloadFunSpec = (functionType.argsType as? ComplexType)?.let { args ->
             FunSpec.builder(functionType.name.name)
@@ -157,10 +185,27 @@ object FunctionGenerator {
                         ),
                     )
 
+                    KDocGenerator.addKDoc(
+                        { format, args -> builder.addKdoc(format, args) },
+                        "See [${functionType.name.name}]\n@param argument\n$returnDoc",
+                    )
+
+                    KDocGenerator.addDeprecationWarning(
+                        { annotationSpec -> builder.addAnnotation(annotationSpec) },
+                        functionType.kDoc,
+                    )
+
                     builder.addCode(allCode)
                 }
-                .build()
         }
+            .letIf(functionType.kDoc.deprecationMessage != null) {
+                it?.addAnnotation(
+                    AnnotationSpec.builder(Deprecated::class)
+                        .addMember("message = \"\"\"\n${functionType.kDoc.deprecationMessage}\n\"\"\"")
+                        .build(),
+                )
+            }
+            .let { it?.build() }
 
         return listOfNotNull(basicFunSpec, separateArgumentsOverloadFunSpec, typeSafeBuilderOverloadFunSpec)
     }

@@ -36,6 +36,8 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.FieldType
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KDocGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.listOfLambdas
@@ -68,6 +70,7 @@ object TypeGenerator {
                         NormalField(typeAndOptionality.type) { expr -> expr },
                         typeAndOptionality.required,
                         overloads = emptyList(),
+                        typeAndOptionality.kDoc,
                     )
                 }
             } else {
@@ -81,6 +84,7 @@ object TypeGenerator {
                                 MoreTypes.Java.Pulumi.Output.of(argument)
                             },
                         ),
+                        typeAndOptionality.kDoc,
                     )
                 }
             }
@@ -116,12 +120,25 @@ object TypeGenerator {
 
         val constructor = FunSpec.constructorBuilder()
 
+        KDocGenerator.addDeprecationWarning(
+            { annotationSpec -> constructor.addAnnotation(annotationSpec) },
+            typeMetadata.kDoc,
+        )
+
         fields.forEach { field ->
             val isRequired = field.required
             val typeName = field.fieldType.toTypeName().copy(nullable = !isRequired)
+
+            val propertyBuilder = PropertySpec.builder(field.name, typeName)
+                .initializer(field.name)
+
+            KDocGenerator.addDeprecationWarning(
+                { annotationSpec -> propertyBuilder.addAnnotation(annotationSpec) },
+                field.kDoc,
+            )
+
             classB.addProperty(
-                PropertySpec.builder(field.name, typeName)
-                    .initializer(field.name)
+                propertyBuilder
                     .build(),
             )
 
@@ -146,6 +163,17 @@ object TypeGenerator {
                     .build(),
             )
         }
+
+        val classDocs = typeMetadata.kDoc.description ?: ""
+        val propertyDocs = fields.joinToString("\n") {
+            "@property ${it.name} ${it.kDoc.description ?: ""}"
+        }
+
+        KDocGenerator.addKDoc(
+            { format, args -> classB.addKdoc(format, args) },
+            "$classDocs$propertyDocs",
+        )
+
         val argsClass = classB.build()
 
         val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
@@ -155,7 +183,7 @@ object TypeGenerator {
             it.name to CustomExpressionBuilder.start("%N$requiredPart", it.name).build()
         }
 
-        val argsBuilderClass = TypeSpec
+        val argsBuilderClassBuilder = TypeSpec
             .classBuilder(argsBuilderClassName)
             .primaryConstructor(
                 FunSpec
@@ -184,8 +212,20 @@ object TypeGenerator {
                     .addModifiers(INTERNAL)
                     .returns(argsClassName)
                     .addCode(Return(ConstructObjectExpression(argsClassName, arguments)))
+                    .addKdoc("@return built [${argsClassName.simpleName}] object")
                     .build(),
             )
+
+        KDocGenerator.addKDoc(
+            { format, args -> argsBuilderClassBuilder.addKdoc(format, args) },
+            "Builder for [${argsClassName.simpleName}]",
+        )
+
+        KDocGenerator.addDeprecationWarning(
+            { annotationSpec -> argsBuilderClassBuilder.addAnnotation(annotationSpec) },
+            typeMetadata.kDoc,
+        )
+        val argsBuilderClass = argsBuilderClassBuilder
             .build()
 
         fileSpec
@@ -224,10 +264,11 @@ object TypeGenerator {
     private fun builderPattern(
         name: String,
         parameterType: TypeName,
+        kDoc: KDoc,
         codeBlock: KotlinPoetPatterns.BuilderSettingCodeBlock,
         parameterModifiers: List<KModifier> = emptyList(),
     ): FunSpec {
-        return FunSpec
+        val funSpecBuilder = FunSpec
             .builder(name)
             .addModifiers(SUSPEND)
             .addParameter(
@@ -236,12 +277,26 @@ object TypeGenerator {
                 parameterModifiers,
             )
             .addCode(codeBlock.toCodeBlock(name))
+
+        KDocGenerator.addKDoc(
+            { format, args -> funSpecBuilder.addKdoc(format, args) },
+            "@param argument ${kDoc.description ?: ""}",
+        )
+
+        KDocGenerator.addDeprecationWarning(
+            { annotationSpec -> funSpecBuilder.addAnnotation(annotationSpec) },
+            kDoc,
+        )
+
+        return funSpecBuilder
             .build()
     }
 
     private fun FunSpec.Builder.preventJvmPlatformNameClash(): FunSpec.Builder {
         return addAnnotation(
-            AnnotationSpec.builder(JvmName::class).addMember("%S", randomStringWith16Characters()).build(),
+            AnnotationSpec.builder(JvmName::class)
+                .addMember("%S", randomStringWith16Characters())
+                .build(),
         )
     }
 
@@ -251,12 +306,14 @@ object TypeGenerator {
     private fun specialMethodsForComplexType(
         name: String,
         field: NormalField<ComplexType>,
+        kDoc: KDoc,
     ): List<FunSpec> {
         val builderTypeName = field.type.toBuilderTypeName()
         return listOf(
             builderPattern(
                 name,
                 builderLambda(builderTypeName),
+                kDoc,
                 KotlinPoetPatterns.BuilderSettingCodeBlock
                     .create("%T().applySuspend{ argument() }.build()", builderTypeName)
                     .withMappingCode(field.mappingCode),
@@ -267,6 +324,7 @@ object TypeGenerator {
     private fun specialMethodsForList(
         name: String,
         field: NormalField<ListType>,
+        kDoc: KDoc,
     ): List<FunSpec> {
         val innerType = field.type.innerType
         val builderPattern = when (innerType) {
@@ -279,10 +337,11 @@ object TypeGenerator {
                     .withMappingCode(field.mappingCode)
 
                 listOf(
-                    builderPattern(name, listOfLambdas(innerType), commonCodeBlock),
+                    builderPattern(name, listOfLambdas(innerType), kDoc, commonCodeBlock),
                     builderPattern(
                         name,
                         builderLambda(innerType),
+                        kDoc,
                         commonCodeBlock,
                         parameterModifiers = listOf(VARARG),
                     ),
@@ -292,12 +351,24 @@ object TypeGenerator {
             else -> emptyList()
         }
 
+        val varargBuilder = FunSpec
+            .builder(name)
+            .addModifiers(SUSPEND)
+            .addParameter("values", innerType.toTypeName(), VARARG)
+            .addCode(mappingCodeBlock(field, false, name, "values.toList()"))
+
+        KDocGenerator.addKDoc(
+            { format, args -> varargBuilder.addKdoc(format, args) },
+            "@param values ${kDoc.description ?: ""}",
+        )
+
+        KDocGenerator.addDeprecationWarning(
+            { annotationSpec -> varargBuilder.addAnnotation(annotationSpec) },
+            kDoc,
+        )
+
         val justValuesPassedAsVarargArguments = listOf(
-            FunSpec
-                .builder(name)
-                .addModifiers(SUSPEND)
-                .addParameter("values", innerType.toTypeName(), VARARG)
-                .addCode(mappingCodeBlock(field, false, name, "values.toList()"))
+            varargBuilder
                 .build(),
         )
 
@@ -307,6 +378,7 @@ object TypeGenerator {
     private fun specialMethodsForMap(
         name: String,
         field: NormalField<MapType>,
+        kDoc: KDoc,
     ): List<FunSpec> {
         val leftInnerType = field.type.firstType
         val rightInnerType = field.type.secondType
@@ -324,6 +396,7 @@ object TypeGenerator {
                     builderPattern(
                         name,
                         MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), builderLambda(rightInnerType)),
+                        kDoc,
                         commonCodeBlock,
                         parameterModifiers = listOf(VARARG),
                     ),
@@ -333,15 +406,27 @@ object TypeGenerator {
             else -> emptyList()
         }
 
+        val varargBuilder = FunSpec
+            .builder(name)
+            .addParameter(
+                "values",
+                MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()),
+                VARARG,
+            )
+            .addCode(mappingCodeBlock(field, false, name, "values.toMap()"))
+
+        KDocGenerator.addKDoc(
+            { format, args -> varargBuilder.addKdoc(format, args) },
+            "@param values ${kDoc.description ?: ""}",
+        )
+
+        KDocGenerator.addDeprecationWarning(
+            { annotationSpec -> varargBuilder.addAnnotation(annotationSpec) },
+            kDoc,
+        )
+
         val justValuesPassedAsVarargArguments = listOf(
-            FunSpec
-                .builder(name)
-                .addParameter(
-                    "values",
-                    MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()),
-                    VARARG,
-                )
-                .addCode(mappingCodeBlock(field, false, name, "values.toMap()"))
+            varargBuilder
                 .build(),
         )
 
@@ -349,10 +434,15 @@ object TypeGenerator {
     }
 
     private fun generateFunctionsForInput(field: Field<*>): List<FunSpec> {
-        val functionsForDefaultField = generateFunctionsForInput2(field.name, field.required, field.fieldType)
+        val functionsForDefaultField = generateFunctionsForInput2(
+            field.name,
+            field.required,
+            field.fieldType,
+            field.kDoc,
+        )
 
         val functionsForOverloads = field.overloads.flatMap {
-            generateFunctionsForInput2(field.name, field.required, it)
+            generateFunctionsForInput2(field.name, field.required, it, field.kDoc)
         }
 
         val allFunctions = functionsForDefaultField + functionsForOverloads
@@ -365,21 +455,38 @@ object TypeGenerator {
         }
     }
 
-    private fun generateFunctionsForInput2(name: String, required: Boolean, fieldType: FieldType<*>): List<FunSpec> {
+    private fun generateFunctionsForInput2(
+        name: String,
+        required: Boolean,
+        fieldType: FieldType<*>,
+        kDoc: KDoc,
+    ): List<FunSpec> {
         val functions = when (fieldType) {
             is NormalField -> {
-                val basicFunction =
-                    FunSpec
-                        .builder(name)
-                        .addModifiers(SUSPEND)
-                        .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
-                        .addCode(mappingCodeBlock(fieldType, required, name, "value"))
-                        .build()
+                val basicFunctionBuilder = FunSpec
+                    .builder(name)
+                    .addModifiers(SUSPEND)
+                    .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
+                    .addCode(mappingCodeBlock(fieldType, required, name, "value"))
 
+                KDocGenerator.addKDoc(
+                    { format, args -> basicFunctionBuilder.addKdoc(format, args) },
+                    "@param value ${kDoc.description ?: ""}",
+                )
+
+                KDocGenerator.addDeprecationWarning(
+                    { annotationSpec -> basicFunctionBuilder.addAnnotation(annotationSpec) },
+                    kDoc,
+                )
+
+                val basicFunction = basicFunctionBuilder
+                    .build()
+
+                @Suppress("UNCHECKED_CAST")
                 val otherFunctions = when (fieldType.type) {
-                    is ComplexType -> specialMethodsForComplexType(name, fieldType as NormalField<ComplexType>)
-                    is ListType -> specialMethodsForList(name, fieldType as NormalField<ListType>)
-                    is MapType -> specialMethodsForMap(name, fieldType as NormalField<MapType>)
+                    is ComplexType -> specialMethodsForComplexType(name, fieldType as NormalField<ComplexType>, kDoc)
+                    is ListType -> specialMethodsForList(name, fieldType as NormalField<ListType>, kDoc)
+                    is MapType -> specialMethodsForMap(name, fieldType as NormalField<MapType>, kDoc)
                     is PrimitiveType -> listOf()
                     is EitherType -> listOf()
                     else -> listOf()
@@ -388,14 +495,25 @@ object TypeGenerator {
                 otherFunctions + basicFunction
             }
 
-            is OutputWrappedField -> listOf(
-                FunSpec
+            is OutputWrappedField -> {
+                val functionBuilder = FunSpec
                     .builder(name)
                     .addModifiers(SUSPEND)
                     .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
                     .addCode("this.%N = value", name)
-                    .build(),
-            )
+
+                KDocGenerator.addKDoc(
+                    { format, args -> functionBuilder.addKdoc(format, args) },
+                    "@param value Wrapped in an [Output]: ${kDoc.description ?: ""}",
+                )
+
+                KDocGenerator.addDeprecationWarning(
+                    { annotationSpec -> functionBuilder.addAnnotation(annotationSpec) },
+                    kDoc,
+                )
+
+                listOf(functionBuilder.build())
+            }
         }
 
         return functions

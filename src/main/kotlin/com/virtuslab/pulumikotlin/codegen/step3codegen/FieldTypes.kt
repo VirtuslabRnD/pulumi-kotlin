@@ -28,4 +28,5 @@ data class Field<T : Type>(
     val fieldType: FieldType<T>,
     val required: Boolean,
     val overloads: List<FieldType<*>>,
+    val kDoc: KDoc,
 )

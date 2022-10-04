@@ -18,6 +18,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KDocGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ToKotlin.toKotlinFunctionResource
 import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 
@@ -62,7 +63,7 @@ object ResourceGenerator {
         val javaResourceClassName = ClassName(names.toResourcePackage(javaFlags), names.toResourceName(javaFlags))
 
         val fields = resourceType.outputFields.map { field ->
-            PropertySpec.builder(
+            val builder = PropertySpec.builder(
                 field.name,
                 MoreTypes.Java.Pulumi.Output(
                     field.fieldType.type.toTypeName().copy(nullable = !field.required),
@@ -72,10 +73,20 @@ object ResourceGenerator {
                     FunSpec.getterBuilder()
                         .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required)).build(),
                 )
-                .build()
+
+            KDocGenerator.addKDoc(
+                { format, args -> builder.addKdoc(format, args) },
+                field.kDoc,
+            )
+            KDocGenerator.addDeprecationWarning(
+                { annotationSpec -> builder.addAnnotation(annotationSpec) },
+                field.kDoc,
+            )
+
+            builder.build()
         }
 
-        val resourceClass = TypeSpec
+        val resourceClassBuilder = TypeSpec
             .classBuilder(resourceClassName)
             .addProperties(
                 listOf(
@@ -91,6 +102,17 @@ object ResourceGenerator {
                     .build(),
             )
             .addProperties(fields)
+
+        KDocGenerator.addKDoc(
+            { format, args -> resourceClassBuilder.addKdoc(format, args) },
+            resourceType.kDoc,
+        )
+        KDocGenerator.addDeprecationWarning(
+            { annotationSpec -> resourceClassBuilder.addAnnotation(annotationSpec) },
+            resourceType.kDoc,
+        )
+
+        val resourceClass = resourceClassBuilder
             .build()
 
         val resourceBuilderClassName =
