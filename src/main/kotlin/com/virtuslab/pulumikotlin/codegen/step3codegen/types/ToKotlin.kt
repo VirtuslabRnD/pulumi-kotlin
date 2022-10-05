@@ -3,6 +3,7 @@ package com.virtuslab.pulumikotlin.codegen.step3codegen.types
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.MemberName.Companion.member
+import com.squareup.kotlinpoet.ParameterSpec
 import com.virtuslab.pulumikotlin.codegen.expressions.ConstructObjectExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.Expression
@@ -12,6 +13,7 @@ import com.virtuslab.pulumikotlin.codegen.expressions.addCode
 import com.virtuslab.pulumikotlin.codegen.expressions.call0
 import com.virtuslab.pulumikotlin.codegen.expressions.call1
 import com.virtuslab.pulumikotlin.codegen.expressions.callMap
+import com.virtuslab.pulumikotlin.codegen.expressions.callTransform
 import com.virtuslab.pulumikotlin.codegen.expressions.field
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
@@ -26,6 +28,10 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Type
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KeywordsEscaper
+
+private const val TO_KOTLIN_FUNCTION_NAME = "toKotlin"
+
+private const val JAVA_TYPE_PARAMETER_NAME = "javaType"
 
 object ToKotlin {
     fun toKotlinFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
@@ -46,24 +52,36 @@ object ToKotlin {
         val names = typeMetadata.names(LanguageType.Kotlin)
         val kotlinArgsClass = ClassName(names.packageName, names.className)
 
-        val javaNames = typeMetadata.names(LanguageType.Java)
-        val javaArgsClass = ClassName(javaNames.packageName, javaNames.className)
-
         val objectCreation = Return(ConstructObjectExpression(kotlinArgsClass, arguments))
 
-        return FunSpec.builder("toKotlin")
+        return FunSpec.builder(TO_KOTLIN_FUNCTION_NAME)
             .returns(kotlinArgsClass)
-            .addParameter("javaType", javaArgsClass)
+            .addParameter(prepareToJavaParameterSpec(typeMetadata))
             .addCode(objectCreation)
+            .build()
+    }
+
+    fun toKotlinEnumFunction(typeMetadata: TypeMetadata): FunSpec {
+        val kotlinNames = typeMetadata.names(LanguageType.Kotlin)
+        val kotlinClass = ClassName(kotlinNames.packageName, kotlinNames.className)
+
+        return FunSpec.builder(TO_KOTLIN_FUNCTION_NAME)
+            .addParameter(prepareToJavaParameterSpec(typeMetadata))
+            .returns(kotlinClass)
+            .addStatement("return %T.valueOf(%L.name)", kotlinClass, JAVA_TYPE_PARAMETER_NAME)
             .build()
     }
 
     private fun toKotlinExpression(expression: Expression, type: Type): Expression {
         return when (val type = type) {
             AnyType -> expression
-            is ComplexType -> type.toTypeName().member("toKotlin")(expression)
-            is EnumType -> type.toTypeName().member("toKotlin")(expression)
-            is EitherType -> expression
+            is ComplexType -> type.toTypeName().member(TO_KOTLIN_FUNCTION_NAME)(expression)
+            is EnumType -> type.toTypeName().member(TO_KOTLIN_FUNCTION_NAME)(expression)
+            is EitherType -> expression.callTransform(
+                expressionMapperLeft = { args -> toKotlinExpression(args, type.firstType) },
+                expressionMapperRight = { args -> toKotlinExpression(args, type.secondType) },
+            )
+
             is ListType -> expression.callMap { args -> toKotlinExpression(args, type.innerType) }
 
             is MapType ->
@@ -78,6 +96,18 @@ object ToKotlin {
     }
 
     private fun toKotlinExpressionBase(name: String): Expression {
-        return CustomExpression("javaType.%N().toKotlin()!!", KeywordsEscaper.escape(name))
+        return CustomExpression(
+            "%L.%N().%L()!!",
+            JAVA_TYPE_PARAMETER_NAME,
+            KeywordsEscaper.escape(name),
+            TO_KOTLIN_FUNCTION_NAME,
+        )
+    }
+
+    private fun prepareToJavaParameterSpec(typeMetadata: TypeMetadata): ParameterSpec {
+        val javaNames = typeMetadata.names(LanguageType.Java)
+        val javaClass = ClassName(javaNames.packageName, javaNames.className)
+
+        return ParameterSpec.builder(JAVA_TYPE_PARAMETER_NAME, javaClass).build()
     }
 }

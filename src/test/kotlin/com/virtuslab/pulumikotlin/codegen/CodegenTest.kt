@@ -148,6 +148,70 @@ class CodegenTest {
     }
 
     @Test
+    fun `aws methods using Either and Enum can be invoked`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.aws.route53.kotlin.enums.RecordType
+            import com.pulumi.aws.route53.kotlin.recordResource
+            import com.pulumi.core.Either
+
+            private const val RECORD_NAME = "record"
+            private const val ZONE_ID = "zoneId"
+            
+            suspend fun main() {
+                val record = recordResource(RECORD_NAME) {
+                    name(RECORD_NAME)
+                    args {
+                        aliases(
+                            {
+                                evaluateTargetHealth(true)
+                                name("name")
+                                zoneId(ZONE_ID)
+                            }
+                        )
+                        allowOverwrite(true)
+                        failoverRoutingPolicies(
+                            {
+                                type("type")
+                            }
+                        )
+                        geolocationRoutingPolicies(
+                            {
+                                continent("continent")
+                                country("country")
+                                subdivision("subdivision")
+                            }
+                        )
+                        healthCheckId("healthCheckId")
+                        latencyRoutingPolicies(
+                            {
+                                region("region")
+                            }
+                        )
+                        multivalueAnswerRoutingPolicy(true)
+                        name(RECORD_NAME)
+                        records("records")
+                        setIdentifier("setIdentifier")
+                        ttl(1)
+                        type(Either.ofRight(RecordType.AAAA))
+                        weightedRoutingPolicies(
+                            {
+                                weight(1)
+                            }
+                        )
+                        zoneId(ZONE_ID)
+                    }
+                }
+            
+                record.type
+            }
+
+            """
+
+        assertGeneratedCodeAndSourceFileCompile("schema_aws_classic_5.15.0_subset_with_one_of.json", code)
+    }
+
+    @Test
     fun `bigger subset of aws schema can be compiled`() {
         assertGeneratedCodeCompiles("aws-big-schema-subset.json")
     }

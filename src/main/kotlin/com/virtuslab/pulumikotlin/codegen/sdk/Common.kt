@@ -1,6 +1,7 @@
 package com.pulumi.kotlin
 
 import com.pulumi.Context
+import com.pulumi.core.Either
 import com.pulumi.core.Output
 import com.pulumi.resources.CustomResourceOptions
 import kotlinx.coroutines.runBlocking
@@ -199,6 +200,21 @@ fun <T> List<T>.toJava(): List<T> {
 @JvmName("A3F01FCF1")
 fun <T1, T2> Map<T1, T2>.toJava(): Map<T1, T2> {
     return this
+}
+
+@JvmName("A3F01FCF2")
+fun <T, R> Output<out Either<T, out ConvertibleToJava<R>>>.toJava(): Output<Either<T, R>> {
+    return applyValue { either -> either.transform({ it }, { it.toJava() }) }
+}
+
+@JvmName("A3F01FCF3")
+fun <T, R> Output<out Either<out ConvertibleToJava<T>, out ConvertibleToJava<R>>>.toJava(): Output<Either<T, R>> {
+    return applyValue { either -> either.transform({ it.toJava() }, { it.toJava() }) }
+}
+
+@JvmName("A3F01FCF4")
+fun <T, R> Output<out Either<out ConvertibleToJava<T>, R>>.toJava(): Output<Either<T, R>> {
+    return applyValue { either -> either.transform({ it.toJava() }, { it }) }
 }
 
 fun <T> Optional<T>.toKotlin(): T? {

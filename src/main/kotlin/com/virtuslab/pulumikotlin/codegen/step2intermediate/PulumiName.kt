@@ -1,6 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.squareup.kotlinpoet.ClassName
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.GeneratedClass.EnumClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
@@ -36,6 +37,30 @@ data class PulumiName(
 
     private fun getModifiers(namingFlags: NamingFlags): Modifiers {
         return when (namingFlags) {
+            NamingFlags(Input, ResourceNested, Kotlin, EnumClass) -> Modifiers(
+                "",
+                listOf("kotlin", "enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Output, ResourceNested, Kotlin, EnumClass) -> Modifiers(
+                "",
+                listOf("kotlin", "enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Input, ResourceNested, Java, EnumClass) -> Modifiers(
+                "",
+                listOf("enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Output, ResourceNested, Java, EnumClass) -> Modifiers(
+                "",
+                listOf("enums"),
+                shouldConstructBuilders = false,
+            )
+
             NamingFlags(Input, FunctionNested, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),
