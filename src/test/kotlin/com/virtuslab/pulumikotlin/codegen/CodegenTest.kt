@@ -319,13 +319,8 @@ class CodegenTest {
                         dispatchRules(
                             {
                                 project("THIS-SHOULD-NOT-WORK")
-                                domain("domain")
                                 path("path")
                             },
-                            {
-                                domain("domain2")
-                                path("path2")
-                            }
                         )
                     }
                 }
@@ -357,8 +352,7 @@ class CodegenTest {
     }
 
     private fun assertGeneratedCodeAndSourceFilesDoNotCompile(schemaPath: String, sourceFiles: Map<String, String>) {
-        val compilation = generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles)
-        val compilationResult = compilation.compile()
+        val compilationResult = generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles)
 
         if (compilationResult.exitCode == COMPILATION_ERROR) {
             println("Code did not compile (as expected). Encountered problems: ${compilationResult.messages}")
@@ -371,8 +365,7 @@ class CodegenTest {
     }
 
     private fun assertGeneratedCodeAndSourceFilesCompile(schemaPath: String, sourceFiles: Map<String, String>) {
-        val compilation = generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles)
-        val compilationResult = compilation.compile()
+        val compilationResult = generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles)
 
         assertEquals(
             OK,
@@ -410,46 +403,48 @@ class CodegenTest {
     }
 
     /**
-     * Simulate modules, so that proper encapsulation can be tested (`internal` visibility modifier).
+     * This simulates modules (generated code being a separate module from code provided by the user),
+     * so that proper encapsulation can be tested (`internal` visibility modifier).
      *
-     * This compiles files/directories, that would normally live in different artifacts, separately.
+     * How? This compiles files/directories, that would normally live in different artifacts, separately.
      *
      * [Kotlin docs](https://kotlinlang.org/docs/visibility-modifiers.html#modules):
      *
      * A module is a set of Kotlin files compiled together, for example:
      * - ...
      * - **A set of files compiled with one invocation of the <kotlinc> Ant task.**
+     *
      */
-    data class ModularizedKotlinCompilation(val compilationPerModule: Map<String, KotlinCompilation>) {
-        fun compile(): AggregateCompilationResult {
-            return AggregateCompilationResult.from(
-                compilationPerModule.mapValues { (_, value) -> value.compile() },
-            )
-        }
-    }
-
     private fun generateCodeAndCompileAsSeparateModules(
         schemaPath: String,
         sourceFiles: Map<String, String>,
-    ): ModularizedKotlinCompilation {
+    ): AggregateCompilationResult {
         val outputDirectory = Codegen.codegen(loadResource("/$schemaPath"))
-        val generatedKotlinFiles = readFilesRecursively(outputDirectory)
+        val generatedSourceFiles = readFilesRecursively(outputDirectory)
             .map { (fileName, contents) -> SourceFile.kotlin(fileName, contents) }
 
-        val hardcodedSources = sourceFiles
+        val additionalSourceFiles = sourceFiles
             .map { (fileName, source) -> SourceFile.new(fileName, source.trimIndent()) }
 
-        val compilation = KotlinCompilation().apply {
-            sources = generatedKotlinFiles
+        val compilationForGeneratedCode = KotlinCompilation().apply {
+            sources = generatedSourceFiles
             classpaths = classPath
         }
 
-        val compilationTwo = KotlinCompilation().apply {
-            sources = hardcodedSources
-            classpaths = classPath + compilation.classesDir
+        val compilationForAdditionalCode = KotlinCompilation().apply {
+            sources = additionalSourceFiles
+            classpaths = classPath + compilationForGeneratedCode.classesDir
         }
 
-        return ModularizedKotlinCompilation(mapOf("fromSchema" to compilation, "main" to compilationTwo))
+        val compiledGeneratedCode = compilationForGeneratedCode.compile()
+        val compiledAdditionalCode = compilationForAdditionalCode.compile()
+
+        return AggregateCompilationResult.from(
+            mapOf(
+                "generatedCode" to compiledGeneratedCode,
+                "additionalCode" to compiledAdditionalCode,
+            ),
+        )
     }
 
     private fun artifact(coordinate: String) =
