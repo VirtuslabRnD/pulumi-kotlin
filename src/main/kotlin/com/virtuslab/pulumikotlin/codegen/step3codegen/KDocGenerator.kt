@@ -1,17 +1,17 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.squareup.kotlinpoet.AnnotationSpec
+import kotlin.text.Regex.Companion.escapeReplacement
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
-private const val EXAMPLES_HEADER_REGEX = "\\{\\{% examples %}}\\n(.*?)\\{\\{% example %}}(.*?)\\{\\{% /examples %}}"
+private const val EXAMPLES_HEADER_REGEX = """\{\{% examples %}}\n(.*?)\{\{% example %}}(.*?)\{\{% /examples %}}"""
 private const val EXAMPLES_HEADER_REGEX_GROUP_NUMBER = 1
-private const val CODE_SNIPPET_REGEX = "\\{\\{% example %}}(.*?)\\{\\{% /example %}}"
+private const val CODE_SNIPPET_REGEX = """\{\{% example %}}(.*?)\{\{% /example %}}"""
 private const val CODE_SNIPPET_REGEX_GROUP_NUMBER = 1
 private const val JAVA_CODE_SNIPPET_REGEX = """(.*?)(```\w+\n.*?```\n)*?(```java\n(.*?)```\n)(```\w+\n.*?```\n)*"""
 private const val JAVA_CODE_SNIPPET_REGEX_GROUP_NUMBER = 3
 private const val EXAMPLE_HEADER_REGEX = """(.*?)```\w+\n.+?```"""
 private const val EXAMPLE_HEADER_REGEX_GROUP_NUMBER = 1
-private const val EXAMPLES_SECTION_REGEX = "\\{\\{% examples %}}(.*?)\\{\\{% /examples %}}"
 
 object KDocGenerator {
 
@@ -22,12 +22,6 @@ object KDocGenerator {
     }
 
     fun addKDoc(kDocBuilder: KDocBuilder, kDoc: String) {
-        val examplesHeader = EXAMPLES_HEADER_REGEX.toRegex(DOT_MATCHES_ALL)
-            .find(kDoc)
-            ?.groupValues
-            ?.get(EXAMPLES_HEADER_REGEX_GROUP_NUMBER)
-            .orEmpty()
-
         val examples = CODE_SNIPPET_REGEX.toRegex(DOT_MATCHES_ALL)
             .findAll(kDoc)
             .map { it.groupValues[CODE_SNIPPET_REGEX_GROUP_NUMBER] }
@@ -52,9 +46,10 @@ object KDocGenerator {
             .joinToString("")
 
         val trimmedDocs = kDoc.replace(
-            EXAMPLES_SECTION_REGEX.toRegex(DOT_MATCHES_ALL),
-            "$examplesHeader\n$examples",
-        )
+            EXAMPLES_HEADER_REGEX.toRegex(DOT_MATCHES_ALL),
+        ) {
+            it.groupValues[EXAMPLES_HEADER_REGEX_GROUP_NUMBER] + escapeReplacement("\n$examples")
+        }
 
         val howManyCommentsToOpen = "(?<!/)\\*/"
             .toRegex()
