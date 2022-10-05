@@ -11,9 +11,11 @@ object KDocGenerator {
     }
 
     fun addKDoc(kDocBuilder: KDocBuilder, kDoc: String) {
-        val howManyCommentsToClose = "/\\*".toRegex().findAll(kDoc).count()
+        val howManyCommentsToOpen = "(?<!/)\\*/".toRegex().findAll(kDoc).count()
+        val howManyCommentsToClose = "(?<!\\*)/\\*".toRegex().findAll(kDoc).count()
+
         kDocBuilder.apply(
-            "${kDoc}${"*/".repeat(howManyCommentsToClose)}"
+            "${" /*".repeat(howManyCommentsToOpen)}${kDoc}${"*/".repeat(howManyCommentsToClose)}"
                 .replace(Regex("\\s*\n"), "\n")
                 .replace(" ", "·")
                 .replace("%", "%%"),
