@@ -115,8 +115,10 @@ object ResourceGenerator {
         val resourceClass = resourceClassBuilder
             .build()
 
-        val resourceBuilderClassName =
-            ClassName(names.toResourcePackage(kotlinFlags), names.toResourceName(kotlinFlags) + "ResourceBuilder")
+        val resourceBuilderClassName = ClassName(
+            names.toResourcePackage(kotlinFlags),
+            names.toResourceName(kotlinFlags) + "ResourceBuilder",
+        )
 
         val argsClassName = resourceType.argsType.toTypeName()
         val argsBuilderClassName = (resourceType.argsType as ComplexType).toBuilderTypeName()
@@ -151,7 +153,7 @@ object ResourceGenerator {
             .addStatement("this.opts = builder.build()")
             .build()
 
-        val resourceBuilderClass = TypeSpec
+        val resourceBuilderClassBuilder = TypeSpec
             .classBuilder(resourceBuilderClassName)
             .primaryConstructor(
                 FunSpec.constructorBuilder()
@@ -203,7 +205,17 @@ object ResourceGenerator {
                     .returns(resourceClassName)
                     .build(),
             )
-            .build()
+
+        KDocGenerator.addKDoc(
+            { format, args -> resourceBuilderClassBuilder.addKdoc(format, args) },
+            "Builder for [${resourceClassName.simpleName}]",
+        )
+        KDocGenerator.addDeprecationWarning(
+            { annotationSpec -> resourceBuilderClassBuilder.addAnnotation(annotationSpec) },
+            resourceType.kDoc,
+        )
+
+        val resourceBuilderClass = resourceBuilderClassBuilder.build()
 
         val resourceFunction = FunSpec
             .builder(names.toResourceName(kotlinFlags).decapitalize() + "Resource")

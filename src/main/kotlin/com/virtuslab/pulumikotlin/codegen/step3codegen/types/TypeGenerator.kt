@@ -225,8 +225,8 @@ object TypeGenerator {
             { annotationSpec -> argsBuilderClassBuilder.addAnnotation(annotationSpec) },
             typeMetadata.kDoc,
         )
-        val argsBuilderClass = argsBuilderClassBuilder
-            .build()
+
+        val argsBuilderClass = argsBuilderClassBuilder.build()
 
         fileSpec
             .addImport("com.pulumi.kotlin", "applySuspend")
