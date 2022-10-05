@@ -229,20 +229,6 @@ fun <T, R> T.applyValue(f: (T) -> R): R {
     return f(this)
 }
 
-fun omg() {
-    val a: Output<List<A>>? = null
-
-    a?.toJava()
-}
-
-class B
-
-class A : ConvertibleToJava<B> {
-    override fun toJava(): B {
-        return B()
-    }
-}
-
 suspend inline fun <T> T.applySuspend(block: T.() -> Unit): T {
     block()
     return this
