@@ -17,6 +17,13 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Compile and test code
         run: ./gradlew build test -x check
+      - name: Upload test report
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-test-report
+          path: ./build/reports/tests/test/*
+          retention-days: 3
   analyze:
     name: Analyze pulumi-kotlin
     runs-on: ubuntu-latest
@@ -53,3 +60,38 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Publish to Maven Local
         run: ./gradlew publishToMavenLocal
+  e2eTest:
+    name: Run end-to-end tests of pulumi-kotlin
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v2
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Set up Pulumi CLI
+        uses: pulumi/setup-pulumi@v2
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0
+        id: auth
+        with:
+          # the credentials were generated using the following script:
+          # https://github.com/VirtuslabRnD/jvm-lab/blob/main/scripts/setup-github-actions-google-cloud-authentication.sh
+          workload_identity_provider: 'projects/954450653667/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+          service_account: 'github-actions@jvm-lab.iam.gserviceaccount.com'
+      - name: Publish Pulumi Kotlin to Maven Local
+        run: ./gradlew publishPulumiGcpPublicationToMavenLocal -x formatKotlinPulumiGcp
+      - name: Run E2E tests
+        run: ./gradlew e2eTest
+        env:
+          # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
+          PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
+      - name: Upload E2E test report
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-test-report
+          path: ./build/reports/tests/e2eTest/*
+          retention-days: 3

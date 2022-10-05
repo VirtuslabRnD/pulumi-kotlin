@@ -1,6 +1,9 @@
 ### Custom ###
 .pulumi-kotlin-artifact-cache
 output-dir
+examples/gcp-sample-project/Pulumi.*.yaml
+!examples/gcp-sample-project/Pulumi.test.yaml
+
 
 ### IntelliJ ###
 **/*.idea/*
@@ -57,9 +60,11 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+
 ### macOS Patch ###
 # iCloud generated files
 *.icloud
+
 
 ### Gradle ###
 .gradle
@@ -82,3 +87,16 @@ gradle-app.setting
 ### Gradle Patch ###
 # Java heap dump
 *.hprof
+
+
+### Maven ###
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
