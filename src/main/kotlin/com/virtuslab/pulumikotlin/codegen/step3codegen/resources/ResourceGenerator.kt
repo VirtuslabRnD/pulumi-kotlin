@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.KModifier.INTERNAL
 import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
@@ -85,6 +86,7 @@ object ResourceGenerator {
             )
             .primaryConstructor(
                 FunSpec.constructorBuilder()
+                    .addModifiers(INTERNAL)
                     .addParameter("javaResource", javaResourceClassName)
                     .build(),
             )
@@ -129,6 +131,11 @@ object ResourceGenerator {
 
         val resourceBuilderClass = TypeSpec
             .classBuilder(resourceBuilderClassName)
+            .primaryConstructor(
+                FunSpec.constructorBuilder()
+                    .addModifiers(INTERNAL)
+                    .build(),
+            )
             .addAnnotation(dslTag)
             .addProperties(
                 listOf(
@@ -156,6 +163,7 @@ object ResourceGenerator {
             .addFunction(optsFunction)
             .addFunction(
                 FunSpec.builder("build")
+                    .addModifiers(INTERNAL)
                     .let {
                         it.addCode(
                             """

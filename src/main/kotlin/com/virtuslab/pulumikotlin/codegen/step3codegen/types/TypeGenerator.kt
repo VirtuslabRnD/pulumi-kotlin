@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.KModifier.INTERNAL
 import com.squareup.kotlinpoet.KModifier.SUSPEND
 import com.squareup.kotlinpoet.KModifier.VARARG
 import com.squareup.kotlinpoet.ParameterSpec
@@ -156,6 +157,12 @@ object TypeGenerator {
 
         val argsBuilderClass = TypeSpec
             .classBuilder(argsBuilderClassName)
+            .primaryConstructor(
+                FunSpec
+                    .constructorBuilder()
+                    .addModifiers(INTERNAL)
+                    .build(),
+            )
             .addAnnotation(dslTag)
             .addProperties(
                 fields.map {
@@ -174,6 +181,7 @@ object TypeGenerator {
             )
             .addFunction(
                 FunSpec.builder("build")
+                    .addModifiers(INTERNAL)
                     .returns(argsClassName)
                     .addCode(Return(ConstructObjectExpression(argsClassName, arguments)))
                     .build(),
