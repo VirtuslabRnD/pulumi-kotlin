@@ -212,7 +212,6 @@ object TypeGenerator {
                     .addModifiers(INTERNAL)
                     .returns(argsClassName)
                     .addCode(Return(ConstructObjectExpression(argsClassName, arguments)))
-                    .addKdoc("@return built [${argsClassName.simpleName}] object")
                     .build(),
             )
 
