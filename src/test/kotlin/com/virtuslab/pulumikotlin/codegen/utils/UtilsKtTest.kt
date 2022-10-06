@@ -26,9 +26,8 @@ internal class UtilsKtTest {
 
     @Test
     fun `letIf should invoke the mapper if its first argument is set to true`() {
-        val stringBuilder = StringBuilder("letIf")
-
-        val result = stringBuilder
+        val result = StringBuilder()
+            .append("letIf")
             .letIf(true) {
                 it.append(" works!")
             }
@@ -39,9 +38,8 @@ internal class UtilsKtTest {
 
     @Test
     fun `letIf should not invoke the mapper if its first argument is set to false`() {
-        val stringBuilder = StringBuilder("letIf works!")
-
-        val result = stringBuilder
+        val result = StringBuilder()
+            .append("letIf")
             .letIf(false) {
                 it.append(" (not really)")
             }
