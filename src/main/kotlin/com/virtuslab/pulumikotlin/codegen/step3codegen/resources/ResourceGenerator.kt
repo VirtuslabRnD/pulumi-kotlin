@@ -63,7 +63,7 @@ object ResourceGenerator {
         val javaResourceClassName = ClassName(names.toResourcePackage(javaFlags), names.toResourceName(javaFlags))
 
         val fields = resourceType.outputFields.map { field ->
-            val builder = PropertySpec.builder(
+            PropertySpec.builder(
                 field.name,
                 MoreTypes.Java.Pulumi.Output(
                     field.fieldType.type.toTypeName().copy(nullable = !field.required),
@@ -71,22 +71,27 @@ object ResourceGenerator {
             )
                 .getter(
                     FunSpec.getterBuilder()
-                        .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required)).build(),
+                        .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required))
+                        .build(),
                 )
-
-            KDocGenerator.addKDoc(
-                { format, args -> builder.addKdoc(format, args) },
-                field.kDoc,
-            )
-            KDocGenerator.addDeprecationWarning(
-                { annotationSpec -> builder.addAnnotation(annotationSpec) },
-                field.kDoc,
-            )
-
-            builder.build()
+                .let {
+                    KDocGenerator.addKDoc(
+                        { format, args -> it.addKdoc(format, args) },
+                        field.kDoc,
+                    )
+                    it
+                }
+                .let {
+                    KDocGenerator.addDeprecationWarning(
+                        { annotationSpec -> it.addAnnotation(annotationSpec) },
+                        field.kDoc,
+                    )
+                    it
+                }
+                .build()
         }
 
-        val resourceClassBuilder = TypeSpec
+        val resourceClass = TypeSpec
             .classBuilder(resourceClassName)
             .addProperties(
                 listOf(
@@ -102,17 +107,20 @@ object ResourceGenerator {
                     .build(),
             )
             .addProperties(fields)
-
-        KDocGenerator.addKDoc(
-            { format, args -> resourceClassBuilder.addKdoc(format, args) },
-            resourceType.kDoc,
-        )
-        KDocGenerator.addDeprecationWarning(
-            { annotationSpec -> resourceClassBuilder.addAnnotation(annotationSpec) },
-            resourceType.kDoc,
-        )
-
-        val resourceClass = resourceClassBuilder
+            .let {
+                KDocGenerator.addKDoc(
+                    { format, args -> it.addKdoc(format, args) },
+                    resourceType.kDoc,
+                )
+                it
+            }
+            .let {
+                KDocGenerator.addDeprecationWarning(
+                    { annotationSpec -> it.addAnnotation(annotationSpec) },
+                    resourceType.kDoc,
+                )
+                it
+            }
             .build()
 
         val resourceBuilderClassName = ClassName(
@@ -153,7 +161,7 @@ object ResourceGenerator {
             .addStatement("this.opts = builder.build()")
             .build()
 
-        val resourceBuilderClassBuilder = TypeSpec
+        val resourceBuilderClass = TypeSpec
             .classBuilder(resourceBuilderClassName)
             .primaryConstructor(
                 FunSpec.constructorBuilder()
@@ -205,17 +213,21 @@ object ResourceGenerator {
                     .returns(resourceClassName)
                     .build(),
             )
-
-        KDocGenerator.addKDoc(
-            { format, args -> resourceBuilderClassBuilder.addKdoc(format, args) },
-            "Builder for [${resourceClassName.simpleName}]",
-        )
-        KDocGenerator.addDeprecationWarning(
-            { annotationSpec -> resourceBuilderClassBuilder.addAnnotation(annotationSpec) },
-            resourceType.kDoc,
-        )
-
-        val resourceBuilderClass = resourceBuilderClassBuilder.build()
+            .let {
+                KDocGenerator.addKDoc(
+                    { format, args -> it.addKdoc(format, args) },
+                    "Builder for [${resourceClassName.simpleName}]",
+                )
+                it
+            }
+            .let {
+                KDocGenerator.addDeprecationWarning(
+                    { annotationSpec -> it.addAnnotation(annotationSpec) },
+                    resourceType.kDoc,
+                )
+                it
+            }
+            .build()
 
         val resourceFunction = FunSpec
             .builder(names.toResourceName(kotlinFlags).decapitalize() + "Resource")
@@ -233,6 +245,23 @@ object ResourceGenerator {
             .addStatement("builder.name(name)")
             .addStatement("block(builder)")
             .addStatement("return builder.build()")
+            .let {
+                KDocGenerator.addKDoc(
+                    { format, args -> it.addKdoc(format, args) },
+                    """${resourceType.kDoc.description}
+                        |@param name The _unique_ name of the resulting resource.
+                        |@param block Builder for [${resourceClassName.simpleName}].
+                    """.trimMargin(),
+                )
+                it
+            }
+            .let {
+                KDocGenerator.addDeprecationWarning(
+                    { annotationSpec -> it.addAnnotation(annotationSpec) },
+                    resourceType.kDoc,
+                )
+                it
+            }
             .build()
 
         fileSpecBuilder

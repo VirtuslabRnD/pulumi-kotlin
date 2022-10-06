@@ -78,7 +78,10 @@ object FunctionGenerator {
     private fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
         val hasAnyArguments = (functionType.argsType as? ComplexType)?.fields?.isNotEmpty() ?: true
 
-        val basicFunSpecBuilder = FunSpec.builder(functionType.name.name)
+        val functionDocs = functionType.kDoc.description ?: ""
+        val returnDoc = "@return ${functionType.outputType.metadata.kDoc.description}\n"
+
+        val basicFunSpec = FunSpec.builder(functionType.name.name)
             .letIf(hasAnyArguments) {
                 it.addParameter("argument", functionType.argsType.toTypeName())
             }
@@ -92,16 +95,13 @@ object FunctionGenerator {
                 }
                 it.addCode(callAwaitAndDoTheMapping(functionType, argumentExpression))
             }
-
-        val functionDocs = functionType.kDoc.description ?: ""
-        val returnDoc = "@return ${functionType.outputType.metadata.kDoc.description}\n"
-
-        KDocGenerator.addKDoc(
-            { format, args -> basicFunSpecBuilder.addKdoc(format, args) },
-            "$functionDocs@param argument\n$returnDoc",
-        )
-
-        val basicFunSpec = basicFunSpecBuilder
+            .let {
+                KDocGenerator.addKDoc(
+                    { format, args -> it.addKdoc(format, args) },
+                    "$functionDocs@param argument\n$returnDoc",
+                )
+                it
+            }
             .build()
 
         if (!hasAnyArguments) {
@@ -116,8 +116,7 @@ object FunctionGenerator {
                         parameters.map { (name, type) ->
                             ParameterSpec.builder(name, type.type.toTypeName().copy(nullable = !type.required))
                                 .letIf(!type.required) {
-                                    it
-                                        .defaultValue("null")
+                                    it.defaultValue("null")
                                 }
                                 .build()
                         },
@@ -168,7 +167,6 @@ object FunctionGenerator {
                 .addModifiers(KModifier.SUSPEND)
                 .returns(functionType.outputType.toTypeName())
                 .let { builder ->
-
                     val builderAssignment =
                         Assignment("builder", ConstructObjectExpression(args.toBuilderTypeName(), emptyMap()))
                     val callArgument = builderAssignment.reference().call0("argument")
@@ -189,7 +187,6 @@ object FunctionGenerator {
                         { format, args -> builder.addKdoc(format, args) },
                         "See [${functionType.name.name}]\n@param argument\n$returnDoc",
                     )
-
                     KDocGenerator.addDeprecationWarning(
                         { annotationSpec -> builder.addAnnotation(annotationSpec) },
                         functionType.kDoc,

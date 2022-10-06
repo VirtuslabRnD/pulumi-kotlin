@@ -129,16 +129,16 @@ object TypeGenerator {
             val isRequired = field.required
             val typeName = field.fieldType.toTypeName().copy(nullable = !isRequired)
 
-            val propertyBuilder = PropertySpec.builder(field.name, typeName)
-                .initializer(field.name)
-
-            KDocGenerator.addDeprecationWarning(
-                { annotationSpec -> propertyBuilder.addAnnotation(annotationSpec) },
-                field.kDoc,
-            )
-
             classB.addProperty(
-                propertyBuilder
+                PropertySpec.builder(field.name, typeName)
+                    .initializer(field.name)
+                    .let {
+                        KDocGenerator.addDeprecationWarning(
+                            { annotationSpec -> it.addAnnotation(annotationSpec) },
+                            field.kDoc,
+                        )
+                        it
+                    }
                     .build(),
             )
 
@@ -183,7 +183,7 @@ object TypeGenerator {
             it.name to CustomExpressionBuilder.start("%N$requiredPart", it.name).build()
         }
 
-        val argsBuilderClassBuilder = TypeSpec
+        val argsBuilderClass = TypeSpec
             .classBuilder(argsBuilderClassName)
             .primaryConstructor(
                 FunSpec
@@ -214,18 +214,21 @@ object TypeGenerator {
                     .addCode(Return(ConstructObjectExpression(argsClassName, arguments)))
                     .build(),
             )
-
-        KDocGenerator.addKDoc(
-            { format, args -> argsBuilderClassBuilder.addKdoc(format, args) },
-            "Builder for [${argsClassName.simpleName}]",
-        )
-
-        KDocGenerator.addDeprecationWarning(
-            { annotationSpec -> argsBuilderClassBuilder.addAnnotation(annotationSpec) },
-            typeMetadata.kDoc,
-        )
-
-        val argsBuilderClass = argsBuilderClassBuilder.build()
+            .let {
+                KDocGenerator.addKDoc(
+                    { format, args -> it.addKdoc(format, args) },
+                    "Builder for [${argsClassName.simpleName}]",
+                )
+                it
+            }
+            .let {
+                KDocGenerator.addDeprecationWarning(
+                    { annotationSpec -> it.addAnnotation(annotationSpec) },
+                    typeMetadata.kDoc,
+                )
+                it
+            }
+            .build()
 
         fileSpec
             .addImport("com.pulumi.kotlin", "applySuspend")
@@ -267,7 +270,7 @@ object TypeGenerator {
         codeBlock: KotlinPoetPatterns.BuilderSettingCodeBlock,
         parameterModifiers: List<KModifier> = emptyList(),
     ): FunSpec {
-        val funSpecBuilder = FunSpec
+        return FunSpec
             .builder(name)
             .addModifiers(SUSPEND)
             .addParameter(
@@ -276,18 +279,20 @@ object TypeGenerator {
                 parameterModifiers,
             )
             .addCode(codeBlock.toCodeBlock(name))
-
-        KDocGenerator.addKDoc(
-            { format, args -> funSpecBuilder.addKdoc(format, args) },
-            "@param argument ${kDoc.description ?: ""}",
-        )
-
-        KDocGenerator.addDeprecationWarning(
-            { annotationSpec -> funSpecBuilder.addAnnotation(annotationSpec) },
-            kDoc,
-        )
-
-        return funSpecBuilder
+            .let {
+                KDocGenerator.addKDoc(
+                    { format, args -> it.addKdoc(format, args) },
+                    "@param argument ${kDoc.description ?: ""}",
+                )
+                it
+            }
+            .let {
+                KDocGenerator.addDeprecationWarning(
+                    { annotationSpec -> it.addAnnotation(annotationSpec) },
+                    kDoc,
+                )
+                it
+            }
             .build()
     }
 
@@ -350,24 +355,26 @@ object TypeGenerator {
             else -> emptyList()
         }
 
-        val varargBuilder = FunSpec
-            .builder(name)
-            .addModifiers(SUSPEND)
-            .addParameter("values", innerType.toTypeName(), VARARG)
-            .addCode(mappingCodeBlock(field, false, name, "values.toList()"))
-
-        KDocGenerator.addKDoc(
-            { format, args -> varargBuilder.addKdoc(format, args) },
-            "@param values ${kDoc.description ?: ""}",
-        )
-
-        KDocGenerator.addDeprecationWarning(
-            { annotationSpec -> varargBuilder.addAnnotation(annotationSpec) },
-            kDoc,
-        )
-
         val justValuesPassedAsVarargArguments = listOf(
-            varargBuilder
+            FunSpec
+                .builder(name)
+                .addModifiers(SUSPEND)
+                .addParameter("values", innerType.toTypeName(), VARARG)
+                .addCode(mappingCodeBlock(field, false, name, "values.toList()"))
+                .let {
+                    KDocGenerator.addKDoc(
+                        { format, args -> it.addKdoc(format, args) },
+                        "@param values ${kDoc.description ?: ""}",
+                    )
+                    it
+                }
+                .let {
+                    KDocGenerator.addDeprecationWarning(
+                        { annotationSpec -> it.addAnnotation(annotationSpec) },
+                        kDoc,
+                    )
+                    it
+                }
                 .build(),
         )
 
@@ -405,27 +412,29 @@ object TypeGenerator {
             else -> emptyList()
         }
 
-        val varargBuilder = FunSpec
-            .builder(name)
-            .addParameter(
-                "values",
-                MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()),
-                VARARG,
-            )
-            .addCode(mappingCodeBlock(field, false, name, "values.toMap()"))
-
-        KDocGenerator.addKDoc(
-            { format, args -> varargBuilder.addKdoc(format, args) },
-            "@param values ${kDoc.description ?: ""}",
-        )
-
-        KDocGenerator.addDeprecationWarning(
-            { annotationSpec -> varargBuilder.addAnnotation(annotationSpec) },
-            kDoc,
-        )
-
         val justValuesPassedAsVarargArguments = listOf(
-            varargBuilder
+            FunSpec
+                .builder(name)
+                .addParameter(
+                    "values",
+                    MoreTypes.Kotlin.Pair(leftInnerType.toTypeName(), rightInnerType.toTypeName()),
+                    VARARG,
+                )
+                .addCode(mappingCodeBlock(field, false, name, "values.toMap()"))
+                .let {
+                    KDocGenerator.addKDoc(
+                        { format, args -> it.addKdoc(format, args) },
+                        "@param values ${kDoc.description ?: ""}",
+                    )
+                    it
+                }
+                .let {
+                    KDocGenerator.addDeprecationWarning(
+                        { annotationSpec -> it.addAnnotation(annotationSpec) },
+                        kDoc,
+                    )
+                    it
+                }
                 .build(),
         )
 
@@ -462,23 +471,25 @@ object TypeGenerator {
     ): List<FunSpec> {
         val functions = when (fieldType) {
             is NormalField -> {
-                val basicFunctionBuilder = FunSpec
+                val basicFunction = FunSpec
                     .builder(name)
                     .addModifiers(SUSPEND)
                     .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
                     .addCode(mappingCodeBlock(fieldType, required, name, "value"))
-
-                KDocGenerator.addKDoc(
-                    { format, args -> basicFunctionBuilder.addKdoc(format, args) },
-                    "@param value ${kDoc.description ?: ""}",
-                )
-
-                KDocGenerator.addDeprecationWarning(
-                    { annotationSpec -> basicFunctionBuilder.addAnnotation(annotationSpec) },
-                    kDoc,
-                )
-
-                val basicFunction = basicFunctionBuilder
+                    .let {
+                        KDocGenerator.addKDoc(
+                            { format, args -> it.addKdoc(format, args) },
+                            "@param value ${kDoc.description ?: ""}",
+                        )
+                        it
+                    }
+                    .let {
+                        KDocGenerator.addDeprecationWarning(
+                            { annotationSpec -> it.addAnnotation(annotationSpec) },
+                            kDoc,
+                        )
+                        it
+                    }
                     .build()
 
                 @Suppress("UNCHECKED_CAST")
@@ -495,23 +506,28 @@ object TypeGenerator {
             }
 
             is OutputWrappedField -> {
-                val functionBuilder = FunSpec
-                    .builder(name)
-                    .addModifiers(SUSPEND)
-                    .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
-                    .addCode("this.%N = value", name)
-
-                KDocGenerator.addKDoc(
-                    { format, args -> functionBuilder.addKdoc(format, args) },
-                    "@param value Wrapped in an [Output]: ${kDoc.description ?: ""}",
+                listOf(
+                    FunSpec
+                        .builder(name)
+                        .addModifiers(SUSPEND)
+                        .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
+                        .addCode("this.%N = value", name)
+                        .let {
+                            KDocGenerator.addKDoc(
+                                { format, args -> it.addKdoc(format, args) },
+                                "@param value ${kDoc.description ?: ""}",
+                            )
+                            it
+                        }
+                        .let {
+                            KDocGenerator.addDeprecationWarning(
+                                { annotationSpec -> it.addAnnotation(annotationSpec) },
+                                kDoc,
+                            )
+                            it
+                        }
+                        .build(),
                 )
-
-                KDocGenerator.addDeprecationWarning(
-                    { annotationSpec -> functionBuilder.addAnnotation(annotationSpec) },
-                    kDoc,
-                )
-
-                listOf(functionBuilder.build())
             }
         }
 
