@@ -23,4 +23,30 @@ internal class UtilsKtTest {
     fun `decapitalize should be ok if the string is already decapitalized`() {
         assertEquals("word", "Word".decapitalize())
     }
+
+    @Test
+    fun `letIf should invoke the mapper if its first argument is set to true`() {
+        val stringBuilder = StringBuilder("letIf")
+
+        val result = stringBuilder
+            .letIf(true) {
+                it.append(" works!")
+            }
+            .toString()
+
+        assertEquals("letIf works!", result)
+    }
+
+    @Test
+    fun `letIf should not invoke the mapper if its first argument is set to false`() {
+        val stringBuilder = StringBuilder("letIf works!")
+
+        val result = stringBuilder
+            .letIf(false) {
+                it.append(" (not really)")
+            }
+            .toString()
+
+        assertEquals("letIf works!", result)
+    }
 }
