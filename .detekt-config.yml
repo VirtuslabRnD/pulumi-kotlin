@@ -6,7 +6,7 @@ output-reports:
     - 'XmlOutputReport'
 
 build:
-  maxIssues: 70 # TODO: Remove this setting after adjusting the codebase to Detekt
+  maxIssues: 66 # TODO: Remove this setting after adjusting the codebase to Detekt
 
 style:
   MagicNumber:
