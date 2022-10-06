@@ -2,21 +2,15 @@ package com.virtuslab.pulumikotlin.codegen.utils
 
 import java.util.Locale
 
-fun <T> T.letIf(what: (T) -> Boolean, mapper: (T) -> T): T {
-    return if (what(this)) {
+fun <T> T.letIf(predicate: (T) -> Boolean, mapper: (T) -> T) =
+    if (predicate(this)) {
         mapper(this)
     } else {
         this
     }
-}
 
-fun <T> T.letIf(what: Boolean, mapper: (T) -> T): T {
-    return if (what) {
-        mapper(this)
-    } else {
-        this
-    }
-}
+fun <T> T.letIf(predicate: Boolean, mapper: (T) -> T) =
+    letIf({ predicate }, mapper)
 
 fun String.capitalize() =
     replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
