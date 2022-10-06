@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     application
     kotlin("jvm")
@@ -40,10 +38,6 @@ tasks.test {
 
 application {
     mainClass.set("com.virtuslab.pulumikotlin.codegen.MainKt")
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
 }
 
 kotlinter {

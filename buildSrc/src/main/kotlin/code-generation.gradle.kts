@@ -1,8 +1,10 @@
 import org.gradle.configurationcache.extensions.capitalized
+import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins {
     `java-library`
     `maven-publish`
+    id("org.jetbrains.dokka")
 }
 
 val tasksToDisable: List<(String) -> String> = listOf(
@@ -19,6 +21,8 @@ val createTasksForProvider by extra {
         val archiveName = "pulumi-$providerName-kotlin"
         val sourcesJarTaskName = "${sourceSetName}SourcesJar"
         val formatTaskName = "formatKotlin${sourceSetName.capitalized()}"
+        val javadocGenerationTaskName = "dokka${sourceSetName.capitalized()}Javadoc"
+        val javadocJarTaskName = "dokka${sourceSetName.capitalized()}JavadocJar"
 
         tasks.register<JavaExec>(generationTaskName) {
             classpath = project.sourceSets["main"].runtimeClasspath
@@ -54,6 +58,27 @@ val createTasksForProvider by extra {
             archiveClassifier.set("sources")
         }
 
+        tasks.register<DokkaTask>(javadocGenerationTaskName) {
+            dependsOn(tasks[generationTaskName])
+            moduleName.set(archiveName)
+            dokkaSourceSets {
+                named("main") {
+                    suppress.set(true)
+                }
+                named(sourceSetName) {
+                    suppress.set(false)
+                }
+            }
+        }
+
+        tasks.register<Jar>(javadocJarTaskName) {
+            dependsOn(tasks[javadocGenerationTaskName])
+            group = "documentation"
+            from(tasks[javadocGenerationTaskName])
+            archiveBaseName.set(archiveName)
+            archiveClassifier.set("javadoc")
+        }
+
         publishing {
             publications {
                 create<MavenPublication>(sourceSetName) {
@@ -74,6 +99,10 @@ val createTasksForProvider by extra {
                 }
                 create<MavenPublication>("${sourceSetName}Sources") {
                     artifact(tasks[sourcesJarTaskName])
+                    artifactId = archiveName
+                }
+                create<MavenPublication>("${sourceSetName}Javadoc") {
+                    artifact(tasks[javadocJarTaskName])
                     artifactId = archiveName
                 }
             }
