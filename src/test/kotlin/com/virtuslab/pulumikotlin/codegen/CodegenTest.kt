@@ -45,7 +45,7 @@ class CodegenTest {
            }
            """
 
-        assertGeneratedCodeAndSourceFileCompile(AWS_SMALL_SCHEMA_SUBSET, code)
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE, code)
     }
 
     @Test
@@ -101,7 +101,7 @@ class CodegenTest {
             }
             """
 
-        assertGeneratedCodeAndSourceFileCompile(AWS_SMALL_SCHEMA_SUBSET, code)
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE, code)
     }
 
     @Test
@@ -117,7 +117,7 @@ class CodegenTest {
             }
             """
 
-        assertGeneratedCodeAndSourceFileCompile(AWS_SMALL_SCHEMA_SUBSET, code)
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE, code)
     }
 
     @Test
@@ -148,7 +148,7 @@ class CodegenTest {
             }
             """
 
-        assertGeneratedCodeAndSourceFileCompile(AWS_SMALL_SCHEMA_SUBSET, code)
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE, code)
     }
 
     @Test
@@ -217,7 +217,7 @@ class CodegenTest {
 
     @Test
     fun `bigger subset of aws schema can be compiled`() {
-        assertGeneratedCodeCompiles(AWS_BIG_SCHEMA_SUBSET)
+        assertGeneratedCodeCompiles(SCHEMA_AWS_CLASSIC_SUBSET_BIG_SIZE)
     }
 
     @Test
@@ -245,7 +245,7 @@ class CodegenTest {
             }
         """
 
-        assertGeneratedCodeAndSourceFileCompile(GCP_MEDIUM_SCHEMA_SUBSET, code)
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
     }
 
     @Test
@@ -259,7 +259,7 @@ class CodegenTest {
             }
         """
 
-        assertGeneratedCodeAndSourceFileDoNotCompile(GCP_MEDIUM_SCHEMA_SUBSET, code)
+        assertGeneratedCodeAndSourceFileDoNotCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
     }
 
     @Test
@@ -274,7 +274,7 @@ class CodegenTest {
             }
         """
 
-        assertGeneratedCodeAndSourceFileDoNotCompile(GCP_MEDIUM_SCHEMA_SUBSET, code)
+        assertGeneratedCodeAndSourceFileDoNotCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
     }
 
     @Test
@@ -288,7 +288,7 @@ class CodegenTest {
             }
         """
 
-        assertGeneratedCodeAndSourceFileDoNotCompile(GCP_MEDIUM_SCHEMA_SUBSET, code)
+        assertGeneratedCodeAndSourceFileDoNotCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
     }
 
     @Test
@@ -303,7 +303,7 @@ class CodegenTest {
             }
         """
 
-        assertGeneratedCodeAndSourceFileDoNotCompile(GCP_MEDIUM_SCHEMA_SUBSET, code)
+        assertGeneratedCodeAndSourceFileDoNotCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
     }
 
     @Test
@@ -327,7 +327,7 @@ class CodegenTest {
             }
         """
 
-        assertGeneratedCodeAndSourceFileDoNotCompile(GCP_MEDIUM_SCHEMA_SUBSET, code)
+        assertGeneratedCodeAndSourceFileDoNotCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
     }
 
     private val classPath = listOf(
@@ -468,7 +468,7 @@ class CodegenTest {
     }
 }
 
-private const val GCP_MEDIUM_SCHEMA_SUBSET = "schema-gcp-classic-subset-medium-size.json"
-private const val AWS_SMALL_SCHEMA_SUBSET = "schema-aws-classic-subset-small-size.json"
-private const val AWS_BIG_SCHEMA_SUBSET = "schema-aws-classic-subset-big-size.json"
+private const val SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE = "schema-gcp-classic-subset-medium-size.json"
+private const val SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE = "schema-aws-classic-subset-small-size.json"
+private const val SCHEMA_AWS_CLASSIC_SUBSET_BIG_SIZE = "schema-aws-classic-subset-big-size.json"
 private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ONE_OF = "schema-aws-classic-5.15.0-subset-with-one-of.json"
