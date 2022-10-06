@@ -41,7 +41,7 @@ class CodegenTest {
            }
            """
 
-        assertGeneratedCodeAndSourceFileCompile("aws-small-schema-subset.json", code)
+        assertGeneratedCodeAndSourceFileCompile("schema-aws-classic-subset-small-size.json", code)
     }
 
     @Test
@@ -97,7 +97,7 @@ class CodegenTest {
             }
             """
 
-        assertGeneratedCodeAndSourceFileCompile("aws-small-schema-subset.json", code)
+        assertGeneratedCodeAndSourceFileCompile("schema-aws-classic-subset-small-size.json", code)
     }
 
     @Test
@@ -113,7 +113,7 @@ class CodegenTest {
             }
             """
 
-        assertGeneratedCodeAndSourceFileCompile("aws-small-schema-subset.json", code)
+        assertGeneratedCodeAndSourceFileCompile("schema-aws-classic-subset-small-size.json", code)
     }
 
     @Test
@@ -144,7 +144,7 @@ class CodegenTest {
             }
             """
 
-        assertGeneratedCodeAndSourceFileCompile("aws-small-schema-subset.json", code)
+        assertGeneratedCodeAndSourceFileCompile("schema-aws-classic-subset-small-size.json", code)
     }
 
     @Test
@@ -208,12 +208,12 @@ class CodegenTest {
 
             """
 
-        assertGeneratedCodeAndSourceFileCompile("schema_aws_classic_5.15.0_subset_with_one_of.json", code)
+        assertGeneratedCodeAndSourceFileCompile("schema-aws-classic-5.15.0-subset-with-one-of.json", code)
     }
 
     @Test
     fun `bigger subset of aws schema can be compiled`() {
-        assertGeneratedCodeCompiles("aws-big-schema-subset.json")
+        assertGeneratedCodeCompiles("schema-aws-classic-subset-big-size.json")
     }
 
     @Test
@@ -241,7 +241,7 @@ class CodegenTest {
             }
         """
 
-        assertGeneratedCodeAndSourceFileCompile("gcp-medium-schema-subset.json", code)
+        assertGeneratedCodeAndSourceFileCompile("schema-gcp-classic-subset-medium-size.json", code)
     }
 
     private val classPath = listOf(
