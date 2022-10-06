@@ -11,7 +11,7 @@ Experimental support for Kotlin language in Pulumi.
 There are two ways:
 
 - Run from command line (Gradle).
-    - Example: `./gradlew run --args='--schema-path src/main/resources/schema-aws-classic.json --output-directory-path output-dir'`. 
+    - Example: `./gradlew run --args='--schema-path src/main/resources/schema-aws-classic-subset-for-build.json --output-directory-path output-dir'`. 
 - Run from IntelliJ with `Program arguments` properly set.
 
 ### Arguments 
