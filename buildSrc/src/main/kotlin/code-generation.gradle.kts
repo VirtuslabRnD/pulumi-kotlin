@@ -23,6 +23,8 @@ val createTasksForProvider by extra {
         val formatTaskName = "formatKotlin${sourceSetName.capitalized()}"
         val javadocGenerationTaskName = "dokka${sourceSetName.capitalized()}Javadoc"
         val javadocJarTaskName = "dokka${sourceSetName.capitalized()}JavadocJar"
+        val sourcesPublicationName = "${sourceSetName}Sources"
+        val javadocPublicationName = "${sourceSetName}Javadoc"
 
         tasks.register<JavaExec>(generationTaskName) {
             classpath = project.sourceSets["main"].runtimeClasspath
@@ -84,27 +86,36 @@ val createTasksForProvider by extra {
                 create<MavenPublication>(sourceSetName) {
                     artifact(tasks[jarTaskName])
                     artifactId = archiveName
-                    pom {
-                        withXml {
-                            val dependenciesNode = asNode().appendNode("dependencies")
-                            configurations[implementationDependency].dependencies
-                                .forEach {
-                                    val dependencyNode = dependenciesNode.appendNode("dependency")
-                                    dependencyNode.appendNode("groupId", it.group)
-                                    dependencyNode.appendNode("artifactId", it.name)
-                                    dependencyNode.appendNode("version", it.version)
-                                }
-                        }
-                    }
                 }
-                create<MavenPublication>("${sourceSetName}Sources") {
+                create<MavenPublication>(sourcesPublicationName) {
                     artifact(tasks[sourcesJarTaskName])
                     artifactId = archiveName
                 }
-                create<MavenPublication>("${sourceSetName}Javadoc") {
+                create<MavenPublication>(javadocPublicationName) {
                     artifact(tasks[javadocJarTaskName])
                     artifactId = archiveName
                 }
+
+                publications
+                    .filter { it.name in listOf(sourceSetName, sourcesPublicationName, javadocPublicationName) }
+                    .forEach {
+                        run {
+                            if (it is MavenPublication) {
+                                it.pom {
+                                    withXml {
+                                        val dependenciesNode = asNode().appendNode("dependencies")
+                                        configurations[implementationDependency].dependencies
+                                            .forEach {
+                                                val dependencyNode = dependenciesNode.appendNode("dependency")
+                                                dependencyNode.appendNode("groupId", it.group)
+                                                dependencyNode.appendNode("artifactId", it.name)
+                                                dependencyNode.appendNode("version", it.version)
+                                            }
+                                    }
+                                }
+                            }
+                        }
+                    }
             }
         }
 
