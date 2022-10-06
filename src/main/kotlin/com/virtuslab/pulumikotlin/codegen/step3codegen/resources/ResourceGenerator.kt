@@ -144,6 +144,13 @@ object ResourceGenerator {
             .addStatement("val builder = %T()", argsBuilderClassName)
             .addStatement("block(builder)")
             .addStatement("this.args = builder.build()")
+            .let {
+                KDocGenerator.addKDoc(
+                    { format, args -> it.addKdoc(format, args) },
+                    "@param block The arguments to use to populate this resource's properties.",
+                )
+                it
+            }
             .build()
 
         val optsFunction = FunSpec
@@ -159,6 +166,13 @@ object ResourceGenerator {
             .addStatement("val builder = %T()", ClassName("com.pulumi.kotlin", "CustomArgsBuilder"))
             .addStatement("block(builder)")
             .addStatement("this.opts = builder.build()")
+            .let {
+                KDocGenerator.addKDoc(
+                    { format, args -> it.addKdoc(format, args) },
+                    "@param block A bag of options that control this resource's behavior.",
+                )
+                it
+            }
             .build()
 
         val resourceBuilderClass = TypeSpec
@@ -189,6 +203,13 @@ object ResourceGenerator {
                 FunSpec.builder("name")
                     .addParameter("value", STRING)
                     .addCode("this.name = value")
+                    .let {
+                        KDocGenerator.addKDoc(
+                            { format, args -> it.addKdoc(format, args) },
+                            "@param name The _unique_ name of the resulting resource.",
+                        )
+                        it
+                    }
                     .build(),
             )
             .addFunction(argsFunction)
