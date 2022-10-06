@@ -98,7 +98,7 @@ object FunctionGenerator {
             .let {
                 KDocGenerator.addKDoc(
                     { format, args -> it.addKdoc(format, args) },
-                    "$functionDocs@param argument\n$returnDoc",
+                    "$functionDocs\n@param argument\n$returnDoc",
                 )
                 it
             }
@@ -143,21 +143,20 @@ object FunctionGenerator {
                         )
                     }
             }
-            .let {
-                val paramDocs = (functionType.argsType as? ComplexType)?.fields?.map {
-                    "@param ${it.key} ${it.value.kDoc.description ?: ""}"
-                }
+            .let { builder ->
+                val paramDocs = (functionType.argsType as? ComplexType)
+                    ?.fields
+                    ?.map { "@param ${it.key} ${it.value.kDoc.description ?: ""}" }
                     ?.joinToString("\n")
                 KDocGenerator.addKDoc(
-                    { format, args -> it?.addKdoc(format, args) },
-                    "See [${functionType.name.name}]\n$paramDocs$returnDoc",
+                    { format, args -> builder?.addKdoc(format, args) },
+                    "See [${functionType.name.name}]\n$paramDocs\n$returnDoc",
                 )
-
                 KDocGenerator.addDeprecationWarning(
-                    { annotationSpec -> it?.addAnnotation(annotationSpec) },
+                    { annotationSpec -> builder?.addAnnotation(annotationSpec) },
                     functionType.kDoc,
                 )
-                it
+                builder
             }
             .let { it?.build() }
 

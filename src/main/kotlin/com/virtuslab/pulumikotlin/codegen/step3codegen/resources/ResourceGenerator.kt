@@ -79,9 +79,6 @@ object ResourceGenerator {
                         { format, args -> it.addKdoc(format, args) },
                         field.kDoc,
                     )
-                    it
-                }
-                .let {
                     KDocGenerator.addDeprecationWarning(
                         { annotationSpec -> it.addAnnotation(annotationSpec) },
                         field.kDoc,
@@ -112,9 +109,6 @@ object ResourceGenerator {
                     { format, args -> it.addKdoc(format, args) },
                     resourceType.kDoc,
                 )
-                it
-            }
-            .let {
                 KDocGenerator.addDeprecationWarning(
                     { annotationSpec -> it.addAnnotation(annotationSpec) },
                     resourceType.kDoc,
@@ -239,9 +233,6 @@ object ResourceGenerator {
                     { format, args -> it.addKdoc(format, args) },
                     "Builder for [${resourceClassName.simpleName}]",
                 )
-                it
-            }
-            .let {
                 KDocGenerator.addDeprecationWarning(
                     { annotationSpec -> it.addAnnotation(annotationSpec) },
                     resourceType.kDoc,
@@ -274,9 +265,6 @@ object ResourceGenerator {
                         |@param block Builder for [${resourceClassName.simpleName}].
                     """.trimMargin(),
                 )
-                it
-            }
-            .let {
                 KDocGenerator.addDeprecationWarning(
                     { annotationSpec -> it.addAnnotation(annotationSpec) },
                     resourceType.kDoc,

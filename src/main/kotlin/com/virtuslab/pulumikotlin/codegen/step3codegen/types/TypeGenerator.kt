@@ -111,7 +111,7 @@ object TypeGenerator {
 
         val dslTag = ClassName("com.pulumi.kotlin", "PulumiTagMarker")
 
-        val classB = TypeSpec.classBuilder(argsClassName)
+        val classBuilder = TypeSpec.classBuilder(argsClassName)
             .letIf(options.implementToJava) {
                 val convertibleToJava = ConvertibleToJava(typeMetadata.names(LanguageType.Java).kotlinPoetClassName)
                 it.addSuperinterface(convertibleToJava)
@@ -129,7 +129,7 @@ object TypeGenerator {
             val isRequired = field.required
             val typeName = field.fieldType.toTypeName().copy(nullable = !isRequired)
 
-            classB.addProperty(
+            classBuilder.addProperty(
                 PropertySpec.builder(field.name, typeName)
                     .initializer(field.name)
                     .let {
@@ -151,12 +151,12 @@ object TypeGenerator {
             )
         }
 
-        classB.primaryConstructor(constructor.build())
+        classBuilder.primaryConstructor(constructor.build())
 
-        classB.letIf(options.implementToJava) {
+        classBuilder.letIf(options.implementToJava) {
             it.addFunction(toJavaFunction(typeMetadata, fields))
         }
-        classB.letIf(options.implementToKotlin) {
+        classBuilder.letIf(options.implementToKotlin) {
             it.addType(
                 TypeSpec.companionObjectBuilder()
                     .addFunction(toKotlinFunction(typeMetadata, fields))
@@ -170,11 +170,11 @@ object TypeGenerator {
         }
 
         KDocGenerator.addKDoc(
-            { format, args -> classB.addKdoc(format, args) },
-            "$classDocs$propertyDocs",
+            { format, args -> classBuilder.addKdoc(format, args) },
+            "$classDocs\n$propertyDocs",
         )
 
-        val argsClass = classB.build()
+        val argsClass = classBuilder.build()
 
         val argsBuilderClassName = ClassName(names.packageName, names.builderClassName)
 
@@ -219,9 +219,6 @@ object TypeGenerator {
                     { format, args -> it.addKdoc(format, args) },
                     "Builder for [${argsClassName.simpleName}]",
                 )
-                it
-            }
-            .let {
                 KDocGenerator.addDeprecationWarning(
                     { annotationSpec -> it.addAnnotation(annotationSpec) },
                     typeMetadata.kDoc,
@@ -284,9 +281,6 @@ object TypeGenerator {
                     { format, args -> it.addKdoc(format, args) },
                     "@param argument ${kDoc.description ?: ""}",
                 )
-                it
-            }
-            .let {
                 KDocGenerator.addDeprecationWarning(
                     { annotationSpec -> it.addAnnotation(annotationSpec) },
                     kDoc,
@@ -366,9 +360,6 @@ object TypeGenerator {
                         { format, args -> it.addKdoc(format, args) },
                         "@param values ${kDoc.description ?: ""}",
                     )
-                    it
-                }
-                .let {
                     KDocGenerator.addDeprecationWarning(
                         { annotationSpec -> it.addAnnotation(annotationSpec) },
                         kDoc,
@@ -426,9 +417,6 @@ object TypeGenerator {
                         { format, args -> it.addKdoc(format, args) },
                         "@param values ${kDoc.description ?: ""}",
                     )
-                    it
-                }
-                .let {
                     KDocGenerator.addDeprecationWarning(
                         { annotationSpec -> it.addAnnotation(annotationSpec) },
                         kDoc,
@@ -481,9 +469,6 @@ object TypeGenerator {
                             { format, args -> it.addKdoc(format, args) },
                             "@param value ${kDoc.description ?: ""}",
                         )
-                        it
-                    }
-                    .let {
                         KDocGenerator.addDeprecationWarning(
                             { annotationSpec -> it.addAnnotation(annotationSpec) },
                             kDoc,
@@ -517,9 +502,6 @@ object TypeGenerator {
                                 { format, args -> it.addKdoc(format, args) },
                                 "@param value ${kDoc.description ?: ""}",
                             )
-                            it
-                        }
-                        .let {
                             KDocGenerator.addDeprecationWarning(
                                 { annotationSpec -> it.addAnnotation(annotationSpec) },
                                 kDoc,
