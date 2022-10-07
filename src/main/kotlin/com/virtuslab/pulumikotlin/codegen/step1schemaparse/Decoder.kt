@@ -9,9 +9,15 @@ object Decoder {
     fun decode(inputStream: InputStream): ParsedSchema {
         val schema = Json.parseToJsonElement(inputStream.bufferedReader().readText())
 
-        val types = Json.decodeFromJsonElement<TypesMap>(schema.jsonObject["types"]!!)
-        val functions = Json.decodeFromJsonElement<FunctionsMap>(schema.jsonObject["functions"]!!)
-        val resources = Json.decodeFromJsonElement<ResourcesMap>(schema.jsonObject["resources"]!!)
+        val types = schema.jsonObject["types"]
+            ?.let { Json.decodeFromJsonElement<TypesMap>(it) }
+            ?: emptyMap()
+        val functions = schema.jsonObject["functions"]
+            ?.let { Json.decodeFromJsonElement<FunctionsMap>(it) }
+            ?: emptyMap()
+        val resources = schema.jsonObject["resources"]
+            ?.let { Json.decodeFromJsonElement<ResourcesMap>(it) }
+            ?: emptyMap()
 
         return ParsedSchema(types, functions, resources)
     }
