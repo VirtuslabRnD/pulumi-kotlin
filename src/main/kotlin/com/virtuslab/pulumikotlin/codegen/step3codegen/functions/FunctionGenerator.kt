@@ -188,7 +188,7 @@ object FunctionGenerator {
                     KDocGenerator.addKDoc(
                         { format, args -> builder.addKdoc(format, args) },
                         """See [${functionType.name.name}].
-                          |@param argument ${functionType.argsType.metadata.kDoc.description}
+                          |@param argument Builder for [${args.toTypeName().simpleName}].
                           |$returnDoc"""
                             .trimMargin(),
                     )

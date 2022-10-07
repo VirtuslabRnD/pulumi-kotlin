@@ -217,7 +217,7 @@ object TypeGenerator {
             .let {
                 KDocGenerator.addKDoc(
                     { format, args -> it.addKdoc(format, args) },
-                    "Builder for [${argsClassName.simpleName}]",
+                    "Builder for [${argsClassName.simpleName}].",
                 )
                 KDocGenerator.addDeprecationWarning(
                     { annotationSpec -> it.addAnnotation(annotationSpec) },

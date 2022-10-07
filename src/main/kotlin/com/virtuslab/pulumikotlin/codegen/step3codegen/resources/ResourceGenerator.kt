@@ -231,7 +231,7 @@ object ResourceGenerator {
             .let {
                 KDocGenerator.addKDoc(
                     { format, args -> it.addKdoc(format, args) },
-                    "Builder for [${resourceClassName.simpleName}]",
+                    "Builder for [${resourceClassName.simpleName}].",
                 )
                 KDocGenerator.addDeprecationWarning(
                     { annotationSpec -> it.addAnnotation(annotationSpec) },
@@ -260,10 +260,10 @@ object ResourceGenerator {
             .let {
                 KDocGenerator.addKDoc(
                     { format, args -> it.addKdoc(format, args) },
-                    """${resourceType.kDoc.description}
-                        |@param name The _unique_ name of the resulting resource.
-                        |@param block Builder for [${resourceClassName.simpleName}].
-                    """.trimMargin(),
+                    """See [${resourceType.name.name}].
+                      |@param name The _unique_ name of the resulting resource.
+                      |@param block Builder for [${resourceClassName.simpleName}]."""
+                        .trimMargin(),
                 )
                 KDocGenerator.addDeprecationWarning(
                     { annotationSpec -> it.addAnnotation(annotationSpec) },
