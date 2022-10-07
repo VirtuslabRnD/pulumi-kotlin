@@ -22,7 +22,7 @@ internal class KDocGeneratorTest {
 
         assertSanitizedDescriptionEquals(description, "This·is·a·text")
 
-        assertKDocContentsEqual(
+        assertKDocContentEquals(
             className,
             description,
             """/**
@@ -41,7 +41,7 @@ internal class KDocGeneratorTest {
 
         assertSanitizedDescriptionEquals(description, "/*This·description·/*opens·three·new·comments:·/*\n*/*/*/")
 
-        assertKDocContentsEqual(
+        assertKDocContentEquals(
             className,
             description,
             """/**
@@ -61,7 +61,7 @@ internal class KDocGeneratorTest {
 
         assertSanitizedDescriptionEquals(description, "·/*·/*·/*\n*/This·description·*/closes·three·new·comments:·*/")
 
-        assertKDocContentsEqual(
+        assertKDocContentEquals(
             className,
             description,
             """/**
@@ -84,7 +84,7 @@ internal class KDocGeneratorTest {
             "·/*·/*·/*\n*/This·/*description·*/closes·three·new·comments/*·and·opens·two:·*/\n*/*/",
         )
 
-        assertKDocContentsEqual(
+        assertKDocContentEquals(
             className,
             description,
             """/**
@@ -105,7 +105,7 @@ internal class KDocGeneratorTest {
 
         assertSanitizedDescriptionEquals(description, "There·are·seven·spaces·at·the·end·of·this·line\n")
 
-        assertKDocContentsEqual(
+        assertKDocContentEquals(
             className,
             description,
             """/**
@@ -124,7 +124,7 @@ internal class KDocGeneratorTest {
 
         assertSanitizedDescriptionEquals(description, "This%%would%%break%%code%%generation")
 
-        assertKDocContentsEqual(
+        assertKDocContentEquals(
             className,
             description,
             """/**
@@ -149,7 +149,7 @@ internal class KDocGeneratorTest {
 
         assertSanitizedDescriptionEquals(description, "There·are·some·examples·here.\n")
 
-        assertKDocContentsEqual(
+        assertKDocContentEquals(
             className,
             description,
             """/**
@@ -193,7 +193,7 @@ internal class KDocGeneratorTest {
                 .trimMargin(),
         )
 
-        assertKDocContentsEqual(
+        assertKDocContentEquals(
             className,
             description,
             """/**
@@ -260,7 +260,7 @@ internal class KDocGeneratorTest {
                 .trimMargin(),
         )
 
-        assertKDocContentsEqual(
+        assertKDocContentEquals(
             className,
             description,
             """/**
@@ -310,7 +310,7 @@ internal class KDocGeneratorTest {
                 .trimMargin(),
         )
 
-        assertKDocContentsEqual(
+        assertKDocContentEquals(
             className,
             description,
             """/**
@@ -377,7 +377,7 @@ internal class KDocGeneratorTest {
                 .trimMargin(),
         )
 
-        assertKDocContentsEqual(
+        assertKDocContentEquals(
             className,
             description,
             """/**
@@ -399,6 +399,34 @@ internal class KDocGeneratorTest {
         assertExportedFileCompiles(className)
     }
 
+    @Test
+    fun `adds deprecation warning with message`() {
+        val message = "This is deprecated"
+        val className = "DeprecationWarning"
+
+        assertDeprecationMessageEquals(
+            className,
+            message,
+            "@Deprecated(message = \"\"\"\nThis is deprecated\n\"\"\")",
+        )
+
+        assertExportedFileCompiles(className)
+    }
+
+    @Test
+    fun `adds deprecation warning with multi-line message`() {
+        val message = "This is deprecated.\nDon't use it.\nUse another class instead."
+        val className = "MultiLineDeprecationWarning"
+
+        assertDeprecationMessageEquals(
+            className,
+            message,
+            "@Deprecated(message = \"\"\"\nThis is deprecated.\nDon't use it.\nUse another class instead.\n\"\"\")",
+        )
+
+        assertExportedFileCompiles(className)
+    }
+
     private fun assertSanitizedDescriptionEquals(description: String, expected: String) {
         var sanitizedDescription = ""
         KDocGenerator.addKDoc(
@@ -409,7 +437,7 @@ internal class KDocGeneratorTest {
         assertEquals(expected, sanitizedDescription)
     }
 
-    private fun assertKDocContentsEqual(className: String, description: String, expected: String) {
+    private fun assertKDocContentEquals(className: String, description: String, expected: String) {
         FileSpec.builder(PACKAGE_NAME, className)
             .addType(
                 TypeSpec.classBuilder(className)
@@ -447,4 +475,31 @@ internal class KDocGeneratorTest {
 
     private fun getFile(className: String) =
         File("$OUTPUT_DIRECTORY/${PACKAGE_NAME.replace(".", "/")}/$className.kt")
+
+    private fun assertDeprecationMessageEquals(className: String, message: String, expected: String) {
+        FileSpec.builder(PACKAGE_NAME, className)
+            .addType(
+                TypeSpec.classBuilder(className)
+                    .addProperty(
+                        PropertySpec.builder("value", String::class)
+                            .initializer("\"hello world\"")
+                            .build(),
+                    )
+                    .let {
+                        KDocGenerator.addDeprecationWarning(
+                            { annotationSpec -> it.addAnnotation(annotationSpec) },
+                            KDoc(description = null, deprecationMessage = message),
+                        )
+                        it
+                    }
+                    .build(),
+            )
+            .build()
+            .writeTo(File(OUTPUT_DIRECTORY))
+
+        assertContains(
+            getFile(className).readText(),
+            expected,
+        )
+    }
 }
