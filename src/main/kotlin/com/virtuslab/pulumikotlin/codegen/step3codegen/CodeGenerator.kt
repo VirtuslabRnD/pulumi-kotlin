@@ -1,8 +1,8 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.AutonomousType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.FunctionType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.RootType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.functions.FunctionGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ResourceGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
@@ -11,7 +11,7 @@ import com.virtuslab.pulumikotlin.codegen.utils.Paths
 import java.io.File
 
 data class GeneratorArguments(
-    val types: List<AutonomousType>,
+    val types: List<RootType>,
     val sdkFilesToCopyPath: String = Paths.filesToCopyToSdkPath,
     val resources: List<ResourceType> = emptyList(),
     val functions: List<FunctionType> = emptyList(),

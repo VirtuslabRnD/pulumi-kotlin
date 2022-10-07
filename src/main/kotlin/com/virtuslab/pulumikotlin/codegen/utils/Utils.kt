@@ -17,3 +17,9 @@ fun String.capitalize() =
 
 fun String.decapitalize() =
     replaceFirstChar { it.lowercase(Locale.getDefault()) }
+
+fun <K, V> Map<K, V?>.filterNotNullValues() =
+    this
+        .filter { it.value != null }
+        .map { (key, value) -> key to value!! }
+        .toMap()

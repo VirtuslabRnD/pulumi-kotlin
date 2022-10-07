@@ -5,13 +5,16 @@ import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.OK
 import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.FunctionType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.StringType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeAndOptionality
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Usage
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -24,14 +27,13 @@ internal class CodeGeneratorGenerateFunctionsTest {
         val inputType = ComplexType(
             TypeMetadata(
                 PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
-                InputOrOutput.Input,
-                UseCharacteristic.FunctionRoot,
+                Usage(Root, Function, Input),
                 KDoc(null, null),
             ),
 
             mapOf(
                 "arn" to TypeAndOptionality(
-                    PrimitiveType("String"),
+                    StringType,
                     true,
                     KDoc(null, null),
                 ),
@@ -40,14 +42,13 @@ internal class CodeGeneratorGenerateFunctionsTest {
         val outputType = ComplexType(
             TypeMetadata(
                 PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
-                InputOrOutput.Output,
-                UseCharacteristic.FunctionRoot,
+                Usage(Root, Function, Output),
                 KDoc(null, null),
             ),
 
             mapOf(
                 "arn" to TypeAndOptionality(
-                    PrimitiveType("String"),
+                    StringType,
                     true,
                     KDoc(null, null),
                 ),
@@ -56,7 +57,7 @@ internal class CodeGeneratorGenerateFunctionsTest {
         val function = FunctionType(
             PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
             inputType,
-            outputType,
+            outputType.toReference(),
             KDoc(null, null),
         )
 

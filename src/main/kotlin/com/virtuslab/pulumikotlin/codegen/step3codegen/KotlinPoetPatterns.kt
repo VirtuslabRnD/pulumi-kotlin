@@ -10,7 +10,7 @@ import com.virtuslab.pulumikotlin.codegen.expressions.Assignment
 import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.Expression
 import com.virtuslab.pulumikotlin.codegen.expressions.add
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
 
 typealias MappingCode = (Expression) -> Expression
 
@@ -19,10 +19,10 @@ object KotlinPoetPatterns {
     fun listOfLambdas(innerType: TypeName): TypeName =
         LIST.parameterizedBy(builderLambda(innerType))
 
-    fun listOfLambdas(innerType: ComplexType): TypeName =
+    fun listOfLambdas(innerType: ReferencedComplexType): TypeName =
         listOfLambdas(innerType.toBuilderTypeName())
 
-    fun builderLambda(innerType: ComplexType): TypeName =
+    fun builderLambda(innerType: ReferencedComplexType): TypeName =
         builderLambda(innerType.toBuilderTypeName())
 
     fun builderLambda(innerType: TypeName): TypeName =

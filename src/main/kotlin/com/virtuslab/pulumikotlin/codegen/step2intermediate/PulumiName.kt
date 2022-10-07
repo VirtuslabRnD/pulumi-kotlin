@@ -1,9 +1,9 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.squareup.kotlinpoet.ClassName
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.GeneratedClass.EnumClass
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.Input
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.FunctionNested
@@ -18,6 +18,7 @@ data class PulumiName(
     val namespace: List<String>,
     val name: String,
 ) {
+
     companion object {
         fun from(string: String): PulumiName {
             val segments = string.split("/").first().split(":")
@@ -157,7 +158,7 @@ data class PulumiName(
                 shouldConstructBuilders = false,
             )
 
-            else -> error("not possible")
+            else -> error("There is no mapping for $namingFlags (happened in $this)")
         }
     }
 

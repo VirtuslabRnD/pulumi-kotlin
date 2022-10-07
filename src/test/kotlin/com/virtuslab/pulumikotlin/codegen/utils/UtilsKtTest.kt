@@ -47,4 +47,11 @@ internal class UtilsKtTest {
 
         assertEquals("letIf works!", result)
     }
+
+    @Test
+    fun `filterNotNullValues removes null values from any Map`() {
+        val mapWithNullValues = mapOf("a" to null, "b" to "c")
+
+        assertEquals(mapOf("b" to "c"), mapWithNullValues.filterNotNullValues())
+    }
 }

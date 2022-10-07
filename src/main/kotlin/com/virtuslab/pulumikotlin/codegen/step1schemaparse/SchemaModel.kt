@@ -10,9 +10,9 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-typealias TypesMap = Map<String, Resources.PropertySpecification>
-typealias FunctionsMap = Map<String, Function>
-typealias ResourcesMap = Map<String, Resources.Resource>
+typealias TypesMap = Map<String, SchemaModel.RootTypeProperty>
+typealias FunctionsMap = Map<String, SchemaModel.Function>
+typealias ResourcesMap = Map<String, SchemaModel.Resource>
 
 data class ParsedSchema(
     val types: TypesMap,
@@ -20,11 +20,12 @@ data class ParsedSchema(
     val resources: ResourcesMap,
 )
 
-object Resources {
+@Suppress("SERIALIZER_TYPE_INCOMPATIBLE") // https://github.com/VirtuslabRnD/pulumi-kotlin/issues/63
+object SchemaModel {
 
     object PropertySpecificationSerializer :
-        JsonContentPolymorphicSerializer<PropertySpecification>(PropertySpecification::class) {
-        override fun selectDeserializer(element: JsonElement): KSerializer<out PropertySpecification> {
+        JsonContentPolymorphicSerializer<Property>(Property::class) {
+        override fun selectDeserializer(element: JsonElement): KSerializer<out Property> {
             fun hasTypeEqualTo(type: String) =
                 element is JsonObject &&
                     "type" in element.jsonObject &&
@@ -38,8 +39,8 @@ object Resources {
             fun mightBeOfTypeObject() = element is JsonObject && "properties" in element.jsonObject
 
             return when {
-                element is JsonObject && "\$ref" in element.jsonObject -> ReferredProperty.serializer()
-                element is JsonObject && "oneOf" in element.jsonObject -> OneOf.serializer()
+                element is JsonObject && "\$ref" in element.jsonObject -> ReferenceProperty.serializer()
+                element is JsonObject && "oneOf" in element.jsonObject -> OneOfProperty.serializer()
                 isMapType() -> MapProperty.serializer()
                 mightBeOfTypeObject() -> ObjectProperty.serializer()
                 hasTypeEqualTo("array") -> ArrayProperty.serializer()
@@ -93,7 +94,7 @@ object Resources {
         override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : PropertySpecification()
+    ) : RootTypeProperty()
 
     @Serializable
     data class StringProperty(
@@ -103,7 +104,7 @@ object Resources {
         override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : PropertySpecification()
+    ) : PrimitiveProperty()
 
     @Serializable
     data class BooleanProperty(
@@ -113,7 +114,7 @@ object Resources {
         override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : PropertySpecification()
+    ) : PrimitiveProperty()
 
     @Serializable
     data class IntegerProperty(
@@ -123,7 +124,7 @@ object Resources {
         override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : PropertySpecification()
+    ) : PrimitiveProperty()
 
     @Serializable
     data class NumberProperty(
@@ -133,21 +134,21 @@ object Resources {
         override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : PropertySpecification()
+    ) : PrimitiveProperty()
 
     @Serializable
     class ArrayProperty(
         val type: PropertyType = PropertyType.array,
-        val items: PropertySpecification,
+        val items: Property,
         val willReplaceOnChanges: Boolean = false,
         override val deprecationMessage: String? = null,
         override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : PropertySpecification()
+    ) : GenericTypeProperty()
 
     @Serializable
-    data class ReferredProperty(
+    data class ReferenceProperty(
         val type: String? = null,
         @SerialName("\$ref")
         val ref: SpecificationReference,
@@ -156,71 +157,83 @@ object Resources {
         override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : PropertySpecification()
-
-    @Serializable
-    data class OneOf(
-        val type: String? = null,
-        override val description: String? = null,
-        val oneOf: List<PropertySpecification>,
-        override val deprecationMessage: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
-        val willReplaceOnChanges: Boolean = false,
-    ) : PropertySpecification()
-
-    @Serializable
-    data class ObjectProperty(
-        val type: PropertyType = PropertyType.`object`,
-        val properties: Map<PropertyName, PropertySpecification> = emptyMap(),
-        override val deprecationMessage: String? = null,
-        val willReplaceOnChanges: Boolean = false,
-        val additionalProperties: PropertySpecification? = null,
-        val required: Set<PropertyName> = emptySet(),
-        override val description: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
-    ) : PropertySpecification()
-
-    @Serializable
-    data class MapProperty(
-        val type: PropertyType = PropertyType.`object`,
-        override val deprecationMessage: String? = null,
-        val willReplaceOnChanges: Boolean = false,
-        val additionalProperties: PropertySpecification,
-        override val description: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
-    ) : PropertySpecification()
-
-    @Serializable(with = PropertySpecificationSerializer::class)
-    sealed class PropertySpecification {
-        abstract val description: String?
-        abstract val deprecationMessage: String?
-    }
+    ) : Property()
 
     @Serializable
     @JvmInline
     value class SpecificationReference(val value: String)
 
     @Serializable
+    data class OneOfProperty(
+        val type: String? = null,
+        override val description: String? = null,
+        val oneOf: List<Property>,
+        override val deprecationMessage: String? = null,
+        val language: Language? = null,
+        val default: JsonElement? = null,
+        val willReplaceOnChanges: Boolean = false,
+    ) : GenericTypeProperty()
+
+    @Serializable
+    data class ObjectProperty(
+        val type: PropertyType = PropertyType.`object`,
+        val properties: Map<PropertyName, Property> = emptyMap(),
+        override val deprecationMessage: String? = null,
+        val willReplaceOnChanges: Boolean = false,
+        val additionalProperties: Property? = null,
+        val required: Set<PropertyName> = emptySet(),
+        override val description: String? = null,
+        val language: Language? = null,
+        val default: JsonElement? = null,
+    ) : RootTypeProperty()
+
+    @Serializable
+    data class MapProperty(
+        val type: PropertyType = PropertyType.`object`,
+        override val deprecationMessage: String? = null,
+        val willReplaceOnChanges: Boolean = false,
+        val additionalProperties: Property,
+        override val description: String? = null,
+        val language: Language? = null,
+        val default: JsonElement? = null,
+    ) : GenericTypeProperty()
+
+    @Serializable(with = PropertySpecificationSerializer::class)
+    sealed class Property {
+        abstract val description: String?
+        abstract val deprecationMessage: String?
+    }
+
+    @Serializable(with = PropertySpecificationSerializer::class)
+    sealed class PrimitiveProperty : Property()
+
+    @Serializable(with = PropertySpecificationSerializer::class)
+    sealed class ReferencingOtherTypesProperty : Property()
+
+    @Serializable(with = PropertySpecificationSerializer::class)
+    sealed class GenericTypeProperty : ReferencingOtherTypesProperty()
+
+    @Serializable(with = PropertySpecificationSerializer::class)
+    sealed class RootTypeProperty : ReferencingOtherTypesProperty()
+
+    @Serializable
     data class Resource(
         val description: String? = null,
-        val properties: Map<PropertyName, PropertySpecification> = emptyMap(),
+        val properties: Map<PropertyName, Property> = emptyMap(),
         val type: PropertyType? = null,
         val required: List<PropertyName> = emptyList(),
-        val inputProperties: Map<PropertyName, PropertySpecification> = emptyMap(),
+        val inputProperties: Map<PropertyName, Property> = emptyMap(),
         val requiredInputs: List<PropertyName> = emptyList(),
         val stateInputs: JsonObject? = null,
         val aliases: JsonArray? = null,
         val deprecationMessage: String? = null,
     )
-}
 
-@Serializable
-data class Function(
-    val inputs: Resources.ObjectProperty? = null,
-    val outputs: Resources.ObjectProperty,
-    val deprecationMessage: String? = null,
-    val description: String? = null,
-)
+    @Serializable
+    data class Function(
+        val inputs: ObjectProperty? = null,
+        val outputs: ObjectProperty,
+        val deprecationMessage: String? = null,
+        val description: String? = null,
+    )
+}

@@ -1,0 +1,44 @@
+package com.virtuslab.pulumikotlin.codegen.step2intermediate
+
+internal data class MapWithKeyTransformer<K, V> private constructor(
+    private val baseMap: Map<K, V>,
+    private val keyTransformer: (K) -> K,
+) : Map<K, V> by baseMap {
+
+    override fun containsKey(key: K): Boolean {
+        return baseMap.containsKey(keyTransformer(key))
+    }
+
+    override operator fun get(key: K): V? {
+        return baseMap[keyTransformer(key)]
+    }
+
+    companion object {
+        fun <K, V> from(baseMap: Map<K, V>, keyTransformer: (K) -> K): MapWithKeyTransformer<K, V> {
+            val transformedMap = mutableMapOf<K, V>()
+            baseMap.forEach { (key, value) ->
+                val transformedKey = keyTransformer(key)
+                transformedMap.merge(transformedKey, value) { _, _ ->
+                    throw ConflictsNotAllowed.from(key, transformedKey)
+                }
+            }
+            return MapWithKeyTransformer(transformedMap, keyTransformer)
+        }
+    }
+
+    class ConflictsNotAllowed(
+        keyBefore: String,
+        keyAfter: String,
+    ) : RuntimeException("Transformed key ($keyBefore -> $keyAfter) conflicts with an existing key ($keyAfter)") {
+        companion object {
+            fun <K> from(keyBefore: K, keyAfter: K) =
+                ConflictsNotAllowed(keyBefore.toString(), keyAfter.toString())
+        }
+    }
+}
+
+internal fun <V> Map<String, V>.lowercaseKeys() =
+    transformKeys { it.lowercase() }
+
+internal fun <K, V> Map<K, V>.transformKeys(mapper: (K) -> K) =
+    MapWithKeyTransformer.from(this, mapper)

@@ -17,8 +17,8 @@ import com.virtuslab.pulumikotlin.codegen.expressions.addCode
 import com.virtuslab.pulumikotlin.codegen.expressions.call0
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.FunctionType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
@@ -29,7 +29,7 @@ import com.virtuslab.pulumikotlin.codegen.utils.letIf
 
 object FunctionGenerator {
     fun generateFunctions(functions: List<FunctionType>): List<FileSpec> {
-        val namingFlags = NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
+        val namingFlags = NamingFlags(Direction.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
         val files = functions
             .groupBy { it.name.namespace }
             .flatMap { (_, types) ->
@@ -59,7 +59,7 @@ object FunctionGenerator {
     }
 
     private fun callAwaitAndDoTheMapping(functionType: FunctionType, argument: Expression?): Return {
-        val javaNamingFlags = NamingFlags(InputOrOutput.Input, UseCharacteristic.FunctionRoot, LanguageType.Java)
+        val javaNamingFlags = NamingFlags(Direction.Input, UseCharacteristic.FunctionRoot, LanguageType.Java)
 
         val toKotlin = functionType.outputType.toTypeName().nestedClass("Companion").member("toKotlin")
         val javaMethodGetName = ClassName(

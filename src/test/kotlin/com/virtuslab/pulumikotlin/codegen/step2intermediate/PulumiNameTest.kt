@@ -40,7 +40,7 @@ internal class PulumiNameTest {
         val name = PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority")
         val result = name.toFunctionGroupObjectName(
             NamingFlags(
-                InputOrOutput.Input,
+                Direction.Input,
                 UseCharacteristic.FunctionRoot,
                 LanguageType.Java,
             ),
@@ -54,7 +54,7 @@ internal class PulumiNameTest {
         val name = PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority")
         val result = name.toFunctionGroupObjectName(
             NamingFlags(
-                InputOrOutput.Input,
+                Direction.Input,
                 UseCharacteristic.FunctionRoot,
                 LanguageType.Kotlin,
             ),
@@ -68,7 +68,7 @@ internal class PulumiNameTest {
         val name = PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority")
         val result = name.toFunctionGroupObjectPackage(
             NamingFlags(
-                InputOrOutput.Input,
+                Direction.Input,
                 UseCharacteristic.FunctionRoot,
                 LanguageType.Java,
             ),
@@ -82,7 +82,7 @@ internal class PulumiNameTest {
         val name = PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority")
         val result = name.toFunctionGroupObjectPackage(
             NamingFlags(
-                InputOrOutput.Input,
+                Direction.Input,
                 UseCharacteristic.FunctionRoot,
                 LanguageType.Kotlin,
             ),

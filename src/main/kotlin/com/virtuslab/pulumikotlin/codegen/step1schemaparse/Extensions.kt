@@ -1,5 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step1schemaparse
 
-fun Resources.SpecificationReference.withoutThePrefix(): String {
-    return value.removePrefix("#/types/")
-}
+val SchemaModel.ReferenceProperty.referencedTypeName: String
+    get() = ref.referencedTypeName
+
+val SchemaModel.SpecificationReference.referencedTypeName: String
+    get() = value.removePrefix("#/types/")
