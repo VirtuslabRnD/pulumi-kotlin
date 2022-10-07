@@ -61,7 +61,7 @@ data class ResourceType(val name: PulumiName, val argsType: Type, val outputFiel
 data class FunctionType(val name: PulumiName, val argsType: AutonomousType, val outputType: AutonomousType)
 
 /**
- * Takes parsed schema as an input and produce types that are prepared for code generation. More specifically:
+ * Takes parsed schema as an input and produces types that are prepared for code generation. More specifically:
  * - it finds out which functions and resources reference particular types (recursively)
  * - it finds out which types will be used as inputs / outputs
  * - it generates synthetic types from resources (input properties) and functions (inputs and outputs)

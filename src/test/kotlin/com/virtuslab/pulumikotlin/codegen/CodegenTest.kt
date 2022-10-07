@@ -1,6 +1,10 @@
 package com.virtuslab.pulumikotlin.codegen
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.COMPILATION_ERROR
+import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.INTERNAL_ERROR
+import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.OK
+import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.SCRIPT_EXECUTION_ERROR
 import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
 import org.junit.jupiter.api.Test
@@ -41,7 +45,7 @@ class CodegenTest {
            }
            """
 
-        assertGeneratedCodeAndSourceFileCompile("schema-aws-classic-subset-small-size.json", code)
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE, code)
     }
 
     @Test
@@ -97,7 +101,7 @@ class CodegenTest {
             }
             """
 
-        assertGeneratedCodeAndSourceFileCompile("schema-aws-classic-subset-small-size.json", code)
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE, code)
     }
 
     @Test
@@ -113,7 +117,7 @@ class CodegenTest {
             }
             """
 
-        assertGeneratedCodeAndSourceFileCompile("schema-aws-classic-subset-small-size.json", code)
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE, code)
     }
 
     @Test
@@ -144,7 +148,7 @@ class CodegenTest {
             }
             """
 
-        assertGeneratedCodeAndSourceFileCompile("schema-aws-classic-subset-small-size.json", code)
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE, code)
     }
 
     @Test
@@ -208,12 +212,12 @@ class CodegenTest {
 
             """
 
-        assertGeneratedCodeAndSourceFileCompile("schema-aws-classic-5.15.0-subset-with-one-of.json", code)
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_WITH_ONE_OF, code)
     }
 
     @Test
     fun `bigger subset of aws schema can be compiled`() {
-        assertGeneratedCodeCompiles("schema-aws-classic-subset-big-size.json")
+        assertGeneratedCodeCompiles(SCHEMA_AWS_CLASSIC_SUBSET_BIG_SIZE)
     }
 
     @Test
@@ -241,7 +245,89 @@ class CodegenTest {
             }
         """
 
-        assertGeneratedCodeAndSourceFileCompile("schema-gcp-classic-subset-medium-size.json", code)
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
+    }
+
+    @Test
+    fun `type-safe resource builder cannot be directly constructed`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.gcp.appengine.kotlin.ApplicationUrlDispatchRulesResourceBuilder
+            
+            suspend fun main() {
+                ApplicationUrlDispatchRulesResourceBuilder()
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileDoNotCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
+    }
+
+    @Test
+    fun `build from type-safe resource builder cannot be called directly`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.gcp.appengine.kotlin.ApplicationUrlDispatchRulesResourceBuilder
+            
+            suspend fun main() {
+                val builder: ApplicationUrlDispatchRulesResourceBuilder = null!!
+                builder.build()
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileDoNotCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
+    }
+
+    @Test
+    fun `type-safe type builder cannot be directly constructed`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.gcp.appengine.kotlin.inputs.ApplicationUrlDispatchRulesDispatchRuleArgsBuilder
+            
+            suspend fun main() {
+                ApplicationUrlDispatchRulesDispatchRuleArgsBuilder()
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileDoNotCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
+    }
+
+    @Test
+    fun `build from type-safe type builder cannot be called directly`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.gcp.appengine.kotlin.inputs.ApplicationUrlDispatchRulesDispatchRuleArgsBuilder
+            
+            suspend fun main() {
+                val builder: ApplicationUrlDispatchRulesDispatchRuleArgsBuilder = null!!
+                builder.build()
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileDoNotCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
+    }
+
+    @Test
+    fun `nested type-safe builder should not allow parent type-safe builder's method calls`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.gcp.appengine.kotlin.applicationUrlDispatchRulesResource
+            
+            suspend fun main() {
+                applicationUrlDispatchRulesResource("resource-name") {
+                    args {
+                        project("example-project")
+                        dispatchRules(
+                            {
+                                project("THIS-SHOULD-NOT-WORK")
+                                path("path")
+                            },
+                        )
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileDoNotCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
     }
 
     private val classPath = listOf(
@@ -261,21 +347,104 @@ class CodegenTest {
         assertGeneratedCodeAndSourceFilesCompile(schemaPath, mapOf("Main.kt" to sourceFile))
     }
 
+    private fun assertGeneratedCodeAndSourceFileDoNotCompile(schemaPath: String, sourceFile: String) {
+        assertGeneratedCodeAndSourceFilesDoNotCompile(schemaPath, mapOf("Main.kt" to sourceFile))
+    }
+
+    private fun assertGeneratedCodeAndSourceFilesDoNotCompile(schemaPath: String, sourceFiles: Map<String, String>) {
+        val compilationResult = generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles)
+
+        if (compilationResult.exitCode == COMPILATION_ERROR) {
+            println("Code did not compile (as expected). Encountered problems: ${compilationResult.messages}")
+        }
+        assertEquals(
+            COMPILATION_ERROR,
+            compilationResult.exitCode,
+            "Code did compile (not expected)",
+        )
+    }
+
     private fun assertGeneratedCodeAndSourceFilesCompile(schemaPath: String, sourceFiles: Map<String, String>) {
+        val compilationResult = generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles)
+
+        assertEquals(
+            OK,
+            compilationResult.exitCode,
+            "Code did not compile (not expected). Encountered problems ${compilationResult.messages}",
+        )
+    }
+
+    data class AggregateCompilationResult(val exitCode: KotlinCompilation.ExitCode, val messages: String) {
+        companion object {
+            fun from(perModuleResult: Map<String, KotlinCompilation.Result>): AggregateCompilationResult {
+                require(perModuleResult.isNotEmpty()) { "Should have at least 1 element" }
+
+                val fromWorstToBest = listOf(SCRIPT_EXECUTION_ERROR, INTERNAL_ERROR, COMPILATION_ERROR, OK)
+
+                val worstExitCode = fromWorstToBest
+                    .find { possibleExitCode ->
+                        perModuleResult.values.any { actualResult ->
+                            actualResult.exitCode == possibleExitCode
+                        }
+                    }
+                    ?: error("unexpected")
+
+                val concatenatedMessages = perModuleResult
+                    .flatMap { (moduleName, result) ->
+                        result.messages.lines().map { line ->
+                            "[module: $moduleName] $line"
+                        }
+                    }
+                    .joinToString(",")
+
+                return AggregateCompilationResult(worstExitCode, concatenatedMessages)
+            }
+        }
+    }
+
+    /**
+     * This simulates modules (generated code being a separate module from code provided by the user),
+     * so that proper encapsulation can be tested (`internal` visibility modifier).
+     *
+     * How? This compiles files/directories, that would normally live in different artifacts, separately.
+     *
+     * [Kotlin docs](https://kotlinlang.org/docs/visibility-modifiers.html#modules):
+     *
+     * A module is a set of Kotlin files compiled together, for example:
+     * - ...
+     * - **A set of files compiled with one invocation of the <kotlinc> Ant task.**
+     *
+     */
+    private fun generateCodeAndCompileAsSeparateModules(
+        schemaPath: String,
+        sourceFiles: Map<String, String>,
+    ): AggregateCompilationResult {
         val outputDirectory = Codegen.codegen(loadResource("/$schemaPath"))
-        val generatedKotlinFiles = readFilesRecursively(outputDirectory)
+        val generatedSourceFiles = readFilesRecursively(outputDirectory)
             .map { (fileName, contents) -> SourceFile.kotlin(fileName, contents) }
 
-        val hardcodedSources = sourceFiles
+        val additionalSourceFiles = sourceFiles
             .map { (fileName, source) -> SourceFile.new(fileName, source.trimIndent()) }
 
-        val compilation = KotlinCompilation().apply {
-            sources = hardcodedSources + generatedKotlinFiles
+        val compilationForGeneratedCode = KotlinCompilation().apply {
+            sources = generatedSourceFiles
             classpaths = classPath
-            messageOutputStream = System.out
         }
 
-        assertEquals(KotlinCompilation.ExitCode.OK, compilation.compile().exitCode)
+        val compilationForAdditionalCode = KotlinCompilation().apply {
+            sources = additionalSourceFiles
+            classpaths = classPath + compilationForGeneratedCode.classesDir
+        }
+
+        val compiledGeneratedCode = compilationForGeneratedCode.compile()
+        val compiledAdditionalCode = compilationForAdditionalCode.compile()
+
+        return AggregateCompilationResult.from(
+            mapOf(
+                "generatedCode" to compiledGeneratedCode,
+                "additionalCode" to compiledAdditionalCode,
+            ),
+        )
     }
 
     private fun artifact(coordinate: String) =
@@ -298,3 +467,8 @@ class CodegenTest {
             .toMap()
     }
 }
+
+private const val SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE = "schema-gcp-classic-subset-medium-size.json"
+private const val SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE = "schema-aws-classic-subset-small-size.json"
+private const val SCHEMA_AWS_CLASSIC_SUBSET_BIG_SIZE = "schema-aws-classic-subset-big-size.json"
+private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ONE_OF = "schema-aws-classic-5.15.0-subset-with-one-of.json"
