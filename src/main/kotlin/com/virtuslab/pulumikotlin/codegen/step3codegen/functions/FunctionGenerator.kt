@@ -1,6 +1,5 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen.functions
 
-import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -98,7 +97,11 @@ object FunctionGenerator {
             .let {
                 KDocGenerator.addKDoc(
                     { format, args -> it.addKdoc(format, args) },
-                    "$functionDocs\n@param argument\n$returnDoc",
+                    "$functionDocs\n@param argument ${functionType.argsType.metadata.kDoc.description}\n$returnDoc",
+                )
+                KDocGenerator.addDeprecationWarning(
+                    { annotationSpec -> it.addAnnotation(annotationSpec) },
+                    functionType.kDoc,
                 )
                 it
             }
@@ -150,7 +153,7 @@ object FunctionGenerator {
                     ?.joinToString("\n")
                 KDocGenerator.addKDoc(
                     { format, args -> builder?.addKdoc(format, args) },
-                    "See [${functionType.name.name}]\n$paramDocs\n$returnDoc",
+                    "See [${functionType.name.name}].\n$paramDocs\n$returnDoc",
                 )
                 KDocGenerator.addDeprecationWarning(
                     { annotationSpec -> builder?.addAnnotation(annotationSpec) },
@@ -184,7 +187,10 @@ object FunctionGenerator {
 
                     KDocGenerator.addKDoc(
                         { format, args -> builder.addKdoc(format, args) },
-                        "See [${functionType.name.name}]\n@param argument\n$returnDoc",
+                        """See [${functionType.name.name}].
+                          |@param argument ${functionType.argsType.metadata.kDoc.description}
+                          |$returnDoc"""
+                            .trimMargin(),
                     )
                     KDocGenerator.addDeprecationWarning(
                         { annotationSpec -> builder.addAnnotation(annotationSpec) },
@@ -194,14 +200,7 @@ object FunctionGenerator {
                     builder.addCode(allCode)
                 }
         }
-            .letIf(functionType.kDoc.deprecationMessage != null) {
-                it?.addAnnotation(
-                    AnnotationSpec.builder(Deprecated::class)
-                        .addMember("message = \"\"\"\n${functionType.kDoc.deprecationMessage}\n\"\"\"")
-                        .build(),
-                )
-            }
-            .let { it?.build() }
+            ?.build()
 
         return listOfNotNull(basicFunSpec, separateArgumentsOverloadFunSpec, typeSafeBuilderOverloadFunSpec)
     }
