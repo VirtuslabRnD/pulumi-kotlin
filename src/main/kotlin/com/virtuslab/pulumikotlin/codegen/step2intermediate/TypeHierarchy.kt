@@ -1,11 +1,14 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
+import com.pulumi.asset.AssetOrArchive
+import com.pulumi.core.Either
 import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.LIST
 import com.squareup.kotlinpoet.MAP
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.asTypeName
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 
 data class TypeMetadata(
@@ -128,11 +131,18 @@ data class MapType(val firstType: ReferencedType, val secondType: ReferencedType
 
 data class EitherType(val firstType: ReferencedType, val secondType: ReferencedType) : ReferencedType() {
     override fun toTypeName(languageType: LanguageType): TypeName {
-        return ClassName("com.pulumi.core", "Either")
+        return Either::class.asTypeName()
             .parameterizedBy(
                 firstType.toTypeName(languageType),
                 secondType.toTypeName(languageType),
             )
+    }
+}
+
+object AssetOrArchiveType : ReferencedType() {
+
+    override fun toTypeName(languageType: LanguageType): ClassName {
+        return AssetOrArchive::class.asTypeName()
     }
 }
 

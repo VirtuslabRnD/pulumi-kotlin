@@ -3,6 +3,7 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArrayProperty
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.AssetOrArchiveProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.BooleanProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.GenericTypeProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.IntegerProperty
@@ -177,6 +178,7 @@ object IntermediateRepresentationGenerator {
             is ReferenceProperty -> resolveSingleTypeReference(context, property, usageKind)
             is GenericTypeProperty -> mapGenericTypes(property) { resolveNestedTypeReference(context, it, usageKind) }
             is PrimitiveProperty -> mapPrimitiveTypes(property)
+            is AssetOrArchiveProperty -> AssetOrArchiveType
             is ObjectProperty, is StringEnumProperty -> error("Nesting not supported for ${property.javaClass}")
         }
     }
