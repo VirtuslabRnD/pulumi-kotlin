@@ -38,7 +38,14 @@ object SchemaModel {
             fun mightBeOfTypeObject() = element is JsonObject && "properties" in element.jsonObject
 
             return when {
-                element is JsonObject && "\$ref" in element.jsonObject -> ReferenceProperty.serializer()
+                element is JsonObject && "\$ref" in element.jsonObject -> {
+                    val refType = element.get("\$ref")?.jsonPrimitive?.content
+                    if (refType.equals("pulumi.json#/Asset") || refType.equals("pulumi.json#/Archive")) {
+                        AssetOrArchiveProperty.serializer()
+                    } else {
+                        ReferenceProperty.serializer()
+                    }
+                }
                 element is JsonObject && "oneOf" in element.jsonObject -> OneOfProperty.serializer()
                 isMapType() -> MapProperty.serializer()
                 mightBeOfTypeObject() -> ObjectProperty.serializer()
@@ -172,6 +179,24 @@ object SchemaModel {
         val default: JsonElement? = null,
         val willReplaceOnChanges: Boolean = false,
     ) : GenericTypeProperty
+
+    @Serializable
+    class AssetOrArchiveProperty(
+        @SerialName("\$ref")
+        val ref: SpecificationReference,
+        val willReplaceOnChanges: Boolean = false,
+        override val description: String? = null,
+        override val deprecationMessage: String? = null,
+    ) : Property()
+
+    @Serializable
+    class ArchiveProperty(
+        @SerialName("\$ref")
+        val ref: SpecificationReference,
+        val willReplaceOnChanges: Boolean = false,
+        override val description: String? = null,
+        override val deprecationMessage: String? = null,
+    ) : Property()
 
     @Serializable
     data class ObjectProperty(
