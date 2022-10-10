@@ -316,7 +316,7 @@ object IntermediateRepresentationGenerator {
                 spec.outputs,
             ).get(0)
 
-            FunctionType(PulumiName.from(name), argument, output, KDoc(spec.description!!, spec.deprecationMessage))
+            FunctionType(PulumiName.from(name), argument, output, KDoc(spec.description, spec.deprecationMessage))
         }
     }
 
