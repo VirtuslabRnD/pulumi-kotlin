@@ -169,7 +169,7 @@ object ResourceGenerator {
                 FunSpec.builder("name")
                     .addParameter("value", STRING)
                     .addCode("this.name = value")
-                    .addKdoc("@param name The _unique_ name of the resulting resource.")
+                    .addDocs("@param name The _unique_ name of the resulting resource.")
                     .build(),
             )
             .addFunction(argsFunction)
