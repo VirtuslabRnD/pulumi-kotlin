@@ -50,28 +50,7 @@ private fun addDocsIfAvailable(kDocBuilder: KDocBuilder, kDoc: KDoc) {
 }
 
 private fun addDocs(kDocBuilder: KDocBuilder, kDoc: String) {
-    val examples = CODE_SNIPPET_REGEX.toRegex(DOT_MATCHES_ALL)
-        .findAll(kDoc)
-        .map { it.groupValues[CODE_SNIPPET_REGEX_GROUP_NUMBER] }
-        .map { example ->
-            val javaSnippet = JAVA_CODE_SNIPPET_REGEX.toRegex(DOT_MATCHES_ALL)
-                .find(example)
-            if (javaSnippet != null) {
-                val groups = javaSnippet.groupValues
-                "${groups[EXAMPLE_HEADER_REGEX_GROUP_NUMBER]}${groups[JAVA_CODE_SNIPPET_REGEX_GROUP_NUMBER]}"
-            } else {
-                val exampleHeader = EXAMPLE_HEADER_REGEX.toRegex(DOT_MATCHES_ALL)
-                    .find(example)
-                    ?.groupValues
-                    ?.get(EXAMPLE_HEADER_REGEX_GROUP_NUMBER)
-                if (exampleHeader != null) {
-                    "$exampleHeader\nNo Java example available."
-                } else {
-                    ""
-                }
-            }
-        }
-        .joinToString("")
+    val examples = getTrimmedExamplesBlock(kDoc)
 
     val trimmedDocs = kDoc.replace(
         EXAMPLES_HEADER_REGEX.toRegex(DOT_MATCHES_ALL),
@@ -79,28 +58,49 @@ private fun addDocs(kDocBuilder: KDocBuilder, kDoc: String) {
         it.groupValues[EXAMPLES_HEADER_REGEX_GROUP_NUMBER] + "\n$examples"
     }
 
-    val howManyCommentsToOpen = "(?<!/)\\*/"
-        .toRegex()
-        .findAll(trimmedDocs)
-        .count()
-    val howManyCommentsToClose = "(?<!\\*)/\\*"
-        .toRegex()
-        .findAll(trimmedDocs)
-        .count()
-
     kDocBuilder.apply(
-        (
-            " /*".repeat(howManyCommentsToOpen) +
-                (if (howManyCommentsToOpen > 0) "\n" else "") +
-                trimmedDocs +
-                (if (howManyCommentsToClose > 0) "\n" else "") +
-                "*/".repeat(howManyCommentsToClose)
-            )
+        addCommentClosingsAndOpenings(trimmedDocs)
             .replace(Regex("\\s*\n"), "\n")
             .replace(" ", "·")
             .replace("%", "%%"),
     )
 }
+
+private fun getTrimmedExamplesBlock(kDoc: String) = CODE_SNIPPET_REGEX.toRegex(DOT_MATCHES_ALL)
+    .findAll(kDoc)
+    .map { it.groupValues[CODE_SNIPPET_REGEX_GROUP_NUMBER] }
+    .map { example ->
+        val javaSnippet = JAVA_CODE_SNIPPET_REGEX.toRegex(DOT_MATCHES_ALL)
+            .find(example)
+        if (javaSnippet != null) {
+            val groups = javaSnippet.groupValues
+            "${groups[EXAMPLE_HEADER_REGEX_GROUP_NUMBER]}${groups[JAVA_CODE_SNIPPET_REGEX_GROUP_NUMBER]}"
+        } else {
+            val exampleHeader = EXAMPLE_HEADER_REGEX.toRegex(DOT_MATCHES_ALL)
+                .find(example)
+                ?.groupValues
+                ?.get(EXAMPLE_HEADER_REGEX_GROUP_NUMBER)
+            if (exampleHeader != null) {
+                "$exampleHeader\nNo Java example available."
+            } else {
+                ""
+            }
+        }
+    }
+    .joinToString("")
+
+private fun addCommentClosingsAndOpenings(trimmedDocs: String): String {
+    val howManyCommentsToOpen = trimmedDocs.countOccurrences("(?<!/)\\*/")
+    val howManyCommentsToClose = trimmedDocs.countOccurrences("(?<!\\*)/\\*")
+
+    return " /*".repeat(howManyCommentsToOpen) +
+        (if (howManyCommentsToOpen > 0) "\n" else "") +
+        trimmedDocs +
+        (if (howManyCommentsToClose > 0) "\n" else "") +
+        "*/".repeat(howManyCommentsToClose)
+}
+
+private fun String.countOccurrences(substring: String) = substring.toRegex().findAll(this).count()
 
 fun FunSpec.Builder.addDeprecationWarningIfAvailable(kDoc: KDoc) = apply {
     addDeprecationWarningIfAvailable(
