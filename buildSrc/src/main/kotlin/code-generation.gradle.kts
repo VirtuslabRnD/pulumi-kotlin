@@ -99,19 +99,17 @@ val createTasksForProvider by extra {
                 publications
                     .filter { it.name in listOf(sourceSetName, sourcesPublicationName, javadocPublicationName) }
                     .forEach {
-                        run {
-                            if (it is MavenPublication) {
-                                it.pom {
-                                    withXml {
-                                        val dependenciesNode = asNode().appendNode("dependencies")
-                                        configurations[implementationDependency].dependencies
-                                            .forEach {
-                                                val dependencyNode = dependenciesNode.appendNode("dependency")
-                                                dependencyNode.appendNode("groupId", it.group)
-                                                dependencyNode.appendNode("artifactId", it.name)
-                                                dependencyNode.appendNode("version", it.version)
-                                            }
-                                    }
+                        if (it is MavenPublication) {
+                            it.pom {
+                                withXml {
+                                    val dependenciesNode = asNode().appendNode("dependencies")
+                                    configurations[implementationDependency].dependencies
+                                        .forEach {
+                                            val dependencyNode = dependenciesNode.appendNode("dependency")
+                                            dependencyNode.appendNode("groupId", it.group)
+                                            dependencyNode.appendNode("artifactId", it.name)
+                                            dependencyNode.appendNode("version", it.version)
+                                        }
                                 }
                             }
                         }
