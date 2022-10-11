@@ -1,6 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step1schemaparse
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
@@ -148,8 +149,8 @@ object Resources {
     @Serializable
     data class ReferredProperty(
         val type: String? = null,
-        // parameter name required for deserialization
-        @SuppressWarnings("ConstructorParameterNaming") val `$ref`: SpecificationReference,
+        @SerialName("\$ref")
+        val ref: SpecificationReference,
         val willReplaceOnChanges: Boolean = false,
         override val deprecationMessage: String? = null,
         override val description: String? = null,
@@ -204,7 +205,7 @@ object Resources {
 
     @Serializable
     data class Resource(
-        val description: String,
+        val description: String? = null,
         val properties: Map<PropertyName, PropertySpecification> = emptyMap(),
         val type: PropertyType? = null,
         val required: List<PropertyName> = emptyList(),

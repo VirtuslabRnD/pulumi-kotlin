@@ -37,12 +37,13 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.FieldType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
-import com.virtuslab.pulumikotlin.codegen.step3codegen.KDocGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.listOfLambdas
 import com.virtuslab.pulumikotlin.codegen.step3codegen.NormalField
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
+import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
+import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.ToJava.toJavaFunction
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.ToKotlin.toKotlinFunction
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
@@ -119,11 +120,7 @@ object TypeGenerator {
             .addModifiers(KModifier.DATA)
 
         val constructor = FunSpec.constructorBuilder()
-
-        KDocGenerator.addDeprecationWarning(
-            { annotationSpec -> constructor.addAnnotation(annotationSpec) },
-            typeMetadata.kDoc,
-        )
+            .addDeprecationWarningIfAvailable(typeMetadata.kDoc)
 
         fields.forEach { field ->
             val isRequired = field.required
@@ -132,13 +129,7 @@ object TypeGenerator {
             classBuilder.addProperty(
                 PropertySpec.builder(field.name, typeName)
                     .initializer(field.name)
-                    .let {
-                        KDocGenerator.addDeprecationWarning(
-                            { annotationSpec -> it.addAnnotation(annotationSpec) },
-                            field.kDoc,
-                        )
-                        it
-                    }
+                    .addDeprecationWarningIfAvailable(field.kDoc)
                     .build(),
             )
 
@@ -169,10 +160,7 @@ object TypeGenerator {
             "@property ${it.name} ${it.kDoc.description ?: ""}"
         }
 
-        KDocGenerator.addKDoc(
-            { format, args -> classBuilder.addKdoc(format, args) },
-            "$classDocs\n$propertyDocs",
-        )
+        classBuilder.addDocs("$classDocs\n$propertyDocs")
 
         val argsClass = classBuilder.build()
 
@@ -214,17 +202,8 @@ object TypeGenerator {
                     .addCode(Return(ConstructObjectExpression(argsClassName, arguments)))
                     .build(),
             )
-            .let {
-                KDocGenerator.addKDoc(
-                    { format, args -> it.addKdoc(format, args) },
-                    "Builder for [${argsClassName.simpleName}].",
-                )
-                KDocGenerator.addDeprecationWarning(
-                    { annotationSpec -> it.addAnnotation(annotationSpec) },
-                    typeMetadata.kDoc,
-                )
-                it
-            }
+            .addDeprecationWarningIfAvailable(typeMetadata.kDoc)
+            .addDocs("Builder for [${argsClassName.simpleName}].")
             .build()
 
         fileSpec
@@ -276,17 +255,7 @@ object TypeGenerator {
                 parameterModifiers,
             )
             .addCode(codeBlock.toCodeBlock(name))
-            .let {
-                KDocGenerator.addKDoc(
-                    { format, args -> it.addKdoc(format, args) },
-                    "@param argument ${kDoc.description ?: ""}",
-                )
-                KDocGenerator.addDeprecationWarning(
-                    { annotationSpec -> it.addAnnotation(annotationSpec) },
-                    kDoc,
-                )
-                it
-            }
+            .addDocsToBuilderMethod(kDoc, "argument")
             .build()
     }
 
@@ -355,17 +324,7 @@ object TypeGenerator {
                 .addModifiers(SUSPEND)
                 .addParameter("values", innerType.toTypeName(), VARARG)
                 .addCode(mappingCodeBlock(field, false, name, "values.toList()"))
-                .let {
-                    KDocGenerator.addKDoc(
-                        { format, args -> it.addKdoc(format, args) },
-                        "@param values ${kDoc.description ?: ""}",
-                    )
-                    KDocGenerator.addDeprecationWarning(
-                        { annotationSpec -> it.addAnnotation(annotationSpec) },
-                        kDoc,
-                    )
-                    it
-                }
+                .addDocsToBuilderMethod(kDoc, "values")
                 .build(),
         )
 
@@ -412,17 +371,7 @@ object TypeGenerator {
                     VARARG,
                 )
                 .addCode(mappingCodeBlock(field, false, name, "values.toMap()"))
-                .let {
-                    KDocGenerator.addKDoc(
-                        { format, args -> it.addKdoc(format, args) },
-                        "@param values ${kDoc.description ?: ""}",
-                    )
-                    KDocGenerator.addDeprecationWarning(
-                        { annotationSpec -> it.addAnnotation(annotationSpec) },
-                        kDoc,
-                    )
-                    it
-                }
+                .addDocsToBuilderMethod(kDoc, "values")
                 .build(),
         )
 
@@ -464,17 +413,7 @@ object TypeGenerator {
                     .addModifiers(SUSPEND)
                     .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
                     .addCode(mappingCodeBlock(fieldType, required, name, "value"))
-                    .let {
-                        KDocGenerator.addKDoc(
-                            { format, args -> it.addKdoc(format, args) },
-                            "@param value ${kDoc.description ?: ""}",
-                        )
-                        KDocGenerator.addDeprecationWarning(
-                            { annotationSpec -> it.addAnnotation(annotationSpec) },
-                            kDoc,
-                        )
-                        it
-                    }
+                    .addDocsToBuilderMethod(kDoc, "value")
                     .build()
 
                 @Suppress("UNCHECKED_CAST")
@@ -497,22 +436,17 @@ object TypeGenerator {
                         .addModifiers(SUSPEND)
                         .addParameter("value", fieldType.toTypeName().copy(nullable = !required))
                         .addCode("this.%N = value", name)
-                        .let {
-                            KDocGenerator.addKDoc(
-                                { format, args -> it.addKdoc(format, args) },
-                                "@param value ${kDoc.description ?: ""}",
-                            )
-                            KDocGenerator.addDeprecationWarning(
-                                { annotationSpec -> it.addAnnotation(annotationSpec) },
-                                kDoc,
-                            )
-                            it
-                        }
+                        .addDocsToBuilderMethod(kDoc, "value")
                         .build(),
                 )
             }
         }
 
         return functions
+    }
+
+    private fun FunSpec.Builder.addDocsToBuilderMethod(kDoc: KDoc, paramName: String) = apply {
+        addDocs("@param $paramName ${kDoc.description ?: ""}")
+        addDeprecationWarningIfAvailable(kDoc)
     }
 }

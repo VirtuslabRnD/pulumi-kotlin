@@ -171,7 +171,7 @@ object IntermediateRepresentationGenerator {
             )
 
             is Resources.ReferredProperty -> {
-                val referencedType = spec.`$ref`.value.removePrefix("#/types/")
+                val referencedType = spec.ref.value.removePrefix("#/types/")
                 if (referencedType.startsWith("pulumi")) {
                     AnyType
                 } else {
@@ -214,7 +214,7 @@ object IntermediateRepresentationGenerator {
             )
 
             is Resources.ReferredProperty -> {
-                val referencedType = spec.`$ref`.value.removePrefix("#/types/")
+                val referencedType = spec.ref.value.removePrefix("#/types/")
                 if (referencedType.startsWith("pulumi")) {
                     AnyType
                 } else {
@@ -469,7 +469,7 @@ object IntermediateRepresentationGenerator {
 
             is Resources.OneOf -> propertySpec.oneOf.flatMap { getReferencedTypes(typeMap, it, usage) }
             is Resources.ReferredProperty -> {
-                val typeName = propertySpec.`$ref`.value.removePrefix("#/types/")
+                val typeName = propertySpec.ref.value.removePrefix("#/types/")
                 listOf(UsageWith(typeName, usage)) + (
                     typeMap[typeName.lowercase()]?.let { getReferencedTypes(typeMap, it, usage.toNested()) } ?: run {
                         println("could not for $typeName")

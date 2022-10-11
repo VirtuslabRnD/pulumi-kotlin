@@ -22,8 +22,9 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
-import com.virtuslab.pulumikotlin.codegen.step3codegen.KDocGenerator
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
+import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
+import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 
 object FunctionGenerator {
@@ -94,23 +95,19 @@ object FunctionGenerator {
                 }
                 it.addCode(callAwaitAndDoTheMapping(functionType, argumentExpression))
             }
-            .let {
-                KDocGenerator.addKDoc(
-                    { format, args -> it.addKdoc(format, args) },
-                    "$functionDocs\n@param argument ${functionType.argsType.metadata.kDoc.description}\n$returnDoc",
-                )
-                KDocGenerator.addDeprecationWarning(
-                    { annotationSpec -> it.addAnnotation(annotationSpec) },
-                    functionType.kDoc,
-                )
-                it
-            }
+            .addDocs(functionDocs, "@param argument ${functionType.argsType.metadata.kDoc.description}", returnDoc)
+            .addDeprecationWarningIfAvailable(functionType.kDoc)
             .build()
 
         if (!hasAnyArguments) {
             return listOf(basicFunSpec)
         }
 
+        val paramDocs = (functionType.argsType as? ComplexType)
+            ?.fields
+            ?.map { "@param ${it.key} ${it.value.kDoc.description ?: ""}" }
+            ?.joinToString("\n")
+            ?: ""
         val separateArgumentsOverloadFunSpec = (functionType.argsType as? ComplexType)
             ?.fields
             ?.let { parameters ->
@@ -146,22 +143,9 @@ object FunctionGenerator {
                         )
                     }
             }
-            .let { builder ->
-                val paramDocs = (functionType.argsType as? ComplexType)
-                    ?.fields
-                    ?.map { "@param ${it.key} ${it.value.kDoc.description ?: ""}" }
-                    ?.joinToString("\n")
-                KDocGenerator.addKDoc(
-                    { format, args -> builder?.addKdoc(format, args) },
-                    "See [${functionType.name.name}].\n$paramDocs\n$returnDoc",
-                )
-                KDocGenerator.addDeprecationWarning(
-                    { annotationSpec -> builder?.addAnnotation(annotationSpec) },
-                    functionType.kDoc,
-                )
-                builder
-            }
-            .let { it?.build() }
+            ?.addDocs("See [${functionType.name.name}].", paramDocs, returnDoc)
+            ?.addDeprecationWarningIfAvailable(functionType.kDoc)
+            ?.build()
 
         val typeSafeBuilderOverloadFunSpec = (functionType.argsType as? ComplexType)?.let { args ->
             FunSpec.builder(functionType.name.name)
@@ -184,24 +168,25 @@ object FunctionGenerator {
                             returnArgument,
                         ),
                     )
-
-                    KDocGenerator.addKDoc(
-                        { format, args -> builder.addKdoc(format, args) },
-                        """See [${functionType.name.name}].
-                          |@param argument Builder for [${args.toTypeName().simpleName}].
-                          |$returnDoc"""
-                            .trimMargin(),
-                    )
-                    KDocGenerator.addDeprecationWarning(
-                        { annotationSpec -> builder.addAnnotation(annotationSpec) },
-                        functionType.kDoc,
-                    )
-
                     builder.addCode(allCode)
                 }
+                .addDocs(
+                    "See [${functionType.name.name}].",
+                    "@param argument Builder for [${args.toTypeName().simpleName}].",
+                    returnDoc,
+                )
+                .addDeprecationWarningIfAvailable(functionType.kDoc)
         }
             ?.build()
 
         return listOfNotNull(basicFunSpec, separateArgumentsOverloadFunSpec, typeSafeBuilderOverloadFunSpec)
+    }
+
+    private fun FunSpec.Builder.addDocs(
+        functionDocs: String,
+        paramDocs: String,
+        returnDocs: String,
+    ) = apply {
+        addDocs("$functionDocs\n$paramDocs\n$returnDocs")
     }
 }

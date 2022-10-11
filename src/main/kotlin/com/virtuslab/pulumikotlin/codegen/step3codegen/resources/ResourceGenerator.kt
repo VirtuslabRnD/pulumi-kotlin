@@ -18,7 +18,9 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
-import com.virtuslab.pulumikotlin.codegen.step3codegen.KDocGenerator
+import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
+import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
+import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocsIfAvailable
 import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ToKotlin.toKotlinFunctionResource
 import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 
@@ -74,17 +76,8 @@ object ResourceGenerator {
                         .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required))
                         .build(),
                 )
-                .let {
-                    KDocGenerator.addKDoc(
-                        { format, args -> it.addKdoc(format, args) },
-                        field.kDoc,
-                    )
-                    KDocGenerator.addDeprecationWarning(
-                        { annotationSpec -> it.addAnnotation(annotationSpec) },
-                        field.kDoc,
-                    )
-                    it
-                }
+                .addDocsIfAvailable(field.kDoc)
+                .addDeprecationWarningIfAvailable(field.kDoc)
                 .build()
         }
 
@@ -104,17 +97,8 @@ object ResourceGenerator {
                     .build(),
             )
             .addProperties(fields)
-            .let {
-                KDocGenerator.addKDoc(
-                    { format, args -> it.addKdoc(format, args) },
-                    resourceType.kDoc,
-                )
-                KDocGenerator.addDeprecationWarning(
-                    { annotationSpec -> it.addAnnotation(annotationSpec) },
-                    resourceType.kDoc,
-                )
-                it
-            }
+            .addDocsIfAvailable(resourceType.kDoc)
+            .addDeprecationWarningIfAvailable(resourceType.kDoc)
             .build()
 
         val resourceBuilderClassName = ClassName(
@@ -138,13 +122,7 @@ object ResourceGenerator {
             .addStatement("val builder = %T()", argsBuilderClassName)
             .addStatement("block(builder)")
             .addStatement("this.args = builder.build()")
-            .let {
-                KDocGenerator.addKDoc(
-                    { format, args -> it.addKdoc(format, args) },
-                    "@param block The arguments to use to populate this resource's properties.",
-                )
-                it
-            }
+            .addDocs("@param block The arguments to use to populate this resource's properties.")
             .build()
 
         val optsFunction = FunSpec
@@ -160,13 +138,7 @@ object ResourceGenerator {
             .addStatement("val builder = %T()", ClassName("com.pulumi.kotlin", "CustomArgsBuilder"))
             .addStatement("block(builder)")
             .addStatement("this.opts = builder.build()")
-            .let {
-                KDocGenerator.addKDoc(
-                    { format, args -> it.addKdoc(format, args) },
-                    "@param block A bag of options that control this resource's behavior.",
-                )
-                it
-            }
+            .addDocs("@param block A bag of options that control this resource's behavior.")
             .build()
 
         val resourceBuilderClass = TypeSpec
@@ -197,13 +169,7 @@ object ResourceGenerator {
                 FunSpec.builder("name")
                     .addParameter("value", STRING)
                     .addCode("this.name = value")
-                    .let {
-                        KDocGenerator.addKDoc(
-                            { format, args -> it.addKdoc(format, args) },
-                            "@param name The _unique_ name of the resulting resource.",
-                        )
-                        it
-                    }
+                    .addKdoc("@param name The _unique_ name of the resulting resource.")
                     .build(),
             )
             .addFunction(argsFunction)
@@ -228,17 +194,8 @@ object ResourceGenerator {
                     .returns(resourceClassName)
                     .build(),
             )
-            .let {
-                KDocGenerator.addKDoc(
-                    { format, args -> it.addKdoc(format, args) },
-                    "Builder for [${resourceClassName.simpleName}].",
-                )
-                KDocGenerator.addDeprecationWarning(
-                    { annotationSpec -> it.addAnnotation(annotationSpec) },
-                    resourceType.kDoc,
-                )
-                it
-            }
+            .addDocs("Builder for [${resourceClassName.simpleName}].")
+            .addDeprecationWarningIfAvailable(resourceType.kDoc)
             .build()
 
         val resourceFunction = FunSpec
@@ -257,20 +214,13 @@ object ResourceGenerator {
             .addStatement("builder.name(name)")
             .addStatement("block(builder)")
             .addStatement("return builder.build()")
-            .let {
-                KDocGenerator.addKDoc(
-                    { format, args -> it.addKdoc(format, args) },
-                    """See [${resourceType.name.name}].
-                      |@param name The _unique_ name of the resulting resource.
-                      |@param block Builder for [${resourceClassName.simpleName}]."""
-                        .trimMargin(),
-                )
-                KDocGenerator.addDeprecationWarning(
-                    { annotationSpec -> it.addAnnotation(annotationSpec) },
-                    resourceType.kDoc,
-                )
-                it
-            }
+            .addDocs(
+                """See [${resourceType.name.name}].
+                  |@param name The _unique_ name of the resulting resource.
+                  |@param block Builder for [${resourceClassName.simpleName}]."""
+                    .trimMargin(),
+            )
+            .addDeprecationWarningIfAvailable(resourceType.kDoc)
             .build()
 
         fileSpecBuilder

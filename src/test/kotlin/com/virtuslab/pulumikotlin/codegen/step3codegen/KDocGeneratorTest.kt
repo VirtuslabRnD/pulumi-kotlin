@@ -16,17 +16,19 @@ private const val PACKAGE_NAME = "com.virtuslab"
 internal class KDocGeneratorTest {
 
     @Test
-    fun `replaces spaces with hard spaces`() {
-        val description = "This is a text"
-        val className = "HardSpaces"
-
-        assertSanitizedDescriptionEquals(description, "This·is·a·text")
+    fun `does not add line breaks to very long lines`() {
+        val description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
+            "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " +
+            "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit " +
+            "in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat " +
+            "non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        val className = "LongLines"
 
         assertKDocContentEquals(
             className,
             description,
             """/**
-              | * This is a text
+              | * $description
               | */"""
                 .trimMargin(),
         )
@@ -38,8 +40,6 @@ internal class KDocGeneratorTest {
     fun `adds extra comment closings`() {
         val description = "/*This description /*opens three new comments: /*"
         val className = "CommentClosing"
-
-        assertSanitizedDescriptionEquals(description, "/*This·description·/*opens·three·new·comments:·/*\n*/*/*/")
 
         assertKDocContentEquals(
             className,
@@ -59,8 +59,6 @@ internal class KDocGeneratorTest {
         val description = "*/This description */closes three new comments: */"
         val className = "CommentOpening"
 
-        assertSanitizedDescriptionEquals(description, "·/*·/*·/*\n*/This·description·*/closes·three·new·comments:·*/")
-
         assertKDocContentEquals(
             className,
             description,
@@ -79,11 +77,6 @@ internal class KDocGeneratorTest {
         val description = "*/This /*description */closes three new comments/* and opens two: */"
         val className = "CommentClosingAndOpening"
 
-        assertSanitizedDescriptionEquals(
-            description,
-            "·/*·/*·/*\n*/This·/*description·*/closes·three·new·comments/*·and·opens·two:·*/\n*/*/",
-        )
-
         assertKDocContentEquals(
             className,
             description,
@@ -99,11 +92,9 @@ internal class KDocGeneratorTest {
     }
 
     @Test
-    fun `removes trailing newlines and prevents ktlint from messing with the formatting`() {
+    fun `removes trailing newlines which prevents ktlint from messing with the formatting`() {
         val description = "There are seven spaces at the end of this line       \n"
         val className = "TrailingNewlines"
-
-        assertSanitizedDescriptionEquals(description, "There·are·seven·spaces·at·the·end·of·this·line\n")
 
         assertKDocContentEquals(
             className,
@@ -118,11 +109,9 @@ internal class KDocGeneratorTest {
     }
 
     @Test
-    fun `escapes percentage signs and prevents kotlin poet from interpreting it as a placeholder`() {
+    fun `correctly generates docs that contain percentage signs which kotlin poet uses as placeholders`() {
         val description = "This%would%break%code%generation"
         val className = "PercentageSigns"
-
-        assertSanitizedDescriptionEquals(description, "This%%would%%break%%code%%generation")
 
         assertKDocContentEquals(
             className,
@@ -146,8 +135,6 @@ internal class KDocGeneratorTest {
               |{{% /examples %}}"""
                 .trimMargin()
         val className = "ExamplesTags"
-
-        assertSanitizedDescriptionEquals(description, "There·are·some·examples·here.\n")
 
         assertKDocContentEquals(
             className,
@@ -182,17 +169,6 @@ internal class KDocGeneratorTest {
                 .trimMargin()
         val className = "OnlyJavaStays"
 
-        assertSanitizedDescriptionEquals(
-            description,
-            """##·Examples
-              |###·Specific·example·1
-              |```java
-              |val·x·=·2·+·2;
-              |```
-              |"""
-                .trimMargin(),
-        )
-
         assertKDocContentEquals(
             className,
             description,
@@ -200,6 +176,41 @@ internal class KDocGeneratorTest {
               | * ## Examples
               | * ### Specific example 1
               | * ```java
+              | * val x = 2 + 2;
+              | * ```
+              | */"""
+                .trimMargin(),
+        )
+
+        assertExportedFileCompiles(className)
+    }
+
+    @Test
+    fun `generates docs that contain dollar signs`() {
+        val description =
+            """Hello $0
+              |{{% examples %}}
+              |## Examples $1
+              |{{% example %}}
+              |### Specific example 1 $2
+              |```java
+              |// this comment could break a regex $3
+              |val x = 2 + 2;
+              |```
+              |{{% /example %}}
+              |{{% /examples %}}"""
+                .trimMargin()
+        val className = "DollarSigns"
+
+        assertKDocContentEquals(
+            className,
+            description,
+            """/**
+              | * Hello $0
+              | * ## Examples $1
+              | * ### Specific example 1 $2
+              | * ```java
+              | * // this comment could break a regex $3
               | * val x = 2 + 2;
               | * ```
               | */"""
@@ -240,25 +251,6 @@ internal class KDocGeneratorTest {
               |{{% /examples %}}"""
                 .trimMargin()
         val className = "OnlyJavaStaysWhenMultipleExamples"
-
-        assertSanitizedDescriptionEquals(
-            description,
-            """##·Examples
-              |###·Specific·example·1
-              |```java
-              |val·x·=·2·+·2;
-              |```
-              |###·Specific·example·2
-              |```java
-              |val·x·=·2·+·2;
-              |```
-              |###·Specific·example·3
-              |```java
-              |val·x·=·2·+·2;
-              |```
-              |"""
-                .trimMargin(),
-        )
 
         assertKDocContentEquals(
             className,
@@ -301,14 +293,6 @@ internal class KDocGeneratorTest {
               |{{% /examples %}}"""
                 .trimMargin()
         val className = "NoCodeSnippetsIfNoJava"
-
-        assertSanitizedDescriptionEquals(
-            description,
-            """##·Examples
-              |###·Specific·example·1
-              |No·Java·example·available."""
-                .trimMargin(),
-        )
 
         assertKDocContentEquals(
             className,
@@ -360,23 +344,6 @@ internal class KDocGeneratorTest {
                 .trimMargin()
         val className = "NoCodeSnippetsIfNoJavaInExample"
 
-        assertSanitizedDescriptionEquals(
-            description,
-            """##·Examples
-              |###·Specific·example·1
-              |```java
-              |val·x·=·2·+·2;
-              |```
-              |###·Specific·example·2
-              |No·Java·example·available.
-              |###·Specific·example·3
-              |```java
-              |val·x·=·2·+·2;
-              |```
-              |"""
-                .trimMargin(),
-        )
-
         assertKDocContentEquals(
             className,
             description,
@@ -427,42 +394,50 @@ internal class KDocGeneratorTest {
         assertExportedFileCompiles(className)
     }
 
-    private fun assertSanitizedDescriptionEquals(description: String, expected: String) {
-        var sanitizedDescription = ""
-        KDocGenerator.addKDoc(
-            { format, _ -> sanitizedDescription = format },
-            description,
-        )
-
-        assertEquals(expected, sanitizedDescription)
-    }
-
     private fun assertKDocContentEquals(className: String, description: String, expected: String) {
-        FileSpec.builder(PACKAGE_NAME, className)
-            .addType(
-                TypeSpec.classBuilder(className)
-                    .addProperty(
-                        PropertySpec.builder("value", String::class)
-                            .initializer("\"hello world\"")
-                            .build(),
-                    )
-                    .let {
-                        KDocGenerator.addKDoc(
-                            { format, _ -> it.addKdoc(format) },
-                            description,
-                        )
-                        it
-                    }
-                    .build(),
-            )
-            .build()
-            .writeTo(File(OUTPUT_DIRECTORY))
+        writeTypeToFile(
+            className,
+            getTypeSpecBuilder(className)
+                .addDocs(description)
+                .build(),
+        )
 
         assertContains(
             getFile(className).readText(),
             expected,
         )
     }
+
+    private fun assertDeprecationMessageEquals(className: String, message: String, expected: String) {
+        writeTypeToFile(
+            className,
+            getTypeSpecBuilder(className)
+                .addDeprecationWarningIfAvailable(KDoc(description = null, deprecationMessage = message))
+                .build(),
+        )
+
+        assertContains(
+            getFile(className).readText(),
+            expected,
+        )
+    }
+
+    private fun writeTypeToFile(className: String, typeSpec: TypeSpec) {
+        FileSpec.builder(PACKAGE_NAME, className)
+            .addType(typeSpec)
+            .build()
+            .writeTo(File(OUTPUT_DIRECTORY))
+    }
+
+    private fun getTypeSpecBuilder(className: String) = TypeSpec.classBuilder(className)
+        .addProperty(
+            PropertySpec.builder("value", String::class)
+                .initializer("\"hello world\"")
+                .build(),
+        )
+
+    private fun getFile(className: String) =
+        File("$OUTPUT_DIRECTORY/${PACKAGE_NAME.replace(".", "/")}/$className.kt")
 
     private fun assertExportedFileCompiles(className: String) {
         val compilation = KotlinCompilation().apply {
@@ -471,35 +446,5 @@ internal class KDocGeneratorTest {
         }
 
         assertEquals(KotlinCompilation.ExitCode.OK, compilation.compile().exitCode)
-    }
-
-    private fun getFile(className: String) =
-        File("$OUTPUT_DIRECTORY/${PACKAGE_NAME.replace(".", "/")}/$className.kt")
-
-    private fun assertDeprecationMessageEquals(className: String, message: String, expected: String) {
-        FileSpec.builder(PACKAGE_NAME, className)
-            .addType(
-                TypeSpec.classBuilder(className)
-                    .addProperty(
-                        PropertySpec.builder("value", String::class)
-                            .initializer("\"hello world\"")
-                            .build(),
-                    )
-                    .let {
-                        KDocGenerator.addDeprecationWarning(
-                            { annotationSpec -> it.addAnnotation(annotationSpec) },
-                            KDoc(description = null, deprecationMessage = message),
-                        )
-                        it
-                    }
-                    .build(),
-            )
-            .build()
-            .writeTo(File(OUTPUT_DIRECTORY))
-
-        assertContains(
-            getFile(className).readText(),
-            expected,
-        )
     }
 }

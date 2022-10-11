@@ -189,12 +189,11 @@ private fun allReferencedTypes(
         is Resources.OneOf -> spec.oneOf.flatMap { allReferencedTypes(types, it, depth + 1, eitherCount + 1, visited) }
 
         is Resources.ReferredProperty -> {
-            val typeName = spec.`$ref`.withoutThePrefix()
+            val typeName = spec.ref.withoutThePrefix()
             val theType = TypeAndDetails(typeName, depth, eitherCount)
             val foundSpec = types.get(typeName)
             if (foundSpec == null) {
                 error("could not find")
-//                listOf(theType)
             } else {
                 listOf(theType) + allReferencedTypes(types, foundSpec, depth + 1, eitherCount, visited.plus(foundSpec))
             }
