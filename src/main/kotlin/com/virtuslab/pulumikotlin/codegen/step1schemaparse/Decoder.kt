@@ -11,13 +11,13 @@ object Decoder {
 
         val types = schema.jsonObject["types"]
             ?.let { Json.decodeFromJsonElement<TypesMap>(it) }
-            ?: emptyMap()
+            .orEmpty()
         val functions = schema.jsonObject["functions"]
             ?.let { Json.decodeFromJsonElement<FunctionsMap>(it) }
-            ?: emptyMap()
+            .orEmpty()
         val resources = schema.jsonObject["resources"]
             ?.let { Json.decodeFromJsonElement<ResourcesMap>(it) }
-            ?: emptyMap()
+            .orEmpty()
 
         return ParsedSchema(types, functions, resources)
     }
