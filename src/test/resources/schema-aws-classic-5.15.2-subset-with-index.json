@@ -1,0 +1,377 @@
+{
+  "functions": {
+    "aws:index/getAmi:getAmi": {
+      "description": "Use this data source to get the ID of a registered AMI for use in other\nresources.\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst example = pulumi.output(aws.ec2.getAmi({\n    executableUsers: [\"self\"],\n    filters: [\n        {\n            name: \"name\",\n            values: [\"myami-*\"],\n        },\n        {\n            name: \"root-device-type\",\n            values: [\"ebs\"],\n        },\n        {\n            name: \"virtualization-type\",\n            values: [\"hvm\"],\n        },\n    ],\n    mostRecent: true,\n    nameRegex: \"^myami-\\\\d{3}\",\n    owners: [\"self\"],\n}));\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\nexample = aws.ec2.get_ami(executable_users=[\"self\"],\n    filters=[\n        aws.ec2.GetAmiFilterArgs(\n            name=\"name\",\n            values=[\"myami-*\"],\n        ),\n        aws.ec2.GetAmiFilterArgs(\n            name=\"root-device-type\",\n            values=[\"ebs\"],\n        ),\n        aws.ec2.GetAmiFilterArgs(\n            name=\"virtualization-type\",\n            values=[\"hvm\"],\n        ),\n    ],\n    most_recent=True,\n    name_regex=\"^myami-\\\\d{3}\",\n    owners=[\"self\"])\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Aws = Pulumi.Aws;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var example = Aws.Ec2.GetAmi.Invoke(new()\n    {\n        ExecutableUsers = new[]\n        {\n            \"self\",\n        },\n        Filters = new[]\n        {\n            new Aws.Ec2.Inputs.GetAmiFilterInputArgs\n            {\n                Name = \"name\",\n                Values = new[]\n                {\n                    \"myami-*\",\n                },\n            },\n            new Aws.Ec2.Inputs.GetAmiFilterInputArgs\n            {\n                Name = \"root-device-type\",\n                Values = new[]\n                {\n                    \"ebs\",\n                },\n            },\n            new Aws.Ec2.Inputs.GetAmiFilterInputArgs\n            {\n                Name = \"virtualization-type\",\n                Values = new[]\n                {\n                    \"hvm\",\n                },\n            },\n        },\n        MostRecent = true,\n        NameRegex = \"^myami-\\\\d{3}\",\n        Owners = new[]\n        {\n            \"self\",\n        },\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/ec2\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := ec2.LookupAmi(ctx, \u0026ec2.LookupAmiArgs{\n\t\t\tExecutableUsers: []string{\n\t\t\t\t\"self\",\n\t\t\t},\n\t\t\tFilters: []ec2.GetAmiFilter{\n\t\t\t\tec2.GetAmiFilter{\n\t\t\t\t\tName: \"name\",\n\t\t\t\t\tValues: []string{\n\t\t\t\t\t\t\"myami-*\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t\tec2.GetAmiFilter{\n\t\t\t\t\tName: \"root-device-type\",\n\t\t\t\t\tValues: []string{\n\t\t\t\t\t\t\"ebs\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t\tec2.GetAmiFilter{\n\t\t\t\t\tName: \"virtualization-type\",\n\t\t\t\t\tValues: []string{\n\t\t\t\t\t\t\"hvm\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t\tMostRecent: pulumi.BoolRef(true),\n\t\t\tNameRegex:  pulumi.StringRef(\"^myami-\\\\d{3}\"),\n\t\t\tOwners: []string{\n\t\t\t\t\"self\",\n\t\t\t},\n\t\t}, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.aws.ec2.Ec2Functions;\nimport com.pulumi.aws.ec2.inputs.GetAmiArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        final var example = Ec2Functions.getAmi(GetAmiArgs.builder()\n            .executableUsers(\"self\")\n            .filters(            \n                GetAmiFilterArgs.builder()\n                    .name(\"name\")\n                    .values(\"myami-*\")\n                    .build(),\n                GetAmiFilterArgs.builder()\n                    .name(\"root-device-type\")\n                    .values(\"ebs\")\n                    .build(),\n                GetAmiFilterArgs.builder()\n                    .name(\"virtualization-type\")\n                    .values(\"hvm\")\n                    .build())\n            .mostRecent(true)\n            .nameRegex(\"^myami-\\\\d{3}\")\n            .owners(\"self\")\n            .build());\n\n    }\n}\n```\n```yaml\nvariables:\n  example:\n    Fn::Invoke:\n      Function: aws:ec2:getAmi\n      Arguments:\n        executableUsers:\n          - self\n        filters:\n          - name: name\n            values:\n              - myami-*\n          - name: root-device-type\n            values:\n              - ebs\n          - name: virtualization-type\n            values:\n              - hvm\n        mostRecent: true\n        nameRegex: ^myami-\\d{3}\n        owners:\n          - self\n```\n{{% /example %}}\n{{% /examples %}}",
+      "inputs": {
+        "description": "A collection of arguments for invoking getAmi.\n",
+        "properties": {
+          "executableUsers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Limit search to users with *explicit* launch permission on\nthe image. Valid items are the numeric account ID or `self`.\n"
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/aws:index/getAmiFilter:getAmiFilter"
+            },
+            "description": "One or more name/value pairs to filter off of. There are\nseveral valid keys, for a full reference, check out\n[describe-images in the AWS CLI reference][1].\n"
+          },
+          "includeDeprecated": {
+            "type": "boolean",
+            "description": "If true, all deprecated AMIs are included in the response. If false, no deprecated AMIs are included in the response. If no value is specified, the default value is false.\n"
+          },
+          "mostRecent": {
+            "type": "boolean",
+            "description": "If more than one result is returned, use the most\nrecent AMI.\n"
+          },
+          "nameRegex": {
+            "type": "string",
+            "description": "Regex string to apply to the AMI list returned\nby AWS. This allows more advanced filtering not supported from the AWS API. This\nfiltering is done locally on what AWS returns, and could have a performance\nimpact if the result is large. Combine this with other\noptions to narrow down the list AWS returns.\n"
+          },
+          "owners": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of AMI owners to limit search. Valid values: an AWS account ID, `self` (the current account), or an AWS owner alias (e.g., `amazon`, `aws-marketplace`, `microsoft`).\n"
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Any tags assigned to the image.\n* `tags.#.key` - Key name of the tag.\n* `tags.#.value` - Value of the tag.\n"
+          }
+        },
+        "type": "object"
+      },
+      "outputs": {
+        "description": "A collection of values returned by getAmi.\n",
+        "properties": {
+          "architecture": {
+            "type": "string",
+            "description": "OS architecture of the AMI (ie: `i386` or `x86_64`).\n"
+          },
+          "arn": {
+            "type": "string",
+            "description": "ARN of the AMI.\n"
+          },
+          "blockDeviceMappings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/aws:index/getAmiBlockDeviceMapping:getAmiBlockDeviceMapping"
+            },
+            "description": "Set of objects with block device mappings of the AMI.\n"
+          },
+          "bootMode": {
+            "type": "string",
+            "description": "Boot mode of the image.\n"
+          },
+          "creationDate": {
+            "type": "string",
+            "description": "Date and time the image was created.\n"
+          },
+          "deprecationTime": {
+            "type": "string",
+            "description": "Date and time when the image will be deprecated.\n"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the AMI that was provided during image\ncreation.\n"
+          },
+          "enaSupport": {
+            "type": "boolean",
+            "description": "Whether enhanced networking with ENA is enabled.\n"
+          },
+          "executableUsers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/aws:index/getAmiFilter:getAmiFilter"
+            }
+          },
+          "hypervisor": {
+            "type": "string",
+            "description": "Hypervisor type of the image.\n"
+          },
+          "id": {
+            "type": "string",
+            "description": "The provider-assigned unique ID for this managed resource.\n"
+          },
+          "imageId": {
+            "type": "string",
+            "description": "ID of the AMI. Should be the same as the resource `id`.\n"
+          },
+          "imageLocation": {
+            "type": "string",
+            "description": "Location of the AMI.\n"
+          },
+          "imageOwnerAlias": {
+            "type": "string",
+            "description": "AWS account alias (for example, `amazon`, `self`) or\nthe AWS account ID of the AMI owner.\n"
+          },
+          "imageType": {
+            "type": "string",
+            "description": "Type of image.\n"
+          },
+          "includeDeprecated": {
+            "type": "boolean"
+          },
+          "kernelId": {
+            "type": "string",
+            "description": "Kernel associated with the image, if any. Only applicable\nfor machine images.\n"
+          },
+          "mostRecent": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the AMI that was provided during image creation.\n"
+          },
+          "nameRegex": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "AWS account ID of the image owner.\n"
+          },
+          "owners": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "platform": {
+            "type": "string",
+            "description": "Value is Windows for `Windows` AMIs; otherwise blank.\n"
+          },
+          "platformDetails": {
+            "type": "string",
+            "description": "Platform details associated with the billing code of the AMI.\n"
+          },
+          "productCodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/aws:index/getAmiProductCode:getAmiProductCode"
+            },
+            "description": "Any product codes associated with the AMI.\n* `product_codes.#.product_code_id` - The product code.\n* `product_codes.#.product_code_type` - The type of product code.\n"
+          },
+          "public": {
+            "type": "boolean",
+            "description": "`true` if the image has public launch permissions.\n"
+          },
+          "ramdiskId": {
+            "type": "string",
+            "description": "RAM disk associated with the image, if any. Only applicable\nfor machine images.\n"
+          },
+          "rootDeviceName": {
+            "type": "string",
+            "description": "Device name of the root device.\n"
+          },
+          "rootDeviceType": {
+            "type": "string",
+            "description": "Type of root device (ie: `ebs` or `instance-store`).\n"
+          },
+          "rootSnapshotId": {
+            "type": "string",
+            "description": "Snapshot id associated with the root device, if any\n(only applies to `ebs` root devices).\n"
+          },
+          "sriovNetSupport": {
+            "type": "string",
+            "description": "Whether enhanced networking is enabled.\n"
+          },
+          "state": {
+            "type": "string",
+            "description": "Current state of the AMI. If the state is `available`, the image\nis successfully registered and can be used to launch an instance.\n"
+          },
+          "stateReason": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Describes a state change. Fields are `UNSET` if not available.\n* `state_reason.code` - The reason code for the state change.\n* `state_reason.message` - The message for the state change.\n"
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Any tags assigned to the image.\n* `tags.#.key` - Key name of the tag.\n* `tags.#.value` - Value of the tag.\n"
+          },
+          "tpmSupport": {
+            "type": "string",
+            "description": "If the image is configured for NitroTPM support, the value is `v2.0`.\n"
+          },
+          "usageOperation": {
+            "type": "string",
+            "description": "Operation of the Amazon EC2 instance and the billing code that is associated with the AMI.\n"
+          },
+          "virtualizationType": {
+            "type": "string",
+            "description": "Type of virtualization of the AMI (ie: `hvm` or\n`paravirtual`).\n"
+          }
+        },
+        "type": "object",
+        "required": [
+          "architecture",
+          "arn",
+          "blockDeviceMappings",
+          "bootMode",
+          "creationDate",
+          "deprecationTime",
+          "description",
+          "enaSupport",
+          "hypervisor",
+          "imageId",
+          "imageLocation",
+          "imageOwnerAlias",
+          "imageType",
+          "kernelId",
+          "name",
+          "ownerId",
+          "platform",
+          "platformDetails",
+          "productCodes",
+          "public",
+          "ramdiskId",
+          "rootDeviceName",
+          "rootDeviceType",
+          "rootSnapshotId",
+          "sriovNetSupport",
+          "state",
+          "stateReason",
+          "tags",
+          "tpmSupport",
+          "usageOperation",
+          "virtualizationType",
+          "id"
+        ]
+      },
+      "deprecationMessage": "aws.getAmi has been deprecated in favor of aws.ec2.getAmi"
+    }
+  },
+  "types": {
+    "aws:index/getAmiBlockDeviceMapping:getAmiBlockDeviceMapping": {
+      "properties": {
+        "deviceName": {
+          "type": "string",
+          "description": "Physical name of the device.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "ebs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map containing EBS information, if the device is EBS based. Unlike most object attributes, these are accessed directly (e.g., `ebs.volume_size` or `ebs[\"volume_size\"]`) rather than accessed through the first element of a list (e.g., `ebs[0].volume_size`).\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "noDevice": {
+          "type": "string",
+          "description": "Suppresses the specified device included in the block device mapping of the AMI.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "virtualName": {
+          "type": "string",
+          "description": "Virtual device name (for instance stores).\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "type": "object",
+      "required": [
+        "deviceName",
+        "ebs",
+        "noDevice",
+        "virtualName"
+      ],
+      "language": {
+        "nodejs": {
+          "requiredInputs": []
+        }
+      }
+    },
+    "aws:index/getAmiFilter:getAmiFilter": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the AMI that was provided during image creation.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "values"
+      ]
+    },
+    "aws:index/getAmiProductCode:getAmiProductCode": {
+      "properties": {
+        "productCodeId": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "productCodeType": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "type": "object",
+      "required": [
+        "productCodeId",
+        "productCodeType"
+      ],
+      "language": {
+        "nodejs": {
+          "requiredInputs": []
+        }
+      }
+    }
+  }
+}

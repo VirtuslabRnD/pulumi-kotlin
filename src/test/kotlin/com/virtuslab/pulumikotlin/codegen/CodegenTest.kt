@@ -333,6 +333,66 @@ class CodegenTest {
     }
 
     @Test
+    fun `aws functions from index namespace can be invoked`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.aws.kotlin.AwsFunctions
+
+            suspend fun main() {
+                AwsFunctions.getAmi {
+                    executableUsers("user1", "user2", "user3")
+                    filters(
+                        {
+                            name("filter1")
+                            values("value1", "value2")
+                        },
+                        {
+                            name("filter2")
+                            values("value3")
+                        }
+                    )
+                    includeDeprecated(true)
+                    mostRecent(false)
+                    nameRegex("ami.*")
+                    owners("owner1", "owner2")
+                    tags("key1" to "value1", "key2" to "value2")
+                }
+            }
+            """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_WITH_INDEX, code)
+    }
+
+    @Test
+    fun `slack resources from index namespace can be created`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.slack.kotlin.conversationResource
+
+            suspend fun main() {
+                conversationResource("conversationName") {
+                    args {
+                        actionOnDestroy("action on destroy")
+                        actionOnUpdatePermanentMembers("action on update")
+                        adoptExistingChannel(true)
+                        isArchived(false)
+                        name("name")
+                        permanentMembers("member1", "member2")
+                        purpose("some purpose")
+                        topic("topic1")
+                    }
+                    opts {
+                        protect(true)
+                        retainOnDelete(true)
+                    }
+                }
+            }
+            """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_SLACK_SUBSET_WITH_INDEX, code)
+    }
+
+    @Test
     fun `google cloud lb ip ranges function (zero args)`() {
         assertGeneratedCodeCompiles(SCHEMA_GCP_CLASSIC_SUBSET_LB_IP_RANGES)
     }
@@ -409,6 +469,7 @@ class CodegenTest {
         artifact("com.pulumi:pulumi:0.6.0"),
         artifact("com.pulumi:aws:5.16.2"),
         artifact("com.pulumi:gcp:6.38.0"),
+        artifact("com.pulumi:slack:0.3.0"),
         artifact("com.google.code.findbugs:jsr305:3.0.2"),
         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4"),
         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4"),
@@ -550,3 +611,5 @@ private const val SCHEMA_AWS_CLASSIC_SUBSET_BIG_SIZE = "schema-aws-classic-subse
 private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ONE_OF = "schema-aws-classic-5.15.0-subset-with-one-of.json"
 private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ARCHIVE = "schema-aws-classic-5.16.2-subset-with-archive.json"
 private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ASSET = "schema-aws-classic-5.16.2-subset-with-asset.json"
+private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_INDEX = "schema-aws-classic-5.15.2-subset-with-index.json"
+private const val SCHEMA_SLACK_SUBSET_WITH_INDEX = "schema-slack-0.3.0-subset-with-index.json"
