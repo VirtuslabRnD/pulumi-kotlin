@@ -110,11 +110,11 @@ private fun serializeResource(
             .toMap()
     }
 
-    val types =
-        candidateResources.flatMap { encodeTypes(it).map { it.toPair() } } + candidateFunctions.flatMap { encodeTypes(it).map { it.toPair() } }
+    val types = candidateResources.flatMap { entity -> encodeTypes(entity).map { it.toPair() } } +
+        candidateFunctions.flatMap { entity -> encodeTypes(entity).map { it.toPair() } }
 
-    val resourceBody = candidateResources.map { it.name to parsedSchema.resources.get(it.name) }.toMap()
-    val functionBody = candidateFunctions.map { it.name to parsedSchema.functions.get(it.name) }.toMap()
+    val resourceBody = candidateResources.associate { it.name to parsedSchema.resources.get(it.name) }
+    val functionBody = candidateFunctions.associate { it.name to parsedSchema.functions.get(it.name) }
 
     val finalJsonObject = JsonObject(
         mapOf(
@@ -189,12 +189,11 @@ private fun allReferencedTypes(
         is Resources.OneOf -> spec.oneOf.flatMap { allReferencedTypes(types, it, depth + 1, eitherCount + 1, visited) }
 
         is Resources.ReferredProperty -> {
-            val typeName = spec.`$ref`.withoutThePrefix()
+            val typeName = spec.ref.withoutThePrefix()
             val theType = TypeAndDetails(typeName, depth, eitherCount)
             val foundSpec = types.get(typeName)
             if (foundSpec == null) {
                 error("could not find")
-//                listOf(theType)
             } else {
                 listOf(theType) + allReferencedTypes(types, foundSpec, depth + 1, eitherCount, visited.plus(foundSpec))
             }

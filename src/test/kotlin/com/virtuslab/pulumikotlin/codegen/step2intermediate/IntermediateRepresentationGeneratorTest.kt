@@ -33,7 +33,9 @@ internal class IntermediateRepresentationGeneratorTest {
         val types = mapOf(
             typeName1 to ObjectProperty(
                 properties = mapOf(
-                    PropertyName("referencedType2") to ReferredProperty(`$ref` = SpecificationReference(ref(typeName2))),
+                    PropertyName("referencedType2") to ReferredProperty(
+                        ref = SpecificationReference(ref(typeName2)),
+                    ),
                     PropertyName("int") to IntegerProperty(),
                 ),
             ),
@@ -178,7 +180,7 @@ internal class IntermediateRepresentationGeneratorTest {
                 inputProperties = mapOf(
                     PropertyName("someInt") to IntegerProperty(),
                     PropertyName("referencedType") to ReferredProperty(
-                        `$ref` = SpecificationReference(ref(typeName)),
+                        ref = SpecificationReference(ref(typeName)),
                     ),
                 ),
             ),
@@ -219,7 +221,7 @@ internal class IntermediateRepresentationGeneratorTest {
                     properties = mapOf(
                         PropertyName("someInt") to IntegerProperty(),
                         PropertyName("referencedType") to ReferredProperty(
-                            `$ref` = SpecificationReference(ref(typeName)),
+                            ref = SpecificationReference(ref(typeName)),
                         ),
                     ),
                 ),
@@ -227,7 +229,7 @@ internal class IntermediateRepresentationGeneratorTest {
                     properties = mapOf(
                         PropertyName("someInt2") to IntegerProperty(),
                         PropertyName("referencedType2") to ReferredProperty(
-                            `$ref` = SpecificationReference(ref(typeName)),
+                            ref = SpecificationReference(ref(typeName)),
                         ),
                     ),
                 ),
@@ -272,7 +274,7 @@ internal class IntermediateRepresentationGeneratorTest {
         referencedOutputTypeNames: List<String> = emptyList(),
     ): Map<String, Resources.Resource> {
         fun generateField(name: String) =
-            PropertyName("referenced$name") to ReferredProperty(`$ref` = SpecificationReference(ref(name)))
+            PropertyName("referenced$name") to ReferredProperty(ref = SpecificationReference(ref(name)))
 
         val referencedInputTypes = referencedInputTypeNames.associate { generateField(it) }
         val referencedOutputTypes = referencedOutputTypeNames.associate { generateField(it) }
@@ -291,7 +293,7 @@ internal class IntermediateRepresentationGeneratorTest {
         referencedOutputTypeNames: List<String> = emptyList(),
     ): Map<String, Function> {
         fun generateField(name: String) =
-            PropertyName("referenced$name") to ReferredProperty(`$ref` = SpecificationReference(ref(name)))
+            PropertyName("referenced$name") to ReferredProperty(ref = SpecificationReference(ref(name)))
 
         val referencedInputTypes = referencedInputTypeNames.associate { generateField(it) }
         val referencedOutputTypes = referencedOutputTypeNames.associate { generateField(it) }

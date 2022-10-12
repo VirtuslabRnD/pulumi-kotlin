@@ -14,6 +14,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.Fu
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.ResourceNested
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.ResourceRoot
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
 
 data class Usage(
@@ -57,8 +58,14 @@ private typealias UsageWithName = UsageWith<String>
 
 typealias References = Map<String, List<Usage>>
 
-data class ResourceType(val name: PulumiName, val argsType: Type, val outputFields: List<Field<*>>)
-data class FunctionType(val name: PulumiName, val argsType: AutonomousType, val outputType: AutonomousType)
+data class ResourceType(val name: PulumiName, val argsType: Type, val outputFields: List<Field<*>>, val kDoc: KDoc)
+
+data class FunctionType(
+    val name: PulumiName,
+    val argsType: AutonomousType,
+    val outputType: AutonomousType,
+    val kDoc: KDoc,
+)
 
 /**
  * Takes parsed schema as an input and produces types that are prepared for code generation. More specifically:
@@ -103,11 +110,12 @@ object IntermediateRepresentationGenerator {
 
                 allReferences.map { usage ->
                     ComplexType(
-                        TypeMetadata(PulumiName.from(name), usage),
+                        TypeMetadata(PulumiName.from(name), usage, KDoc(spec.description, spec.deprecationMessage)),
                         spec.properties.map { (key, value) ->
                             key.value to TypeAndOptionality(
                                 toType(references, usage, complexTypes, value),
                                 spec.required.contains(key),
+                                KDoc(value.description, value.deprecationMessage),
                             )
                         }.toMap(),
                     )
@@ -125,7 +133,12 @@ object IntermediateRepresentationGenerator {
 
                 allReferences.map { usage ->
                     EnumType(
-                        TypeMetadata(PulumiName.from(name), usage, EnumClass),
+                        TypeMetadata(
+                            PulumiName.from(name),
+                            usage,
+                            KDoc(spec.description, spec.deprecationMessage),
+                            EnumClass,
+                        ),
                         spec.enum.map { it.name ?: it.value },
                     )
                 }
@@ -158,7 +171,7 @@ object IntermediateRepresentationGenerator {
             )
 
             is Resources.ReferredProperty -> {
-                val referencedType = spec.`$ref`.value.removePrefix("#/types/")
+                val referencedType = spec.ref.value.removePrefix("#/types/")
                 if (referencedType.startsWith("pulumi")) {
                     AnyType
                 } else {
@@ -201,7 +214,7 @@ object IntermediateRepresentationGenerator {
             )
 
             is Resources.ReferredProperty -> {
-                val referencedType = spec.`$ref`.value.removePrefix("#/types/")
+                val referencedType = spec.ref.value.removePrefix("#/types/")
                 if (referencedType.startsWith("pulumi")) {
                     AnyType
                 } else {
@@ -213,7 +226,11 @@ object IntermediateRepresentationGenerator {
                         when (foundType) {
                             is Resources.ObjectProperty -> {
                                 ComplexType(
-                                    TypeMetadata(PulumiName.from(referencedType), Usage(Output, ResourceNested)),
+                                    TypeMetadata(
+                                        PulumiName.from(referencedType),
+                                        Usage(Output, ResourceNested),
+                                        KDoc(spec.description, spec.deprecationMessage),
+                                    ),
                                     foundType.properties.map { (name, spec) ->
                                         name.value to TypeAndOptionality(
                                             toTypeNestedReference(
@@ -222,6 +239,7 @@ object IntermediateRepresentationGenerator {
                                                 spec,
                                             ),
                                             foundType.required.contains(name),
+                                            KDoc(spec.description, spec.deprecationMessage),
                                         )
                                     }.toMap(),
                                 )
@@ -259,6 +277,7 @@ object IntermediateRepresentationGenerator {
                     OutputWrappedField(toTypeNestedReference(references, lowercasedTypesMap, propertySpec)),
                     isRequired,
                     emptyList(),
+                    KDoc(propertySpec.description, propertySpec.deprecationMessage),
                 )
             }
 
@@ -266,10 +285,15 @@ object IntermediateRepresentationGenerator {
                 references + mapOf(name.lowercase() to listOf(Usage(Input, ResourceRoot))),
                 lowercasedTypesMap,
                 name,
-                Resources.ObjectProperty(properties = spec.inputProperties),
+                Resources.ObjectProperty(properties = spec.inputProperties, description = spec.description),
             ).get(0)
 
-            ResourceType(PulumiName.from(name), argument, outputFields)
+            ResourceType(
+                PulumiName.from(name),
+                argument,
+                outputFields,
+                KDoc(spec.description, spec.deprecationMessage),
+            )
         }
     }
 
@@ -283,7 +307,7 @@ object IntermediateRepresentationGenerator {
                 references + mapOf(name.lowercase() to listOf(Usage(Input, FunctionRoot))),
                 lowercasedTypesMap,
                 name,
-                spec.inputs ?: Resources.ObjectProperty(),
+                spec.inputs ?: Resources.ObjectProperty(description = spec.description),
             ).get(0)
             val output = toTypeRoot(
                 references + mapOf(name.lowercase() to listOf(Usage(Output, FunctionRoot))),
@@ -292,7 +316,7 @@ object IntermediateRepresentationGenerator {
                 spec.outputs,
             ).get(0)
 
-            FunctionType(PulumiName.from(name), argument, output)
+            FunctionType(PulumiName.from(name), argument, output, KDoc(spec.description, spec.deprecationMessage))
         }
     }
 
@@ -358,7 +382,7 @@ object IntermediateRepresentationGenerator {
                     ),
                     lowercasedTypesMap,
                     name,
-                    Resources.ObjectProperty(properties = spec.inputProperties),
+                    Resources.ObjectProperty(properties = spec.inputProperties, description = spec.description),
                 )
             }
 
@@ -445,7 +469,7 @@ object IntermediateRepresentationGenerator {
 
             is Resources.OneOf -> propertySpec.oneOf.flatMap { getReferencedTypes(typeMap, it, usage) }
             is Resources.ReferredProperty -> {
-                val typeName = propertySpec.`$ref`.value.removePrefix("#/types/")
+                val typeName = propertySpec.ref.value.removePrefix("#/types/")
                 listOf(UsageWith(typeName, usage)) + (
                     typeMap[typeName.lowercase()]?.let { getReferencedTypes(typeMap, it, usage.toNested()) } ?: run {
                         println("could not for $typeName")

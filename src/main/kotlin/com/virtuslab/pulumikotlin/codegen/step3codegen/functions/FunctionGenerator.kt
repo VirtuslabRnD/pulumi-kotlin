@@ -23,6 +23,8 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
+import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
+import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 
 object FunctionGenerator {
@@ -76,6 +78,9 @@ object FunctionGenerator {
     private fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
         val hasAnyArguments = (functionType.argsType as? ComplexType)?.fields?.isNotEmpty() ?: true
 
+        val functionDocs = functionType.kDoc.description ?: ""
+        val returnDoc = "@return ${functionType.outputType.metadata.kDoc.description}\n"
+
         val basicFunSpec = FunSpec.builder(functionType.name.name)
             .letIf(hasAnyArguments) {
                 it.addParameter("argument", functionType.argsType.toTypeName())
@@ -90,12 +95,19 @@ object FunctionGenerator {
                 }
                 it.addCode(callAwaitAndDoTheMapping(functionType, argumentExpression))
             }
+            .addDocs(functionDocs, "@param argument ${functionType.argsType.metadata.kDoc.description}", returnDoc)
+            .addDeprecationWarningIfAvailable(functionType.kDoc)
             .build()
 
         if (!hasAnyArguments) {
             return listOf(basicFunSpec)
         }
 
+        val paramDocs = (functionType.argsType as? ComplexType)
+            ?.fields
+            ?.map { "@param ${it.key} ${it.value.kDoc.description ?: ""}" }
+            ?.joinToString("\n")
+            ?: ""
         val separateArgumentsOverloadFunSpec = (functionType.argsType as? ComplexType)
             ?.fields
             ?.let { parameters ->
@@ -104,8 +116,7 @@ object FunctionGenerator {
                         parameters.map { (name, type) ->
                             ParameterSpec.builder(name, type.type.toTypeName().copy(nullable = !type.required))
                                 .letIf(!type.required) {
-                                    it
-                                        .defaultValue("null")
+                                    it.defaultValue("null")
                                 }
                                 .build()
                         },
@@ -131,8 +142,10 @@ object FunctionGenerator {
                             ),
                         )
                     }
-                    .build()
             }
+            ?.addDocs("See [${functionType.name.name}].", paramDocs, returnDoc)
+            ?.addDeprecationWarningIfAvailable(functionType.kDoc)
+            ?.build()
 
         val typeSafeBuilderOverloadFunSpec = (functionType.argsType as? ComplexType)?.let { args ->
             FunSpec.builder(functionType.name.name)
@@ -140,7 +153,6 @@ object FunctionGenerator {
                 .addModifiers(KModifier.SUSPEND)
                 .returns(functionType.outputType.toTypeName())
                 .let { builder ->
-
                     val builderAssignment =
                         Assignment("builder", ConstructObjectExpression(args.toBuilderTypeName(), emptyMap()))
                     val callArgument = builderAssignment.reference().call0("argument")
@@ -156,12 +168,25 @@ object FunctionGenerator {
                             returnArgument,
                         ),
                     )
-
                     builder.addCode(allCode)
                 }
-                .build()
+                .addDocs(
+                    "See [${functionType.name.name}].",
+                    "@param argument Builder for [${args.toTypeName().simpleName}].",
+                    returnDoc,
+                )
+                .addDeprecationWarningIfAvailable(functionType.kDoc)
         }
+            ?.build()
 
         return listOfNotNull(basicFunSpec, separateArgumentsOverloadFunSpec, typeSafeBuilderOverloadFunSpec)
+    }
+
+    private fun FunSpec.Builder.addDocs(
+        functionDocs: String,
+        paramDocs: String,
+        returnDocs: String,
+    ) = apply {
+        addDocs("$functionDocs\n$paramDocs\n$returnDocs")
     }
 }

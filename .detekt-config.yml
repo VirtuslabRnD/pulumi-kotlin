@@ -6,8 +6,11 @@ output-reports:
     - 'XmlOutputReport'
 
 build:
-  maxIssues: 70 # TODO: Remove this setting after adjusting the codebase to Detekt
+  maxIssues: 52 # TODO: Remove this setting after adjusting the codebase to Detekt
 
 style:
   MagicNumber:
+    excludes: [ "**/test/**" , "**/com/virtuslab/pulumikotlin/scripts/*"]
+complexity:
+  LongMethod:
     excludes: [ "**/test/**" ]

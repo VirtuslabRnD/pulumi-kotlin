@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.EnumSource
 
 internal class PulumiNameTest {
 
+    @Suppress("unused")
     enum class ValidNameCase(val inputName: String, val expectedPulumiName: PulumiName) {
         TypeName(
             "aws:acm/CertificateOptions:CertificateOptions",
@@ -21,6 +22,7 @@ internal class PulumiNameTest {
             PulumiName("aws", listOf("acmpca"), "getCertificateAuthority"),
         ),
         LongFunctionName(
+            @Suppress("MaxLineLength")
             "aws:acmpca/getCertificateAuthorityRevocationConfigurationCrlConfiguration:getCertificateAuthorityRevocationConfigurationCrlConfiguration",
             PulumiName("aws", listOf("acmpca"), "getCertificateAuthorityRevocationConfigurationCrlConfiguration"),
         ),

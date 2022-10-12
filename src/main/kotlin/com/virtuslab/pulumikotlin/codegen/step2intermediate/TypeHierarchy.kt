@@ -6,24 +6,28 @@ import com.squareup.kotlinpoet.LIST
 import com.squareup.kotlinpoet.MAP
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 
 data class TypeMetadata(
     val pulumiName: PulumiName,
     val inputOrOutput: InputOrOutput,
     val useCharacteristic: UseCharacteristic,
+    val kDoc: KDoc,
     val generatedClass: GeneratedClass = GeneratedClass.NormalClass,
 ) {
 
     constructor(
         pulumiName: PulumiName,
         usage: Usage,
-    ) : this(pulumiName, usage.inputOrOutput, usage.useCharacteristic)
+        kDoc: KDoc,
+    ) : this(pulumiName, usage.inputOrOutput, usage.useCharacteristic, kDoc)
 
     constructor(
         pulumiName: PulumiName,
         usage: Usage,
+        kDoc: KDoc,
         generatedClass: GeneratedClass,
-    ) : this(pulumiName, usage.inputOrOutput, usage.useCharacteristic, generatedClass)
+    ) : this(pulumiName, usage.inputOrOutput, usage.useCharacteristic, kDoc, generatedClass)
 
     private fun namingFlags(language: LanguageType) =
         NamingFlags(inputOrOutput, useCharacteristic, language, generatedClass)
@@ -39,7 +43,7 @@ data class TypeWithMetadata(
     val type: Type,
 )
 
-data class TypeAndOptionality(val type: Type, val required: Boolean)
+data class TypeAndOptionality(val type: Type, val required: Boolean, val kDoc: KDoc)
 
 sealed class Type {
     abstract fun toTypeName(languageType: LanguageType = LanguageType.Kotlin): TypeName

@@ -1,6 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step1schemaparse
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
@@ -25,10 +26,14 @@ object Resources {
         JsonContentPolymorphicSerializer<PropertySpecification>(PropertySpecification::class) {
         override fun selectDeserializer(element: JsonElement): KSerializer<out PropertySpecification> {
             fun hasTypeEqualTo(type: String) =
-                element is JsonObject && "type" in element.jsonObject && element.jsonObject.getValue("type").jsonPrimitive.content == type
+                element is JsonObject &&
+                    "type" in element.jsonObject &&
+                    element.jsonObject.getValue("type").jsonPrimitive.content == type
 
             fun isMapType() =
-                element is JsonObject && "additionalProperties" in element.jsonObject && "properties" !in element.jsonObject
+                element is JsonObject &&
+                    "additionalProperties" in element.jsonObject &&
+                    "properties" !in element.jsonObject
 
             fun mightBeOfTypeObject() = element is JsonObject && "properties" in element.jsonObject
 
@@ -83,9 +88,9 @@ object Resources {
     data class StringEnumProperty(
         val type: PropertyType,
         val enum: List<StringSingleEnum>,
-        val description: String? = null,
+        override val description: String? = null,
         val willReplaceOnChanges: Boolean = false,
-        val deprecationMessage: String? = null,
+        override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
     ) : PropertySpecification()
@@ -93,9 +98,9 @@ object Resources {
     @Serializable
     data class StringProperty(
         val type: PropertyType = PropertyType.string,
-        val description: String? = null,
+        override val description: String? = null,
         val willReplaceOnChanges: Boolean = false,
-        val deprecationMessage: String? = null,
+        override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
     ) : PropertySpecification()
@@ -103,9 +108,9 @@ object Resources {
     @Serializable
     data class BooleanProperty(
         val type: PropertyType = PropertyType.boolean,
-        val description: String? = null,
+        override val description: String? = null,
         val willReplaceOnChanges: Boolean = false,
-        val deprecationMessage: String? = null,
+        override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
     ) : PropertySpecification()
@@ -113,9 +118,9 @@ object Resources {
     @Serializable
     data class IntegerProperty(
         val type: PropertyType = PropertyType.integer,
-        val description: String? = null,
+        override val description: String? = null,
         val willReplaceOnChanges: Boolean = false,
-        val deprecationMessage: String? = null,
+        override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
     ) : PropertySpecification()
@@ -124,19 +129,19 @@ object Resources {
     data class NumberProperty(
         val type: PropertyType = PropertyType.number,
         val willReplaceOnChanges: Boolean = false,
-        val deprecationMessage: String? = null,
-        val description: String? = null,
+        override val deprecationMessage: String? = null,
+        override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
     ) : PropertySpecification()
 
     @Serializable
-    data class ArrayProperty(
+    class ArrayProperty(
         val type: PropertyType = PropertyType.array,
         val items: PropertySpecification,
         val willReplaceOnChanges: Boolean = false,
-        val deprecationMessage: String? = null,
-        val description: String? = null,
+        override val deprecationMessage: String? = null,
+        override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
     ) : PropertySpecification()
@@ -144,10 +149,11 @@ object Resources {
     @Serializable
     data class ReferredProperty(
         val type: String? = null,
-        val `$ref`: SpecificationReference,
+        @SerialName("\$ref")
+        val ref: SpecificationReference,
         val willReplaceOnChanges: Boolean = false,
-        val deprecationMessage: String? = null,
-        val description: String? = null,
+        override val deprecationMessage: String? = null,
+        override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
     ) : PropertySpecification()
@@ -155,9 +161,9 @@ object Resources {
     @Serializable
     data class OneOf(
         val type: String? = null,
-        val description: String? = null,
+        override val description: String? = null,
         val oneOf: List<PropertySpecification>,
-        val deprecationMessage: String? = null,
+        override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
         val willReplaceOnChanges: Boolean = false,
@@ -167,11 +173,11 @@ object Resources {
     data class ObjectProperty(
         val type: PropertyType = PropertyType.`object`,
         val properties: Map<PropertyName, PropertySpecification> = emptyMap(),
-        val deprecationMessage: String? = null,
+        override val deprecationMessage: String? = null,
         val willReplaceOnChanges: Boolean = false,
         val additionalProperties: PropertySpecification? = null,
         val required: Set<PropertyName> = emptySet(),
-        val description: String? = null,
+        override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
     ) : PropertySpecification()
@@ -179,16 +185,19 @@ object Resources {
     @Serializable
     data class MapProperty(
         val type: PropertyType = PropertyType.`object`,
-        val deprecationMessage: String? = null,
+        override val deprecationMessage: String? = null,
         val willReplaceOnChanges: Boolean = false,
         val additionalProperties: PropertySpecification,
-        val description: String? = null,
+        override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
     ) : PropertySpecification()
 
     @Serializable(with = PropertySpecificationSerializer::class)
-    sealed class PropertySpecification
+    sealed class PropertySpecification {
+        abstract val description: String?
+        abstract val deprecationMessage: String?
+    }
 
     @Serializable
     @JvmInline
@@ -196,7 +205,7 @@ object Resources {
 
     @Serializable
     data class Resource(
-        val description: String,
+        val description: String? = null,
         val properties: Map<PropertyName, PropertySpecification> = emptyMap(),
         val type: PropertyType? = null,
         val required: List<PropertyName> = emptyList(),
