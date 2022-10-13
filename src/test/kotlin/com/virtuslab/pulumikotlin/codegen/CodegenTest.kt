@@ -345,14 +345,11 @@ class CodegenTest {
             import com.pulumi.asset.FileArchive
             import com.pulumi.asset.RemoteArchive
             import com.pulumi.asset.StringAsset
-            import com.pulumi.aws.lambda.kotlin.enums.Runtime
             import com.pulumi.aws.lambda.kotlin.functionResource
-            import com.pulumi.core.Either       
 
             suspend fun main() {
                 functionResource("function") {
                     args {
-                        architectures("architecture1", "architecture2", "architecture3")
                         code(
                             AssetArchive(
                                 mapOf(
@@ -362,18 +359,6 @@ class CodegenTest {
                                 ),
                             ),
                         )
-                        description("description")
-                        environment {
-                            variables("x" to "1", "y" to "2")
-                        }
-                        imageConfig {
-                            commands("command1", "command2")
-                            entryPoints("/entry/point")
-                            workingDirectory("/working/directory")
-                        }
-                        runtime(Either.valueOf(Runtime.Java11))
-                        timeout(10)
-                        tagsAll("key1" to "value1", "key2" to "value2")
                     }
                 }
             }
@@ -392,12 +377,7 @@ class CodegenTest {
             suspend fun main() {
                 bucketObjectResource("bucketObjectResource") {
                     args {
-                        acl("acl")
-                        bucket("bucket")
-                        forceDestroy(true)
-                        metadata("key1" to "value1", "key2" to "value2")
                         source(StringAsset("Hello world!"))
-                        websiteRedirect("https://example.com")
                     }
                 }
             }
