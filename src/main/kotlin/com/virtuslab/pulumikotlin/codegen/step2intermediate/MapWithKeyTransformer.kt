@@ -1,6 +1,6 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
-internal data class MapWithKeyTransformer<K, V> private constructor(
+internal class MapWithKeyTransformer<K, V> private constructor(
     private val baseMap: Map<K, V>,
     private val keyTransformer: (K) -> K,
 ) : Map<K, V> by baseMap {
@@ -14,7 +14,7 @@ internal data class MapWithKeyTransformer<K, V> private constructor(
     }
 
     companion object {
-        fun <K, V> from(baseMap: Map<K, V>, keyTransformer: (K) -> K): MapWithKeyTransformer<K, V> {
+        fun <K, V : Any> from(baseMap: Map<K, V>, keyTransformer: (K) -> K): MapWithKeyTransformer<K, V> {
             val transformedMap = mutableMapOf<K, V>()
             baseMap.forEach { (key, value) ->
                 val transformedKey = keyTransformer(key)
@@ -37,8 +37,8 @@ internal data class MapWithKeyTransformer<K, V> private constructor(
     }
 }
 
-internal fun <V> Map<String, V>.lowercaseKeys() =
+internal fun <V : Any> Map<String, V>.lowercaseKeys() =
     transformKeys { it.lowercase() }
 
-internal fun <K, V> Map<K, V>.transformKeys(mapper: (K) -> K) =
+internal fun <K, V : Any> Map<K, V>.transformKeys(mapper: (K) -> K) =
     MapWithKeyTransformer.from(this, mapper)

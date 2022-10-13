@@ -17,8 +17,9 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
+import com.virtuslab.pulumikotlin.codegen.utils.valuesToSet
 
-class ReferenceResolutionFinder(schema: ParsedSchema) {
+class ReferenceFinder(schema: ParsedSchema) {
 
     private val rootTypesByName = schema.types.lowercaseKeys()
     private val usages = findAllUsages(schema)
@@ -27,11 +28,11 @@ class ReferenceResolutionFinder(schema: ParsedSchema) {
         return rootTypesByName[typeName]
     }
 
-    fun getUsages(typeName: String): List<Usage> {
-        return usages[typeName] ?: emptyList()
+    fun getUsages(typeName: String): Set<Usage> {
+        return usages[typeName] ?: emptySet()
     }
 
-    private fun findAllUsages(schema: ParsedSchema): Map<String, List<Usage>> {
+    private fun findAllUsages(schema: ParsedSchema): Map<String, Set<Usage>> {
         val cases = concat(
             findNestedUsages(schema.resources, Usage(Nested, Resource, Output)) {
                 it.properties.values
@@ -48,10 +49,8 @@ class ReferenceResolutionFinder(schema: ParsedSchema) {
         )
 
         return cases
-            .groupBy(
-                keySelector = { it.typeName },
-                valueTransform = { it.usage },
-            )
+            .groupingBy { it.typeName }
+            .valuesToSet { it.usage }
             .lowercaseKeys()
     }
 
@@ -66,9 +65,7 @@ class ReferenceResolutionFinder(schema: ParsedSchema) {
             .map { UsageForName(it, usage) }
     }
 
-    private fun findTypesUsedByProperty(
-        property: Property?,
-    ): List<String> {
+    private fun findTypesUsedByProperty(property: Property?): List<String> {
         return when (property) {
             is ReferenceProperty -> {
                 val typeName = property.referencedTypeName

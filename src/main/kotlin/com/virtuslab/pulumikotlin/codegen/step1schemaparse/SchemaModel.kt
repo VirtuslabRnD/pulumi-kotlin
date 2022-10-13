@@ -23,8 +23,7 @@ data class ParsedSchema(
 @Suppress("SERIALIZER_TYPE_INCOMPATIBLE") // https://github.com/VirtuslabRnD/pulumi-kotlin/issues/63
 object SchemaModel {
 
-    object PropertySpecificationSerializer :
-        JsonContentPolymorphicSerializer<Property>(Property::class) {
+    object PropertySerializer : JsonContentPolymorphicSerializer<Property>(Property::class) {
         override fun selectDeserializer(element: JsonElement): KSerializer<out Property> {
             fun hasTypeEqualTo(type: String) =
                 element is JsonObject &&
@@ -198,22 +197,22 @@ object SchemaModel {
         val default: JsonElement? = null,
     ) : GenericTypeProperty()
 
-    @Serializable(with = PropertySpecificationSerializer::class)
+    @Serializable(with = PropertySerializer::class)
     sealed class Property {
         abstract val description: String?
         abstract val deprecationMessage: String?
     }
 
-    @Serializable(with = PropertySpecificationSerializer::class)
+    @Serializable(with = PropertySerializer::class)
     sealed class PrimitiveProperty : Property()
 
-    @Serializable(with = PropertySpecificationSerializer::class)
+    @Serializable(with = PropertySerializer::class)
     sealed class ReferencingOtherTypesProperty : Property()
 
-    @Serializable(with = PropertySpecificationSerializer::class)
+    @Serializable(with = PropertySerializer::class)
     sealed class GenericTypeProperty : ReferencingOtherTypesProperty()
 
-    @Serializable(with = PropertySpecificationSerializer::class)
+    @Serializable(with = PropertySerializer::class)
     sealed class RootTypeProperty : ReferencingOtherTypesProperty()
 
     @Serializable

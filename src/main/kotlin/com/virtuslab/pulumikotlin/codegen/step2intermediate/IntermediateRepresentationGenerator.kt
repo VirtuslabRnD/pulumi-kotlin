@@ -39,13 +39,13 @@ import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
 object IntermediateRepresentationGenerator {
 
     fun getIntermediateRepresentation(schema: ParsedSchema): IntermediateRepresentation {
-        val usages = ReferenceResolutionFinder(schema)
-        val context = Context(schema, usages)
+        val referenceFinder = ReferenceFinder(schema)
+        val context = Context(schema, referenceFinder)
 
         val types = createTypes(context)
         val typeMap = types
             .associateBy { TypeKey.from(it.metadata) }
-            .transformKeys { it.transformed() }
+            .transformKeys { it.withLowercaseName() }
 
         return IntermediateRepresentation(
             types = types,
@@ -116,20 +116,19 @@ object IntermediateRepresentationGenerator {
     }
 
     private fun findTypeOrEmptyComplexType(types: Map<TypeKey, RootType>, typeKey: TypeKey, kDoc: KDoc) =
-        findType(types, typeKey)
-            ?: ComplexType(TypeMetadata(typeKey.name, typeKey.usage, kDoc), emptyMap())
+        findType(types, typeKey) ?: ComplexType(TypeMetadata(typeKey.name, typeKey.usage, kDoc), emptyMap())
 
     private fun findType(types: Map<TypeKey, RootType>, typeKey: TypeKey) =
         types[typeKey]
 
-    private inline fun <reified T : ReferencedType> findTypeAsReference(
+    private inline fun <reified T : ReferencedRootType> findTypeAsReference(
         types: Map<TypeKey, RootType>,
         typeKey: TypeKey,
     ) =
         findType(types, typeKey)
             ?.toReference()
             as? T
-            ?: error("Unable to find $typeKey – reference cannot be casted to ${T::class}")
+            ?: error("Unable to find $typeKey – reference cannot be cast to ${T::class}")
 
     private fun createRootTypes(
         context: Context,
@@ -138,7 +137,7 @@ object IntermediateRepresentationGenerator {
         forcedUsages: List<Usage> = emptyList(),
     ): List<RootType> {
         val usages = forcedUsages.ifEmpty {
-            val allUsagesForTypeName = context.usages.getUsages(typeName)
+            val allUsagesForTypeName = context.referenceFinder.getUsages(typeName)
             if (allUsagesForTypeName.isEmpty()) {
                 println("$typeName references were empty for $typeName (${rootType.javaClass})")
             }
@@ -171,11 +170,13 @@ object IntermediateRepresentationGenerator {
             .toMap()
 
     private fun resolveNestedTypeReference(context: Context, property: Property, usage: Usage): ReferencedType {
+        require(usage.depth != Root) { "Root properties are not supported here (usage was $usage)" }
+
         return when (property) {
             is ReferenceProperty -> resolveSingleTypeReference(context, property, usage)
             is GenericTypeProperty -> mapGenericTypes(property) { resolveNestedTypeReference(context, it, usage) }
             is PrimitiveProperty -> mapPrimitiveTypes(property)
-            is ObjectProperty, is StringEnumProperty -> error("nesting not supported for ${property.javaClass}")
+            is ObjectProperty, is StringEnumProperty -> error("Nesting not supported for ${property.javaClass}")
         }
     }
 
@@ -189,7 +190,7 @@ object IntermediateRepresentationGenerator {
             // TODO: asset or archive - https://github.com/VirtuslabRnD/pulumi-kotlin/issues/16
             return AnyType
         }
-        val referencedType = context.usages.resolve(referencedTypeName)
+        val referencedType = context.referenceFinder.resolve(referencedTypeName)
         return when (referencedType) {
             is ObjectProperty -> ReferencedComplexType(TypeMetadata(referencedTypeName, usage, getKDoc(property)))
             is StringEnumProperty -> ReferencedEnumType(
@@ -242,7 +243,7 @@ object IntermediateRepresentationGenerator {
 
     private data class Context(
         val schema: ParsedSchema,
-        val usages: ReferenceResolutionFinder,
+        val referenceFinder: ReferenceFinder,
     )
 
     private data class TypeKey(
@@ -250,7 +251,7 @@ object IntermediateRepresentationGenerator {
         val usage: Usage,
     ) {
 
-        fun transformed() =
+        fun withLowercaseName() =
             copy(
                 name = with(name) {
                     PulumiName(
