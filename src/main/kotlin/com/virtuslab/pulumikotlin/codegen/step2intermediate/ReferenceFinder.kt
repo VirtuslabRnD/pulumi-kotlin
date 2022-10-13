@@ -28,41 +28,41 @@ class ReferenceFinder(schema: ParsedSchema) {
         return rootTypesByName[typeName]
     }
 
-    fun getUsages(typeName: String): Set<Usage> {
+    fun getUsages(typeName: String): Set<UsageKind> {
         return usages[typeName] ?: emptySet()
     }
 
-    private fun findAllUsages(schema: ParsedSchema): Map<String, Set<Usage>> {
+    private fun findAllUsages(schema: ParsedSchema): Map<String, Set<UsageKind>> {
         val cases = concat(
-            findNestedUsages(schema.resources, Usage(Nested, Resource, Output)) {
+            findNestedUsages(schema.resources, UsageKind(Nested, Resource, Output)) {
                 it.properties.values
             },
-            findNestedUsages(schema.resources, Usage(Nested, Resource, Input)) {
+            findNestedUsages(schema.resources, UsageKind(Nested, Resource, Input)) {
                 it.inputProperties.values
             },
-            findNestedUsages(schema.functions, Usage(Nested, Function, Output)) {
+            findNestedUsages(schema.functions, UsageKind(Nested, Function, Output)) {
                 it.outputs.properties.values
             },
-            findNestedUsages(schema.functions, Usage(Nested, Function, Input)) {
+            findNestedUsages(schema.functions, UsageKind(Nested, Function, Input)) {
                 it.inputs?.properties?.values.orEmpty()
             },
         )
 
         return cases
             .groupingBy { it.typeName }
-            .valuesToSet { it.usage }
+            .valuesToSet { it.usageKind }
             .lowercaseKeys()
     }
 
     private fun <V> findNestedUsages(
         resourcesOrFunctions: Map<String, V>,
-        usage: Usage,
+        usageKind: UsageKind,
         mapper: (V) -> Iterable<Property>,
-    ): List<UsageForName> {
+    ): List<TypeNameAndUsageKind> {
         return resourcesOrFunctions.values
             .flatMap { mapper(it) }
             .flatMap { property -> findReferencedTypeNamesUsedByProperty(property) }
-            .map { UsageForName(it, usage) }
+            .map { TypeNameAndUsageKind(it, usageKind) }
     }
 
     private fun findReferencedTypeNamesUsedByProperty(property: Property?): List<String> {
@@ -99,5 +99,5 @@ class ReferenceFinder(schema: ParsedSchema) {
     private fun <T> concat(vararg iterables: Iterable<T>) =
         concat(iterables.asIterable())
 
-    private data class UsageForName(val typeName: String, val usage: Usage)
+    private data class TypeNameAndUsageKind(val typeName: String, val usageKind: UsageKind)
 }

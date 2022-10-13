@@ -14,7 +14,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.StringType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeAndOptionality
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.Usage
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UsageKind
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -27,7 +27,7 @@ internal class CodeGeneratorGenerateFunctionsTest {
         val inputType = ComplexType(
             TypeMetadata(
                 PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
-                Usage(Root, Function, Input),
+                UsageKind(Root, Function, Input),
                 KDoc(null, null),
             ),
 
@@ -42,7 +42,7 @@ internal class CodeGeneratorGenerateFunctionsTest {
         val outputType = ComplexType(
             TypeMetadata(
                 PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
-                Usage(Root, Function, Output),
+                UsageKind(Root, Function, Output),
                 KDoc(null, null),
             ),
 

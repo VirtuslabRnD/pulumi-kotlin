@@ -63,9 +63,9 @@ object TypeGenerator {
         generationOptions: GenerationOptions = GenerationOptions(),
     ): List<FileSpec> {
         val generatedTypes = types.filterIsInstance<ComplexType>().map { type ->
-            val usage = type.metadata.usage
-            val isFunction = usage.subject == Function
-            val isOutput = usage.direction == Output
+            val usageKind = type.metadata.usageKind
+            val isFunction = usageKind.subject == Function
+            val isOutput = usageKind.direction == Output
             val fields = if (isFunction || isOutput) {
                 type.fields.map { (name, typeAndOptionality) ->
                     Field(

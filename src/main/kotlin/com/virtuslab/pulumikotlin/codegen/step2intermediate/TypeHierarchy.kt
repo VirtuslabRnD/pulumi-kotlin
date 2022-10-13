@@ -10,26 +10,26 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 
 data class TypeMetadata(
     val pulumiName: PulumiName,
-    val usage: Usage,
+    val usageKind: UsageKind,
     val kDoc: KDoc,
     val generatedClass: GeneratedClass = GeneratedClass.NormalClass,
 ) {
 
     constructor(
         name: String,
-        usage: Usage,
+        usageKind: UsageKind,
         kDoc: KDoc,
         generatedClass: GeneratedClass,
-    ) : this(PulumiName.from(name), usage, kDoc, generatedClass)
+    ) : this(PulumiName.from(name), usageKind, kDoc, generatedClass)
 
     constructor(
         name: String,
-        usage: Usage,
+        usageKind: UsageKind,
         kDoc: KDoc,
-    ) : this(PulumiName.from(name), usage, kDoc)
+    ) : this(PulumiName.from(name), usageKind, kDoc)
 
     private fun namingFlags(language: LanguageType) =
-        NamingFlags(usage.direction, UseCharacteristic.from(usage.depth, usage.subject), language, generatedClass)
+        NamingFlags(usageKind.direction, UseCharacteristic.from(usageKind.depth, usageKind.subject), language, generatedClass)
 
     fun names(language: LanguageType): NameGeneration {
         return NameGeneration(pulumiName, namingFlags(language))

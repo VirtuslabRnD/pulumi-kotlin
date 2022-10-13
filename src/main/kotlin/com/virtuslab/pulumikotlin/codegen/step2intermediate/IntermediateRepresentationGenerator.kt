@@ -57,18 +57,18 @@ object IntermediateRepresentationGenerator {
     private fun createTypes(context: Context): List<RootType> {
         val schema = context.schema
 
-        fun <V> createTypes(map: Map<String, V>, usage: Usage? = null, propertyExtractor: (V) -> RootTypeProperty?) =
+        fun <V> createTypes(map: Map<String, V>, usageKind: UsageKind? = null, propertyExtractor: (V) -> RootTypeProperty?) =
             map
                 .mapValues { propertyExtractor(it.value) }
                 .filterNotNullValues()
                 .flatMap { (name, value) ->
-                    createRootTypes(context, name, value, listOfNotNull(usage))
+                    createRootTypes(context, name, value, listOfNotNull(usageKind))
                 }
 
         val syntheticTypes = listOf(
-            createTypes(schema.functions, Usage(Root, Function, Input)) { it.inputs },
-            createTypes(schema.functions, Usage(Root, Function, Output)) { it.outputs },
-            createTypes(schema.resources, Usage(Root, Resource, Input)) {
+            createTypes(schema.functions, UsageKind(Root, Function, Input)) { it.inputs },
+            createTypes(schema.functions, UsageKind(Root, Function, Output)) { it.outputs },
+            createTypes(schema.resources, UsageKind(Root, Resource, Input)) {
                 ObjectProperty(
                     properties = it.inputProperties,
                     description = it.description,
@@ -87,15 +87,15 @@ object IntermediateRepresentationGenerator {
     private fun createResources(types: Map<TypeKey, RootType>, context: Context): List<ResourceType> {
         return context.schema.resources.map { (typeName, resource) ->
             val resultFields = resource.properties.map { (propertyName, property) ->
-                val outputFieldsUsage = Usage(Nested, Resource, Output)
+                val outputFieldsUsageKind = UsageKind(Nested, Resource, Output)
                 val isRequired = resource.required.contains(propertyName)
-                val reference = resolveNestedTypeReference(context, property, outputFieldsUsage)
+                val reference = resolveNestedTypeReference(context, property, outputFieldsUsageKind)
                 Field(propertyName.value, OutputWrappedField(reference), isRequired, kDoc = getKDoc(property))
             }
 
             val pulumiName = PulumiName.from(typeName)
-            val inputUsage = Usage(Root, Resource, Input)
-            val argumentType = findTypeAsReference<ReferencedComplexType>(types, TypeKey.from(pulumiName, inputUsage))
+            val inputUsageKind = UsageKind(Root, Resource, Input)
+            val argumentType = findTypeAsReference<ReferencedComplexType>(types, TypeKey.from(pulumiName, inputUsageKind))
             ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource))
         }
     }
@@ -104,20 +104,20 @@ object IntermediateRepresentationGenerator {
         return context.schema.functions.map { (typeName, function) ->
             val pulumiName = PulumiName.from(typeName)
 
-            val inputUsage = Usage(Root, Function, Input)
+            val inputUsageKind = UsageKind(Root, Function, Input)
             val argumentType =
-                findTypeOrEmptyComplexType(types, TypeKey.from(pulumiName, inputUsage), getKDoc(function))
+                findTypeOrEmptyComplexType(types, TypeKey.from(pulumiName, inputUsageKind), getKDoc(function))
 
-            val outputUsage = Usage(Root, Function, Output)
+            val outputUsageKind = UsageKind(Root, Function, Output)
             val resultType =
-                findTypeAsReference<ReferencedRootType>(types, TypeKey.from(pulumiName, outputUsage))
+                findTypeAsReference<ReferencedRootType>(types, TypeKey.from(pulumiName, outputUsageKind))
 
             FunctionType(pulumiName, argumentType, resultType, getKDoc(function))
         }
     }
 
     private fun findTypeOrEmptyComplexType(types: Map<TypeKey, RootType>, typeKey: TypeKey, kDoc: KDoc) =
-        findType(types, typeKey) ?: ComplexType(TypeMetadata(typeKey.name, typeKey.usage, kDoc), emptyMap())
+        findType(types, typeKey) ?: ComplexType(TypeMetadata(typeKey.name, typeKey.usageKind, kDoc), emptyMap())
 
     private fun findType(types: Map<TypeKey, RootType>, typeKey: TypeKey) =
         types[typeKey]
@@ -135,9 +135,9 @@ object IntermediateRepresentationGenerator {
         context: Context,
         typeName: String,
         rootType: RootTypeProperty,
-        forcedUsages: List<Usage> = emptyList(),
+        forcedUsageKinds: List<UsageKind> = emptyList(),
     ): List<RootType> {
-        val usages = forcedUsages.ifEmpty {
+        val usages = forcedUsageKinds.ifEmpty {
             val allUsagesForTypeName = context.referenceFinder.getUsages(typeName)
             if (allUsagesForTypeName.isEmpty()) {
                 println("$typeName references were empty for $typeName (${rootType.javaClass})")
@@ -159,23 +159,23 @@ object IntermediateRepresentationGenerator {
         }
     }
 
-    private fun createComplexTypeFields(property: ObjectProperty, context: Context, usage: Usage) =
+    private fun createComplexTypeFields(property: ObjectProperty, context: Context, usageKind: UsageKind) =
         property.properties
             .map { (name, value) ->
                 name.value to TypeAndOptionality(
-                    resolveNestedTypeReference(context, value, usage.toNested()),
+                    resolveNestedTypeReference(context, value, usageKind.toNested()),
                     property.required.contains(name),
                     getKDoc(value),
                 )
             }
             .toMap()
 
-    private fun resolveNestedTypeReference(context: Context, property: Property, usage: Usage): ReferencedType {
-        require(usage.depth != Root) { "Root properties are not supported here (usage was $usage)" }
+    private fun resolveNestedTypeReference(context: Context, property: Property, usageKind: UsageKind): ReferencedType {
+        require(usageKind.depth != Root) { "Root properties are not supported here (usageKind was $usageKind)" }
 
         return when (property) {
-            is ReferenceProperty -> resolveSingleTypeReference(context, property, usage)
-            is GenericTypeProperty -> mapGenericTypes(property) { resolveNestedTypeReference(context, it, usage) }
+            is ReferenceProperty -> resolveSingleTypeReference(context, property, usageKind)
+            is GenericTypeProperty -> mapGenericTypes(property) { resolveNestedTypeReference(context, it, usageKind) }
             is PrimitiveProperty -> mapPrimitiveTypes(property)
             is ObjectProperty, is StringEnumProperty -> error("Nesting not supported for ${property.javaClass}")
         }
@@ -184,7 +184,7 @@ object IntermediateRepresentationGenerator {
     private fun resolveSingleTypeReference(
         context: Context,
         property: ReferenceProperty,
-        usage: Usage,
+        usageKind: UsageKind,
     ): ReferencedType {
         val referencedTypeName = property.referencedTypeName
         if (referencedTypeName.startsWith("pulumi")) {
@@ -194,11 +194,11 @@ object IntermediateRepresentationGenerator {
         val referencedType = context.referenceFinder.resolve(referencedTypeName)
         return when (referencedType) {
             is ObjectProperty -> ReferencedComplexType(
-                TypeMetadata(referencedTypeName, usage, getKDoc(property)),
+                TypeMetadata(referencedTypeName, usageKind, getKDoc(property)),
             )
 
             is StringEnumProperty -> ReferencedEnumType(
-                TypeMetadata(referencedTypeName, usage, getKDoc(property), EnumClass),
+                TypeMetadata(referencedTypeName, usageKind, getKDoc(property), EnumClass),
             )
 
             null -> {
@@ -240,15 +240,9 @@ object IntermediateRepresentationGenerator {
         }
     }
 
-    private data class Context(
-        val schema: ParsedSchema,
-        val referenceFinder: ReferenceFinder,
-    )
+    private data class Context(val schema: ParsedSchema, val referenceFinder: ReferenceFinder)
 
-    private data class TypeKey(
-        val name: PulumiName,
-        val usage: Usage,
-    ) {
+    private data class TypeKey(val name: PulumiName, val usageKind: UsageKind) {
 
         fun withLowercaseName() =
             copy(
@@ -262,11 +256,11 @@ object IntermediateRepresentationGenerator {
             )
 
         companion object {
-            fun from(pulumiName: PulumiName, usage: Usage): TypeKey =
-                TypeKey(pulumiName, usage)
+            fun from(pulumiName: PulumiName, usageKind: UsageKind): TypeKey =
+                TypeKey(pulumiName, usageKind)
 
             fun from(metadata: TypeMetadata): TypeKey =
-                from(metadata.pulumiName, metadata.usage)
+                from(metadata.pulumiName, metadata.usageKind)
         }
     }
 }

@@ -3,7 +3,7 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 
-data class Usage(val depth: Depth, val subject: Subject, val direction: Direction) {
+data class UsageKind(val depth: Depth, val subject: Subject, val direction: Direction) {
     fun toNested() = copy(depth = Depth.Nested)
 }
 

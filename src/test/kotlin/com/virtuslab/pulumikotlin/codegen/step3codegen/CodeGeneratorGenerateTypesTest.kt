@@ -12,7 +12,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.StringType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeAndOptionality
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.Usage
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UsageKind
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -25,7 +25,7 @@ internal class CodeGeneratorGenerateTypesTest {
         val firstType = ComplexType(
             TypeMetadata(
                 PulumiName("aws", listOf("aws"), "FirstType"),
-                Usage(Nested, Resource, Input),
+                UsageKind(Nested, Resource, Input),
                 KDoc(null, null),
             ),
 
@@ -40,7 +40,7 @@ internal class CodeGeneratorGenerateTypesTest {
         val secondType = ComplexType(
             TypeMetadata(
                 PulumiName("aws", listOf("aws"), "SecondType"),
-                Usage(Nested, Resource, Input),
+                UsageKind(Nested, Resource, Input),
                 KDoc(null, null),
             ),
             mapOf(

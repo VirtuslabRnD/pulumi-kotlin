@@ -51,16 +51,16 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("int", "referencedType2"),
-            hasUsageOf = Usage(Nested, Resource, Output),
+            nameIs = "type",
+            fieldsAre = setOf("int", "referencedType2"),
+            usageKindIs = UsageKind(Nested, Resource, Output),
         )
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type2",
-            hasSameFieldsAs = setOf("int"),
-            hasUsageOf = Usage(Nested, Resource, Output),
+            nameIs = "type2",
+            fieldsAre = setOf("int"),
+            usageKindIs = UsageKind(Nested, Resource, Output),
         )
     }
 
@@ -81,9 +81,9 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("int"),
-            hasUsageOf = Usage(Nested, Resource, Input),
+            nameIs = "type",
+            fieldsAre = setOf("int"),
+            usageKindIs = UsageKind(Nested, Resource, Input),
         )
     }
 
@@ -107,16 +107,16 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("someInt"),
-            hasUsageOf = Usage(Nested, Resource, Input),
+            nameIs = "type",
+            fieldsAre = setOf("someInt"),
+            usageKindIs = UsageKind(Nested, Resource, Input),
         )
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("someInt"),
-            hasUsageOf = Usage(Nested, Resource, Output),
+            nameIs = "type",
+            fieldsAre = setOf("someInt"),
+            usageKindIs = UsageKind(Nested, Resource, Output),
         )
     }
 
@@ -142,16 +142,16 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("someInt"),
-            hasUsageOf = Usage(Nested, Resource, Input),
+            nameIs = "type",
+            fieldsAre = setOf("someInt"),
+            usageKindIs = UsageKind(Nested, Resource, Input),
         )
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("someInt"),
-            hasUsageOf = Usage(Nested, Function, Input),
+            nameIs = "type",
+            fieldsAre = setOf("someInt"),
+            usageKindIs = UsageKind(Nested, Function, Input),
         )
     }
 
@@ -184,9 +184,9 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "resource",
-            hasSameFieldsAs = setOf("someInt", "referencedType"),
-            hasUsageOf = Usage(Root, Resource, Input),
+            nameIs = "resource",
+            fieldsAre = setOf("someInt", "referencedType"),
+            usageKindIs = UsageKind(Root, Resource, Input),
         )
 
         assertEquals(1, irResources.size)
@@ -232,16 +232,16 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "function",
-            hasSameFieldsAs = setOf("someInt", "referencedType"),
-            hasUsageOf = Usage(Root, Function, Input),
+            nameIs = "function",
+            fieldsAre = setOf("someInt", "referencedType"),
+            usageKindIs = UsageKind(Root, Function, Input),
         )
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "function",
-            hasSameFieldsAs = setOf("someInt2", "referencedType2"),
-            hasUsageOf = Usage(Root, Function, Output),
+            nameIs = "function",
+            fieldsAre = setOf("someInt2", "referencedType2"),
+            usageKindIs = UsageKind(Root, Function, Output),
         )
 
         val irFunctions = ir.functions
@@ -249,12 +249,12 @@ internal class IntermediateRepresentationGeneratorTest {
         assertEquals(1, irFunctions.size)
         assertEquals(PulumiName.from(functionName), irFunctions.first().name)
         assertEquals(
-            irTypes.findComplexTypeThat(isNamed = "function", hasUsageOf = Usage(Root, Function, Input))!!,
+            irTypes.findComplexTypeThat(isNamed = "function", hasUsageOfKind = UsageKind(Root, Function, Input))!!,
             irFunctions.first().argsType,
         )
         assertEquals(
             irTypes
-                .findComplexTypeThat(isNamed = "function", hasUsageOf = Usage(Root, Function, Output))!!
+                .findComplexTypeThat(isNamed = "function", hasUsageOfKind = UsageKind(Root, Function, Output))!!
                 .toReference(),
             irFunctions.first().outputType,
         )
@@ -290,9 +290,9 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("someInt"),
-            hasUsageOf = Usage(Nested, Function, Output),
+            nameIs = "type",
+            fieldsAre = setOf("someInt"),
+            usageKindIs = UsageKind(Nested, Function, Output),
         )
     }
 
@@ -341,7 +341,7 @@ internal class IntermediateRepresentationGeneratorTest {
     private fun Iterable<Type>.findComplexTypeThat(
         isNamed: String? = null,
         hasSameFieldsAs: Set<String>? = null,
-        hasUsageOf: Usage? = null,
+        hasUsageOfKind: UsageKind? = null,
     ): ComplexType? {
         fun <T> equalsIfNotNull(arg: T?, to: T) = arg == null || arg == to
 
@@ -350,17 +350,17 @@ internal class IntermediateRepresentationGeneratorTest {
             .find { type ->
                 equalsIfNotNull(isNamed, type.metadata.pulumiName.name) &&
                     equalsIfNotNull(hasSameFieldsAs, type.fields.keys) &&
-                    equalsIfNotNull(hasUsageOf, type.metadata.usage)
+                    equalsIfNotNull(hasUsageOfKind, type.metadata.usageKind)
             }
     }
 
     private fun assertContainsComplexTypeThat(
         types: List<RootType>,
-        isNamed: String? = null,
-        hasSameFieldsAs: Set<String>? = null,
-        hasUsageOf: Usage? = null,
+        nameIs: String? = null,
+        fieldsAre: Set<String>? = null,
+        usageKindIs: UsageKind? = null,
     ) {
-        val foundType = types.findComplexTypeThat(isNamed, hasSameFieldsAs, hasUsageOf)
+        val foundType = types.findComplexTypeThat(nameIs, fieldsAre, usageKindIs)
 
         assertNotNull(foundType)
     }
