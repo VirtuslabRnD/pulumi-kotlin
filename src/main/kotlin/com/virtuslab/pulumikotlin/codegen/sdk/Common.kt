@@ -232,6 +232,7 @@ fun <T, R> T.applyValue(f: (T) -> R): R {
     return f(this)
 }
 
+@Suppress("RedundantSuspendModifier")
 suspend inline fun <T> T.applySuspend(block: T.() -> Unit): T {
     block()
     return this

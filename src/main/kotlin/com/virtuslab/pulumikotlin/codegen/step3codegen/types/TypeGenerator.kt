@@ -157,9 +157,9 @@ object TypeGenerator {
             )
         }
 
-        val classDocs = typeMetadata.kDoc.description ?: ""
+        val classDocs = typeMetadata.kDoc.description.orEmpty()
         val propertyDocs = fields.joinToString("\n") {
-            "@property ${it.name} ${it.kDoc.description ?: ""}"
+            "@property ${it.name} ${it.kDoc.description.orEmpty()}"
         }
 
         classBuilder.addDocs("$classDocs\n$propertyDocs")
@@ -453,7 +453,7 @@ object TypeGenerator {
     }
 
     private fun FunSpec.Builder.addDocsToBuilderMethod(kDoc: KDoc, paramName: String) = apply {
-        addDocs("@param $paramName ${kDoc.description ?: ""}")
+        addDocs("@param $paramName ${kDoc.description.orEmpty()}")
         addDeprecationWarningIfAvailable(kDoc)
     }
 }

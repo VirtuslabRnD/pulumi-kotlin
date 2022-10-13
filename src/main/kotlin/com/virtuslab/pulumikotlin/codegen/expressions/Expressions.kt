@@ -27,7 +27,7 @@ fun Expression.call0(name: String, optional: Boolean = false): Expression {
 }
 
 fun Expression.callMap(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
-    return call1("map", FunctionExpression.create(1, { expr -> expressionMapper(expr.get(0)) }), optional = optional)
+    return call1("map", FunctionExpression.create(1) { expr -> expressionMapper(expr[0]) }, optional = optional)
 }
 
 fun Expression.callTransform(
@@ -44,13 +44,13 @@ fun Expression.callTransform(
 }
 
 fun Expression.callLet(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
-    return call1("let", FunctionExpression.create(1, { expr -> expressionMapper(expr.get(0)) }), optional = optional)
+    return call1("let", FunctionExpression.create(1) { expr -> expressionMapper(expr[0]) }, optional = optional)
 }
 
 fun Expression.callApplyValue(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
     return call1(
         "applyValue",
-        FunctionExpression.create(1) { expr -> expressionMapper(expr.get(0)) },
+        FunctionExpression.create(1) { expr -> expressionMapper(expr[0]) },
         optional = optional,
     )
 }
@@ -84,6 +84,10 @@ data class NullsafeApply(val expression: Expression, val mapper: (Expression) ->
 }
 
 data class FunctionExpression(val argumentNames: List<String>, val expression: Expression) : Expression() {
+    override fun toCodeBlock(): CustomCodeBlock {
+        return expression.toCodeBlock()
+    }
+
     companion object {
         fun create(arguments: Int, mapper: (List<Expression>) -> Expression): FunctionExpression {
             val argNames = (0 until arguments)
@@ -96,10 +100,6 @@ data class FunctionExpression(val argumentNames: List<String>, val expression: E
 
             return FunctionExpression(argNames, expression.build())
         }
-    }
-
-    override fun toCodeBlock(): CustomCodeBlock {
-        return expression.toCodeBlock()
     }
 }
 
@@ -190,7 +190,7 @@ data class CustomExpression(val text: String, val args: List<Any>) : Expression(
 
 fun Iterable<CustomCodeBlock>.merge(separator: String): CustomCodeBlock {
     return CustomCodeBlock(
-        map { it.text }.joinToString(separator),
+        joinToString(separator) { it.text },
         flatMap { it.args },
     )
 }

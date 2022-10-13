@@ -31,7 +31,7 @@ class ReferenceFinder(schema: ParsedSchema) {
     }
 
     fun getUsages(typeName: String): Set<UsageKind> {
-        return usages[typeName] ?: emptySet()
+        return usages[typeName].orEmpty()
     }
 
     private fun findAllUsages(schema: ParsedSchema): Map<String, Set<UsageKind>> {

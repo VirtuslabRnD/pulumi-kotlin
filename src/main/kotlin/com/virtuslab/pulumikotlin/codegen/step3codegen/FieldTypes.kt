@@ -6,9 +6,10 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 
 sealed class FieldType<T : ReferencedType> {
-    abstract fun toTypeName(): TypeName
 
     abstract val type: T
+
+    abstract fun toTypeName(): TypeName
 }
 
 data class NormalField<T : ReferencedType>(override val type: T, val mappingCode: MappingCode) : FieldType<T>() {

@@ -82,7 +82,7 @@ object FunctionGenerator {
     private fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
         val hasAnyArguments = (functionType.argsType as? ComplexType)?.fields?.isNotEmpty() ?: true
 
-        val functionDocs = functionType.kDoc.description ?: ""
+        val functionDocs = functionType.kDoc.description.orEmpty()
         val returnDoc = "@return ${functionType.outputType.metadata.kDoc.description}\n"
 
         val basicFunSpec = FunSpec.builder(functionType.name.name)
@@ -109,9 +109,9 @@ object FunctionGenerator {
 
         val paramDocs = (functionType.argsType as? ComplexType)
             ?.fields
-            ?.map { "@param ${it.key} ${it.value.kDoc.description ?: ""}" }
+            ?.map { "@param ${it.key} ${it.value.kDoc.description.orEmpty()}" }
             ?.joinToString("\n")
-            ?: ""
+            .orEmpty()
         val separateArgumentsOverloadFunSpec = (functionType.argsType as? ComplexType)
             ?.fields
             ?.let { parameters ->
