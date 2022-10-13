@@ -1,6 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArchiveProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArrayProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.AssetOrArchiveProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.MapProperty
@@ -68,7 +69,7 @@ class ReferenceFinder(schema: ParsedSchema) {
 
     private fun findReferencedTypeNamesUsedByProperty(property: Property?): List<String> {
         return when (property) {
-            is AssetOrArchiveProperty -> emptyList()
+            is AssetOrArchiveProperty, is ArchiveProperty -> emptyList()
             is ReferenceProperty -> {
                 val typeName = property.referencedTypeName
                 val referencedProperty = resolve(typeName)

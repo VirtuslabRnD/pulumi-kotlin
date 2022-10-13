@@ -337,10 +337,79 @@ class CodegenTest {
         assertGeneratedCodeCompiles(SCHEMA_GCP_CLASSIC_SUBSET_LB_IP_RANGES)
     }
 
+    @Test
+    fun `aws function with archive can be invoked`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.asset.AssetArchive
+            import com.pulumi.asset.FileArchive
+            import com.pulumi.asset.RemoteArchive
+            import com.pulumi.asset.StringAsset
+            import com.pulumi.aws.lambda.kotlin.enums.Runtime
+            import com.pulumi.aws.lambda.kotlin.functionResource
+            import com.pulumi.core.Either       
+
+            suspend fun main() {
+                functionResource("function") {
+                    args {
+                        architectures("architecture1", "architecture2", "architecture3")
+                        code(
+                            AssetArchive(
+                                mapOf(
+                                    "string" to StringAsset("Hello, world!"),
+                                    "file" to FileArchive("./folder"),
+                                    "remote" to RemoteArchive("https://example.com/file.zip"),
+                                ),
+                            ),
+                        )
+                        description("description")
+                        environment {
+                            variables("x" to "1", "y" to "2")
+                        }
+                        imageConfig {
+                            commands("command1", "command2")
+                            entryPoints("/entry/point")
+                            workingDirectory("/working/directory")
+                        }
+                        runtime(Either.valueOf(Runtime.Java11))
+                        timeout(10)
+                        tagsAll("key1" to "value1", "key2" to "value2")
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_WITH_ARCHIVE, code)
+    }
+
+    @Test
+    fun `aws function with asset can be invoked`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.asset.StringAsset
+            import com.pulumi.aws.s3.kotlin.bucketObjectResource   
+
+            suspend fun main() {
+                bucketObjectResource("bucketObjectResource") {
+                    args {
+                        acl("acl")
+                        bucket("bucket")
+                        forceDestroy(true)
+                        metadata("key1" to "value1", "key2" to "value2")
+                        source(StringAsset("Hello world!"))
+                        websiteRedirect("https://example.com")
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_WITH_ASSET, code)
+    }
+
     private val classPath = listOf(
         artifact("com.pulumi:pulumi:0.6.0"),
-        artifact("com.pulumi:aws:5.14.0"),
-        artifact("com.pulumi:gcp:6.37.0"),
+        artifact("com.pulumi:aws:5.16.2"),
+        artifact("com.pulumi:gcp:6.38.0"),
         artifact("com.google.code.findbugs:jsr305:3.0.2"),
         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4"),
         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4"),
@@ -480,3 +549,5 @@ private const val SCHEMA_GCP_CLASSIC_SUBSET_LB_IP_RANGES = "schema-gcp-classic-6
 private const val SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE = "schema-aws-classic-subset-small-size.json"
 private const val SCHEMA_AWS_CLASSIC_SUBSET_BIG_SIZE = "schema-aws-classic-subset-big-size.json"
 private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ONE_OF = "schema-aws-classic-5.15.0-subset-with-one-of.json"
+private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ARCHIVE = "schema-aws-classic-5.16.2-subset-with-archive.json"
+private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ASSET = "schema-aws-classic-5.16.2-subset-with-asset.json"

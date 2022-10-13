@@ -2,6 +2,7 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArchiveProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArrayProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.AssetOrArchiveProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.BooleanProperty
@@ -179,6 +180,7 @@ object IntermediateRepresentationGenerator {
             is GenericTypeProperty -> mapGenericTypes(property) { resolveNestedTypeReference(context, it, usage) }
             is PrimitiveProperty -> mapPrimitiveTypes(property)
             is AssetOrArchiveProperty -> AssetOrArchiveType
+            is ArchiveProperty -> ArchiveType
             is ObjectProperty, is StringEnumProperty -> error("Nesting not supported for ${property.javaClass}")
         }
     }
@@ -190,15 +192,12 @@ object IntermediateRepresentationGenerator {
     ): ReferencedType {
         val referencedTypeName = property.referencedTypeName
         if (referencedTypeName.startsWith("pulumi")) {
-            // TODO: asset or archive - https://github.com/VirtuslabRnD/pulumi-kotlin/issues/16
             return AnyType
         }
-        val referencedType = context.referenceFinder.resolve(referencedTypeName)
-        return when (referencedType) {
+        return when (context.referenceFinder.resolve(referencedTypeName)) {
             is ObjectProperty -> ReferencedComplexType(
                 TypeMetadata(referencedTypeName, usage, getKDoc(property)),
             )
-
             is StringEnumProperty -> ReferencedEnumType(
                 TypeMetadata(referencedTypeName, usage, getKDoc(property), EnumClass),
             )

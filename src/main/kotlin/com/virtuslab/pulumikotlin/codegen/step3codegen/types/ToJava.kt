@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
@@ -38,7 +39,7 @@ object ToJava {
                 is MapType -> toJavaBlock
                 is ReferencedComplexType -> toJavaBlock
                 is ReferencedEnumType -> toJavaBlock
-                is AssetOrArchiveType -> block
+                is AssetOrArchiveType, is ArchiveType -> block
             }
         }
 

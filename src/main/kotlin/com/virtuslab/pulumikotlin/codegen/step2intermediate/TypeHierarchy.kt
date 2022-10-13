@@ -1,5 +1,6 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
+import com.pulumi.asset.Archive
 import com.pulumi.asset.AssetOrArchive
 import com.pulumi.core.Either
 import com.squareup.kotlinpoet.ANY
@@ -143,6 +144,13 @@ object AssetOrArchiveType : ReferencedType() {
 
     override fun toTypeName(languageType: LanguageType): ClassName {
         return AssetOrArchive::class.asTypeName()
+    }
+}
+
+object ArchiveType : ReferencedType() {
+
+    override fun toTypeName(languageType: LanguageType): ClassName {
+        return Archive::class.asTypeName()
     }
 }
 

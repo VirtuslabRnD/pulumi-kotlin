@@ -40,12 +40,15 @@ object SchemaModel {
             return when {
                 element is JsonObject && "\$ref" in element.jsonObject -> {
                     val refType = element.get("\$ref")?.jsonPrimitive?.content
-                    if (refType.equals("pulumi.json#/Asset") || refType.equals("pulumi.json#/Archive")) {
+                    if (refType.equals("pulumi.json#/Asset")) {
                         AssetOrArchiveProperty.serializer()
+                    } else if (refType.equals("pulumi.json#/Archive")) {
+                        ArchiveProperty.serializer()
                     } else {
                         ReferenceProperty.serializer()
                     }
                 }
+
                 element is JsonObject && "oneOf" in element.jsonObject -> OneOfProperty.serializer()
                 isMapType() -> MapProperty.serializer()
                 mightBeOfTypeObject() -> ObjectProperty.serializer()
@@ -71,6 +74,7 @@ object SchemaModel {
     @Suppress(
         "ktlint:enum-entry-name-case",
         "EnumNaming",
+        "EnumEntryName",
     ) // this enum reflects the possible field values in the Pulumi schema
     enum class PropertyType {
         array, string, `object`, boolean, integer, number
