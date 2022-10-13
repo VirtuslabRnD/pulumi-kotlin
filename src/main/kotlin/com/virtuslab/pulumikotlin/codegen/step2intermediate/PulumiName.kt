@@ -179,15 +179,7 @@ data class PulumiName(
 
     fun toFunctionGroupObjectName(namingFlags: NamingFlags): String {
         return when (namingFlags.language) {
-            Kotlin -> {
-                if (namespace.isEmpty()) {
-                    providerName.capitalize() + "Functions"
-                } else {
-                    namespace.last().capitalize() + "Functions"
-                }
-            }
-
-            Java -> {
+            Kotlin, Java -> {
                 if (namespace.isEmpty()) {
                     providerName.capitalize() + "Functions"
                 } else {
