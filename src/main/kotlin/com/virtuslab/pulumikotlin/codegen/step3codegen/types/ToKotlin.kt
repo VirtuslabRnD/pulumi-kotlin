@@ -17,6 +17,7 @@ import com.virtuslab.pulumikotlin.codegen.expressions.callTransform
 import com.virtuslab.pulumikotlin.codegen.expressions.field
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
@@ -93,7 +94,7 @@ object ToKotlin {
                     .call0("toMap")
 
             is PrimitiveType -> expression
-            is AssetOrArchiveType -> expression
+            is AssetOrArchiveType, is ArchiveType -> expression
         }
     }
 
