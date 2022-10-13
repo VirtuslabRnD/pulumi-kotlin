@@ -212,7 +212,5 @@ private fun allReferencedTypes(
         is SchemaModel.BooleanProperty -> emptyList()
         is SchemaModel.IntegerProperty -> emptyList()
         is SchemaModel.NumberProperty -> emptyList()
-        is SchemaModel.AssetOrArchiveProperty -> emptyList()
-        is SchemaModel.ArchiveProperty -> emptyList()
     }
 }
