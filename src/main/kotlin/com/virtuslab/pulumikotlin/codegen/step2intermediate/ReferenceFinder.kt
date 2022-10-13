@@ -61,27 +61,25 @@ class ReferenceFinder(schema: ParsedSchema) {
     ): List<UsageForName> {
         return resourcesOrFunctions.values
             .flatMap { mapper(it) }
-            .flatMap { property -> findTypesUsedByProperty(property) }
+            .flatMap { property -> findReferencedTypeNamesUsedByProperty(property) }
             .map { UsageForName(it, usage) }
     }
 
-    private fun findTypesUsedByProperty(property: Property?): List<String> {
+    private fun findReferencedTypeNamesUsedByProperty(property: Property?): List<String> {
         return when (property) {
             is ReferenceProperty -> {
                 val typeName = property.referencedTypeName
                 val referencedProperty = resolve(typeName)
-                val nestedUsages = findTypesUsedByProperty(referencedProperty)
-                if (nestedUsages.isEmpty()) {
-                    println("Could not compute nested usages for $typeName")
-                }
+                val nestedUsages = findReferencedTypeNamesUsedByProperty(referencedProperty)
                 nestedUsages + typeName
             }
 
             is ReferencingOtherTypesProperty -> {
-                getInnerTypesOf(property).flatMap { findTypesUsedByProperty(it) }
+                getInnerTypesOf(property).flatMap { findReferencedTypeNamesUsedByProperty(it) }
             }
 
             is PrimitiveProperty -> emptyList()
+            is StringEnumProperty -> emptyList()
             null -> emptyList()
         }
     }
@@ -92,7 +90,6 @@ class ReferenceFinder(schema: ParsedSchema) {
             is MapProperty -> listOf(property.additionalProperties)
             is ObjectProperty -> property.properties.values
             is OneOfProperty -> property.oneOf
-            is StringEnumProperty -> emptyList()
         }
     }
 

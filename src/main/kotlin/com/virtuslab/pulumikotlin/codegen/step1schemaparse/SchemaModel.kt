@@ -93,7 +93,7 @@ object SchemaModel {
         override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : RootTypeProperty()
+    ) : RootTypeProperty
 
     @Serializable
     data class StringProperty(
@@ -103,7 +103,7 @@ object SchemaModel {
         override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : PrimitiveProperty()
+    ) : PrimitiveProperty
 
     @Serializable
     data class BooleanProperty(
@@ -113,7 +113,7 @@ object SchemaModel {
         override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : PrimitiveProperty()
+    ) : PrimitiveProperty
 
     @Serializable
     data class IntegerProperty(
@@ -123,7 +123,7 @@ object SchemaModel {
         override val deprecationMessage: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : PrimitiveProperty()
+    ) : PrimitiveProperty
 
     @Serializable
     data class NumberProperty(
@@ -133,7 +133,7 @@ object SchemaModel {
         override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : PrimitiveProperty()
+    ) : PrimitiveProperty
 
     @Serializable
     class ArrayProperty(
@@ -144,7 +144,7 @@ object SchemaModel {
         override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : GenericTypeProperty()
+    ) : GenericTypeProperty
 
     @Serializable
     data class ReferenceProperty(
@@ -156,7 +156,7 @@ object SchemaModel {
         override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : Property()
+    ) : Property
 
     @Serializable
     @JvmInline
@@ -171,7 +171,7 @@ object SchemaModel {
         val language: Language? = null,
         val default: JsonElement? = null,
         val willReplaceOnChanges: Boolean = false,
-    ) : GenericTypeProperty()
+    ) : GenericTypeProperty
 
     @Serializable
     data class ObjectProperty(
@@ -184,7 +184,7 @@ object SchemaModel {
         override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : RootTypeProperty()
+    ) : RootTypeProperty, ReferencingOtherTypesProperty
 
     @Serializable
     data class MapProperty(
@@ -195,25 +195,25 @@ object SchemaModel {
         override val description: String? = null,
         val language: Language? = null,
         val default: JsonElement? = null,
-    ) : GenericTypeProperty()
+    ) : GenericTypeProperty
 
     @Serializable(with = PropertySerializer::class)
-    sealed class Property {
-        abstract val description: String?
-        abstract val deprecationMessage: String?
+    sealed interface Property {
+        val description: String?
+        val deprecationMessage: String?
     }
 
     @Serializable(with = PropertySerializer::class)
-    sealed class PrimitiveProperty : Property()
+    sealed interface PrimitiveProperty : Property
 
     @Serializable(with = PropertySerializer::class)
-    sealed class ReferencingOtherTypesProperty : Property()
+    sealed interface ReferencingOtherTypesProperty : Property
 
     @Serializable(with = PropertySerializer::class)
-    sealed class GenericTypeProperty : ReferencingOtherTypesProperty()
+    sealed interface GenericTypeProperty : ReferencingOtherTypesProperty
 
     @Serializable(with = PropertySerializer::class)
-    sealed class RootTypeProperty : ReferencingOtherTypesProperty()
+    sealed interface RootTypeProperty : Property
 
     @Serializable
     data class Resource(

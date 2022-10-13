@@ -57,9 +57,9 @@ object IntermediateRepresentationGenerator {
     private fun createTypes(context: Context): List<RootType> {
         val schema = context.schema
 
-        fun <V> createTypes(map: Map<String, V>, usage: Usage? = null, mapper: (V) -> RootTypeProperty?) =
+        fun <V> createTypes(map: Map<String, V>, usage: Usage? = null, propertyExtractor: (V) -> RootTypeProperty?) =
             map
-                .mapValues { mapper(it.value) }
+                .mapValues { propertyExtractor(it.value) }
                 .filterNotNullValues()
                 .flatMap { (name, value) ->
                     createRootTypes(context, name, value, listOfNotNull(usage))
@@ -109,9 +109,10 @@ object IntermediateRepresentationGenerator {
                 findTypeOrEmptyComplexType(types, TypeKey.from(pulumiName, inputUsage), getKDoc(function))
 
             val outputUsage = Usage(Root, Function, Output)
-            val resultType = findTypeAsReference<ReferencedRootType>(types, TypeKey.from(pulumiName, outputUsage))
+            val resultType =
+                findTypeAsReference<ReferencedRootType>(types, TypeKey.from(pulumiName, outputUsage))
 
-            FunctionType(PulumiName.from(typeName), argumentType, resultType, getKDoc(function))
+            FunctionType(pulumiName, argumentType, resultType, getKDoc(function))
         }
     }
 
@@ -192,14 +193,12 @@ object IntermediateRepresentationGenerator {
         }
         val referencedType = context.referenceFinder.resolve(referencedTypeName)
         return when (referencedType) {
-            is ObjectProperty -> ReferencedComplexType(TypeMetadata(referencedTypeName, usage, getKDoc(property)))
+            is ObjectProperty -> ReferencedComplexType(
+                TypeMetadata(referencedTypeName, usage, getKDoc(property)),
+            )
+
             is StringEnumProperty -> ReferencedEnumType(
-                TypeMetadata(
-                    referencedTypeName,
-                    usage,
-                    getKDoc(property),
-                    EnumClass,
-                ),
+                TypeMetadata(referencedTypeName, usage, getKDoc(property), EnumClass),
             )
 
             null -> {

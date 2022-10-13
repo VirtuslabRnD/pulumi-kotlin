@@ -3,21 +3,7 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 
-data class Usage(
-    val depth: Depth,
-    val subject: Subject,
-    val direction: Direction,
-) {
-    @Deprecated("use Usage(Level, Subject, Direction) constructor")
-    constructor(direction: Direction, useCharacteristic: UseCharacteristic) : this(
-        useCharacteristic.toSubjectAndLevel().second,
-        useCharacteristic.toSubjectAndLevel().first,
-        direction,
-    )
-
-    val useCharacteristic: UseCharacteristic
-        get() = UseCharacteristic.from(depth, subject)
-
+data class Usage(val depth: Depth, val subject: Subject, val direction: Direction) {
     fun toNested() = copy(depth = Depth.Nested)
 }
 
@@ -36,14 +22,6 @@ enum class Subject {
 @Deprecated("use Level and Subject")
 enum class UseCharacteristic {
     FunctionNested, ResourceNested, ResourceRoot, FunctionRoot;
-
-    fun toSubjectAndLevel(): Pair<Subject, Depth> =
-        when (this) {
-            FunctionNested -> Pair(Subject.Function, Depth.Nested)
-            FunctionRoot -> Pair(Subject.Function, Depth.Root)
-            ResourceNested -> Pair(Subject.Resource, Depth.Nested)
-            ResourceRoot -> Pair(Subject.Resource, Depth.Root)
-        }
 
     companion object {
         fun from(depth: Depth, subject: Subject) =
