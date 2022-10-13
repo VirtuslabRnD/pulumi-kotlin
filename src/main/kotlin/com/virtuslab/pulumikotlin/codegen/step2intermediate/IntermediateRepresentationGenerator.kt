@@ -2,9 +2,7 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArchiveProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArrayProperty
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.AssetOrArchiveProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.BooleanProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.GenericTypeProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.IntegerProperty
@@ -18,6 +16,8 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Reference
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.RootTypeProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringEnumProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringProperty
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isArchive
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isAssetOrArchive
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.referencedTypeName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Nested
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
@@ -179,8 +179,6 @@ object IntermediateRepresentationGenerator {
             is ReferenceProperty -> resolveSingleTypeReference(context, property, usageKind)
             is GenericTypeProperty -> mapGenericTypes(property) { resolveNestedTypeReference(context, it, usageKind) }
             is PrimitiveProperty -> mapPrimitiveTypes(property)
-            is AssetOrArchiveProperty -> AssetOrArchiveType
-            is ArchiveProperty -> ArchiveType
             is ObjectProperty, is StringEnumProperty -> error("Nesting not supported for ${property.javaClass}")
         }
     }
@@ -191,7 +189,11 @@ object IntermediateRepresentationGenerator {
         usageKind: UsageKind,
     ): ReferencedType {
         val referencedTypeName = property.referencedTypeName
-        if (referencedTypeName.startsWith("pulumi")) {
+        if (property.isAssetOrArchive()) {
+            return AssetOrArchiveType
+        } else if (property.isArchive()) {
+            return ArchiveType
+        } else if (referencedTypeName.startsWith("pulumi")) {
             return AnyType
         }
         return when (context.referenceFinder.resolve(referencedTypeName)) {

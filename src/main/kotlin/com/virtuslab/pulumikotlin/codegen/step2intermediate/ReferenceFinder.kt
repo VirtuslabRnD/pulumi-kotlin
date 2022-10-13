@@ -1,9 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArchiveProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArrayProperty
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.AssetOrArchiveProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.MapProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ObjectProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.OneOfProperty
@@ -13,6 +11,8 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Reference
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferencingOtherTypesProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.RootTypeProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringEnumProperty
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isArchive
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isAssetOrArchive
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.referencedTypeName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Nested
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
@@ -69,12 +69,16 @@ class ReferenceFinder(schema: ParsedSchema) {
 
     private fun findReferencedTypeNamesUsedByProperty(property: Property?): List<String> {
         return when (property) {
-            is AssetOrArchiveProperty, is ArchiveProperty -> emptyList()
             is ReferenceProperty -> {
-                val typeName = property.referencedTypeName
-                val referencedProperty = resolve(typeName)
-                val nestedUsages = findReferencedTypeNamesUsedByProperty(referencedProperty)
-                nestedUsages + typeName
+                if (property.isArchive() || property.isAssetOrArchive()) {
+                    emptyList()
+                } else {
+                    val typeName = property.referencedTypeName
+                    val referencedProperty = resolve(typeName)
+                    val nestedUsages = findReferencedTypeNamesUsedByProperty(referencedProperty)
+
+                    nestedUsages + typeName
+                }
             }
 
             is ReferencingOtherTypesProperty -> {
