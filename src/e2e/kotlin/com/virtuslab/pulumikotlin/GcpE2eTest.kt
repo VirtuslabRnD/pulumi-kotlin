@@ -73,9 +73,13 @@ class GcpE2eTest {
         val exitValue = process.exitValue()
         val output = process.inputStream.bufferedReader().readText()
         if (exitValue != 0) {
+            val readableCommand = command.joinToString(" ")
             fail(
-                "Exit code of command \"${command.joinToString(" ")}\" was $exitValue.\n" +
-                    "Process output:\n$output",
+                """
+                    Exit code of command "$readableCommand" was $exitValue.
+                    Process output:
+                    $output
+                """.trimIndent(),
             )
         }
 
