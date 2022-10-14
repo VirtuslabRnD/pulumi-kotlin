@@ -79,6 +79,7 @@ val createTasksForProvider by extra {
             from(tasks[javadocGenerationTaskName])
             archiveBaseName.set(archiveName)
             archiveClassifier.set("javadoc")
+            isZip64 = true
         }
 
         publishing {
