@@ -9,6 +9,7 @@ plugins {
 
 val tasksToDisable: List<(String) -> String> = listOf(
     { sourceSetName: String -> "lintKotlin${sourceSetName.capitalized()}" },
+    { sourceSetName: String -> "formatKotlin${sourceSetName.capitalized()}" },
 )
 
 val createTasksForProvider by extra {
@@ -42,7 +43,6 @@ val createTasksForProvider by extra {
             }
         }
 
-        tasks[generationTaskName].finalizedBy(tasks[formatTaskName])
         tasks[generationTaskName].finalizedBy(tasks[compilationTaskName])
 
         tasks.register<Jar>(jarTaskName) {

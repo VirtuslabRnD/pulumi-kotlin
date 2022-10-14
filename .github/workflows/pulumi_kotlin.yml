@@ -104,4 +104,4 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Publish to Maven Local
-        run: ./gradlew publishPulumiGcpJavadocPublicationToMavenLocal -x formatKotlinPulumiGcp
+        run: ./gradlew publishPulumiGcpJavadocPublicationToMavenLocal -x formatKotlinPulumiGcp --full-stacktrace --debug
