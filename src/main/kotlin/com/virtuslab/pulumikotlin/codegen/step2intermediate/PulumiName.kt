@@ -1,15 +1,15 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.squareup.kotlinpoet.ClassName
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Nested
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.GeneratedClass.EnumClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.FunctionNested
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.FunctionRoot
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.ResourceNested
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.ResourceRoot
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.utils.capitalize
 import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 
@@ -38,121 +38,121 @@ data class PulumiName(
 
     private fun getModifiers(namingFlags: NamingFlags): Modifiers {
         return when (namingFlags) {
-            NamingFlags(Input, ResourceNested, Kotlin, EnumClass) -> Modifiers(
+            NamingFlags(Nested, Resource, Input, Kotlin, EnumClass) -> Modifiers(
                 "",
                 listOf("kotlin", "enums"),
                 shouldConstructBuilders = false,
             )
 
-            NamingFlags(Output, ResourceNested, Kotlin, EnumClass) -> Modifiers(
+            NamingFlags(Nested, Resource, Output, Kotlin, EnumClass) -> Modifiers(
                 "",
                 listOf("kotlin", "enums"),
                 shouldConstructBuilders = false,
             )
 
-            NamingFlags(Input, ResourceNested, Java, EnumClass) -> Modifiers(
+            NamingFlags(Nested, Resource, Input, Java, EnumClass) -> Modifiers(
                 "",
                 listOf("enums"),
                 shouldConstructBuilders = false,
             )
 
-            NamingFlags(Output, ResourceNested, Java, EnumClass) -> Modifiers(
+            NamingFlags(Nested, Resource, Output, Java, EnumClass) -> Modifiers(
                 "",
                 listOf("enums"),
                 shouldConstructBuilders = false,
             )
 
-            NamingFlags(Input, FunctionNested, Kotlin) -> Modifiers(
+            NamingFlags(Nested, Function, Input, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),
                 shouldConstructBuilders = true,
             )
 
-            NamingFlags(Input, ResourceNested, Kotlin) -> Modifiers(
+            NamingFlags(Nested, Resource, Input, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),
                 shouldConstructBuilders = true,
             )
 
-            NamingFlags(Input, ResourceRoot, Kotlin) -> Modifiers(
+            NamingFlags(Root, Resource, Input, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin"),
                 shouldConstructBuilders = true,
             )
 
-            NamingFlags(Input, FunctionRoot, Kotlin) -> Modifiers(
+            NamingFlags(Root, Function, Input, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),
                 shouldConstructBuilders = true,
             )
 
-            NamingFlags(Output, FunctionNested, Kotlin) -> Modifiers(
+            NamingFlags(Nested, Function, Output, Kotlin) -> Modifiers(
                 "Result",
                 listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false,
             )
 
-            NamingFlags(Output, ResourceNested, Kotlin) -> Modifiers(
+            NamingFlags(Nested, Resource, Output, Kotlin) -> Modifiers(
                 "",
                 listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false,
             )
 
-            NamingFlags(Output, FunctionRoot, Kotlin) -> Modifiers(
+            NamingFlags(Root, Function, Output, Kotlin) -> Modifiers(
                 "Result",
                 listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false,
             )
 
-            NamingFlags(Input, FunctionNested, Java) -> Modifiers(
+            NamingFlags(Nested, Function, Input, Java) -> Modifiers(
                 "",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
             )
 
-            NamingFlags(Input, ResourceNested, Java) -> Modifiers(
+            NamingFlags(Nested, Resource, Input, Java) -> Modifiers(
                 "Args",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
             )
 
-            NamingFlags(Input, ResourceRoot, Java) -> Modifiers(
+            NamingFlags(Root, Resource, Input, Java) -> Modifiers(
                 "Args",
                 listOf(),
                 shouldConstructBuilders = true,
             )
 
-            NamingFlags(Input, FunctionRoot, Java) -> Modifiers(
+            NamingFlags(Root, Function, Input, Java) -> Modifiers(
                 "PlainArgs",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
             )
 
-            NamingFlags(Output, FunctionNested, Java) -> Modifiers(
+            NamingFlags(Nested, Function, Output, Java) -> Modifiers(
                 "",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
             )
 
-            NamingFlags(Output, ResourceNested, Java) -> Modifiers(
+            NamingFlags(Nested, Resource, Output, Java) -> Modifiers(
                 "",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
             )
 
-            NamingFlags(Output, FunctionRoot, Java) -> Modifiers(
+            NamingFlags(Root, Function, Output, Java) -> Modifiers(
                 "Result",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
             )
 
-            NamingFlags(Output, ResourceRoot, Java) -> Modifiers(
+            NamingFlags(Root, Resource, Output, Java) -> Modifiers(
                 "",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
             )
 
-            NamingFlags(Output, ResourceRoot, Kotlin) -> Modifiers(
+            NamingFlags(Root, Resource, Output, Kotlin) -> Modifiers(
                 "",
                 listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false,

@@ -17,11 +17,15 @@ import com.virtuslab.pulumikotlin.codegen.expressions.addCode
 import com.virtuslab.pulumikotlin.codegen.expressions.call0
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.FunctionType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
@@ -29,7 +33,7 @@ import com.virtuslab.pulumikotlin.codegen.utils.letIf
 
 object FunctionGenerator {
     fun generateFunctions(functions: List<FunctionType>): List<FileSpec> {
-        val namingFlags = NamingFlags(Direction.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
+        val namingFlags = NamingFlags(Root, Resource, Output, Kotlin)
         val files = functions
             .groupBy { it.name.namespace }
             .flatMap { (_, types) ->
@@ -59,7 +63,7 @@ object FunctionGenerator {
     }
 
     private fun callAwaitAndDoTheMapping(functionType: FunctionType, argument: Expression?): Return {
-        val javaNamingFlags = NamingFlags(Direction.Input, UseCharacteristic.FunctionRoot, LanguageType.Java)
+        val javaNamingFlags = NamingFlags(Root, Function, Input, Java)
 
         val toKotlin = functionType.outputType.toTypeName().nestedClass("Companion").member("toKotlin")
         val javaMethodGetName = ClassName(
