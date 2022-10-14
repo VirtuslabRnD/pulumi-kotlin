@@ -22,18 +22,19 @@ import com.virtuslab.pulumikotlin.codegen.expressions.add
 import com.virtuslab.pulumikotlin.codegen.expressions.addCode
 import com.virtuslab.pulumikotlin.codegen.expressions.callLet
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.AutonomousType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.ConvertibleToJava
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.RootType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.FieldType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
@@ -58,13 +59,14 @@ object TypeGenerator {
     )
 
     fun generateTypes(
-        types: List<AutonomousType>,
+        types: List<RootType>,
         generationOptions: GenerationOptions = GenerationOptions(),
     ): List<FileSpec> {
         val generatedTypes = types.filterIsInstance<ComplexType>().map { type ->
-            val isFunctionNested = type.metadata.useCharacteristic.toNested() == UseCharacteristic.FunctionNested
-            val isOutput = type.metadata.inputOrOutput == InputOrOutput.Output
-            val fields = if (isFunctionNested || isOutput) {
+            val usageKind = type.metadata.usageKind
+            val isFunction = usageKind.subject == Function
+            val isOutput = usageKind.direction == Output
+            val fields = if (isFunction || isOutput) {
                 type.fields.map { (name, typeAndOptionality) ->
                     Field(
                         name,
@@ -272,7 +274,7 @@ object TypeGenerator {
 
     private fun specialMethodsForComplexType(
         name: String,
-        field: NormalField<ComplexType>,
+        field: NormalField<ReferencedComplexType>,
         kDoc: KDoc,
     ): List<FunSpec> {
         val builderTypeName = field.type.toBuilderTypeName()
@@ -295,7 +297,7 @@ object TypeGenerator {
     ): List<FunSpec> {
         val innerType = field.type.innerType
         val builderPattern = when (innerType) {
-            is ComplexType -> {
+            is ReferencedComplexType -> {
                 val commonCodeBlock = KotlinPoetPatterns.BuilderSettingCodeBlock
                     .create(
                         "argument.toList().map { %T().applySuspend{ it() }.build() }",
@@ -340,7 +342,7 @@ object TypeGenerator {
         val rightInnerType = field.type.secondType
 
         val builderPattern = when (rightInnerType) {
-            is ComplexType -> {
+            is ReferencedComplexType -> {
                 val commonCodeBlock = KotlinPoetPatterns.BuilderSettingCodeBlock
                     .create(
                         "argument.toList().map { (left, right) -> left to %T().applySuspend{ right() }.build() }",
@@ -418,7 +420,12 @@ object TypeGenerator {
 
                 @Suppress("UNCHECKED_CAST")
                 val otherFunctions = when (fieldType.type) {
-                    is ComplexType -> specialMethodsForComplexType(name, fieldType as NormalField<ComplexType>, kDoc)
+                    is ReferencedComplexType -> specialMethodsForComplexType(
+                        name,
+                        fieldType as NormalField<ReferencedComplexType>,
+                        kDoc,
+                    )
+
                     is ListType -> specialMethodsForList(name, fieldType as NormalField<ListType>, kDoc)
                     is MapType -> specialMethodsForMap(name, fieldType as NormalField<MapType>, kDoc)
                     is PrimitiveType -> listOf()

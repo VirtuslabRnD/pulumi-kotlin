@@ -11,8 +11,7 @@ import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
 import com.virtuslab.pulumikotlin.codegen.expressions.addCode
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
@@ -30,14 +29,14 @@ object ResourceGenerator {
             val file = FileSpec.builder(
                 type.name.toResourcePackage(
                     NamingFlags(
-                        InputOrOutput.Output,
+                        Direction.Output,
                         UseCharacteristic.ResourceRoot,
                         LanguageType.Kotlin,
                     ),
                 ),
                 type.name.toResourceName(
                     NamingFlags(
-                        InputOrOutput.Output,
+                        Direction.Output,
                         UseCharacteristic.ResourceRoot,
                         LanguageType.Kotlin,
                     ),
@@ -57,8 +56,8 @@ object ResourceGenerator {
 
         val customArgs = ClassName("com.pulumi.kotlin", "CustomArgs")
 
-        val javaFlags = NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceRoot, LanguageType.Java)
-        val kotlinFlags = NamingFlags(InputOrOutput.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
+        val javaFlags = NamingFlags(Direction.Output, UseCharacteristic.ResourceRoot, LanguageType.Java)
+        val kotlinFlags = NamingFlags(Direction.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
 
         val names = resourceType.name
         val resourceClassName = ClassName(names.toResourcePackage(kotlinFlags), names.toResourceName(kotlinFlags))
@@ -107,7 +106,7 @@ object ResourceGenerator {
         )
 
         val argsClassName = resourceType.argsType.toTypeName()
-        val argsBuilderClassName = (resourceType.argsType as ComplexType).toBuilderTypeName()
+        val argsBuilderClassName = resourceType.argsType.toBuilderTypeName()
 
         val argsFunction = FunSpec
             .builder("args")

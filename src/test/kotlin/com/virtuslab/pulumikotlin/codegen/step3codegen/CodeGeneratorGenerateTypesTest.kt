@@ -5,12 +5,14 @@ import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.OK
 import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Nested
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.StringType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeAndOptionality
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UsageKind
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -23,14 +25,13 @@ internal class CodeGeneratorGenerateTypesTest {
         val firstType = ComplexType(
             TypeMetadata(
                 PulumiName("aws", listOf("aws"), "FirstType"),
-                InputOrOutput.Input,
-                UseCharacteristic.ResourceNested,
+                UsageKind(Nested, Resource, Input),
                 KDoc(null, null),
             ),
 
             mapOf(
                 "field1" to TypeAndOptionality(
-                    PrimitiveType("String"),
+                    StringType,
                     true,
                     KDoc(null, null),
                 ),
@@ -39,13 +40,12 @@ internal class CodeGeneratorGenerateTypesTest {
         val secondType = ComplexType(
             TypeMetadata(
                 PulumiName("aws", listOf("aws"), "SecondType"),
-                InputOrOutput.Input,
-                UseCharacteristic.ResourceNested,
+                UsageKind(Nested, Resource, Input),
                 KDoc(null, null),
             ),
             mapOf(
                 "field2" to TypeAndOptionality(
-                    firstType,
+                    firstType.toReference(),
                     true,
                     KDoc(null, null),
                 ),

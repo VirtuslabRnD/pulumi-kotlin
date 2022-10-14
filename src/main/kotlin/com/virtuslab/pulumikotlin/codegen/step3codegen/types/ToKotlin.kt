@@ -17,14 +17,14 @@ import com.virtuslab.pulumikotlin.codegen.expressions.callTransform
 import com.virtuslab.pulumikotlin.codegen.expressions.field
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.Type
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedEnumType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KeywordsEscaper
@@ -72,11 +72,11 @@ object ToKotlin {
             .build()
     }
 
-    private fun toKotlinExpression(expression: Expression, type: Type): Expression {
-        return when (val type = type) {
+    private fun toKotlinExpression(expression: Expression, type: ReferencedType): Expression {
+        return when (type) {
             AnyType -> expression
-            is ComplexType -> type.toTypeName().member(TO_KOTLIN_FUNCTION_NAME)(expression)
-            is EnumType -> type.toTypeName().member(TO_KOTLIN_FUNCTION_NAME)(expression)
+            is ReferencedComplexType -> type.toTypeName().member(TO_KOTLIN_FUNCTION_NAME)(expression)
+            is ReferencedEnumType -> type.toTypeName().member(TO_KOTLIN_FUNCTION_NAME)(expression)
             is EitherType -> expression.callTransform(
                 expressionMapperLeft = { args -> toKotlinExpression(args, type.firstType) },
                 expressionMapperRight = { args -> toKotlinExpression(args, type.secondType) },

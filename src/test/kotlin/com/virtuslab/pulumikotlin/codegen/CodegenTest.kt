@@ -9,9 +9,11 @@ import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.lang.System.lineSeparator
 import kotlin.test.assertEquals
 
 class CodegenTest {
+
     @Test
     fun `aws resource can be created`() {
         // language=kotlin
@@ -330,6 +332,11 @@ class CodegenTest {
         assertGeneratedCodeAndSourceFileDoNotCompile(SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE, code)
     }
 
+    @Test
+    fun `google cloud lb ip ranges function (zero args)`() {
+        assertGeneratedCodeCompiles(SCHEMA_GCP_CLASSIC_SUBSET_LB_IP_RANGES)
+    }
+
     private val classPath = listOf(
         artifact("com.pulumi:pulumi:0.6.0"),
         artifact("com.pulumi:aws:5.14.0"),
@@ -395,7 +402,7 @@ class CodegenTest {
                             "[module: $moduleName] $line"
                         }
                     }
-                    .joinToString(",")
+                    .joinToString(lineSeparator())
 
                 return AggregateCompilationResult(worstExitCode, concatenatedMessages)
             }
@@ -469,6 +476,7 @@ class CodegenTest {
 }
 
 private const val SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE = "schema-gcp-classic-subset-medium-size.json"
+private const val SCHEMA_GCP_CLASSIC_SUBSET_LB_IP_RANGES = "schema-gcp-classic-6.39.0-subset-lb-ip-ranges.json"
 private const val SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE = "schema-aws-classic-subset-small-size.json"
 private const val SCHEMA_AWS_CLASSIC_SUBSET_BIG_SIZE = "schema-aws-classic-subset-big-size.json"
 private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ONE_OF = "schema-aws-classic-5.15.0-subset-with-one-of.json"

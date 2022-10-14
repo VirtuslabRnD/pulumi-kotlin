@@ -5,9 +5,9 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Decoder
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.TypesMap
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.withoutThePrefix
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.referencedTypeName
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -128,8 +128,8 @@ private fun serializeResource(
 }
 
 private data class PropertySpecs(
-    val input: List<Resources.PropertySpecification>,
-    val output: List<Resources.PropertySpecification>,
+    val input: List<SchemaModel.Property>,
+    val output: List<SchemaModel.Property>,
 )
 
 private fun findCandidateEntities(
@@ -156,10 +156,10 @@ private data class TypeAndDetails(val typeName: String, val depth: Int, val eith
 
 private fun allReferencedTypes(
     types: TypesMap,
-    spec: Resources.PropertySpecification,
+    spec: SchemaModel.Property,
     depth: Int = 0,
     eitherCount: Int = 0,
-    visited: Set<Resources.PropertySpecification> = emptySet(),
+    visited: Set<SchemaModel.Property> = emptySet(),
 ): List<TypeAndDetails> {
     // temporary solution to avoid StackOverflow on circular references
     if (spec in visited) {
@@ -167,8 +167,8 @@ private fun allReferencedTypes(
     }
 
     return when (spec) {
-        is Resources.ArrayProperty -> allReferencedTypes(types, spec.items, depth + 1, eitherCount, visited)
-        is Resources.MapProperty -> allReferencedTypes(
+        is SchemaModel.ArrayProperty -> allReferencedTypes(types, spec.items, depth + 1, eitherCount, visited)
+        is SchemaModel.MapProperty -> allReferencedTypes(
             types,
             spec.additionalProperties,
             depth + 1,
@@ -176,7 +176,7 @@ private fun allReferencedTypes(
             visited,
         )
 
-        is Resources.ObjectProperty -> spec.properties.values.flatMap {
+        is SchemaModel.ObjectProperty -> spec.properties.values.flatMap {
             allReferencedTypes(
                 types,
                 it,
@@ -186,10 +186,18 @@ private fun allReferencedTypes(
             )
         }
 
-        is Resources.OneOf -> spec.oneOf.flatMap { allReferencedTypes(types, it, depth + 1, eitherCount + 1, visited) }
+        is SchemaModel.OneOfProperty -> spec.oneOf.flatMap {
+            allReferencedTypes(
+                types,
+                it,
+                depth + 1,
+                eitherCount + 1,
+                visited,
+            )
+        }
 
-        is Resources.ReferredProperty -> {
-            val typeName = spec.ref.withoutThePrefix()
+        is SchemaModel.ReferenceProperty -> {
+            val typeName = spec.ref.referencedTypeName
             val theType = TypeAndDetails(typeName, depth, eitherCount)
             val foundSpec = types.get(typeName)
             if (foundSpec == null) {
@@ -199,10 +207,10 @@ private fun allReferencedTypes(
             }
         }
 
-        is Resources.StringEnumProperty -> emptyList()
-        is Resources.StringProperty -> emptyList()
-        is Resources.BooleanProperty -> emptyList()
-        is Resources.IntegerProperty -> emptyList()
-        is Resources.NumberProperty -> emptyList()
+        is SchemaModel.StringEnumProperty -> emptyList()
+        is SchemaModel.StringProperty -> emptyList()
+        is SchemaModel.BooleanProperty -> emptyList()
+        is SchemaModel.IntegerProperty -> emptyList()
+        is SchemaModel.NumberProperty -> emptyList()
     }
 }

@@ -1,23 +1,22 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Function
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.FunctionsMap
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources.IntegerProperty
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources.ObjectProperty
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources.PropertyName
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources.ReferredProperty
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources.SpecificationReference
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Resources.StringProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ResourcesMap
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.IntegerProperty
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ObjectProperty
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyName
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferenceProperty
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.SpecificationReference
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.TypesMap
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.Input
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.InputOrOutput.Output
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.FunctionNested
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.FunctionRoot
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.ResourceNested
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.ResourceRoot
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Nested
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.util.Random
@@ -33,7 +32,7 @@ internal class IntermediateRepresentationGeneratorTest {
         val types = mapOf(
             typeName1 to ObjectProperty(
                 properties = mapOf(
-                    PropertyName("referencedType2") to ReferredProperty(
+                    PropertyName("referencedType2") to ReferenceProperty(
                         ref = SpecificationReference(ref(typeName2)),
                     ),
                     PropertyName("int") to IntegerProperty(),
@@ -52,18 +51,16 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("int", "referencedType2"),
-            hasUsageCharacteristicOf = ResourceNested,
-            willBeUsedAs = Output,
+            nameIs = "type",
+            fieldsAre = setOf("int", "referencedType2"),
+            usageKindIs = UsageKind(Nested, Resource, Output),
         )
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type2",
-            hasSameFieldsAs = setOf("int"),
-            hasUsageCharacteristicOf = ResourceNested,
-            willBeUsedAs = Output,
+            nameIs = "type2",
+            fieldsAre = setOf("int"),
+            usageKindIs = UsageKind(Nested, Resource, Output),
         )
     }
 
@@ -84,10 +81,9 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("int"),
-            hasUsageCharacteristicOf = ResourceNested,
-            willBeUsedAs = Input,
+            nameIs = "type",
+            fieldsAre = setOf("int"),
+            usageKindIs = UsageKind(Nested, Resource, Input),
         )
     }
 
@@ -111,18 +107,16 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("someInt"),
-            hasUsageCharacteristicOf = ResourceNested,
-            willBeUsedAs = Input,
+            nameIs = "type",
+            fieldsAre = setOf("someInt"),
+            usageKindIs = UsageKind(Nested, Resource, Input),
         )
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("someInt"),
-            hasUsageCharacteristicOf = ResourceNested,
-            willBeUsedAs = Output,
+            nameIs = "type",
+            fieldsAre = setOf("someInt"),
+            usageKindIs = UsageKind(Nested, Resource, Output),
         )
     }
 
@@ -148,18 +142,16 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("someInt"),
-            hasUsageCharacteristicOf = ResourceNested,
-            willBeUsedAs = Input,
+            nameIs = "type",
+            fieldsAre = setOf("someInt"),
+            usageKindIs = UsageKind(Nested, Resource, Input),
         )
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "type",
-            hasSameFieldsAs = setOf("someInt"),
-            hasUsageCharacteristicOf = FunctionNested,
-            willBeUsedAs = Input,
+            nameIs = "type",
+            fieldsAre = setOf("someInt"),
+            usageKindIs = UsageKind(Nested, Function, Input),
         )
     }
 
@@ -175,11 +167,11 @@ internal class IntermediateRepresentationGeneratorTest {
         )
         val resourceName = "provider:namespace/resource:resource"
         val resources = mapOf(
-            resourceName to Resources.Resource(
+            resourceName to SchemaModel.Resource(
                 description = "any",
                 inputProperties = mapOf(
                     PropertyName("someInt") to IntegerProperty(),
-                    PropertyName("referencedType") to ReferredProperty(
+                    PropertyName("referencedType") to ReferenceProperty(
                         ref = SpecificationReference(ref(typeName)),
                     ),
                 ),
@@ -192,15 +184,14 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "resource",
-            hasSameFieldsAs = setOf("someInt", "referencedType"),
-            willBeUsedAs = Input,
-            hasUsageCharacteristicOf = ResourceRoot,
+            nameIs = "resource",
+            fieldsAre = setOf("someInt", "referencedType"),
+            usageKindIs = UsageKind(Root, Resource, Input),
         )
 
         assertEquals(1, irResources.size)
         assertEquals(PulumiName.from(resourceName), irResources.first().name)
-        assertEquals(irTypes.findComplexTypeThat(isNamed = "resource")!!, irResources.first().argsType)
+        assertEquals(irTypes.findComplexTypeThat(isNamed = "resource")!!.toReference(), irResources.first().argsType)
     }
 
     @Test
@@ -213,14 +204,14 @@ internal class IntermediateRepresentationGeneratorTest {
                 ),
             ),
         )
-        val resourceName = "provider:namespace/function:function"
+        val functionName = "provider:namespace/function:function"
         val functions = mapOf(
-            resourceName to Function(
+            functionName to SchemaModel.Function(
                 description = "any",
                 inputs = ObjectProperty(
                     properties = mapOf(
                         PropertyName("someInt") to IntegerProperty(),
-                        PropertyName("referencedType") to ReferredProperty(
+                        PropertyName("referencedType") to ReferenceProperty(
                             ref = SpecificationReference(ref(typeName)),
                         ),
                     ),
@@ -228,7 +219,7 @@ internal class IntermediateRepresentationGeneratorTest {
                 outputs = ObjectProperty(
                     properties = mapOf(
                         PropertyName("someInt2") to IntegerProperty(),
-                        PropertyName("referencedType2") to ReferredProperty(
+                        PropertyName("referencedType2") to ReferenceProperty(
                             ref = SpecificationReference(ref(typeName)),
                         ),
                     ),
@@ -241,46 +232,82 @@ internal class IntermediateRepresentationGeneratorTest {
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "function",
-            hasSameFieldsAs = setOf("someInt", "referencedType"),
-            willBeUsedAs = Input,
-            hasUsageCharacteristicOf = FunctionRoot,
+            nameIs = "function",
+            fieldsAre = setOf("someInt", "referencedType"),
+            usageKindIs = UsageKind(Root, Function, Input),
         )
 
         assertContainsComplexTypeThat(
             irTypes,
-            isNamed = "function",
-            hasSameFieldsAs = setOf("someInt2", "referencedType2"),
-            willBeUsedAs = Output,
-            hasUsageCharacteristicOf = FunctionRoot,
+            nameIs = "function",
+            fieldsAre = setOf("someInt2", "referencedType2"),
+            usageKindIs = UsageKind(Root, Function, Output),
         )
 
         val irFunctions = ir.functions
 
         assertEquals(1, irFunctions.size)
-        assertEquals(PulumiName.from(resourceName), irFunctions.first().name)
+        assertEquals(PulumiName.from(functionName), irFunctions.first().name)
         assertEquals(
-            irTypes.findComplexTypeThat(isNamed = "function", willBeUsedAs = Input)!!,
+            irTypes.findComplexTypeThat(isNamed = "function", hasUsageOfKind = UsageKind(Root, Function, Input))!!,
             irFunctions.first().argsType,
         )
         assertEquals(
-            irTypes.findComplexTypeThat(isNamed = "function", willBeUsedAs = Output)!!,
+            irTypes
+                .findComplexTypeThat(isNamed = "function", hasUsageOfKind = UsageKind(Root, Function, Output))!!
+                .toReference(),
             irFunctions.first().outputType,
+        )
+    }
+
+    @Test
+    fun `types reference resolution is case insensitive`() {
+        val typeName = "provider:namespace/type:type"
+        val types = mapOf(
+            typeName to ObjectProperty(
+                properties = mapOf(
+                    PropertyName("someInt") to IntegerProperty(),
+                ),
+            ),
+        )
+        val functionName = "provider:namespace/function:function"
+        val functions = mapOf(
+            functionName to SchemaModel.Function(
+                description = "any",
+                outputs = ObjectProperty(
+                    properties = mapOf(
+                        PropertyName("someInt") to IntegerProperty(),
+                        PropertyName("referencedType") to ReferenceProperty(
+                            ref = SpecificationReference(ref("provider:Namespace/Type:Type")),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        val ir = getIntermediateRepresentation(types = types, functions = functions)
+        val irTypes = ir.types
+
+        assertContainsComplexTypeThat(
+            irTypes,
+            nameIs = "type",
+            fieldsAre = setOf("someInt"),
+            usageKindIs = UsageKind(Nested, Function, Output),
         )
     }
 
     private fun someResourceWithReferences(
         referencedInputTypeNames: List<String> = emptyList(),
         referencedOutputTypeNames: List<String> = emptyList(),
-    ): Map<String, Resources.Resource> {
+    ): Map<String, SchemaModel.Resource> {
         fun generateField(name: String) =
-            PropertyName("referenced$name") to ReferredProperty(ref = SpecificationReference(ref(name)))
+            PropertyName("referenced$name") to ReferenceProperty(ref = SpecificationReference(ref(name)))
 
         val referencedInputTypes = referencedInputTypeNames.associate { generateField(it) }
         val referencedOutputTypes = referencedOutputTypeNames.associate { generateField(it) }
 
         return mapOf(
-            randomResourceName() to Resources.Resource(
+            randomResourceName() to SchemaModel.Resource(
                 inputProperties = mapOf(PropertyName("someInt") to IntegerProperty()) + referencedInputTypes,
                 properties = mapOf(PropertyName("someString") to StringProperty()) + referencedOutputTypes,
                 description = "any",
@@ -291,15 +318,15 @@ internal class IntermediateRepresentationGeneratorTest {
     private fun someFunctionsWithReferences(
         referencedInputTypeNames: List<String> = emptyList(),
         referencedOutputTypeNames: List<String> = emptyList(),
-    ): Map<String, Function> {
+    ): Map<String, SchemaModel.Function> {
         fun generateField(name: String) =
-            PropertyName("referenced$name") to ReferredProperty(ref = SpecificationReference(ref(name)))
+            PropertyName("referenced$name") to ReferenceProperty(ref = SpecificationReference(ref(name)))
 
         val referencedInputTypes = referencedInputTypeNames.associate { generateField(it) }
         val referencedOutputTypes = referencedOutputTypeNames.associate { generateField(it) }
 
         return mapOf(
-            randomFunctionName() to Function(
+            randomFunctionName() to SchemaModel.Function(
                 inputs = ObjectProperty(
                     properties = mapOf(PropertyName("someInt") to IntegerProperty()) + referencedInputTypes,
                 ),
@@ -314,8 +341,7 @@ internal class IntermediateRepresentationGeneratorTest {
     private fun Iterable<Type>.findComplexTypeThat(
         isNamed: String? = null,
         hasSameFieldsAs: Set<String>? = null,
-        willBeUsedAs: InputOrOutput? = null,
-        hasUsageCharacteristicOf: UseCharacteristic? = null,
+        hasUsageOfKind: UsageKind? = null,
     ): ComplexType? {
         fun <T> equalsIfNotNull(arg: T?, to: T) = arg == null || arg == to
 
@@ -324,19 +350,17 @@ internal class IntermediateRepresentationGeneratorTest {
             .find { type ->
                 equalsIfNotNull(isNamed, type.metadata.pulumiName.name) &&
                     equalsIfNotNull(hasSameFieldsAs, type.fields.keys) &&
-                    equalsIfNotNull(willBeUsedAs, type.metadata.inputOrOutput) &&
-                    equalsIfNotNull(hasUsageCharacteristicOf, type.metadata.useCharacteristic)
+                    equalsIfNotNull(hasUsageOfKind, type.metadata.usageKind)
             }
     }
 
     private fun assertContainsComplexTypeThat(
-        types: List<AutonomousType>,
-        isNamed: String? = null,
-        hasSameFieldsAs: Set<String>? = null,
-        willBeUsedAs: InputOrOutput? = null,
-        hasUsageCharacteristicOf: UseCharacteristic? = null,
+        types: List<RootType>,
+        nameIs: String? = null,
+        fieldsAre: Set<String>? = null,
+        usageKindIs: UsageKind? = null,
     ) {
-        val foundType = types.findComplexTypeThat(isNamed, hasSameFieldsAs, willBeUsedAs, hasUsageCharacteristicOf)
+        val foundType = types.findComplexTypeThat(nameIs, fieldsAre, usageKindIs)
 
         assertNotNull(foundType)
     }

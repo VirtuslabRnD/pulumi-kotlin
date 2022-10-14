@@ -6,13 +6,13 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedEnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KeywordsEscaper
@@ -29,14 +29,14 @@ object ToJava {
             )
             val toJavaBlock =
                 CodeBlock.of(".%N(%N?.%N())", KeywordsEscaper.escape(field.name), field.name, FUNCTION_NAME)
-            when (val type = field.fieldType.type) {
+            when (field.fieldType.type) {
                 AnyType -> block
                 is PrimitiveType -> block
-                is ComplexType -> toJavaBlock
-                is EnumType -> toJavaBlock
                 is EitherType -> toJavaBlock
                 is ListType -> toJavaBlock
                 is MapType -> toJavaBlock
+                is ReferencedComplexType -> toJavaBlock
+                is ReferencedEnumType -> toJavaBlock
             }
         }
 
