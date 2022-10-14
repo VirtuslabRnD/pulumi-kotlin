@@ -1,5 +1,11 @@
 package com.virtuslab.pulumikotlin.codegen.step1schemaparse
 
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.ArrayType
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.BooleanType
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.IntegerType
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.NumberType
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.ObjectType
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.StringType
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -61,12 +67,24 @@ object SchemaModel {
     value class Language(val map: Map<String, JsonElement>?)
 
     @Serializable
-    @Suppress(
-        "ktlint:enum-entry-name-case",
-        "EnumNaming",
-    ) // this enum reflects the possible field values in the Pulumi schema
     enum class PropertyType {
-        array, string, `object`, boolean, integer, number
+        @SerialName("array")
+        ArrayType,
+
+        @SerialName("string")
+        StringType,
+
+        @SerialName("object")
+        ObjectType,
+
+        @SerialName("boolean")
+        BooleanType,
+
+        @SerialName("integer")
+        IntegerType,
+
+        @SerialName("number")
+        NumberType,
     }
 
     @Serializable
@@ -97,7 +115,7 @@ object SchemaModel {
 
     @Serializable
     data class StringProperty(
-        val type: PropertyType = PropertyType.string,
+        val type: PropertyType = StringType,
         override val description: String? = null,
         val willReplaceOnChanges: Boolean = false,
         override val deprecationMessage: String? = null,
@@ -107,7 +125,7 @@ object SchemaModel {
 
     @Serializable
     data class BooleanProperty(
-        val type: PropertyType = PropertyType.boolean,
+        val type: PropertyType = BooleanType,
         override val description: String? = null,
         val willReplaceOnChanges: Boolean = false,
         override val deprecationMessage: String? = null,
@@ -117,7 +135,7 @@ object SchemaModel {
 
     @Serializable
     data class IntegerProperty(
-        val type: PropertyType = PropertyType.integer,
+        val type: PropertyType = IntegerType,
         override val description: String? = null,
         val willReplaceOnChanges: Boolean = false,
         override val deprecationMessage: String? = null,
@@ -127,7 +145,7 @@ object SchemaModel {
 
     @Serializable
     data class NumberProperty(
-        val type: PropertyType = PropertyType.number,
+        val type: PropertyType = NumberType,
         val willReplaceOnChanges: Boolean = false,
         override val deprecationMessage: String? = null,
         override val description: String? = null,
@@ -137,7 +155,7 @@ object SchemaModel {
 
     @Serializable
     class ArrayProperty(
-        val type: PropertyType = PropertyType.array,
+        val type: PropertyType = ArrayType,
         val items: Property,
         val willReplaceOnChanges: Boolean = false,
         override val deprecationMessage: String? = null,
@@ -175,7 +193,7 @@ object SchemaModel {
 
     @Serializable
     data class ObjectProperty(
-        val type: PropertyType = PropertyType.`object`,
+        val type: PropertyType = ObjectType,
         val properties: Map<PropertyName, Property> = emptyMap(),
         override val deprecationMessage: String? = null,
         val willReplaceOnChanges: Boolean = false,
@@ -188,7 +206,7 @@ object SchemaModel {
 
     @Serializable
     data class MapProperty(
-        val type: PropertyType = PropertyType.`object`,
+        val type: PropertyType = ObjectType,
         override val deprecationMessage: String? = null,
         val willReplaceOnChanges: Boolean = false,
         val additionalProperties: Property,
