@@ -97,7 +97,7 @@ jobs:
           retention-days: 3
   tmp:
     name: Tmp
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v2
