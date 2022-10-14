@@ -200,6 +200,7 @@ object IntermediateRepresentationGenerator {
             is ObjectProperty -> ReferencedComplexType(
                 TypeMetadata(referencedTypeName, usage, getKDoc(property)),
             )
+
             is StringEnumProperty -> ReferencedEnumType(
                 TypeMetadata(referencedTypeName, usage, getKDoc(property), EnumClass),
             )
