@@ -15,7 +15,10 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Java.Pulumi.outputClass
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customArgsBuilderClass
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customArgsClass
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.pulumiDslMarkerAnnotation
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
@@ -42,10 +45,6 @@ object ResourceGenerator {
     }
 
     private fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType) {
-        val dslTag = ClassName("com.pulumi.kotlin", "PulumiTagMarker")
-
-        val customArgs = ClassName("com.pulumi.kotlin", "CustomArgs")
-
         val javaFlags = NamingFlags(Root, Resource, Output, Java)
         val kotlinFlags = NamingFlags(Root, Resource, Output, Kotlin)
 
@@ -56,7 +55,7 @@ object ResourceGenerator {
         val fields = resourceType.outputFields.map { field ->
             PropertySpec.builder(
                 field.name,
-                MoreTypes.Java.Pulumi.Output(
+                outputClass(
                     field.fieldType.type.toTypeName().copy(nullable = !field.required),
                 ),
             )
@@ -120,11 +119,11 @@ object ResourceGenerator {
             .addParameter(
                 "block",
                 LambdaTypeName.get(
-                    ClassName("com.pulumi.kotlin", "CustomArgsBuilder"),
+                    customArgsBuilderClass(),
                     returnType = UNIT,
                 ).copy(suspending = true),
             )
-            .addStatement("val builder = %T()", ClassName("com.pulumi.kotlin", "CustomArgsBuilder"))
+            .addStatement("val builder = %T()", customArgsBuilderClass())
             .addStatement("block(builder)")
             .addStatement("this.opts = builder.build()")
             .addDocs("@param block A bag of options that control this resource's behavior.")
@@ -137,7 +136,7 @@ object ResourceGenerator {
                     .addModifiers(INTERNAL)
                     .build(),
             )
-            .addAnnotation(dslTag)
+            .addAnnotation(pulumiDslMarkerAnnotation())
             .addProperties(
                 listOf(
                     PropertySpec.builder("name", STRING.copy(nullable = true))
@@ -148,9 +147,9 @@ object ResourceGenerator {
                         .mutable(true)
                         .initializer("null")
                         .build(),
-                    PropertySpec.builder("opts", customArgs)
+                    PropertySpec.builder("opts", customArgsClass())
                         .mutable(true)
-                        .initializer("%T()", customArgs)
+                        .initializer("%T()", customArgsClass())
                         .build(),
                 ),
             )

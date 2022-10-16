@@ -6,7 +6,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.ConvertibleToJava
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.convertibleToJavaClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.RootType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.ToJava.toJavaEnumFunction
@@ -41,7 +41,7 @@ object EnumTypeGenerator {
     private fun prepareConvertibleToJavaInterface(typeMetadata: TypeMetadata): ParameterizedTypeName {
         val javaNames = typeMetadata.names(LanguageType.Java)
         val javaClass = ClassName(javaNames.packageName, javaNames.className)
-        return ConvertibleToJava(javaClass)
+        return convertibleToJavaClass(javaClass)
     }
 
     private fun buildEnumFileSpec(enumType: EnumType, enumTypeSpec: TypeSpec): FileSpec {

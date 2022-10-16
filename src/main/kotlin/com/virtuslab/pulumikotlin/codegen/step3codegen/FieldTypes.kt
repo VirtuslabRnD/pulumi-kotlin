@@ -2,7 +2,7 @@ package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Java.Pulumi.outputClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 
 sealed class FieldType<T : ReferencedType> {
@@ -20,7 +20,7 @@ data class NormalField<T : ReferencedType>(override val type: T, val mappingCode
 
 data class OutputWrappedField<T : ReferencedType>(override val type: T) : FieldType<T>() {
     override fun toTypeName(): ParameterizedTypeName {
-        return MoreTypes.Java.Pulumi.Output(type.toTypeName())
+        return outputClass(type.toTypeName())
     }
 }
 
@@ -28,6 +28,12 @@ data class Field<T : ReferencedType>(
     val name: String,
     val fieldType: FieldType<T>,
     val required: Boolean,
-    val overloads: List<FieldType<*>> = emptyList(),
+    val overloads: List<FieldType<ReferencedType>> = emptyList(),
     val kDoc: KDoc,
-)
+) {
+    fun toTypeName(): TypeName =
+        fieldType.toTypeName().copy(nullable = !required)
+
+    fun toNullableTypeName(): TypeName =
+        fieldType.toTypeName().copy(nullable = true)
+}
