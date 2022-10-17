@@ -89,6 +89,8 @@ detekt {
     config = files("$projectDir/.detekt-config.yml")
 }
 
+// By default, `detekt` doesn't include `detektMain` and `detektTest` and it only runs those checks that do not require
+// type resolution. See: https://detekt.dev/docs/gettingstarted/type-resolution/
 tasks["detekt"].dependsOn(tasks["detektMain"])
 tasks["detekt"].dependsOn(tasks["detektTest"])
 tasks["detekt"].dependsOn(tasks["detektE2eTest"])
