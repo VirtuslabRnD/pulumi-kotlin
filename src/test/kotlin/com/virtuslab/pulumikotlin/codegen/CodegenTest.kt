@@ -14,6 +14,16 @@ import kotlin.test.assertEquals
 
 class CodegenTest {
 
+    private val classPath = listOf(
+        artifact("com.pulumi:pulumi:0.6.0"),
+        artifact("com.pulumi:aws:5.16.2"),
+        artifact("com.pulumi:gcp:6.38.0"),
+        artifact("com.pulumi:slack:0.3.0"),
+        artifact("com.google.code.findbugs:jsr305:3.0.2"),
+        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4"),
+        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4"),
+    )
+
     @Test
     fun `aws resource can be created`() {
         // language=kotlin
@@ -441,16 +451,6 @@ class CodegenTest {
 
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_WITH_ASSET, code)
     }
-
-    private val classPath = listOf(
-        artifact("com.pulumi:pulumi:0.6.0"),
-        artifact("com.pulumi:aws:5.16.2"),
-        artifact("com.pulumi:gcp:6.38.0"),
-        artifact("com.pulumi:slack:0.3.0"),
-        artifact("com.google.code.findbugs:jsr305:3.0.2"),
-        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4"),
-        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4"),
-    )
 
     private fun assertGeneratedCodeCompiles(schemaPath: String) {
         assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
