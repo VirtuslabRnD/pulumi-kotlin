@@ -180,6 +180,8 @@ object SchemaModel {
 
     fun ReferenceProperty.isArchive() = referencedTypeName == "pulumi.json#/Archive"
 
+    fun ReferenceProperty.isAny() = referencedTypeName == "pulumi.json#/Any"
+
     @Serializable
     @JvmInline
     value class SpecificationReference(val value: String)
