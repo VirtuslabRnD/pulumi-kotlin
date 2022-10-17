@@ -338,7 +338,7 @@ class CodegenTest {
     }
 
     @Test
-    fun `aws function with archive can be invoked`() {
+    fun `aws function with with pulumi(dot)json#(slash)Asset argument can be invoked with an archive argument`() {
         // language=kotlin
         val code = """
             import com.pulumi.asset.AssetArchive
@@ -368,7 +368,7 @@ class CodegenTest {
     }
 
     @Test
-    fun `aws function with asset can be invoked`() {
+    fun `aws function with with pulumi(dot)json#(slash)Archive argument can be invoked with an asset argument`() {
         // language=kotlin
         val code = """
             import com.pulumi.asset.StringAsset
@@ -378,6 +378,25 @@ class CodegenTest {
                 bucketObjectResource("bucketObjectResource") {
                     args {
                         source(StringAsset("Hello world!"))
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_WITH_ASSET, code)
+    }
+
+    @Test
+    fun `aws function with with pulumi(dot)json#(slash)Archive argument can be invoked with an archive argument`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.asset.FileArchive
+            import com.pulumi.aws.s3.kotlin.bucketObjectResource   
+
+            suspend fun main() {
+                bucketObjectResource("bucketObjectResource") {
+                    args {
+                        source(FileArchive("./folder"))
                     }
                 }
             }
