@@ -27,13 +27,16 @@ object CodeGenerator {
         val allGeneratedFileSpecs = generatedTypes + generatedResources + generatedFunctions
         val allGeneratedFiles = allGeneratedFileSpecs.map { InMemoryGeneratedFile(it) }
 
-        val existingFiles = File(input.sdkFilesToCopyPath)
-            .listFiles()
-            .orEmpty()
+        val existingFiles = listExistingFiles(input.sdkFilesToCopyPath)
             .map { ExistingFile(it.absolutePath, withPulumiPackagePrefix(it)) }
 
         return allGeneratedFiles + existingFiles
     }
 
     private fun withPulumiPackagePrefix(it: File) = "com/pulumi/kotlin/${it.name}"
+
+    private fun listExistingFiles(path: String): List<File> {
+        return File(path).listFiles().orEmpty()
+            .flatMap { if (it.isDirectory) listExistingFiles(it.absolutePath) else listOf(it) }
+    }
 }

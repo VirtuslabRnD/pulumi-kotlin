@@ -30,6 +30,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("com.google.cloud:google-cloud-compute:1.12.1")
     testImplementation("org.apache.commons:commons-lang3:3.12.0")
+    testImplementation("io.mockk:mockk:1.13.2")
 }
 
 tasks.test {

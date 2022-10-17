@@ -6,165 +6,11 @@ package com.pulumi.kotlin
 import com.pulumi.Context
 import com.pulumi.core.Either
 import com.pulumi.core.Output
-import com.pulumi.resources.CustomResourceOptions
 import kotlinx.coroutines.runBlocking
 import java.util.Optional
 
 @DslMarker
 annotation class PulumiTagMarker
-
-data class Resource(
-    val whatever: String,
-)
-
-data class ProviderResource(
-    val whatever: String,
-)
-
-data class CustomTimeouts(
-    val whatever: String,
-)
-
-data class ResourceTransformation(
-    val whatever: String,
-)
-
-data class Alias(
-    val whatever: String,
-)
-
-// should these defaults be set explicitly?
-data class CustomArgs(
-    val protect: Boolean = false,
-    val id: Output<String>? = null,
-    val parent: Resource? = null,
-    val dependsOn: Output<List<Resource>>? = null,
-    val ignoreChanges: List<String>? = null,
-    val version: String? = null,
-    val provider: ProviderResource? = null,
-    val customTimeouts: CustomTimeouts? = null,
-    val resourceTransformations: List<ResourceTransformation>? = null,
-    val aliases: List<Output<Alias>>? = null,
-    val urn: String? = null,
-    val deleteBeforeReplace: Boolean = false,
-    val additionalSecretOutputs: List<String>? = null,
-    val importId: String? = null,
-    val replaceOnChanges: List<String>? = null,
-    val retainOnDelete: Boolean = false,
-    val pluginDownloadURL: String? = null,
-) {
-    fun toJava(): CustomResourceOptions {
-        return CustomResourceOptions.builder().build()
-    }
-}
-
-data class CustomArgsBuilder(
-    var protect: Boolean = false,
-    var id: Output<String>? = null,
-    var parent: Resource? = null,
-    var dependsOn: Output<List<Resource>>? = null,
-    var ignoreChanges: List<String>? = null,
-    var version: String? = null,
-    var provider: ProviderResource? = null,
-    var customTimeouts: CustomTimeouts? = null,
-    var resourceTransformations: List<ResourceTransformation>? = null,
-    var aliases: List<Output<Alias>>? = null,
-    var urn: String? = null,
-    var deleteBeforeReplace: Boolean = false,
-    var additionalSecretOutputs: List<String>? = null,
-    var importId: String? = null,
-    var replaceOnChanges: List<String>? = null,
-    var retainOnDelete: Boolean = false,
-    var pluginDownloadURL: String? = null,
-) {
-    fun protect(value: Boolean) {
-        this.protect = value
-    }
-
-    fun id(value: Output<String>?) {
-        this.id = value
-    }
-
-    fun parent(value: Resource?) {
-        this.parent = value
-    }
-
-    fun dependsOn(value: Output<List<Resource>>?) {
-        this.dependsOn = value
-    }
-
-    fun ignoreChanges(value: List<String>?) {
-        this.ignoreChanges = value
-    }
-
-    fun version(value: String?) {
-        this.version = value
-    }
-
-    fun provider(value: ProviderResource?) {
-        this.provider = value
-    }
-
-    fun customTimeouts(value: CustomTimeouts?) {
-        this.customTimeouts = value
-    }
-
-    fun resourceTransformations(value: List<ResourceTransformation>?) {
-        this.resourceTransformations = value
-    }
-
-    fun aliases(value: List<Output<Alias>>?) {
-        this.aliases = value
-    }
-
-    fun urn(value: String?) {
-        this.urn = value
-    }
-
-    fun deleteBeforeReplace(value: Boolean) {
-        this.deleteBeforeReplace = value
-    }
-
-    fun additionalSecretOutputs(value: List<String>?) {
-        this.additionalSecretOutputs = value
-    }
-
-    fun importId(value: String?) {
-        this.importId = value
-    }
-
-    fun replaceOnChanges(value: List<String>?) {
-        this.replaceOnChanges = value
-    }
-
-    fun retainOnDelete(value: Boolean) {
-        this.retainOnDelete = value
-    }
-
-    fun pluginDownloadURL(value: String?) = null
-
-    fun build(): CustomArgs {
-        return CustomArgs(
-            protect,
-            id,
-            parent,
-            dependsOn,
-            ignoreChanges,
-            version,
-            provider,
-            customTimeouts,
-            resourceTransformations,
-            aliases,
-            urn,
-            deleteBeforeReplace,
-            additionalSecretOutputs,
-            importId,
-            replaceOnChanges,
-            retainOnDelete,
-            pluginDownloadURL,
-        )
-    }
-}
 
 // TODO: make sure these helpers do not leak to the SDK
 
@@ -193,6 +39,11 @@ fun <T> Output<out List<ConvertibleToJava<T>>>.toJava(): Output<List<T>> {
 @JvmName("A500F3FFF")
 fun <T> Output<T>.toJava(): Output<T> {
     return this
+}
+
+@JvmName("A500F3FFG")
+fun Output<out List<KotlinResource>>.toJava(): Output<List<com.pulumi.resources.Resource>> {
+    return applyValue { listOfKotlinResources -> listOfKotlinResources.map { it.javaResource } }
 }
 
 @JvmName("A1E842B23")
@@ -241,6 +92,33 @@ suspend inline fun <T> T.applySuspend(block: T.() -> Unit): T {
 interface ConvertibleToJava<T> {
     fun toJava(): T
 }
+
+/**
+ * Parent class for resources within Kotlin SDK - equivalent to [com.pulumi.resources.Resource].
+ *
+ * Each resource within Kotlin SDK should have corresponding [ResourceMapper],
+ * in order to properly translate Java resources to Kotlin representation.
+ */
+// this class serves only as parent for all resources and should not be instantiated,
+// it cannot be sealed, because generated subclasses will be placed in other packages
+@Suppress("UnnecessaryAbstractClass")
+abstract class KotlinResource
+private constructor(internal open val javaResource: com.pulumi.resources.Resource) {
+    protected constructor(
+        javaResource: com.pulumi.resources.Resource,
+        mapper: ResourceMapper<KotlinResource>,
+    ) : this(javaResource) {
+        GeneralResourceMapper.registerMapper(mapper)
+    }
+}
+
+/**
+ * Parent class for provider resources within Kotlin SDK - equivalent to [com.pulumi.resources.ProviderResource].
+ */
+abstract class KotlinProviderResource protected constructor(
+    override val javaResource: com.pulumi.resources.ProviderResource,
+    mapper: ResourceMapper<KotlinResource>,
+) : KotlinResource(javaResource, mapper)
 
 object Pulumi {
     fun run(block: suspend (Context) -> Unit) {
