@@ -340,22 +340,7 @@ class CodegenTest {
 
             suspend fun main() {
                 AwsFunctions.getAmi {
-                    executableUsers("user1", "user2", "user3")
-                    filters(
-                        {
-                            name("filter1")
-                            values("value1", "value2")
-                        },
-                        {
-                            name("filter2")
-                            values("value3")
-                        }
-                    )
-                    includeDeprecated(true)
-                    mostRecent(false)
                     nameRegex("ami.*")
-                    owners("owner1", "owner2")
-                    tags("key1" to "value1", "key2" to "value2")
                 }
             }
             """
@@ -372,18 +357,10 @@ class CodegenTest {
             suspend fun main() {
                 conversationResource("conversationName") {
                     args {
-                        actionOnDestroy("action on destroy")
-                        actionOnUpdatePermanentMembers("action on update")
-                        adoptExistingChannel(true)
-                        isArchived(false)
-                        name("name")
-                        permanentMembers("member1", "member2")
-                        purpose("some purpose")
-                        topic("topic1")
+                        topic("conversationTopic")
                     }
                     opts {
                         protect(true)
-                        retainOnDelete(true)
                     }
                 }
             }
