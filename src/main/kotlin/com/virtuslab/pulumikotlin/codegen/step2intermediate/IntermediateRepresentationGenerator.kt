@@ -16,6 +16,9 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Reference
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.RootTypeProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringEnumProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringProperty
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isAny
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isArchive
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isAssetOrArchive
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.referencedTypeName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Nested
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
@@ -95,7 +98,8 @@ object IntermediateRepresentationGenerator {
 
             val pulumiName = PulumiName.from(typeName)
             val inputUsageKind = UsageKind(Root, Resource, Input)
-            val argumentType = findTypeAsReference<ReferencedComplexType>(types, TypeKey.from(pulumiName, inputUsageKind))
+            val argumentType =
+                findTypeAsReference<ReferencedComplexType>(types, TypeKey.from(pulumiName, inputUsageKind))
             ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource))
         }
     }
@@ -186,13 +190,16 @@ object IntermediateRepresentationGenerator {
         property: ReferenceProperty,
         usageKind: UsageKind,
     ): ReferencedType {
-        val referencedTypeName = property.referencedTypeName
-        if (referencedTypeName.startsWith("pulumi")) {
-            // TODO: asset or archive - https://github.com/VirtuslabRnD/pulumi-kotlin/issues/16
+        if (property.isAssetOrArchive()) {
+            return AssetOrArchiveType
+        } else if (property.isArchive()) {
+            return ArchiveType
+        } else if (property.isAny()) {
             return AnyType
         }
-        val referencedType = context.referenceFinder.resolve(referencedTypeName)
-        return when (referencedType) {
+
+        val referencedTypeName = property.referencedTypeName
+        return when (context.referenceFinder.resolve(referencedTypeName)) {
             is ObjectProperty -> ReferencedComplexType(
                 TypeMetadata(referencedTypeName, usageKind, getKDoc(property)),
             )

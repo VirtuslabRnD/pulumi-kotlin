@@ -1,0 +1,368 @@
+{
+  "types": {
+  },
+  "resources": {
+    "aws:s3/bucketObject:BucketObject": {
+      "description": "Provides an S3 object resource.\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n### Encrypting with KMS Key\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst examplekms = new aws.kms.Key(\"examplekms\", {\n    description: \"KMS key 1\",\n    deletionWindowInDays: 7,\n});\nconst examplebucket = new aws.s3.BucketV2(\"examplebucket\", {});\nconst exampleBucketAclV2 = new aws.s3.BucketAclV2(\"exampleBucketAclV2\", {\n    bucket: examplebucket.id,\n    acl: \"private\",\n});\nconst exampleBucketObject = new aws.s3.BucketObject(\"exampleBucketObject\", {\n    key: \"someobject\",\n    bucket: examplebucket.id,\n    source: new pulumi.asset.FileAsset(\"index.html\"),\n    kmsKeyId: examplekms.arn,\n});\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\nexamplekms = aws.kms.Key(\"examplekms\",\n    description=\"KMS key 1\",\n    deletion_window_in_days=7)\nexamplebucket = aws.s3.BucketV2(\"examplebucket\")\nexample_bucket_acl_v2 = aws.s3.BucketAclV2(\"exampleBucketAclV2\",\n    bucket=examplebucket.id,\n    acl=\"private\")\nexample_bucket_object = aws.s3.BucketObject(\"exampleBucketObject\",\n    key=\"someobject\",\n    bucket=examplebucket.id,\n    source=pulumi.FileAsset(\"index.html\"),\n    kms_key_id=examplekms.arn)\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Aws = Pulumi.Aws;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var examplekms = new Aws.Kms.Key(\"examplekms\", new()\n    {\n        Description = \"KMS key 1\",\n        DeletionWindowInDays = 7,\n    });\n\n    var examplebucket = new Aws.S3.BucketV2(\"examplebucket\");\n\n    var exampleBucketAclV2 = new Aws.S3.BucketAclV2(\"exampleBucketAclV2\", new()\n    {\n        Bucket = examplebucket.Id,\n        Acl = \"private\",\n    });\n\n    var exampleBucketObject = new Aws.S3.BucketObject(\"exampleBucketObject\", new()\n    {\n        Key = \"someobject\",\n        Bucket = examplebucket.Id,\n        Source = new FileAsset(\"index.html\"),\n        KmsKeyId = examplekms.Arn,\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/kms\"\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/s3\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\texamplekms, err := kms.NewKey(ctx, \"examplekms\", \u0026kms.KeyArgs{\n\t\t\tDescription:          pulumi.String(\"KMS key 1\"),\n\t\t\tDeletionWindowInDays: pulumi.Int(7),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\texamplebucket, err := s3.NewBucketV2(ctx, \"examplebucket\", nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = s3.NewBucketAclV2(ctx, \"exampleBucketAclV2\", \u0026s3.BucketAclV2Args{\n\t\t\tBucket: examplebucket.ID(),\n\t\t\tAcl:    pulumi.String(\"private\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = s3.NewBucketObject(ctx, \"exampleBucketObject\", \u0026s3.BucketObjectArgs{\n\t\t\tKey:      pulumi.String(\"someobject\"),\n\t\t\tBucket:   examplebucket.ID(),\n\t\t\tSource:   pulumi.NewFileAsset(\"index.html\"),\n\t\t\tKmsKeyId: examplekms.Arn,\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.aws.kms.Key;\nimport com.pulumi.aws.kms.KeyArgs;\nimport com.pulumi.aws.s3.BucketV2;\nimport com.pulumi.aws.s3.BucketAclV2;\nimport com.pulumi.aws.s3.BucketAclV2Args;\nimport com.pulumi.aws.s3.BucketObject;\nimport com.pulumi.aws.s3.BucketObjectArgs;\nimport com.pulumi.asset.FileAsset;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var examplekms = new Key(\"examplekms\", KeyArgs.builder()        \n            .description(\"KMS key 1\")\n            .deletionWindowInDays(7)\n            .build());\n\n        var examplebucket = new BucketV2(\"examplebucket\");\n\n        var exampleBucketAclV2 = new BucketAclV2(\"exampleBucketAclV2\", BucketAclV2Args.builder()        \n            .bucket(examplebucket.id())\n            .acl(\"private\")\n            .build());\n\n        var exampleBucketObject = new BucketObject(\"exampleBucketObject\", BucketObjectArgs.builder()        \n            .key(\"someobject\")\n            .bucket(examplebucket.id())\n            .source(new FileAsset(\"index.html\"))\n            .kmsKeyId(examplekms.arn())\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  examplekms:\n    type: aws:kms:Key\n    properties:\n      description: KMS key 1\n      deletionWindowInDays: 7\n  examplebucket:\n    type: aws:s3:BucketV2\n  exampleBucketAclV2:\n    type: aws:s3:BucketAclV2\n    properties:\n      bucket: ${examplebucket.id}\n      acl: private\n  exampleBucketObject:\n    type: aws:s3:BucketObject\n    properties:\n      key: someobject\n      bucket: ${examplebucket.id}\n      source:\n        Fn::FileAsset: index.html\n      kmsKeyId: ${examplekms.arn}\n```\n{{% /example %}}\n{{% example %}}\n### Server Side Encryption with S3 Default Master Key\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst examplebucket = new aws.s3.BucketV2(\"examplebucket\", {});\nconst exampleBucketAclV2 = new aws.s3.BucketAclV2(\"exampleBucketAclV2\", {\n    bucket: examplebucket.id,\n    acl: \"private\",\n});\nconst exampleBucketObject = new aws.s3.BucketObject(\"exampleBucketObject\", {\n    key: \"someobject\",\n    bucket: examplebucket.id,\n    source: new pulumi.asset.FileAsset(\"index.html\"),\n    serverSideEncryption: \"aws:kms\",\n});\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\nexamplebucket = aws.s3.BucketV2(\"examplebucket\")\nexample_bucket_acl_v2 = aws.s3.BucketAclV2(\"exampleBucketAclV2\",\n    bucket=examplebucket.id,\n    acl=\"private\")\nexample_bucket_object = aws.s3.BucketObject(\"exampleBucketObject\",\n    key=\"someobject\",\n    bucket=examplebucket.id,\n    source=pulumi.FileAsset(\"index.html\"),\n    server_side_encryption=\"aws:kms\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Aws = Pulumi.Aws;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var examplebucket = new Aws.S3.BucketV2(\"examplebucket\");\n\n    var exampleBucketAclV2 = new Aws.S3.BucketAclV2(\"exampleBucketAclV2\", new()\n    {\n        Bucket = examplebucket.Id,\n        Acl = \"private\",\n    });\n\n    var exampleBucketObject = new Aws.S3.BucketObject(\"exampleBucketObject\", new()\n    {\n        Key = \"someobject\",\n        Bucket = examplebucket.Id,\n        Source = new FileAsset(\"index.html\"),\n        ServerSideEncryption = \"aws:kms\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/s3\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\texamplebucket, err := s3.NewBucketV2(ctx, \"examplebucket\", nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = s3.NewBucketAclV2(ctx, \"exampleBucketAclV2\", \u0026s3.BucketAclV2Args{\n\t\t\tBucket: examplebucket.ID(),\n\t\t\tAcl:    pulumi.String(\"private\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = s3.NewBucketObject(ctx, \"exampleBucketObject\", \u0026s3.BucketObjectArgs{\n\t\t\tKey:                  pulumi.String(\"someobject\"),\n\t\t\tBucket:               examplebucket.ID(),\n\t\t\tSource:               pulumi.NewFileAsset(\"index.html\"),\n\t\t\tServerSideEncryption: pulumi.String(\"aws:kms\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.aws.s3.BucketV2;\nimport com.pulumi.aws.s3.BucketAclV2;\nimport com.pulumi.aws.s3.BucketAclV2Args;\nimport com.pulumi.aws.s3.BucketObject;\nimport com.pulumi.aws.s3.BucketObjectArgs;\nimport com.pulumi.asset.FileAsset;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var examplebucket = new BucketV2(\"examplebucket\");\n\n        var exampleBucketAclV2 = new BucketAclV2(\"exampleBucketAclV2\", BucketAclV2Args.builder()        \n            .bucket(examplebucket.id())\n            .acl(\"private\")\n            .build());\n\n        var exampleBucketObject = new BucketObject(\"exampleBucketObject\", BucketObjectArgs.builder()        \n            .key(\"someobject\")\n            .bucket(examplebucket.id())\n            .source(new FileAsset(\"index.html\"))\n            .serverSideEncryption(\"aws:kms\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  examplebucket:\n    type: aws:s3:BucketV2\n  exampleBucketAclV2:\n    type: aws:s3:BucketAclV2\n    properties:\n      bucket: ${examplebucket.id}\n      acl: private\n  exampleBucketObject:\n    type: aws:s3:BucketObject\n    properties:\n      key: someobject\n      bucket: ${examplebucket.id}\n      source:\n        Fn::FileAsset: index.html\n      serverSideEncryption: aws:kms\n```\n{{% /example %}}\n{{% example %}}\n### Server Side Encryption with AWS-Managed Key\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst examplebucket = new aws.s3.BucketV2(\"examplebucket\", {});\nconst exampleBucketAclV2 = new aws.s3.BucketAclV2(\"exampleBucketAclV2\", {\n    bucket: examplebucket.id,\n    acl: \"private\",\n});\nconst exampleBucketObject = new aws.s3.BucketObject(\"exampleBucketObject\", {\n    key: \"someobject\",\n    bucket: examplebucket.id,\n    source: new pulumi.asset.FileAsset(\"index.html\"),\n    serverSideEncryption: \"AES256\",\n});\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\nexamplebucket = aws.s3.BucketV2(\"examplebucket\")\nexample_bucket_acl_v2 = aws.s3.BucketAclV2(\"exampleBucketAclV2\",\n    bucket=examplebucket.id,\n    acl=\"private\")\nexample_bucket_object = aws.s3.BucketObject(\"exampleBucketObject\",\n    key=\"someobject\",\n    bucket=examplebucket.id,\n    source=pulumi.FileAsset(\"index.html\"),\n    server_side_encryption=\"AES256\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Aws = Pulumi.Aws;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var examplebucket = new Aws.S3.BucketV2(\"examplebucket\");\n\n    var exampleBucketAclV2 = new Aws.S3.BucketAclV2(\"exampleBucketAclV2\", new()\n    {\n        Bucket = examplebucket.Id,\n        Acl = \"private\",\n    });\n\n    var exampleBucketObject = new Aws.S3.BucketObject(\"exampleBucketObject\", new()\n    {\n        Key = \"someobject\",\n        Bucket = examplebucket.Id,\n        Source = new FileAsset(\"index.html\"),\n        ServerSideEncryption = \"AES256\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/s3\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\texamplebucket, err := s3.NewBucketV2(ctx, \"examplebucket\", nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = s3.NewBucketAclV2(ctx, \"exampleBucketAclV2\", \u0026s3.BucketAclV2Args{\n\t\t\tBucket: examplebucket.ID(),\n\t\t\tAcl:    pulumi.String(\"private\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = s3.NewBucketObject(ctx, \"exampleBucketObject\", \u0026s3.BucketObjectArgs{\n\t\t\tKey:                  pulumi.String(\"someobject\"),\n\t\t\tBucket:               examplebucket.ID(),\n\t\t\tSource:               pulumi.NewFileAsset(\"index.html\"),\n\t\t\tServerSideEncryption: pulumi.String(\"AES256\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.aws.s3.BucketV2;\nimport com.pulumi.aws.s3.BucketAclV2;\nimport com.pulumi.aws.s3.BucketAclV2Args;\nimport com.pulumi.aws.s3.BucketObject;\nimport com.pulumi.aws.s3.BucketObjectArgs;\nimport com.pulumi.asset.FileAsset;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var examplebucket = new BucketV2(\"examplebucket\");\n\n        var exampleBucketAclV2 = new BucketAclV2(\"exampleBucketAclV2\", BucketAclV2Args.builder()        \n            .bucket(examplebucket.id())\n            .acl(\"private\")\n            .build());\n\n        var exampleBucketObject = new BucketObject(\"exampleBucketObject\", BucketObjectArgs.builder()        \n            .key(\"someobject\")\n            .bucket(examplebucket.id())\n            .source(new FileAsset(\"index.html\"))\n            .serverSideEncryption(\"AES256\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  examplebucket:\n    type: aws:s3:BucketV2\n  exampleBucketAclV2:\n    type: aws:s3:BucketAclV2\n    properties:\n      bucket: ${examplebucket.id}\n      acl: private\n  exampleBucketObject:\n    type: aws:s3:BucketObject\n    properties:\n      key: someobject\n      bucket: ${examplebucket.id}\n      source:\n        Fn::FileAsset: index.html\n      serverSideEncryption: AES256\n```\n{{% /example %}}\n{{% example %}}\n### S3 Object Lock\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst examplebucket = new aws.s3.BucketV2(\"examplebucket\", {objectLockEnabled: true});\nconst exampleBucketAclV2 = new aws.s3.BucketAclV2(\"exampleBucketAclV2\", {\n    bucket: examplebucket.id,\n    acl: \"private\",\n});\nconst exampleBucketVersioningV2 = new aws.s3.BucketVersioningV2(\"exampleBucketVersioningV2\", {\n    bucket: examplebucket.id,\n    versioningConfiguration: {\n        status: \"Enabled\",\n    },\n});\nconst exampleBucketObject = new aws.s3.BucketObject(\"exampleBucketObject\", {\n    key: \"someobject\",\n    bucket: examplebucket.id,\n    source: new pulumi.asset.FileAsset(\"important.txt\"),\n    objectLockLegalHoldStatus: \"ON\",\n    objectLockMode: \"GOVERNANCE\",\n    objectLockRetainUntilDate: \"2021-12-31T23:59:60Z\",\n    forceDestroy: true,\n}, {\n    dependsOn: [exampleBucketVersioningV2],\n});\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\nexamplebucket = aws.s3.BucketV2(\"examplebucket\", object_lock_enabled=True)\nexample_bucket_acl_v2 = aws.s3.BucketAclV2(\"exampleBucketAclV2\",\n    bucket=examplebucket.id,\n    acl=\"private\")\nexample_bucket_versioning_v2 = aws.s3.BucketVersioningV2(\"exampleBucketVersioningV2\",\n    bucket=examplebucket.id,\n    versioning_configuration=aws.s3.BucketVersioningV2VersioningConfigurationArgs(\n        status=\"Enabled\",\n    ))\nexample_bucket_object = aws.s3.BucketObject(\"exampleBucketObject\",\n    key=\"someobject\",\n    bucket=examplebucket.id,\n    source=pulumi.FileAsset(\"important.txt\"),\n    object_lock_legal_hold_status=\"ON\",\n    object_lock_mode=\"GOVERNANCE\",\n    object_lock_retain_until_date=\"2021-12-31T23:59:60Z\",\n    force_destroy=True,\n    opts=pulumi.ResourceOptions(depends_on=[example_bucket_versioning_v2]))\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Aws = Pulumi.Aws;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var examplebucket = new Aws.S3.BucketV2(\"examplebucket\", new()\n    {\n        ObjectLockEnabled = true,\n    });\n\n    var exampleBucketAclV2 = new Aws.S3.BucketAclV2(\"exampleBucketAclV2\", new()\n    {\n        Bucket = examplebucket.Id,\n        Acl = \"private\",\n    });\n\n    var exampleBucketVersioningV2 = new Aws.S3.BucketVersioningV2(\"exampleBucketVersioningV2\", new()\n    {\n        Bucket = examplebucket.Id,\n        VersioningConfiguration = new Aws.S3.Inputs.BucketVersioningV2VersioningConfigurationArgs\n        {\n            Status = \"Enabled\",\n        },\n    });\n\n    var exampleBucketObject = new Aws.S3.BucketObject(\"exampleBucketObject\", new()\n    {\n        Key = \"someobject\",\n        Bucket = examplebucket.Id,\n        Source = new FileAsset(\"important.txt\"),\n        ObjectLockLegalHoldStatus = \"ON\",\n        ObjectLockMode = \"GOVERNANCE\",\n        ObjectLockRetainUntilDate = \"2021-12-31T23:59:60Z\",\n        ForceDestroy = true,\n    }, new CustomResourceOptions\n    {\n        DependsOn = new[]\n        {\n            exampleBucketVersioningV2,\n        },\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/s3\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\texamplebucket, err := s3.NewBucketV2(ctx, \"examplebucket\", \u0026s3.BucketV2Args{\n\t\t\tObjectLockEnabled: pulumi.Bool(true),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = s3.NewBucketAclV2(ctx, \"exampleBucketAclV2\", \u0026s3.BucketAclV2Args{\n\t\t\tBucket: examplebucket.ID(),\n\t\t\tAcl:    pulumi.String(\"private\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\texampleBucketVersioningV2, err := s3.NewBucketVersioningV2(ctx, \"exampleBucketVersioningV2\", \u0026s3.BucketVersioningV2Args{\n\t\t\tBucket: examplebucket.ID(),\n\t\t\tVersioningConfiguration: \u0026s3.BucketVersioningV2VersioningConfigurationArgs{\n\t\t\t\tStatus: pulumi.String(\"Enabled\"),\n\t\t\t},\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = s3.NewBucketObject(ctx, \"exampleBucketObject\", \u0026s3.BucketObjectArgs{\n\t\t\tKey:                       pulumi.String(\"someobject\"),\n\t\t\tBucket:                    examplebucket.ID(),\n\t\t\tSource:                    pulumi.NewFileAsset(\"important.txt\"),\n\t\t\tObjectLockLegalHoldStatus: pulumi.String(\"ON\"),\n\t\t\tObjectLockMode:            pulumi.String(\"GOVERNANCE\"),\n\t\t\tObjectLockRetainUntilDate: pulumi.String(\"2021-12-31T23:59:60Z\"),\n\t\t\tForceDestroy:              pulumi.Bool(true),\n\t\t}, pulumi.DependsOn([]pulumi.Resource{\n\t\t\texampleBucketVersioningV2,\n\t\t}))\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.aws.s3.BucketV2;\nimport com.pulumi.aws.s3.BucketV2Args;\nimport com.pulumi.aws.s3.BucketAclV2;\nimport com.pulumi.aws.s3.BucketAclV2Args;\nimport com.pulumi.aws.s3.BucketVersioningV2;\nimport com.pulumi.aws.s3.BucketVersioningV2Args;\nimport com.pulumi.aws.s3.inputs.BucketVersioningV2VersioningConfigurationArgs;\nimport com.pulumi.aws.s3.BucketObject;\nimport com.pulumi.aws.s3.BucketObjectArgs;\nimport com.pulumi.resources.CustomResourceOptions;\nimport com.pulumi.asset.FileAsset;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var examplebucket = new BucketV2(\"examplebucket\", BucketV2Args.builder()        \n            .objectLockEnabled(true)\n            .build());\n\n        var exampleBucketAclV2 = new BucketAclV2(\"exampleBucketAclV2\", BucketAclV2Args.builder()        \n            .bucket(examplebucket.id())\n            .acl(\"private\")\n            .build());\n\n        var exampleBucketVersioningV2 = new BucketVersioningV2(\"exampleBucketVersioningV2\", BucketVersioningV2Args.builder()        \n            .bucket(examplebucket.id())\n            .versioningConfiguration(BucketVersioningV2VersioningConfigurationArgs.builder()\n                .status(\"Enabled\")\n                .build())\n            .build());\n\n        var exampleBucketObject = new BucketObject(\"exampleBucketObject\", BucketObjectArgs.builder()        \n            .key(\"someobject\")\n            .bucket(examplebucket.id())\n            .source(new FileAsset(\"important.txt\"))\n            .objectLockLegalHoldStatus(\"ON\")\n            .objectLockMode(\"GOVERNANCE\")\n            .objectLockRetainUntilDate(\"2021-12-31T23:59:60Z\")\n            .forceDestroy(true)\n            .build(), CustomResourceOptions.builder()\n                .dependsOn(exampleBucketVersioningV2)\n                .build());\n\n    }\n}\n```\n```yaml\nresources:\n  examplebucket:\n    type: aws:s3:BucketV2\n    properties:\n      objectLockEnabled: true\n  exampleBucketAclV2:\n    type: aws:s3:BucketAclV2\n    properties:\n      bucket: ${examplebucket.id}\n      acl: private\n  exampleBucketVersioningV2:\n    type: aws:s3:BucketVersioningV2\n    properties:\n      bucket: ${examplebucket.id}\n      versioningConfiguration:\n        status: Enabled\n  exampleBucketObject:\n    type: aws:s3:BucketObject\n    properties:\n      key: someobject\n      bucket: ${examplebucket.id}\n      source:\n        Fn::FileAsset: important.txt\n      objectLockLegalHoldStatus: ON\n      objectLockMode: GOVERNANCE\n      objectLockRetainUntilDate: 2021-12-31T23:59:60Z\n      forceDestroy: true\n    options:\n      dependson:\n        - ${exampleBucketVersioningV2}\n```\n{{% /example %}}\n{{% /examples %}}\n\n## Import\n\nObjects can be imported using the `id`. The `id` is the bucket name and the key together e.g.,\n\n```sh\n $ pulumi import aws:s3/bucketObject:BucketObject object some-bucket-name/some/key.txt\n```\n\n Additionally, s3 url syntax can be used, e.g.,\n\n```sh\n $ pulumi import aws:s3/bucketObject:BucketObject object s3://some-bucket-name/some/key.txt\n```\n\n ",
+      "properties": {
+        "acl": {
+          "type": "string",
+          "description": "[Canned ACL](https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl) to apply. Valid values are `private`, `public-read`, `public-read-write`, `aws-exec-read`, `authenticated-read`, `bucket-owner-read`, and `bucket-owner-full-control`. Defaults to `private`.\n"
+        },
+        "bucket": {
+          "type": "string",
+          "description": "Name of the bucket to put the file in. Alternatively, an [S3 access point](https://docs.aws.amazon.com/AmazonS3/latest/dev/using-access-points.html) ARN can be specified.\n"
+        },
+        "bucketKeyEnabled": {
+          "type": "boolean",
+          "description": "Whether or not to use [Amazon S3 Bucket Keys](https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-key.html) for SSE-KMS.\n"
+        },
+        "cacheControl": {
+          "type": "string",
+          "description": "Caching behavior along the request/reply chain Read [w3c cache_control](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9) for further details.\n"
+        },
+        "content": {
+          "type": "string",
+          "description": "Literal string value to use as the object content, which will be uploaded as UTF-8-encoded text.\n"
+        },
+        "contentBase64": {
+          "type": "string",
+          "description": "Base64-encoded data that will be decoded and uploaded as raw bytes for the object content. This allows safely uploading non-UTF8 binary data, but is recommended only for small content such as the result of the `gzipbase64` function with small text strings. For larger objects, use `source` to stream the content from a disk file.\n"
+        },
+        "contentDisposition": {
+          "type": "string",
+          "description": "Presentational information for the object. Read [w3c content_disposition](http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.5.1) for further information.\n"
+        },
+        "contentEncoding": {
+          "type": "string",
+          "description": "Content encodings that have been applied to the object and thus what decoding mechanisms must be applied to obtain the media-type referenced by the Content-Type header field. Read [w3c content encoding](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.11) for further information.\n"
+        },
+        "contentLanguage": {
+          "type": "string",
+          "description": "Language the content is in e.g., en-US or en-GB.\n"
+        },
+        "contentType": {
+          "type": "string",
+          "description": "Standard MIME type describing the format of the object data, e.g., application/octet-stream. All Valid MIME Types are valid for this input.\n"
+        },
+        "etag": {
+          "type": "string",
+          "description": "Triggers updates when the value changes. The only meaningful value is `filemd5(\"path/to/file\")`. This attribute is not compatible with KMS encryption, `kms_key_id` or `server_side_encryption = \"aws:kms\"` (see `source_hash` instead).\n"
+        },
+        "forceDestroy": {
+          "type": "boolean",
+          "description": "Whether to allow the object to be deleted by removing any legal hold on any object version. Default is `false`. This value should be set to `true` only if the bucket has S3 object lock enabled.\n"
+        },
+        "key": {
+          "type": "string",
+          "description": "Name of the object once it is in the bucket.\n"
+        },
+        "kmsKeyId": {
+          "type": "string",
+          "description": "ARN of the KMS Key to use for object encryption. If the S3 Bucket has server-side encryption enabled, that value will automatically be used. If referencing the `aws.kms.Key` resource, use the `arn` attribute. If referencing the `aws.kms.Alias` data source or resource, use the `target_key_arn` attribute. This provider will only perform drift detection if a configuration value is provided.\n"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of keys/values to provision metadata (will be automatically prefixed by `x-amz-meta-`, note that only lowercase label are currently supported by the AWS Go API).\n"
+        },
+        "objectLockLegalHoldStatus": {
+          "type": "string",
+          "description": "[Legal hold](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html#object-lock-legal-holds) status that you want to apply to the specified object. Valid values are `ON` and `OFF`.\n"
+        },
+        "objectLockMode": {
+          "type": "string",
+          "description": "Object lock [retention mode](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html#object-lock-retention-modes) that you want to apply to this object. Valid values are `GOVERNANCE` and `COMPLIANCE`.\n"
+        },
+        "objectLockRetainUntilDate": {
+          "type": "string",
+          "description": "Date and time, in [RFC3339 format](https://tools.ietf.org/html/rfc3339#section-5.8), when this object's object lock will [expire](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html#object-lock-retention-periods).\n"
+        },
+        "serverSideEncryption": {
+          "type": "string",
+          "description": "Server-side encryption of the object in S3. Valid values are \"`AES256`\" and \"`aws:kms`\".\n"
+        },
+        "source": {
+          "$ref": "pulumi.json#/Asset",
+          "description": "Path to a file that will be read and uploaded as raw bytes for the object content.\n"
+        },
+        "sourceHash": {
+          "type": "string",
+          "description": "Triggers updates like `etag` but useful to address `etag` encryption limitations. Set using `filemd5(\"path/to/source\")`. (The value is only stored in state and not saved by AWS.)\n"
+        },
+        "storageClass": {
+          "type": "string",
+          "description": "[Storage Class](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html#AmazonS3-PutObject-request-header-StorageClass) for the object. Defaults to \"`STANDARD`\".\n"
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of tags to assign to the object. If configured with a provider `default_tags` configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n"
+        },
+        "tagsAll": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of tags assigned to the resource, including those inherited from the provider `default_tags` configuration block.\n"
+        },
+        "versionId": {
+          "type": "string",
+          "description": "Unique version ID value for the object, if bucket versioning is enabled.\n"
+        },
+        "websiteRedirect": {
+          "type": "string",
+          "description": "Target URL for [website redirect](http://docs.aws.amazon.com/AmazonS3/latest/dev/how-to-page-redirect.html).\n"
+        }
+      },
+      "required": [
+        "bucket",
+        "bucketKeyEnabled",
+        "contentType",
+        "etag",
+        "key",
+        "kmsKeyId",
+        "serverSideEncryption",
+        "storageClass",
+        "tagsAll",
+        "versionId"
+      ],
+      "inputProperties": {
+        "acl": {
+          "type": "string",
+          "description": "[Canned ACL](https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl) to apply. Valid values are `private`, `public-read`, `public-read-write`, `aws-exec-read`, `authenticated-read`, `bucket-owner-read`, and `bucket-owner-full-control`. Defaults to `private`.\n"
+        },
+        "bucket": {
+          "type": "string",
+          "description": "Name of the bucket to put the file in. Alternatively, an [S3 access point](https://docs.aws.amazon.com/AmazonS3/latest/dev/using-access-points.html) ARN can be specified.\n",
+          "willReplaceOnChanges": true
+        },
+        "bucketKeyEnabled": {
+          "type": "boolean",
+          "description": "Whether or not to use [Amazon S3 Bucket Keys](https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-key.html) for SSE-KMS.\n"
+        },
+        "cacheControl": {
+          "type": "string",
+          "description": "Caching behavior along the request/reply chain Read [w3c cache_control](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9) for further details.\n"
+        },
+        "content": {
+          "type": "string",
+          "description": "Literal string value to use as the object content, which will be uploaded as UTF-8-encoded text.\n"
+        },
+        "contentBase64": {
+          "type": "string",
+          "description": "Base64-encoded data that will be decoded and uploaded as raw bytes for the object content. This allows safely uploading non-UTF8 binary data, but is recommended only for small content such as the result of the `gzipbase64` function with small text strings. For larger objects, use `source` to stream the content from a disk file.\n"
+        },
+        "contentDisposition": {
+          "type": "string",
+          "description": "Presentational information for the object. Read [w3c content_disposition](http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.5.1) for further information.\n"
+        },
+        "contentEncoding": {
+          "type": "string",
+          "description": "Content encodings that have been applied to the object and thus what decoding mechanisms must be applied to obtain the media-type referenced by the Content-Type header field. Read [w3c content encoding](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.11) for further information.\n"
+        },
+        "contentLanguage": {
+          "type": "string",
+          "description": "Language the content is in e.g., en-US or en-GB.\n"
+        },
+        "contentType": {
+          "type": "string",
+          "description": "Standard MIME type describing the format of the object data, e.g., application/octet-stream. All Valid MIME Types are valid for this input.\n"
+        },
+        "etag": {
+          "type": "string",
+          "description": "Triggers updates when the value changes. The only meaningful value is `filemd5(\"path/to/file\")`. This attribute is not compatible with KMS encryption, `kms_key_id` or `server_side_encryption = \"aws:kms\"` (see `source_hash` instead).\n"
+        },
+        "forceDestroy": {
+          "type": "boolean",
+          "description": "Whether to allow the object to be deleted by removing any legal hold on any object version. Default is `false`. This value should be set to `true` only if the bucket has S3 object lock enabled.\n"
+        },
+        "key": {
+          "type": "string",
+          "description": "Name of the object once it is in the bucket.\n",
+          "willReplaceOnChanges": true
+        },
+        "kmsKeyId": {
+          "type": "string",
+          "description": "ARN of the KMS Key to use for object encryption. If the S3 Bucket has server-side encryption enabled, that value will automatically be used. If referencing the `aws.kms.Key` resource, use the `arn` attribute. If referencing the `aws.kms.Alias` data source or resource, use the `target_key_arn` attribute. This provider will only perform drift detection if a configuration value is provided.\n"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of keys/values to provision metadata (will be automatically prefixed by `x-amz-meta-`, note that only lowercase label are currently supported by the AWS Go API).\n"
+        },
+        "objectLockLegalHoldStatus": {
+          "type": "string",
+          "description": "[Legal hold](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html#object-lock-legal-holds) status that you want to apply to the specified object. Valid values are `ON` and `OFF`.\n"
+        },
+        "objectLockMode": {
+          "type": "string",
+          "description": "Object lock [retention mode](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html#object-lock-retention-modes) that you want to apply to this object. Valid values are `GOVERNANCE` and `COMPLIANCE`.\n"
+        },
+        "objectLockRetainUntilDate": {
+          "type": "string",
+          "description": "Date and time, in [RFC3339 format](https://tools.ietf.org/html/rfc3339#section-5.8), when this object's object lock will [expire](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html#object-lock-retention-periods).\n"
+        },
+        "serverSideEncryption": {
+          "type": "string",
+          "description": "Server-side encryption of the object in S3. Valid values are \"`AES256`\" and \"`aws:kms`\".\n"
+        },
+        "source": {
+          "$ref": "pulumi.json#/Asset",
+          "description": "Path to a file that will be read and uploaded as raw bytes for the object content.\n"
+        },
+        "sourceHash": {
+          "type": "string",
+          "description": "Triggers updates like `etag` but useful to address `etag` encryption limitations. Set using `filemd5(\"path/to/source\")`. (The value is only stored in state and not saved by AWS.)\n"
+        },
+        "storageClass": {
+          "type": "string",
+          "description": "[Storage Class](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html#AmazonS3-PutObject-request-header-StorageClass) for the object. Defaults to \"`STANDARD`\".\n"
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of tags to assign to the object. If configured with a provider `default_tags` configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n"
+        },
+        "websiteRedirect": {
+          "type": "string",
+          "description": "Target URL for [website redirect](http://docs.aws.amazon.com/AmazonS3/latest/dev/how-to-page-redirect.html).\n"
+        }
+      },
+      "requiredInputs": [
+        "bucket"
+      ],
+      "stateInputs": {
+        "description": "Input properties used for looking up and filtering BucketObject resources.\n",
+        "properties": {
+          "acl": {
+            "type": "string",
+            "description": "[Canned ACL](https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl) to apply. Valid values are `private`, `public-read`, `public-read-write`, `aws-exec-read`, `authenticated-read`, `bucket-owner-read`, and `bucket-owner-full-control`. Defaults to `private`.\n"
+          },
+          "bucket": {
+            "type": "string",
+            "description": "Name of the bucket to put the file in. Alternatively, an [S3 access point](https://docs.aws.amazon.com/AmazonS3/latest/dev/using-access-points.html) ARN can be specified.\n",
+            "willReplaceOnChanges": true
+          },
+          "bucketKeyEnabled": {
+            "type": "boolean",
+            "description": "Whether or not to use [Amazon S3 Bucket Keys](https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-key.html) for SSE-KMS.\n"
+          },
+          "cacheControl": {
+            "type": "string",
+            "description": "Caching behavior along the request/reply chain Read [w3c cache_control](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9) for further details.\n"
+          },
+          "content": {
+            "type": "string",
+            "description": "Literal string value to use as the object content, which will be uploaded as UTF-8-encoded text.\n"
+          },
+          "contentBase64": {
+            "type": "string",
+            "description": "Base64-encoded data that will be decoded and uploaded as raw bytes for the object content. This allows safely uploading non-UTF8 binary data, but is recommended only for small content such as the result of the `gzipbase64` function with small text strings. For larger objects, use `source` to stream the content from a disk file.\n"
+          },
+          "contentDisposition": {
+            "type": "string",
+            "description": "Presentational information for the object. Read [w3c content_disposition](http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.5.1) for further information.\n"
+          },
+          "contentEncoding": {
+            "type": "string",
+            "description": "Content encodings that have been applied to the object and thus what decoding mechanisms must be applied to obtain the media-type referenced by the Content-Type header field. Read [w3c content encoding](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.11) for further information.\n"
+          },
+          "contentLanguage": {
+            "type": "string",
+            "description": "Language the content is in e.g., en-US or en-GB.\n"
+          },
+          "contentType": {
+            "type": "string",
+            "description": "Standard MIME type describing the format of the object data, e.g., application/octet-stream. All Valid MIME Types are valid for this input.\n"
+          },
+          "etag": {
+            "type": "string",
+            "description": "Triggers updates when the value changes. The only meaningful value is `filemd5(\"path/to/file\")`. This attribute is not compatible with KMS encryption, `kms_key_id` or `server_side_encryption = \"aws:kms\"` (see `source_hash` instead).\n"
+          },
+          "forceDestroy": {
+            "type": "boolean",
+            "description": "Whether to allow the object to be deleted by removing any legal hold on any object version. Default is `false`. This value should be set to `true` only if the bucket has S3 object lock enabled.\n"
+          },
+          "key": {
+            "type": "string",
+            "description": "Name of the object once it is in the bucket.\n",
+            "willReplaceOnChanges": true
+          },
+          "kmsKeyId": {
+            "type": "string",
+            "description": "ARN of the KMS Key to use for object encryption. If the S3 Bucket has server-side encryption enabled, that value will automatically be used. If referencing the `aws.kms.Key` resource, use the `arn` attribute. If referencing the `aws.kms.Alias` data source or resource, use the `target_key_arn` attribute. This provider will only perform drift detection if a configuration value is provided.\n"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Map of keys/values to provision metadata (will be automatically prefixed by `x-amz-meta-`, note that only lowercase label are currently supported by the AWS Go API).\n"
+          },
+          "objectLockLegalHoldStatus": {
+            "type": "string",
+            "description": "[Legal hold](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html#object-lock-legal-holds) status that you want to apply to the specified object. Valid values are `ON` and `OFF`.\n"
+          },
+          "objectLockMode": {
+            "type": "string",
+            "description": "Object lock [retention mode](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html#object-lock-retention-modes) that you want to apply to this object. Valid values are `GOVERNANCE` and `COMPLIANCE`.\n"
+          },
+          "objectLockRetainUntilDate": {
+            "type": "string",
+            "description": "Date and time, in [RFC3339 format](https://tools.ietf.org/html/rfc3339#section-5.8), when this object's object lock will [expire](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html#object-lock-retention-periods).\n"
+          },
+          "serverSideEncryption": {
+            "type": "string",
+            "description": "Server-side encryption of the object in S3. Valid values are \"`AES256`\" and \"`aws:kms`\".\n"
+          },
+          "source": {
+            "$ref": "pulumi.json#/Asset",
+            "description": "Path to a file that will be read and uploaded as raw bytes for the object content.\n"
+          },
+          "sourceHash": {
+            "type": "string",
+            "description": "Triggers updates like `etag` but useful to address `etag` encryption limitations. Set using `filemd5(\"path/to/source\")`. (The value is only stored in state and not saved by AWS.)\n"
+          },
+          "storageClass": {
+            "type": "string",
+            "description": "[Storage Class](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html#AmazonS3-PutObject-request-header-StorageClass) for the object. Defaults to \"`STANDARD`\".\n"
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Map of tags to assign to the object. If configured with a provider `default_tags` configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n"
+          },
+          "tagsAll": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Map of tags assigned to the resource, including those inherited from the provider `default_tags` configuration block.\n"
+          },
+          "versionId": {
+            "type": "string",
+            "description": "Unique version ID value for the object, if bucket versioning is enabled.\n"
+          },
+          "websiteRedirect": {
+            "type": "string",
+            "description": "Target URL for [website redirect](http://docs.aws.amazon.com/AmazonS3/latest/dev/how-to-page-redirect.html).\n"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "functions": {
+  }
+}

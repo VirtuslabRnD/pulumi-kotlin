@@ -56,7 +56,7 @@ tasks.withType<Jar> {
 data class Schema(val providerName: String, val path: String, val customDependencies: List<String>)
 
 val schemas = listOf(
-    Schema("aws", "src/main/resources/schema-aws-classic-subset-for-build.json", listOf("com.pulumi:aws:5.16.0")),
+    Schema("aws", "src/main/resources/schema-aws-classic-subset-for-build.json", listOf("com.pulumi:aws:5.16.2")),
     Schema("gcp", "src/main/resources/schema-gcp-classic-subset-for-build.json", listOf("com.pulumi:gcp:6.38.0")),
 )
 

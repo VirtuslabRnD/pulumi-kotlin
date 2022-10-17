@@ -176,6 +176,12 @@ object SchemaModel {
         val default: JsonElement? = null,
     ) : Property
 
+    fun ReferenceProperty.isAssetOrArchive() = referencedTypeName == "pulumi.json#/Asset"
+
+    fun ReferenceProperty.isArchive() = referencedTypeName == "pulumi.json#/Archive"
+
+    fun ReferenceProperty.isAny() = referencedTypeName == "pulumi.json#/Any"
+
     @Serializable
     @JvmInline
     value class SpecificationReference(val value: String)

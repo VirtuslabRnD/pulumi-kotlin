@@ -79,6 +79,10 @@ val createTasksForProvider by extra {
             from(tasks[javadocGenerationTaskName])
             archiveBaseName.set(archiveName)
             archiveClassifier.set("javadoc")
+            // This setting is needed to enable building JAR archives with more than 65535 files, e.g. Dokka docs for
+            // the full GCP schema. See:
+            // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html#org.gradle.api.tasks.bundling.Jar:zip64
+            isZip64 = true
         }
 
         publishing {
