@@ -45,7 +45,7 @@ object ToKotlin {
             val secondPart =
                 baseE.call1(
                     "applyValue",
-                    FunctionExpression.create(1) { args -> toKotlinExpression(args[0], type) },
+                    FunctionExpression.create(1) { args -> toKotlinExpression(args.first(), type) },
                 )
 
             field.name to secondPart

@@ -215,7 +215,7 @@ data class PulumiName(
     companion object {
         fun from(string: String): PulumiName {
             val segments = string.split("/").first().split(":")
-            val providerName = segments[0]
+            val providerName = segments.first()
             val namespace = if (segments.getOrNull(1) == "index") segments.drop(2) else segments.drop(1)
             val name = string.split("/").last().split(":").last()
 

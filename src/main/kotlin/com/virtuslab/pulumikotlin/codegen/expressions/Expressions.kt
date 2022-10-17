@@ -27,7 +27,7 @@ fun Expression.call0(name: String, optional: Boolean = false): Expression {
 }
 
 fun Expression.callMap(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
-    return call1("map", FunctionExpression.create(1) { expr -> expressionMapper(expr[0]) }, optional = optional)
+    return call1("map", FunctionExpression.create(1) { expr -> expressionMapper(expr.first()) }, optional = optional)
 }
 
 fun Expression.callTransform(
@@ -38,19 +38,19 @@ fun Expression.callTransform(
     return callWithNArgumentExpressions(
         "transform",
         optional = optional,
-        FunctionExpression.create(1) { expr -> expressionMapperLeft(expr[0]) },
-        FunctionExpression.create(1) { expr -> expressionMapperRight(expr[0]) },
+        FunctionExpression.create(1) { expr -> expressionMapperLeft(expr.first()) },
+        FunctionExpression.create(1) { expr -> expressionMapperRight(expr.first()) },
     )
 }
 
 fun Expression.callLet(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
-    return call1("let", FunctionExpression.create(1) { expr -> expressionMapper(expr[0]) }, optional = optional)
+    return call1("let", FunctionExpression.create(1) { expr -> expressionMapper(expr.first()) }, optional = optional)
 }
 
 fun Expression.callApplyValue(optional: Boolean = false, expressionMapper: (Expression) -> Expression): Expression {
     return call1(
         "applyValue",
-        FunctionExpression.create(1) { expr -> expressionMapper(expr[0]) },
+        FunctionExpression.create(1) { expr -> expressionMapper(expr.first()) },
         optional = optional,
     )
 }

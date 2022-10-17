@@ -46,10 +46,10 @@ class GcpE2eTest {
         assertContains(tags, "foo")
         assertContains(tags, "bar")
 
-        val attachedDisk = instance.disksList[0]
+        val attachedDisk = instance.disksList.first()
         assertTrue("", attachedDisk.boot)
 
-        assertContains(instance.networkInterfacesList[0].network, "default")
+        assertContains(instance.networkInterfacesList.first().network, "default")
 
         val metadata = instance.metadata.itemsList.map { it.key to it.value }
         assertContains(metadata, "foo" to "bar")
