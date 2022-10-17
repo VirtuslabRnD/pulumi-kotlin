@@ -103,9 +103,9 @@ object IntermediateRepresentationGenerator {
             val inputUsageKind = UsageKind(Root, Resource, Input)
             val argumentType =
                 findTypeAsReference<ReferencedComplexType>(
-                types,
-                TypeKey.from(pulumiName, inputUsageKind),
-            )
+                    types,
+                    TypeKey.from(pulumiName, inputUsageKind),
+                )
             ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource))
         }
     }
