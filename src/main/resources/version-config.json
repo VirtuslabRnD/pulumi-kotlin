@@ -1,0 +1,34 @@
+[
+  {
+    "providerName": "slack",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-slack/v0.3.0/provider/cmd/pulumi-resource-slack/schema.json",
+    "version": "0.3.0",
+    "customDependencies": [
+      "com.pulumi:slack:0.3.0"
+    ]
+  },
+  {
+    "providerName": "aws",
+    "url": "https://gist.githubusercontent.com/jplewa/ab012d882e1facf10c196e85920878bc/raw/b81f2b72bdad122d43948dc071ddc5b1ee5dfad8/schema-aws-classic-subset-for-build.json",
+    "version": "5.16.0",
+    "customDependencies": [
+      "com.pulumi:aws:5.16.0"
+    ]
+  },
+  {
+    "providerName": "gcp",
+    "url": "https://gist.githubusercontent.com/jplewa/eaae32a6742a8ae4e0dd66af4c1dd56b/raw/6abda6bb8c4a134adc52cf8c933f4253ed3686dc/schema-gcp-classic-subset-for-build.json",
+    "version": "6.38.0",
+    "customDependencies": [
+      "com.pulumi:gcp:6.38.0"
+    ]
+  },
+  {
+    "providerName": "github",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v4.17.0/provider/cmd/pulumi-resource-github/schema.json",
+    "version": "4.17.0",
+    "customDependencies": [
+      "com.pulumi:github:4.17.0"
+    ]
+  }
+]

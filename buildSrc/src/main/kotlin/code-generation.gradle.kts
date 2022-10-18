@@ -1,3 +1,4 @@
+import de.undercouch.gradle.tasks.download.Download
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.dokka.gradle.DokkaTask
 
@@ -5,6 +6,7 @@ plugins {
     `java-library`
     `maven-publish`
     id("org.jetbrains.dokka")
+    id("de.undercouch.download")
 }
 
 val tasksToDisable: List<(String) -> String> = listOf(
@@ -12,7 +14,13 @@ val tasksToDisable: List<(String) -> String> = listOf(
 )
 
 val createTasksForProvider by extra {
-    fun(outputDirectory: String, providerName: String, schemaPath: String, customDependencies: List<String>) {
+    fun(
+        outputDirectory: String,
+        providerName: String,
+        schemaUrl: String,
+        version: String,
+        customDependencies: List<String>,
+    ) {
         val sourceSetName = "pulumi${providerName.capitalized()}"
         val generationTaskName = "generate${sourceSetName.capitalized()}Sources"
         val compilationTaskName = "compile${sourceSetName.capitalized()}Kotlin"
@@ -25,8 +33,16 @@ val createTasksForProvider by extra {
         val javadocJarTaskName = "dokka${sourceSetName.capitalized()}JavadocJar"
         val sourcesPublicationName = "${sourceSetName}Sources"
         val javadocPublicationName = "${sourceSetName}Javadoc"
+        val downloadTaskName = "download${providerName.capitalized()}Schema"
+        val schemaPath = "build/tmp/schema/$providerName-$version.json"
+
+        task<Download>(downloadTaskName) {
+            src(schemaUrl)
+            dest(schemaPath)
+        }
 
         tasks.register<JavaExec>(generationTaskName) {
+            dependsOn(tasks[downloadTaskName])
             classpath = project.sourceSets["main"].runtimeClasspath
             group = "generation"
             mainClass.set("com.virtuslab.pulumikotlin.codegen.MainKt")
@@ -90,14 +106,17 @@ val createTasksForProvider by extra {
                 create<MavenPublication>(sourceSetName) {
                     artifact(tasks[jarTaskName])
                     artifactId = archiveName
+                    setVersion(version)
                 }
                 create<MavenPublication>(sourcesPublicationName) {
                     artifact(tasks[sourcesJarTaskName])
                     artifactId = archiveName
+                    setVersion(version)
                 }
                 create<MavenPublication>(javadocPublicationName) {
                     artifact(tasks[javadocJarTaskName])
                     artifactId = archiveName
+                    setVersion(version)
                 }
 
                 publications
