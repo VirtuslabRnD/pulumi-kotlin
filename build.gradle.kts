@@ -49,19 +49,8 @@ tasks.withType<Jar> {
     archiveBaseName.set("${project.rootProject.name}-generator")
 }
 
-data class Schema(val providerName: String, val url: String, val version: String, val customDependencies: List<String>)
-
-val file = File("src/main/resources/version-config.json")
-
-var schemas: List<Schema> = (groovy.json.JsonSlurper().parseText(file.readText()) as List<Map<String, Object>>)
-    .map {
-        Schema(
-            (it["providerName"]!!) as String,
-            (it["url"]!!) as String,
-            (it["version"]!!) as String,
-            (it["customDependencies"]!! as List<String>),
-        )
-    }
+val versionConfig = File("src/main/resources/version-config.json")
+var schemas: List<Schema> = getSchemas(versionConfig)
 
 val createTasksForProvider: (String, String, String, String, List<String>) -> Unit by extra
 
