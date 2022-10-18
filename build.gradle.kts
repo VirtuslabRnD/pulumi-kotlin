@@ -1,7 +1,7 @@
 plugins {
     application
     kotlin("jvm")
-    kotlin("plugin.serialization") version "1.7.0"
+    kotlin("plugin.serialization") version "1.7.20"
     id("org.jmailen.kotlinter") version "3.12.0"
     id("io.gitlab.arturbosch.detekt") version "1.21.0"
     id("code-generation")
@@ -18,17 +18,17 @@ dependencies {
     implementation("com.pulumi:pulumi:0.6.0")
 
     implementation("com.squareup:kotlinpoet:1.12.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
 
     implementation("com.github.ajalt.clikt:clikt:3.5.0")
 
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
     testImplementation(kotlin("test"))
-    testImplementation("com.google.cloud:google-cloud-compute:1.12.1")
+    testImplementation("com.google.cloud:google-cloud-compute:1.14.0")
     testImplementation("org.apache.commons:commons-lang3:3.12.0")
     testImplementation("io.mockk:mockk:1.13.2")
 }
