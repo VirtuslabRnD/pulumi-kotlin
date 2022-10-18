@@ -204,7 +204,7 @@ object ResourceGenerator {
             .addStatement("block(builder)")
             .addStatement("return builder.build()")
             .addDocs(
-                """See [${resourceType.name.name}].
+                """@see [${resourceType.name.name}].
                   |@param name The _unique_ name of the resulting resource.
                   |@param block Builder for [${resourceClassName.simpleName}]."""
                     .trimMargin(),

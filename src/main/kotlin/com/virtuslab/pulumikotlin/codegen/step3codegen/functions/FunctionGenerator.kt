@@ -147,7 +147,7 @@ object FunctionGenerator {
                         )
                     }
             }
-            ?.addDocs("See [${functionType.name.name}].", paramDocs, returnDoc)
+            ?.addDocs("@see [${functionType.name.name}].", paramDocs, returnDoc)
             ?.addDeprecationWarningIfAvailable(functionType.kDoc)
             ?.build()
 
@@ -175,7 +175,7 @@ object FunctionGenerator {
                     builder.addCode(allCode)
                 }
                 .addDocs(
-                    "See [${functionType.name.name}].",
+                    "@see [${functionType.name.name}].",
                     "@param argument Builder for [${args.toTypeName().simpleName}].",
                     returnDoc,
                 )
