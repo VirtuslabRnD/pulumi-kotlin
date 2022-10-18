@@ -11,8 +11,8 @@ import com.pulumi.kotlin.PulumiTagMarker
 import com.pulumi.kotlin.toKotlin
 
 /**
- * Alias is a description of prior named used for a resource. It can be processed in the
- * context of a resource creation to determine what the full aliased URN would be.
+ * Alias is a description of prior name used for a resource. It can be processed in the
+ * context of resource creation to determine what the full aliased URN would be.
  *
  * The presence of a property indicates if its value should be used.
  * If absent (i.e. "null"), then the value is not used.
@@ -21,6 +21,7 @@ import com.pulumi.kotlin.toKotlin
  * "parent" of a [KotlinResource] was "null".
  * Specifically, pass in: [Alias.noParent]
  * @see [CustomResourceOptions.aliases]
+ * @see [com.pulumi.core.Alias]
  */
 class Alias internal constructor(private val javaBackingObject: com.pulumi.core.Alias) :
     ConvertibleToJava<com.pulumi.core.Alias> {
@@ -85,9 +86,12 @@ class Alias internal constructor(private val javaBackingObject: com.pulumi.core.
     }
 }
 
+/**
+ * Builder for [Alias].
+ */
 @PulumiTagMarker
 @Suppress("TooManyFunctions") // different overloads of method for the same property are required
-class AliasArgs internal constructor(
+class AliasBuilder internal constructor(
     var name: Output<String?>? = null,
     var type: Output<String?>? = null,
     var stack: Output<String?>? = null,
@@ -173,11 +177,13 @@ class AliasArgs internal constructor(
     internal fun build(): Alias {
         val javaAliasBuilder = com.pulumi.core.Alias.builder()
 
+        // FIXME null-checks are necessary workaround for requireNullState(name) in java implementation,
+        //  correct this code after fixing the issue in java
         if (name != null) javaAliasBuilder.name(name)
         if (type != null) javaAliasBuilder.type(type)
         if (stack != null) javaAliasBuilder.stack(stack)
         if (project != null) javaAliasBuilder.project(project)
-        if (parent != null) javaAliasBuilder.parent(parent!!.javaResource)
+        if (parent != null) javaAliasBuilder.parent(parent?.javaResource)
         if (parentUrn != null) javaAliasBuilder.parentUrn(parentUrn)
 
         val javaAlias = javaAliasBuilder.build()
@@ -185,10 +191,13 @@ class AliasArgs internal constructor(
     }
 }
 
-suspend fun alias(block: suspend AliasArgs.() -> Unit): Alias {
-    val aliasArgs = AliasArgs()
-    block(aliasArgs)
-    return aliasArgs.build()
+/**
+ * Creates [Alias] with use of type-safe [AliasBuilder].
+ */
+suspend fun alias(block: suspend AliasBuilder.() -> Unit): Alias {
+    val aliasBuilder = AliasBuilder()
+    block(aliasBuilder)
+    return aliasBuilder.build()
 }
 
 /**

@@ -1,3 +1,6 @@
+// This class is included in the generated code. The package name matches its location in the generated code.
+@file:Suppress("InvalidPackageDeclaration", "PackageDirectoryMismatch", "unused")
+
 package com.pulumi.kotlin
 
 import com.pulumi.core.Output
@@ -5,7 +8,8 @@ import java.util.Optional
 
 /**
  * Interface for creation of mappers for particular resource types.
- * It assumes, that only subtypes of [com.pulumi.resources.Resource] from Java SDK can be mapped to Kotlin types.
+ * It assumes that only subtypes of [com.pulumi.resources.Resource] from Java SDK can be mapped to Kotlin types.
+ *
  * @param T Specific subtype of [KotlinResource] representing provider's resource in Kotlin SDK,
  *        mapper will produce objects of this type.
  */
@@ -47,7 +51,7 @@ internal object GeneralResourceMapper {
         if (javaResource == null) return null
 
         val mapper = mappers.find { it.doesSupportMappingOfType(javaResource) }
-            ?: error("mapper for a type ${javaResource::class.java} was either not declared or instantiated")
+            ?: error("mapper for a type ${javaResource::class.java} was either not declared or not instantiated")
 
         return mapper.map(javaResource)
     }
@@ -80,6 +84,5 @@ internal object GeneralResourceMapper {
      * @param mapper [ResourceMapper]
      * @return `true` if mapper was added, `false` if it already existed within the set.
      */
-    internal fun registerMapper(mapper: ResourceMapper<KotlinResource>) =
-        mappers.add(mapper)
+    internal fun registerMapper(mapper: ResourceMapper<KotlinResource>) = mappers.add(mapper)
 }

@@ -13,6 +13,9 @@ import kotlin.time.toKotlinDuration
 
 /**
  * Optional timeouts to supply in as [CustomResourceOptions.customTimeouts].
+ *
+ * @see [CustomResourceOptions.customTimeouts]
+ * @see [com.pulumi.resources.CustomTimeouts]
  */
 class CustomTimeouts internal constructor(private val javaBackingObject: com.pulumi.resources.CustomTimeouts) :
     ConvertibleToJava<com.pulumi.resources.CustomTimeouts> {
@@ -35,7 +38,7 @@ class CustomTimeouts internal constructor(private val javaBackingObject: com.pul
 }
 
 @PulumiTagMarker
-class CustomTimeoutsArgs(var create: Duration? = null, var update: Duration? = null, var delete: Duration? = null) {
+class CustomTimeoutsBuilder(var create: Duration? = null, var update: Duration? = null, var delete: Duration? = null) {
     fun create(value: Duration?) {
         this.create = value
     }
@@ -59,8 +62,11 @@ class CustomTimeoutsArgs(var create: Duration? = null, var update: Duration? = n
     }
 }
 
-suspend fun customTimeouts(block: suspend CustomTimeoutsArgs.() -> Unit): CustomTimeouts {
-    val customTimeoutsArgs = CustomTimeoutsArgs()
-    block(customTimeoutsArgs)
-    return customTimeoutsArgs.build()
+/**
+ * Creates [CustomTimeouts] with use of type-safe [CustomTimeoutsBuilder].
+ */
+suspend fun customTimeouts(block: suspend CustomTimeoutsBuilder.() -> Unit): CustomTimeouts {
+    val customTimeoutsBuilder = CustomTimeoutsBuilder()
+    block(customTimeoutsBuilder)
+    return customTimeoutsBuilder.build()
 }

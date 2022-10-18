@@ -98,9 +98,10 @@ interface ConvertibleToJava<T> {
  *
  * Each resource within Kotlin SDK should have corresponding [ResourceMapper],
  * in order to properly translate Java resources to Kotlin representation.
+ *
+ * This class serves only as parent for all resources and should not be instantiated,
+ * it cannot be sealed, because generated subclasses will be placed in other packages.
  */
-// this class serves only as parent for all resources and should not be instantiated,
-// it cannot be sealed, because generated subclasses will be placed in other packages
 @Suppress("UnnecessaryAbstractClass")
 abstract class KotlinResource
 private constructor(internal open val javaResource: com.pulumi.resources.Resource) {
@@ -121,6 +122,13 @@ abstract class KotlinProviderResource protected constructor(
 ) : KotlinResource(javaResource, mapper)
 
 object Pulumi {
+
+    /**
+     * Run a Pulumi stack callback and wait for result.
+     * In case of an error terminates the process with [System.exit].
+     *
+     * @param block the stack to run in Pulumi runtime
+     */
     fun run(block: suspend (Context) -> Unit) {
         com.pulumi.Pulumi.run {
             runBlocking {

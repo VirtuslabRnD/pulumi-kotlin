@@ -25,81 +25,75 @@ private const val ALIAS_PROJECT = " acmecorp"
 internal class AliasTest {
 
     @Test
-    fun `alias should be created with builder`() {
-        runBlocking {
-            // given
-            val outputAliasName = Output.of(ALIAS_NAME)
-            val outputAliasType = Output.of(ALIAS_TYPE)
-            val outputAliasStack = Output.of(ALIAS_STACK)
-            val outputAliasProject = Output.of(ALIAS_PROJECT)
+    fun `alias should be created with builder`() = runBlocking {
+        // given
+        val outputAliasName = Output.of(ALIAS_NAME)
+        val outputAliasType = Output.of(ALIAS_TYPE)
+        val outputAliasStack = Output.of(ALIAS_STACK)
+        val outputAliasProject = Output.of(ALIAS_PROJECT)
 
-            // when
-            val aliasCreatedWithStrings = alias {
-                name(ALIAS_NAME)
-                type(ALIAS_TYPE)
-                stack(ALIAS_STACK)
-                project(ALIAS_PROJECT)
-            }
-
-            val aliasCreatedWithOutputs = alias {
-                name(outputAliasName)
-                type(outputAliasType)
-                stack(outputAliasStack)
-                project(outputAliasProject)
-            }
-
-            // then
-            assertAll(
-                assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_NAME, "name") { it.name },
-                assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_TYPE, "type") { it.type },
-                assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_STACK, "stack") { it.stack },
-                assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_PROJECT, "project") { it.project },
-
-                assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_NAME, "name") { it.name },
-                assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_TYPE, "type") { it.type },
-                assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_STACK, "stack") { it.stack },
-                assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_PROJECT, "project") { it.project },
-            )
+        // when
+        val aliasCreatedWithStrings = alias {
+            name(ALIAS_NAME)
+            type(ALIAS_TYPE)
+            stack(ALIAS_STACK)
+            project(ALIAS_PROJECT)
         }
+
+        val aliasCreatedWithOutputs = alias {
+            name(outputAliasName)
+            type(outputAliasType)
+            stack(outputAliasStack)
+            project(outputAliasProject)
+        }
+
+        // then
+        assertAll(
+            assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_NAME, "name") { it.name },
+            assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_TYPE, "type") { it.type },
+            assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_STACK, "stack") { it.stack },
+            assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_PROJECT, "project") { it.project },
+
+            assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_NAME, "name") { it.name },
+            assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_TYPE, "type") { it.type },
+            assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_STACK, "stack") { it.stack },
+            assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_PROJECT, "project") { it.project },
+        )
     }
 
     @Test
-    fun `alias should be created with method withUrn`() {
-        runBlocking {
-            // when
-            val alias = withUrn(ALIAS_URN)
+    fun `alias should be created with method withUrn`() = runBlocking {
+        // when
+        val alias = withUrn(ALIAS_URN)
 
-            // then
-            assertAll(
-                { assertEquals(alias.urn, ALIAS_URN, "urn") },
-                { assertNull(alias.name, "name") },
-                { assertNull(alias.type, "type") },
-                { assertNull(alias.project, "project") },
-                { assertNull(alias.stack, "stack") },
-                { assertNull(alias.parent, "parent") },
-                { assertNull(alias.parentUrn, "parentUrn") },
-                { assertFalse(alias.noParent, "noParent") },
-            )
-        }
+        // then
+        assertAll(
+            { assertEquals(alias.urn, ALIAS_URN, "urn") },
+            { assertNull(alias.name, "name") },
+            { assertNull(alias.type, "type") },
+            { assertNull(alias.project, "project") },
+            { assertNull(alias.stack, "stack") },
+            { assertNull(alias.parent, "parent") },
+            { assertNull(alias.parentUrn, "parentUrn") },
+            { assertFalse(alias.noParent, "noParent") },
+        )
     }
 
     @Test
-    fun `alias should be created with method noParent`() {
-        runBlocking {
-            // when
-            val alias = noParent()
+    fun `alias should be created with method noParent`() = runBlocking {
+        // when
+        val alias = noParent()
 
-            // then
-            assertAll(
-                { assertNull(alias.urn, "urn") },
-                { assertNull(alias.name, "name") },
-                { assertNull(alias.type, "type") },
-                { assertNull(alias.project, "project") },
-                { assertNull(alias.stack, "stack") },
-                { assertNull(alias.parent, "parent") },
-                { assertNull(alias.parentUrn, "parentUrn") },
-                { assertTrue(alias.noParent, "noParent") },
-            )
-        }
+        // then
+        assertAll(
+            { assertNull(alias.urn, "urn") },
+            { assertNull(alias.name, "name") },
+            { assertNull(alias.type, "type") },
+            { assertNull(alias.project, "project") },
+            { assertNull(alias.stack, "stack") },
+            { assertNull(alias.parent, "parent") },
+            { assertNull(alias.parentUrn, "parentUrn") },
+            { assertTrue(alias.noParent, "noParent") },
+        )
     }
 }

@@ -13,6 +13,9 @@ import com.pulumi.kotlin.applyValue
 import com.pulumi.kotlin.toJava
 import com.pulumi.kotlin.toKotlin
 
+/**
+ * A bag of optional settings that control a [KotlinResource] behavior.
+ */
 class CustomResourceOptions internal constructor(
     private val javaBackingObject: com.pulumi.resources.CustomResourceOptions,
 ) : ConvertibleToJava<com.pulumi.resources.CustomResourceOptions> {
@@ -81,7 +84,7 @@ class CustomResourceOptions internal constructor(
      *  are done in the correct order.
      */
     val dependsOn: Output<List<KotlinResource>>?
-        get() = javaBackingObject.dependsOn?.applyValue { list -> list.map { GeneralResourceMapper.tryMap(it)!! } }
+        get() = javaBackingObject.dependsOn?.applyValue { list -> list.mapNotNull { GeneralResourceMapper.tryMap(it) } }
 
     /**
      * An optional existing ID to load, rather than create.
@@ -149,7 +152,7 @@ class CustomResourceOptions internal constructor(
      */
     val provider: KotlinProviderResource?
         get() = javaBackingObject.provider?.toKotlin()
-            ?.applyValue { GeneralResourceMapper.tryMap(it)!! } as KotlinProviderResource?
+            ?.applyValue { GeneralResourceMapper.tryMap(it) } as KotlinProviderResource?
 
     /**
      * Indicates that changes to certain properties on a resource should force a replacement of the resource
@@ -173,7 +176,7 @@ class CustomResourceOptions internal constructor(
     val resourceTransformations: List<ResourceTransformation>?
         get() = javaBackingObject.resourceTransformations?.map { jrt ->
             ResourceTransformation {
-                jrt.apply(it).toKotlin()!!
+                jrt.apply(it).toKotlin()
             }
         }
 
@@ -272,7 +275,7 @@ data class CustomResourceOptionsBuilder(
     /**
      * @see [CustomResourceOptions.aliases]
      */
-    suspend fun aliases(vararg blocks: suspend AliasArgs.() -> Unit) {
+    suspend fun aliases(vararg blocks: suspend AliasBuilder.() -> Unit) {
         this.aliases = blocks.map { alias(it) }.map { Output.of(it) }
     }
 
@@ -286,10 +289,10 @@ data class CustomResourceOptionsBuilder(
     /**
      * @see [CustomResourceOptions.customTimeouts]
      */
-    suspend fun customTimeouts(block: suspend CustomTimeoutsArgs.() -> Unit) {
-        val customTimeoutsArgs = CustomTimeoutsArgs()
-        block(customTimeoutsArgs)
-        this.customTimeouts = customTimeoutsArgs.build()
+    suspend fun customTimeouts(block: suspend CustomTimeoutsBuilder.() -> Unit) {
+        val customTimeoutsBuilder = CustomTimeoutsBuilder()
+        block(customTimeoutsBuilder)
+        this.customTimeouts = customTimeoutsBuilder.build()
     }
 
     /**
@@ -448,7 +451,7 @@ data class CustomResourceOptionsBuilder(
         mergeWith = opts
     }
 
-    fun build(): CustomResourceOptions {
+    internal fun build(): CustomResourceOptions {
         val javaBackingObject = com.pulumi.resources.CustomResourceOptions.builder()
             .additionalSecretOutputs(additionalSecretOutputs)
             .aliases(aliases?.map { it.toJava() })
@@ -474,7 +477,7 @@ data class CustomResourceOptionsBuilder(
         } else {
             CustomResourceOptions(
                 com.pulumi.resources.CustomResourceOptions.merge(
-                    mergeWith!!.toJava(),
+                    mergeWith?.toJava(),
                     javaBackingObject,
                 ),
             )
@@ -482,6 +485,9 @@ data class CustomResourceOptionsBuilder(
     }
 }
 
+/**
+ * Creates [CustomResourceOptions] with use of type-safe [CustomResourceOptionsBuilder].
+ */
 suspend fun opts(block: suspend CustomResourceOptionsBuilder.() -> Unit): CustomResourceOptions {
     val customResourceOptionsBuilder = CustomResourceOptionsBuilder()
     block(customResourceOptionsBuilder)

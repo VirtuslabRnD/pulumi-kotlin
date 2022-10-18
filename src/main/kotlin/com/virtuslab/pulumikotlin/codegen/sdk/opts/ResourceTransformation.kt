@@ -6,9 +6,14 @@ package com.pulumi.kotlin.options
 import com.pulumi.kotlin.toKotlin
 import java.util.Optional
 
+/**
+ * The callback signature for the [CustomResourceOptions.resourceTransformations] option.
+ *
+ * @see [com.pulumi.resources.ResourceTransformation]
+ */
 fun interface ResourceTransformation {
     fun apply(args: com.pulumi.resources.ResourceTransformation.Args):
-        com.pulumi.resources.ResourceTransformation.Result
+        com.pulumi.resources.ResourceTransformation.Result?
 }
 
 internal fun ResourceTransformation.toJava(): com.pulumi.resources.ResourceTransformation {
@@ -16,7 +21,7 @@ internal fun ResourceTransformation.toJava(): com.pulumi.resources.ResourceTrans
 }
 
 internal fun com.pulumi.resources.ResourceTransformation.toKotlin(): ResourceTransformation {
-    return ResourceTransformation { this.apply(it).toKotlin()!! }
+    return ResourceTransformation { this.apply(it).toKotlin() }
 }
 
 class ResourceTransformationResultBuilder(
@@ -40,6 +45,10 @@ class ResourceTransformationResultBuilder(
     }
 }
 
+/**
+ * Creates [com.pulumi.resources.ResourceTransformation.Result]
+ * with use of type-safe [ResourceTransformationResultBuilder].
+ */
 fun transformationResult(
     block: ResourceTransformationResultBuilder.() -> Unit,
 ): com.pulumi.resources.ResourceTransformation.Result {
