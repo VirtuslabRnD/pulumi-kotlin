@@ -21,7 +21,17 @@ There are two ways:
 - `--schema-path` – path to provider's schema (see section below for how to download it).
 - `--output-directory-path` – path to a directory where the generated code should be stored. 
 
-## Where to download the schema from?
+## Schema
+
+### How to download provider's schema?
+
+Use the `pulumi package get-schema` command, for example 
+
+```bash
+pulumi package get-schema 'azure-native' > azure-native-schema.json
+```
+
+### Where is the schema stored?
 
 It's stored in provider's repository, under `provider/cmd/pulumi-resource-{{provider-name}}` path. 
 
