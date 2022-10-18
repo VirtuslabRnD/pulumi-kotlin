@@ -45,19 +45,30 @@ tasks.withType<Jar> {
     archiveBaseName.set("${project.rootProject.name}-generator")
 }
 
-data class Schema(val providerName: String, val path: String, val customDependencies: List<String>)
+data class Schema(val providerName: String, val url: String, val version: String, val customDependencies: List<String>)
 
-val schemas = listOf(
-    Schema("aws", "src/main/resources/schema-aws-classic-subset-for-build.json", listOf("com.pulumi:aws:5.16.2")),
-    Schema("gcp", "src/main/resources/schema-gcp-classic-subset-for-build.json", listOf("com.pulumi:gcp:6.38.0")),
-    Schema("slack", "src/main/resources/schema-slack-subset-for-build.json", listOf("com.pulumi:slack:0.3.0")),
-    Schema("github", "src/main/resources/schema-github-subset-for-build.json", listOf("com.pulumi:github:4.17.0")),
-)
+val file = File("src/main/resources/version-config.json")
 
-val createTasksForProvider: (String, String, String, List<String>) -> Unit by extra
+var schemas: List<Schema> = (groovy.json.JsonSlurper().parseText(file.readText()) as List<Map<String, Object>>)
+    .map {
+        Schema(
+            (it["providerName"]!!) as String,
+            (it["url"]!!) as String,
+            (it["version"]!!) as String,
+            (it["customDependencies"]!! as List<String>),
+        )
+    }
+
+val createTasksForProvider: (String, String, String, String, List<String>) -> Unit by extra
 
 schemas.forEach { schema ->
-    createTasksForProvider("build/generated-src", schema.providerName, schema.path, schema.customDependencies)
+    createTasksForProvider(
+        "build/generated-src",
+        schema.providerName,
+        schema.url,
+        "${schema.version}-$version",
+        schema.customDependencies,
+    )
 }
 
 val createGlobalProviderTasks: (List<String>) -> Unit by extra
