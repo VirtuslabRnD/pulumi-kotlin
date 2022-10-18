@@ -58,6 +58,8 @@ data class Schema(val providerName: String, val path: String, val customDependen
 val schemas = listOf(
     Schema("aws", "src/main/resources/schema-aws-classic-subset-for-build.json", listOf("com.pulumi:aws:5.16.2")),
     Schema("gcp", "src/main/resources/schema-gcp-classic-subset-for-build.json", listOf("com.pulumi:gcp:6.38.0")),
+    Schema("slack", "src/main/resources/schema-slack-subset-for-build.json", listOf("com.pulumi:slack:0.3.0")),
+    Schema("github", "src/main/resources/schema-github-subset-for-build.json", listOf("com.pulumi:github:4.17.0")),
 )
 
 val createTasksForProvider: (String, String, String, List<String>) -> Unit by extra

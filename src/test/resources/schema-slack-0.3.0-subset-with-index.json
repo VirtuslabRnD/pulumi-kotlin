@@ -1,0 +1,192 @@
+{
+  "resources": {
+    "slack:index/conversation:Conversation": {
+      "description": "Manages a Slack channel\n\n## Required scopes\n\nThis resource requires the following scopes:\n\nIf using `bot` tokens:\n\n- [channels:read](https://api.slack.com/scopes/channels:read)\n(public channels)\n- [channels:manage](https://api.slack.com/scopes/channels:manage)\n(public channels)\n- [channels:join](https://api.slack.com/scopes/channels:join)\n(adopting existing public channels)\n- [groups:read](https://api.slack.com/scopes/groups:read)\n(private channels)\n- [groups:write](https://api.slack.com/scopes/groups:write)\n(private channels)\n\nIf using `user` tokens:\n\n- [channels:read](https://api.slack.com/scopes/channels:read) (public channels)\n- [channels:write](https://api.slack.com/scopes/channels:manage) (public channels)\n- [groups:read](https://api.slack.com/scopes/groups:read) (private channels)\n- [groups:write](https://api.slack.com/scopes/groups:write) (private channels)\n\nThe Slack API methods used by the resource are:\n\n- [conversations.create](https://api.slack.com/methods/conversations.create)\n- [conversations.join](https://api.slack.com/methods/conversations.join)\n- [conversations.setTopic](https://api.slack.com/methods/conversations.setTopic)\n- [conversations.setPurpose](https://api.slack.com/methods/conversations.setPurpose)\n- [conversations.info](https://api.slack.com/methods/conversations.info)\n- [conversations.members](https://api.slack.com/methods/conversations.members)\n- [conversations.kick](https://api.slack.com/methods/conversations.kick)\n- [conversations.invite](https://api.slack.com/methods/conversations.invite)\n- [conversations.rename](https://api.slack.com/methods/conversations.rename)\n- [conversations.archive](https://api.slack.com/methods/conversations.archive)\n- [conversations.unarchive](https://api.slack.com/methods/conversations.unarchive)\n\nIf you get `missing_scope` errors while using this resource check the scopes against\nthe documentation for the methods above.\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as slack from \"@pulumi/slack\";\n\nconst test = new slack.Conversation(\"test\", {\n    isPrivate: true,\n    permanentMembers: [],\n    topic: \"The topic for my channel\",\n});\n```\n```python\nimport pulumi\nimport pulumi_slack as slack\n\ntest = slack.Conversation(\"test\",\n    is_private=True,\n    permanent_members=[],\n    topic=\"The topic for my channel\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Slack = Pulumi.Slack;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var test = new Slack.Conversation(\"test\", new()\n    {\n        IsPrivate = true,\n        PermanentMembers = new[] {},\n        Topic = \"The topic for my channel\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-slack/sdk/go/slack\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := slack.NewConversation(ctx, \"test\", \u0026slack.ConversationArgs{\n\t\t\tIsPrivate:        pulumi.Bool(true),\n\t\t\tPermanentMembers: pulumi.StringArray{},\n\t\t\tTopic:            pulumi.String(\"The topic for my channel\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.slack.Conversation;\nimport com.pulumi.slack.ConversationArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var test = new Conversation(\"test\", ConversationArgs.builder()        \n            .isPrivate(true)\n            .permanentMembers()\n            .topic(\"The topic for my channel\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  test:\n    type: slack:Conversation\n    properties:\n      isPrivate: true\n      permanentMembers: []\n      topic: The topic for my channel\n```\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as slack from \"@pulumi/slack\";\n\nconst nonadmin = new slack.Conversation(\"nonadmin\", {\n    actionOnDestroy: \"none\",\n    isPrivate: true,\n    permanentMembers: [],\n    topic: \"The channel won't be archived on destroy\",\n});\n```\n```python\nimport pulumi\nimport pulumi_slack as slack\n\nnonadmin = slack.Conversation(\"nonadmin\",\n    action_on_destroy=\"none\",\n    is_private=True,\n    permanent_members=[],\n    topic=\"The channel won't be archived on destroy\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Slack = Pulumi.Slack;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var nonadmin = new Slack.Conversation(\"nonadmin\", new()\n    {\n        ActionOnDestroy = \"none\",\n        IsPrivate = true,\n        PermanentMembers = new[] {},\n        Topic = \"The channel won't be archived on destroy\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-slack/sdk/go/slack\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := slack.NewConversation(ctx, \"nonadmin\", \u0026slack.ConversationArgs{\n\t\t\tActionOnDestroy:  pulumi.String(\"none\"),\n\t\t\tIsPrivate:        pulumi.Bool(true),\n\t\t\tPermanentMembers: pulumi.StringArray{},\n\t\t\tTopic:            pulumi.String(\"The channel won't be archived on destroy\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.slack.Conversation;\nimport com.pulumi.slack.ConversationArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var nonadmin = new Conversation(\"nonadmin\", ConversationArgs.builder()        \n            .actionOnDestroy(\"none\")\n            .isPrivate(true)\n            .permanentMembers()\n            .topic(\"The channel won't be archived on destroy\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  nonadmin:\n    type: slack:Conversation\n    properties:\n      actionOnDestroy: none\n      isPrivate: true\n      permanentMembers: []\n      topic: The channel won't be archived on destroy\n```\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as slack from \"@pulumi/slack\";\n\nconst adopted = new slack.Conversation(\"adopted\", {\n    actionOnUpdatePermanentMembers: \"none\",\n    adoptExistingChannel: true,\n    permanentMembers: [],\n    topic: \"Adopt existing, don't kick members\",\n});\n```\n```python\nimport pulumi\nimport pulumi_slack as slack\n\nadopted = slack.Conversation(\"adopted\",\n    action_on_update_permanent_members=\"none\",\n    adopt_existing_channel=True,\n    permanent_members=[],\n    topic=\"Adopt existing, don't kick members\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Slack = Pulumi.Slack;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var adopted = new Slack.Conversation(\"adopted\", new()\n    {\n        ActionOnUpdatePermanentMembers = \"none\",\n        AdoptExistingChannel = true,\n        PermanentMembers = new[] {},\n        Topic = \"Adopt existing, don't kick members\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-slack/sdk/go/slack\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := slack.NewConversation(ctx, \"adopted\", \u0026slack.ConversationArgs{\n\t\t\tActionOnUpdatePermanentMembers: pulumi.String(\"none\"),\n\t\t\tAdoptExistingChannel:           pulumi.Bool(true),\n\t\t\tPermanentMembers:               pulumi.StringArray{},\n\t\t\tTopic:                          pulumi.String(\"Adopt existing, don't kick members\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.slack.Conversation;\nimport com.pulumi.slack.ConversationArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var adopted = new Conversation(\"adopted\", ConversationArgs.builder()        \n            .actionOnUpdatePermanentMembers(\"none\")\n            .adoptExistingChannel(true)\n            .permanentMembers()\n            .topic(\"Adopt existing, don't kick members\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  adopted:\n    type: slack:Conversation\n    properties:\n      actionOnUpdatePermanentMembers: none\n      adoptExistingChannel: true\n      permanentMembers: []\n      topic: Adopt existing, don't kick members\n```\n{{% /example %}}\n{{% /examples %}}\n\n## Import\n\n`slack_conversation` can be imported using the ID of the conversation/channel, e.g.\n\n```sh\n $ pulumi import slack:index/conversation:Conversation my_conversation C023X7QTFHQ\n```\n\n ",
+      "properties": {
+        "actionOnDestroy": {
+          "type": "string",
+          "description": "Either of none or archive\n"
+        },
+        "actionOnUpdatePermanentMembers": {
+          "type": "string",
+          "description": "indicate\nwhether the members should be kick of the channel when removed from\n`permanent_members`. When set to `none` the user are never kicked, this prevent\na side effect on public channels where user that joined the channel are kicked.\n"
+        },
+        "adoptExistingChannel": {
+          "type": "boolean"
+        },
+        "created": {
+          "type": "integer",
+          "description": "is a unix timestamp.\n"
+        },
+        "creator": {
+          "type": "string",
+          "description": "is the user ID of the member that created this channel.\n"
+        },
+        "isArchived": {
+          "type": "boolean",
+          "description": "indicates a conversation is archived. Frozen in time.\n"
+        },
+        "isExtShared": {
+          "type": "boolean",
+          "description": "represents this conversation as being part of a Shared Channel\nwith a remote organization.\n"
+        },
+        "isGeneral": {
+          "type": "boolean",
+          "description": "will be true if this channel is the \"general\" channel that includes\nall regular team members.\n"
+        },
+        "isOrgShared": {
+          "type": "boolean",
+          "description": "explains whether this shared channel is shared between Enterprise\nGrid workspaces within the same organization.\n"
+        },
+        "isPrivate": {
+          "type": "boolean",
+          "description": "create a private channel instead of a public one.\n"
+        },
+        "isShared": {
+          "type": "boolean",
+          "description": "means the conversation is in some way shared between multiple workspaces.\n"
+        },
+        "name": {
+          "type": "string",
+          "description": "name of the public or private channel.\n"
+        },
+        "permanentMembers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "user IDs to add to the channel.\n"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "purpose of the channel.\n"
+        },
+        "topic": {
+          "type": "string",
+          "description": "topic for the channel.\n"
+        }
+      },
+      "required": [
+        "created",
+        "creator",
+        "isExtShared",
+        "isGeneral",
+        "isOrgShared",
+        "isPrivate",
+        "isShared",
+        "name"
+      ],
+      "inputProperties": {
+        "actionOnDestroy": {
+          "type": "string",
+          "description": "Either of none or archive\n"
+        },
+        "actionOnUpdatePermanentMembers": {
+          "type": "string",
+          "description": "indicate\nwhether the members should be kick of the channel when removed from\n`permanent_members`. When set to `none` the user are never kicked, this prevent\na side effect on public channels where user that joined the channel are kicked.\n"
+        },
+        "adoptExistingChannel": {
+          "type": "boolean"
+        },
+        "isArchived": {
+          "type": "boolean",
+          "description": "indicates a conversation is archived. Frozen in time.\n"
+        },
+        "isPrivate": {
+          "type": "boolean",
+          "description": "create a private channel instead of a public one.\n"
+        },
+        "name": {
+          "type": "string",
+          "description": "name of the public or private channel.\n"
+        },
+        "permanentMembers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "user IDs to add to the channel.\n"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "purpose of the channel.\n"
+        },
+        "topic": {
+          "type": "string",
+          "description": "topic for the channel.\n"
+        }
+      },
+      "requiredInputs": [
+        "isPrivate"
+      ],
+      "stateInputs": {
+        "description": "Input properties used for looking up and filtering Conversation resources.\n",
+        "properties": {
+          "actionOnDestroy": {
+            "type": "string",
+            "description": "Either of none or archive\n"
+          },
+          "actionOnUpdatePermanentMembers": {
+            "type": "string",
+            "description": "indicate\nwhether the members should be kick of the channel when removed from\n`permanent_members`. When set to `none` the user are never kicked, this prevent\na side effect on public channels where user that joined the channel are kicked.\n"
+          },
+          "adoptExistingChannel": {
+            "type": "boolean"
+          },
+          "created": {
+            "type": "integer",
+            "description": "is a unix timestamp.\n"
+          },
+          "creator": {
+            "type": "string",
+            "description": "is the user ID of the member that created this channel.\n"
+          },
+          "isArchived": {
+            "type": "boolean",
+            "description": "indicates a conversation is archived. Frozen in time.\n"
+          },
+          "isExtShared": {
+            "type": "boolean",
+            "description": "represents this conversation as being part of a Shared Channel\nwith a remote organization.\n"
+          },
+          "isGeneral": {
+            "type": "boolean",
+            "description": "will be true if this channel is the \"general\" channel that includes\nall regular team members.\n"
+          },
+          "isOrgShared": {
+            "type": "boolean",
+            "description": "explains whether this shared channel is shared between Enterprise\nGrid workspaces within the same organization.\n"
+          },
+          "isPrivate": {
+            "type": "boolean",
+            "description": "create a private channel instead of a public one.\n"
+          },
+          "isShared": {
+            "type": "boolean",
+            "description": "means the conversation is in some way shared between multiple workspaces.\n"
+          },
+          "name": {
+            "type": "string",
+            "description": "name of the public or private channel.\n"
+          },
+          "permanentMembers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "user IDs to add to the channel.\n"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "purpose of the channel.\n"
+          },
+          "topic": {
+            "type": "string",
+            "description": "topic for the channel.\n"
+          }
+        },
+        "type": "object"
+      }
+    }
+  }
+}

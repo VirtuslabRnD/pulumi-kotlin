@@ -23,7 +23,7 @@ data class PulumiName(
         fun from(string: String): PulumiName {
             val segments = string.split("/").first().split(":")
             val providerName = segments.get(0)
-            val namespace = segments.drop(1)
+            val namespace = if (segments.getOrNull(1) == "index") segments.drop(2) else segments.drop(1)
             val name = string.split("/").last().split(":").last()
 
             return PulumiName(providerName, namespace, name)
@@ -179,8 +179,13 @@ data class PulumiName(
 
     fun toFunctionGroupObjectName(namingFlags: NamingFlags): String {
         return when (namingFlags.language) {
-            Kotlin -> namespace.last().capitalize() + "Functions"
-            Java -> namespace.last().capitalize() + "Functions"
+            Kotlin, Java -> {
+                if (namespace.isEmpty()) {
+                    providerName.capitalize() + "Functions"
+                } else {
+                    namespace.last().capitalize() + "Functions"
+                }
+            }
         }
     }
 

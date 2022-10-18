@@ -1,0 +1,558 @@
+{
+  "name": "slack",
+  "displayName": "Slack",
+  "description": "A Pulumi package for managing Slack workspaces.",
+  "keywords": [
+    "pulumi",
+    "slack",
+    "category/utility"
+  ],
+  "homepage": "https://www.pulumi.com",
+  "license": "Apache-2.0",
+  "attribution": "This Pulumi package is based on the [`slack` Terraform Provider](https://github.com/pablovarela/terraform-provider-slack).",
+  "repository": "https://github.com/pulumi/pulumi-slack",
+  "publisher": "Pulumi",
+  "meta": {
+    "moduleFormat": "(.*)(?:/[^/]*)"
+  },
+  "language": {
+    "csharp": {
+      "compatibility": "tfbridge20",
+      "namespaces": null,
+      "packageReferences": {
+        "Pulumi": "3.*"
+      }
+    },
+    "go": {
+      "generateExtraInputTypes": true,
+      "generateResourceContainerTypes": true,
+      "importBasePath": "github.com/pulumi/pulumi-slack/sdk/go/slack"
+    },
+    "nodejs": {
+      "compatibility": "tfbridge20",
+      "dependencies": {
+        "@pulumi/pulumi": "^3.0.0"
+      },
+      "devDependencies": {
+        "@types/mime": "^2.0.0",
+        "@types/node": "^10.0.0"
+      },
+      "disableUnionOutputTypes": true,
+      "packageDescription": "A Pulumi package for managing Slack workspaces.",
+      "packageName": "",
+      "readme": "\u003e This provider is a derived work of the [Terraform Provider](https://github.com/pablovarela/terraform-provider-slack)\n\u003e distributed under [MPL 2.0](https://www.mozilla.org/en-US/MPL/2.0/). If you encounter a bug or missing feature,\n\u003e first check the [`pulumi-slack` repo](https://github.com/pulumi/pulumi-slack/issues); however, if that doesn't turn up anything,\n\u003e please consult the source [`terraform-provider-slack` repo](https://github.com/pablovarela/terraform-provider-slack/issues).",
+      "typescriptVersion": ""
+    },
+    "python": {
+      "compatibility": "tfbridge20",
+      "readme": "\u003e This provider is a derived work of the [Terraform Provider](https://github.com/pablovarela/terraform-provider-slack)\n\u003e distributed under [MPL 2.0](https://www.mozilla.org/en-US/MPL/2.0/). If you encounter a bug or missing feature,\n\u003e first check the [`pulumi-slack` repo](https://github.com/pulumi/pulumi-slack/issues); however, if that doesn't turn up anything,\n\u003e please consult the source [`terraform-provider-slack` repo](https://github.com/pablovarela/terraform-provider-slack/issues).",
+      "requires": {
+        "pulumi": "\u003e=3.0.0,\u003c4.0.0"
+      }
+    }
+  },
+  "config": {
+    "variables": {
+      "token": {
+        "type": "string",
+        "description": "The Slack token\n"
+      }
+    },
+    "defaults": [
+      "token"
+    ]
+  },
+  "provider": {
+    "description": "The provider type for the slack package. By default, resources use package-wide configuration\nsettings, however an explicit `Provider` instance may be created and passed during resource\nconstruction to achieve fine-grained programmatic control over provider settings. See the\n[documentation](https://www.pulumi.com/docs/reference/programming-model/#providers) for more information.\n",
+    "properties": {
+      "token": {
+        "type": "string",
+        "description": "The Slack token\n"
+      }
+    },
+    "required": [
+      "token"
+    ],
+    "inputProperties": {
+      "token": {
+        "type": "string",
+        "description": "The Slack token\n"
+      }
+    },
+    "requiredInputs": [
+      "token"
+    ]
+  },
+  "resources": {
+    "slack:index/conversation:Conversation": {
+      "description": "Manages a Slack channel\n\n## Required scopes\n\nThis resource requires the following scopes:\n\nIf using `bot` tokens:\n\n- [channels:read](https://api.slack.com/scopes/channels:read)\n(public channels)\n- [channels:manage](https://api.slack.com/scopes/channels:manage)\n(public channels)\n- [channels:join](https://api.slack.com/scopes/channels:join)\n(adopting existing public channels)\n- [groups:read](https://api.slack.com/scopes/groups:read)\n(private channels)\n- [groups:write](https://api.slack.com/scopes/groups:write)\n(private channels)\n\nIf using `user` tokens:\n\n- [channels:read](https://api.slack.com/scopes/channels:read) (public channels)\n- [channels:write](https://api.slack.com/scopes/channels:manage) (public channels)\n- [groups:read](https://api.slack.com/scopes/groups:read) (private channels)\n- [groups:write](https://api.slack.com/scopes/groups:write) (private channels)\n\nThe Slack API methods used by the resource are:\n\n- [conversations.create](https://api.slack.com/methods/conversations.create)\n- [conversations.join](https://api.slack.com/methods/conversations.join)\n- [conversations.setTopic](https://api.slack.com/methods/conversations.setTopic)\n- [conversations.setPurpose](https://api.slack.com/methods/conversations.setPurpose)\n- [conversations.info](https://api.slack.com/methods/conversations.info)\n- [conversations.members](https://api.slack.com/methods/conversations.members)\n- [conversations.kick](https://api.slack.com/methods/conversations.kick)\n- [conversations.invite](https://api.slack.com/methods/conversations.invite)\n- [conversations.rename](https://api.slack.com/methods/conversations.rename)\n- [conversations.archive](https://api.slack.com/methods/conversations.archive)\n- [conversations.unarchive](https://api.slack.com/methods/conversations.unarchive)\n\nIf you get `missing_scope` errors while using this resource check the scopes against\nthe documentation for the methods above.\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as slack from \"@pulumi/slack\";\n\nconst test = new slack.Conversation(\"test\", {\n    isPrivate: true,\n    permanentMembers: [],\n    topic: \"The topic for my channel\",\n});\n```\n```python\nimport pulumi\nimport pulumi_slack as slack\n\ntest = slack.Conversation(\"test\",\n    is_private=True,\n    permanent_members=[],\n    topic=\"The topic for my channel\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Slack = Pulumi.Slack;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var test = new Slack.Conversation(\"test\", new()\n    {\n        IsPrivate = true,\n        PermanentMembers = new[] {},\n        Topic = \"The topic for my channel\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-slack/sdk/go/slack\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := slack.NewConversation(ctx, \"test\", \u0026slack.ConversationArgs{\n\t\t\tIsPrivate:        pulumi.Bool(true),\n\t\t\tPermanentMembers: pulumi.StringArray{},\n\t\t\tTopic:            pulumi.String(\"The topic for my channel\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.slack.Conversation;\nimport com.pulumi.slack.ConversationArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var test = new Conversation(\"test\", ConversationArgs.builder()        \n            .isPrivate(true)\n            .permanentMembers()\n            .topic(\"The topic for my channel\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  test:\n    type: slack:Conversation\n    properties:\n      isPrivate: true\n      permanentMembers: []\n      topic: The topic for my channel\n```\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as slack from \"@pulumi/slack\";\n\nconst nonadmin = new slack.Conversation(\"nonadmin\", {\n    actionOnDestroy: \"none\",\n    isPrivate: true,\n    permanentMembers: [],\n    topic: \"The channel won't be archived on destroy\",\n});\n```\n```python\nimport pulumi\nimport pulumi_slack as slack\n\nnonadmin = slack.Conversation(\"nonadmin\",\n    action_on_destroy=\"none\",\n    is_private=True,\n    permanent_members=[],\n    topic=\"The channel won't be archived on destroy\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Slack = Pulumi.Slack;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var nonadmin = new Slack.Conversation(\"nonadmin\", new()\n    {\n        ActionOnDestroy = \"none\",\n        IsPrivate = true,\n        PermanentMembers = new[] {},\n        Topic = \"The channel won't be archived on destroy\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-slack/sdk/go/slack\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := slack.NewConversation(ctx, \"nonadmin\", \u0026slack.ConversationArgs{\n\t\t\tActionOnDestroy:  pulumi.String(\"none\"),\n\t\t\tIsPrivate:        pulumi.Bool(true),\n\t\t\tPermanentMembers: pulumi.StringArray{},\n\t\t\tTopic:            pulumi.String(\"The channel won't be archived on destroy\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.slack.Conversation;\nimport com.pulumi.slack.ConversationArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var nonadmin = new Conversation(\"nonadmin\", ConversationArgs.builder()        \n            .actionOnDestroy(\"none\")\n            .isPrivate(true)\n            .permanentMembers()\n            .topic(\"The channel won't be archived on destroy\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  nonadmin:\n    type: slack:Conversation\n    properties:\n      actionOnDestroy: none\n      isPrivate: true\n      permanentMembers: []\n      topic: The channel won't be archived on destroy\n```\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as slack from \"@pulumi/slack\";\n\nconst adopted = new slack.Conversation(\"adopted\", {\n    actionOnUpdatePermanentMembers: \"none\",\n    adoptExistingChannel: true,\n    permanentMembers: [],\n    topic: \"Adopt existing, don't kick members\",\n});\n```\n```python\nimport pulumi\nimport pulumi_slack as slack\n\nadopted = slack.Conversation(\"adopted\",\n    action_on_update_permanent_members=\"none\",\n    adopt_existing_channel=True,\n    permanent_members=[],\n    topic=\"Adopt existing, don't kick members\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Slack = Pulumi.Slack;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var adopted = new Slack.Conversation(\"adopted\", new()\n    {\n        ActionOnUpdatePermanentMembers = \"none\",\n        AdoptExistingChannel = true,\n        PermanentMembers = new[] {},\n        Topic = \"Adopt existing, don't kick members\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-slack/sdk/go/slack\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := slack.NewConversation(ctx, \"adopted\", \u0026slack.ConversationArgs{\n\t\t\tActionOnUpdatePermanentMembers: pulumi.String(\"none\"),\n\t\t\tAdoptExistingChannel:           pulumi.Bool(true),\n\t\t\tPermanentMembers:               pulumi.StringArray{},\n\t\t\tTopic:                          pulumi.String(\"Adopt existing, don't kick members\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.slack.Conversation;\nimport com.pulumi.slack.ConversationArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var adopted = new Conversation(\"adopted\", ConversationArgs.builder()        \n            .actionOnUpdatePermanentMembers(\"none\")\n            .adoptExistingChannel(true)\n            .permanentMembers()\n            .topic(\"Adopt existing, don't kick members\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  adopted:\n    type: slack:Conversation\n    properties:\n      actionOnUpdatePermanentMembers: none\n      adoptExistingChannel: true\n      permanentMembers: []\n      topic: Adopt existing, don't kick members\n```\n{{% /example %}}\n{{% /examples %}}\n\n## Import\n\n`slack_conversation` can be imported using the ID of the conversation/channel, e.g.\n\n```sh\n $ pulumi import slack:index/conversation:Conversation my_conversation C023X7QTFHQ\n```\n\n ",
+      "properties": {
+        "actionOnDestroy": {
+          "type": "string",
+          "description": "Either of none or archive\n"
+        },
+        "actionOnUpdatePermanentMembers": {
+          "type": "string",
+          "description": "indicate\nwhether the members should be kick of the channel when removed from\n`permanent_members`. When set to `none` the user are never kicked, this prevent\na side effect on public channels where user that joined the channel are kicked.\n"
+        },
+        "adoptExistingChannel": {
+          "type": "boolean"
+        },
+        "created": {
+          "type": "integer",
+          "description": "is a unix timestamp.\n"
+        },
+        "creator": {
+          "type": "string",
+          "description": "is the user ID of the member that created this channel.\n"
+        },
+        "isArchived": {
+          "type": "boolean",
+          "description": "indicates a conversation is archived. Frozen in time.\n"
+        },
+        "isExtShared": {
+          "type": "boolean",
+          "description": "represents this conversation as being part of a Shared Channel\nwith a remote organization.\n"
+        },
+        "isGeneral": {
+          "type": "boolean",
+          "description": "will be true if this channel is the \"general\" channel that includes\nall regular team members.\n"
+        },
+        "isOrgShared": {
+          "type": "boolean",
+          "description": "explains whether this shared channel is shared between Enterprise\nGrid workspaces within the same organization.\n"
+        },
+        "isPrivate": {
+          "type": "boolean",
+          "description": "create a private channel instead of a public one.\n"
+        },
+        "isShared": {
+          "type": "boolean",
+          "description": "means the conversation is in some way shared between multiple workspaces.\n"
+        },
+        "name": {
+          "type": "string",
+          "description": "name of the public or private channel.\n"
+        },
+        "permanentMembers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "user IDs to add to the channel.\n"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "purpose of the channel.\n"
+        },
+        "topic": {
+          "type": "string",
+          "description": "topic for the channel.\n"
+        }
+      },
+      "required": [
+        "created",
+        "creator",
+        "isExtShared",
+        "isGeneral",
+        "isOrgShared",
+        "isPrivate",
+        "isShared",
+        "name"
+      ],
+      "inputProperties": {
+        "actionOnDestroy": {
+          "type": "string",
+          "description": "Either of none or archive\n"
+        },
+        "actionOnUpdatePermanentMembers": {
+          "type": "string",
+          "description": "indicate\nwhether the members should be kick of the channel when removed from\n`permanent_members`. When set to `none` the user are never kicked, this prevent\na side effect on public channels where user that joined the channel are kicked.\n"
+        },
+        "adoptExistingChannel": {
+          "type": "boolean"
+        },
+        "isArchived": {
+          "type": "boolean",
+          "description": "indicates a conversation is archived. Frozen in time.\n"
+        },
+        "isPrivate": {
+          "type": "boolean",
+          "description": "create a private channel instead of a public one.\n"
+        },
+        "name": {
+          "type": "string",
+          "description": "name of the public or private channel.\n"
+        },
+        "permanentMembers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "user IDs to add to the channel.\n"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "purpose of the channel.\n"
+        },
+        "topic": {
+          "type": "string",
+          "description": "topic for the channel.\n"
+        }
+      },
+      "requiredInputs": [
+        "isPrivate"
+      ],
+      "stateInputs": {
+        "description": "Input properties used for looking up and filtering Conversation resources.\n",
+        "properties": {
+          "actionOnDestroy": {
+            "type": "string",
+            "description": "Either of none or archive\n"
+          },
+          "actionOnUpdatePermanentMembers": {
+            "type": "string",
+            "description": "indicate\nwhether the members should be kick of the channel when removed from\n`permanent_members`. When set to `none` the user are never kicked, this prevent\na side effect on public channels where user that joined the channel are kicked.\n"
+          },
+          "adoptExistingChannel": {
+            "type": "boolean"
+          },
+          "created": {
+            "type": "integer",
+            "description": "is a unix timestamp.\n"
+          },
+          "creator": {
+            "type": "string",
+            "description": "is the user ID of the member that created this channel.\n"
+          },
+          "isArchived": {
+            "type": "boolean",
+            "description": "indicates a conversation is archived. Frozen in time.\n"
+          },
+          "isExtShared": {
+            "type": "boolean",
+            "description": "represents this conversation as being part of a Shared Channel\nwith a remote organization.\n"
+          },
+          "isGeneral": {
+            "type": "boolean",
+            "description": "will be true if this channel is the \"general\" channel that includes\nall regular team members.\n"
+          },
+          "isOrgShared": {
+            "type": "boolean",
+            "description": "explains whether this shared channel is shared between Enterprise\nGrid workspaces within the same organization.\n"
+          },
+          "isPrivate": {
+            "type": "boolean",
+            "description": "create a private channel instead of a public one.\n"
+          },
+          "isShared": {
+            "type": "boolean",
+            "description": "means the conversation is in some way shared between multiple workspaces.\n"
+          },
+          "name": {
+            "type": "string",
+            "description": "name of the public or private channel.\n"
+          },
+          "permanentMembers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "user IDs to add to the channel.\n"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "purpose of the channel.\n"
+          },
+          "topic": {
+            "type": "string",
+            "description": "topic for the channel.\n"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "slack:index/usergroup:Usergroup": {
+      "description": "Manages a Slack User Group.\n\n## Required scopes\n\nThis resource requires the following scopes:\n\n- [usergroups:write](https://api.slack.com/scopes/usergroups:write)\n- [usergroups:read](https://api.slack.com/scopes/usergroups:read)\n\nThe Slack API methods used by the resource are:\n\n- [usergroups.create](https://api.slack.com/methods/usergroups.create)\n- [usergroups.enable](https://api.slack.com/methods/usergroups.enable)\n- [usergroups.disable](https://api.slack.com/methods/usergroups.disable)\n- [usergroups.update](https://api.slack.com/methods/usergroups.update)\n- [usergroups.list](https://api.slack.com/methods/usergroups.list)\n- [usergroups.users.update](https://api.slack.com/methods/usergroups.users.update)\n\nIf you get `missing_scope` errors while using this resource check the scopes against\nthe documentation for the methods above.\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as slack from \"@pulumi/slack\";\n\nconst myGroup = new slack.Usergroup(\"my_group\", {\n    channels: [\"CHANNEL00\"],\n    description: \"Test user group\",\n    handle: \"test\",\n    users: [\"USER00\"],\n});\n```\n```python\nimport pulumi\nimport pulumi_slack as slack\n\nmy_group = slack.Usergroup(\"myGroup\",\n    channels=[\"CHANNEL00\"],\n    description=\"Test user group\",\n    handle=\"test\",\n    users=[\"USER00\"])\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Slack = Pulumi.Slack;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var myGroup = new Slack.Usergroup(\"myGroup\", new()\n    {\n        Channels = new[]\n        {\n            \"CHANNEL00\",\n        },\n        Description = \"Test user group\",\n        Handle = \"test\",\n        Users = new[]\n        {\n            \"USER00\",\n        },\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-slack/sdk/go/slack\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := slack.NewUsergroup(ctx, \"myGroup\", \u0026slack.UsergroupArgs{\n\t\t\tChannels: pulumi.StringArray{\n\t\t\t\tpulumi.String(\"CHANNEL00\"),\n\t\t\t},\n\t\t\tDescription: pulumi.String(\"Test user group\"),\n\t\t\tHandle:      pulumi.String(\"test\"),\n\t\t\tUsers: pulumi.StringArray{\n\t\t\t\tpulumi.String(\"USER00\"),\n\t\t\t},\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.slack.Usergroup;\nimport com.pulumi.slack.UsergroupArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var myGroup = new Usergroup(\"myGroup\", UsergroupArgs.builder()        \n            .channels(\"CHANNEL00\")\n            .description(\"Test user group\")\n            .handle(\"test\")\n            .users(\"USER00\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  myGroup:\n    type: slack:Usergroup\n    properties:\n      channels:\n        - CHANNEL00\n      description: Test user group\n      handle: test\n      users:\n        - USER00\n```\n\nNote that if a channel is removed from the `channels` list users are\n**not** removed from the channel. In order to keep the users in the\ngroups and in the channel in sync set `permanent_users` in the channel:\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as slack from \"@pulumi/slack\";\n\nconst myGroup = new slack.Usergroup(\"myGroup\", {\n    handle: \"test\",\n    description: \"Test user group\",\n    users: [\"USER00\"],\n});\nconst test = new slack.Conversation(\"test\", {\n    topic: \"The topic for my channel\",\n    permanentMembers: myGroup.users,\n    isPrivate: true,\n});\n```\n```python\nimport pulumi\nimport pulumi_slack as slack\n\nmy_group = slack.Usergroup(\"myGroup\",\n    handle=\"test\",\n    description=\"Test user group\",\n    users=[\"USER00\"])\ntest = slack.Conversation(\"test\",\n    topic=\"The topic for my channel\",\n    permanent_members=my_group.users,\n    is_private=True)\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Slack = Pulumi.Slack;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var myGroup = new Slack.Usergroup(\"myGroup\", new()\n    {\n        Handle = \"test\",\n        Description = \"Test user group\",\n        Users = new[]\n        {\n            \"USER00\",\n        },\n    });\n\n    var test = new Slack.Conversation(\"test\", new()\n    {\n        Topic = \"The topic for my channel\",\n        PermanentMembers = myGroup.Users,\n        IsPrivate = true,\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-slack/sdk/go/slack\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\tmyGroup, err := slack.NewUsergroup(ctx, \"myGroup\", \u0026slack.UsergroupArgs{\n\t\t\tHandle:      pulumi.String(\"test\"),\n\t\t\tDescription: pulumi.String(\"Test user group\"),\n\t\t\tUsers: pulumi.StringArray{\n\t\t\t\tpulumi.String(\"USER00\"),\n\t\t\t},\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = slack.NewConversation(ctx, \"test\", \u0026slack.ConversationArgs{\n\t\t\tTopic:            pulumi.String(\"The topic for my channel\"),\n\t\t\tPermanentMembers: myGroup.Users,\n\t\t\tIsPrivate:        pulumi.Bool(true),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.slack.Usergroup;\nimport com.pulumi.slack.UsergroupArgs;\nimport com.pulumi.slack.Conversation;\nimport com.pulumi.slack.ConversationArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var myGroup = new Usergroup(\"myGroup\", UsergroupArgs.builder()        \n            .handle(\"test\")\n            .description(\"Test user group\")\n            .users(\"USER00\")\n            .build());\n\n        var test = new Conversation(\"test\", ConversationArgs.builder()        \n            .topic(\"The topic for my channel\")\n            .permanentMembers(myGroup.users())\n            .isPrivate(true)\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  myGroup:\n    type: slack:Usergroup\n    properties:\n      handle: test\n      description: Test user group\n      users:\n        - USER00\n  test:\n    type: slack:Conversation\n    properties:\n      topic: The topic for my channel\n      permanentMembers: ${myGroup.users}\n      isPrivate: true\n```\n{{% /example %}}\n{{% /examples %}}\n\n## Import\n\n`slack_usergroup` can be imported using the ID of the group, e.g.\n\n```sh\n $ pulumi import slack:index/usergroup:Usergroup my_group S022GE79E9G\n```\n\n ",
+      "properties": {
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "channel IDs for which the User Group uses as a default.\n"
+        },
+        "description": {
+          "type": "string",
+          "description": "a short description of the User Group.\n"
+        },
+        "handle": {
+          "type": "string",
+          "description": "a mention handle. Must be unique among channels, users\nand User Groups.\n"
+        },
+        "name": {
+          "type": "string",
+          "description": "a name for the User Group. Must be unique among User Groups.\n"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "user IDs that represent the entire list of users for the\nUser Group.\n"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "inputProperties": {
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "channel IDs for which the User Group uses as a default.\n"
+        },
+        "description": {
+          "type": "string",
+          "description": "a short description of the User Group.\n"
+        },
+        "handle": {
+          "type": "string",
+          "description": "a mention handle. Must be unique among channels, users\nand User Groups.\n"
+        },
+        "name": {
+          "type": "string",
+          "description": "a name for the User Group. Must be unique among User Groups.\n"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "user IDs that represent the entire list of users for the\nUser Group.\n"
+        }
+      },
+      "stateInputs": {
+        "description": "Input properties used for looking up and filtering Usergroup resources.\n",
+        "properties": {
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "channel IDs for which the User Group uses as a default.\n"
+          },
+          "description": {
+            "type": "string",
+            "description": "a short description of the User Group.\n"
+          },
+          "handle": {
+            "type": "string",
+            "description": "a mention handle. Must be unique among channels, users\nand User Groups.\n"
+          },
+          "name": {
+            "type": "string",
+            "description": "a name for the User Group. Must be unique among User Groups.\n"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "user IDs that represent the entire list of users for the\nUser Group.\n"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "functions": {
+    "slack:index/getConversation:getConversation": {
+      "description": "Use this data source to get information about a Slack conversation for use in other\nresources.\n\n## Required scopes\n\nThis resource requires the following scopes:\n\n- [channels:read](https://api.slack.com/scopes/channels:read) (public channels)\n- [groups:read](https://api.slack.com/scopes/groups:read) (private channels)\n\nThe Slack API methods used by the resource are:\n\n- [conversations.info](https://api.slack.com/methods/conversations.info)\n- [conversations.members](https://api.slack.com/methods/conversations.members)\n\nIf you get `missing_scope` errors while using this resource check the scopes against\nthe documentation for the methods above.\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as slack from \"@pulumi/slack\";\n\nconst test = pulumi.output(slack.getConversation({\n    channelId: \"my-channel\",\n}));\n```\n```python\nimport pulumi\nimport pulumi_slack as slack\n\ntest = slack.get_conversation(channel_id=\"my-channel\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Slack = Pulumi.Slack;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var test = Slack.GetConversation.Invoke(new()\n    {\n        ChannelId = \"my-channel\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-slack/sdk/go/slack\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := slack.LookupConversation(ctx, \u0026GetConversationArgs{\n\t\t\tChannelId: \"my-channel\",\n\t\t}, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.slack.SlackFunctions;\nimport com.pulumi.slack.inputs.GetConversationArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        final var test = SlackFunctions.getConversation(GetConversationArgs.builder()\n            .channelId(\"my-channel\")\n            .build());\n\n    }\n}\n```\n```yaml\nvariables:\n  test:\n    Fn::Invoke:\n      Function: slack:getConversation\n      Arguments:\n        channelId: my-channel\n```\n{{% /example %}}\n{{% /examples %}}",
+      "inputs": {
+        "description": "A collection of arguments for invoking getConversation.\n",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "description": "The ID of the channel\n"
+          }
+        },
+        "type": "object",
+        "required": [
+          "channelId"
+        ]
+      },
+      "outputs": {
+        "description": "A collection of values returned by getConversation.\n",
+        "properties": {
+          "channelId": {
+            "type": "string"
+          },
+          "created": {
+            "type": "integer",
+            "description": "is a unix timestamp.\n"
+          },
+          "creator": {
+            "type": "string",
+            "description": "is the user ID of the member that created this channel.\n"
+          },
+          "id": {
+            "type": "string",
+            "description": "The provider-assigned unique ID for this managed resource.\n"
+          },
+          "isArchived": {
+            "type": "boolean",
+            "description": "indicates a conversation is archived. Frozen in time.\n"
+          },
+          "isExtShared": {
+            "type": "boolean",
+            "description": "represents this conversation as being part of a Shared Channel\nwith a remote organization.\n"
+          },
+          "isGeneral": {
+            "type": "boolean",
+            "description": "will be true if this channel is the \"general\" channel that includes\nall regular team members.\n"
+          },
+          "isOrgShared": {
+            "type": "boolean",
+            "description": "explains whether this shared channel is shared between Enterprise\nGrid workspaces within the same organization.\n"
+          },
+          "isPrivate": {
+            "type": "boolean",
+            "description": "means the conversation is privileged between two or more members.\n"
+          },
+          "isShared": {
+            "type": "boolean",
+            "description": "means the conversation is in some way shared between multiple workspaces.\n"
+          },
+          "name": {
+            "type": "string",
+            "description": "name of the public or private channel.\n"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "purpose of the channel.\n"
+          },
+          "topic": {
+            "type": "string",
+            "description": "topic for the channel.\n"
+          }
+        },
+        "type": "object",
+        "required": [
+          "channelId",
+          "created",
+          "creator",
+          "isArchived",
+          "isExtShared",
+          "isGeneral",
+          "isOrgShared",
+          "isPrivate",
+          "isShared",
+          "name",
+          "purpose",
+          "topic",
+          "id"
+        ]
+      }
+    },
+    "slack:index/getUser:getUser": {
+      "description": "Use this data source to get information about a user for use in other\nresources.\n\n## Required scopes\n\nThis resource requires the following scopes:\n\n- [users:read](https://api.slack.com/scopes/users:read)\n- [users:read.email](https://api.slack.com/scopes/users:read.email)\n\nThe Slack API methods used by the resource are:\n\n- [users.lookupByEmail](https://api.slack.com/methods/users.lookupByEmail)\n- [users.list](https://api.slack.com/methods/users.list)\n\nIf you get `missing_scope` errors while using this resource check the scopes against\nthe documentation for the methods above.\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as slack from \"@pulumi/slack\";\n\nconst byName = pulumi.output(slack.getUser({\n    name: \"my-user\",\n}));\nconst byEmail = pulumi.output(slack.getUser({\n    email: \"my-user@example.com\",\n}));\n```\n```python\nimport pulumi\nimport pulumi_slack as slack\n\nby_name = slack.get_user(name=\"my-user\")\nby_email = slack.get_user(email=\"my-user@example.com\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Slack = Pulumi.Slack;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var byName = Slack.GetUser.Invoke(new()\n    {\n        Name = \"my-user\",\n    });\n\n    var byEmail = Slack.GetUser.Invoke(new()\n    {\n        Email = \"my-user@example.com\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-slack/sdk/go/slack\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := slack.GetUser(ctx, \u0026GetUserArgs{\n\t\t\tName: pulumi.StringRef(\"my-user\"),\n\t\t}, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = slack.GetUser(ctx, \u0026GetUserArgs{\n\t\t\tEmail: pulumi.StringRef(\"my-user@example.com\"),\n\t\t}, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.slack.SlackFunctions;\nimport com.pulumi.slack.inputs.GetUserArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        final var byName = SlackFunctions.getUser(GetUserArgs.builder()\n            .name(\"my-user\")\n            .build());\n\n        final var byEmail = SlackFunctions.getUser(GetUserArgs.builder()\n            .email(\"my-user@example.com\")\n            .build());\n\n    }\n}\n```\n```yaml\nvariables:\n  byName:\n    Fn::Invoke:\n      Function: slack:getUser\n      Arguments:\n        name: my-user\n  byEmail:\n    Fn::Invoke:\n      Function: slack:getUser\n      Arguments:\n        email: my-user@example.com\n```\n{{% /example %}}\n{{% /examples %}}",
+      "inputs": {
+        "description": "A collection of arguments for invoking getUser.\n",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "The email of the user\n"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the user\n"
+          }
+        },
+        "type": "object"
+      },
+      "outputs": {
+        "description": "A collection of values returned by getUser.\n",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "description": "The provider-assigned unique ID for this managed resource.\n"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "slack:index/getUsergroup:getUsergroup": {
+      "description": "Use this data source to get information about a usergroups for use in other\nresources. The data source returns enabled groups only.\n\n## Required scopes\n\nThis resource requires the following scopes:\n\n- [usergroups:read](https://api.slack.com/scopes/usergroups:read)\n\nThe Slack API methods used by the resource are:\n\n- [usergroups.list](https://api.slack.com/methods/usergroups.list)\n\nIf you get `missing_scope` errors while using this resource check the scopes against\nthe documentation for the methods above.\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as slack from \"@pulumi/slack\";\n\nconst byName = pulumi.output(slack.getUsergroup({\n    name: \"my-usergroup\",\n}));\nconst byId = pulumi.output(slack.getUsergroup({\n    usergroupId: \"USERGROUP00\",\n}));\n```\n```python\nimport pulumi\nimport pulumi_slack as slack\n\nby_name = slack.get_usergroup(name=\"my-usergroup\")\nby_id = slack.get_usergroup(usergroup_id=\"USERGROUP00\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Slack = Pulumi.Slack;\n\nreturn await Deployment.RunAsync(() =\u003e \n{\n    var byName = Slack.GetUsergroup.Invoke(new()\n    {\n        Name = \"my-usergroup\",\n    });\n\n    var byId = Slack.GetUsergroup.Invoke(new()\n    {\n        UsergroupId = \"USERGROUP00\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-slack/sdk/go/slack\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := slack.LookupUsergroup(ctx, \u0026GetUsergroupArgs{\n\t\t\tName: pulumi.StringRef(\"my-usergroup\"),\n\t\t}, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = slack.LookupUsergroup(ctx, \u0026GetUsergroupArgs{\n\t\t\tUsergroupId: pulumi.StringRef(\"USERGROUP00\"),\n\t\t}, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.slack.SlackFunctions;\nimport com.pulumi.slack.inputs.GetUsergroupArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        final var byName = SlackFunctions.getUsergroup(GetUsergroupArgs.builder()\n            .name(\"my-usergroup\")\n            .build());\n\n        final var byId = SlackFunctions.getUsergroup(GetUsergroupArgs.builder()\n            .usergroupId(\"USERGROUP00\")\n            .build());\n\n    }\n}\n```\n```yaml\nvariables:\n  byName:\n    Fn::Invoke:\n      Function: slack:getUsergroup\n      Arguments:\n        name: my-usergroup\n  byId:\n    Fn::Invoke:\n      Function: slack:getUsergroup\n      Arguments:\n        usergroupId: USERGROUP00\n```\n{{% /example %}}\n{{% /examples %}}",
+      "inputs": {
+        "description": "A collection of arguments for invoking getUsergroup.\n",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the usergroup\n"
+          },
+          "usergroupId": {
+            "type": "string",
+            "description": "The id of the usergroup\n"
+          }
+        },
+        "type": "object"
+      },
+      "outputs": {
+        "description": "A collection of values returned by getUsergroup.\n",
+        "properties": {
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The channel IDs for which the User Group uses as a default.\n"
+          },
+          "description": {
+            "type": "string",
+            "description": "The short description of the User Group.\n"
+          },
+          "handle": {
+            "type": "string",
+            "description": "The mention handle.\n"
+          },
+          "id": {
+            "type": "string",
+            "description": "The provider-assigned unique ID for this managed resource.\n"
+          },
+          "name": {
+            "type": "string"
+          },
+          "usergroupId": {
+            "type": "string"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The user IDs that represent the entire list of users for the\nUser Group.\n"
+          }
+        },
+        "type": "object",
+        "required": [
+          "channels",
+          "description",
+          "handle",
+          "users",
+          "id"
+        ]
+      }
+    }
+  }
+}

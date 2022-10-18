@@ -1,5 +1,12 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.FunctionRoot
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.ResourceNested
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic.ResourceRoot
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -40,8 +47,8 @@ internal class PulumiNameTest {
         val name = PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority")
         val result = name.toFunctionGroupObjectName(
             NamingFlags(
-                Direction.Input,
-                UseCharacteristic.FunctionRoot,
+                Input,
+                FunctionRoot,
                 LanguageType.Java,
             ),
         )
@@ -54,9 +61,9 @@ internal class PulumiNameTest {
         val name = PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority")
         val result = name.toFunctionGroupObjectName(
             NamingFlags(
-                Direction.Input,
-                UseCharacteristic.FunctionRoot,
-                LanguageType.Kotlin,
+                Input,
+                FunctionRoot,
+                Kotlin,
             ),
         )
 
@@ -68,8 +75,8 @@ internal class PulumiNameTest {
         val name = PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority")
         val result = name.toFunctionGroupObjectPackage(
             NamingFlags(
-                Direction.Input,
-                UseCharacteristic.FunctionRoot,
+                Input,
+                FunctionRoot,
                 LanguageType.Java,
             ),
         )
@@ -82,12 +89,106 @@ internal class PulumiNameTest {
         val name = PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority")
         val result = name.toFunctionGroupObjectPackage(
             NamingFlags(
-                Direction.Input,
-                UseCharacteristic.FunctionRoot,
-                LanguageType.Kotlin,
+                Input,
+                FunctionRoot,
+                Kotlin,
             ),
         )
 
         assertEquals("com.pulumi.aws.acmpca.kotlin", result)
+    }
+
+    @Test
+    fun `package and class names are correctly generated for function from index namespace`() {
+        val pulumiName = PulumiName.from("github:index/getActionsPublicKey:getActionsPublicKey")
+
+        val kotlinNamingFlags = NamingFlags(Input, FunctionRoot, Kotlin)
+        val javaNamingFlags = NamingFlags(Input, FunctionRoot, Java)
+
+        assertEquals(
+            "com.pulumi.github.kotlin",
+            pulumiName.toFunctionGroupObjectPackage(kotlinNamingFlags),
+        )
+        assertEquals(
+            "GithubFunctions",
+            pulumiName.toFunctionGroupObjectName(kotlinNamingFlags),
+        )
+
+        assertEquals(
+            "com.pulumi.github",
+            pulumiName.toFunctionGroupObjectPackage(javaNamingFlags),
+        )
+        assertEquals(
+            "GithubFunctions",
+            pulumiName.toFunctionGroupObjectName(javaNamingFlags),
+        )
+    }
+
+    @Test
+    fun `package names are correctly generated for resource from index namespace`() {
+        val pulumiName = PulumiName.from("github:index/actionsEnvironmentSecret:ActionsEnvironmentSecret")
+
+        val kotlinNamingFlags = NamingFlags(Input, ResourceRoot, Kotlin)
+        val javaNamingFlags = NamingFlags(Input, ResourceRoot, Java)
+
+        assertEquals(
+            "com.pulumi.github.kotlin",
+            pulumiName.toResourcePackage(kotlinNamingFlags),
+        )
+
+        assertEquals(
+            "com.pulumi.github",
+            pulumiName.toResourcePackage(javaNamingFlags),
+        )
+    }
+
+    @Test
+    fun `package names are correctly generated for types from index namespace`() {
+        val pulumiName = PulumiName.from("github:index/ProviderAppAuth:ProviderAppAuth")
+
+        assertEquals(
+            "com.pulumi.github.kotlin.inputs",
+            pulumiName.toPackage(NamingFlags(Input, ResourceNested, Kotlin)),
+        )
+        assertEquals(
+            "com.pulumi.github.inputs",
+            pulumiName.toPackage(NamingFlags(Input, ResourceNested, Java)),
+        )
+
+        assertEquals(
+            "com.pulumi.github.kotlin",
+            pulumiName.toPackage(NamingFlags(Input, ResourceRoot, Kotlin)),
+        )
+        assertEquals(
+            "com.pulumi.github",
+            pulumiName.toPackage(NamingFlags(Input, ResourceRoot, Java)),
+        )
+
+        assertEquals(
+            "com.pulumi.github.kotlin.inputs",
+            pulumiName.toPackage(NamingFlags(Input, FunctionRoot, Kotlin)),
+        )
+        assertEquals(
+            "com.pulumi.github.inputs",
+            pulumiName.toPackage(NamingFlags(Input, FunctionRoot, Java)),
+        )
+
+        assertEquals(
+            "com.pulumi.github.kotlin.outputs",
+            pulumiName.toPackage(NamingFlags(Output, ResourceRoot, Kotlin)),
+        )
+        assertEquals(
+            "com.pulumi.github.outputs",
+            pulumiName.toPackage(NamingFlags(Output, ResourceRoot, Java)),
+        )
+
+        assertEquals(
+            "com.pulumi.github.kotlin.outputs",
+            pulumiName.toPackage(NamingFlags(Output, FunctionRoot, Kotlin)),
+        )
+        assertEquals(
+            "com.pulumi.github.outputs",
+            pulumiName.toPackage(NamingFlags(Output, FunctionRoot, Java)),
+        )
     }
 }
