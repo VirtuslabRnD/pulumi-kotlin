@@ -60,13 +60,16 @@ object IntermediateRepresentationGenerator {
     private fun createTypes(context: Context): List<RootType> {
         val schema = context.schema
 
-        fun <V> createTypes(map: Map<String, V>, usageKind: UsageKind? = null, propertyExtractor: (V) -> RootTypeProperty?) =
-            map
-                .mapValues { propertyExtractor(it.value) }
-                .filterNotNullValues()
-                .flatMap { (name, value) ->
-                    createRootTypes(context, name, value, listOfNotNull(usageKind))
-                }
+        fun <V> createTypes(
+            map: Map<String, V>,
+            usageKind: UsageKind? = null,
+            propertyExtractor: (V) -> RootTypeProperty?,
+        ) = map
+            .mapValues { propertyExtractor(it.value) }
+            .filterNotNullValues()
+            .flatMap { (name, value) ->
+                createRootTypes(context, name, value, listOfNotNull(usageKind))
+            }
 
         val syntheticTypes = listOf(
             createTypes(schema.functions, UsageKind(Root, Function, Input)) { it.inputs },
@@ -99,7 +102,10 @@ object IntermediateRepresentationGenerator {
             val pulumiName = PulumiName.from(typeName)
             val inputUsageKind = UsageKind(Root, Resource, Input)
             val argumentType =
-                findTypeAsReference<ReferencedComplexType>(types, TypeKey.from(pulumiName, inputUsageKind))
+                findTypeAsReference<ReferencedComplexType>(
+                    types,
+                    TypeKey.from(pulumiName, inputUsageKind),
+                )
             ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource))
         }
     }
@@ -109,12 +115,14 @@ object IntermediateRepresentationGenerator {
             val pulumiName = PulumiName.from(typeName)
 
             val inputUsageKind = UsageKind(Root, Function, Input)
-            val argumentType =
-                findTypeOrEmptyComplexType(types, TypeKey.from(pulumiName, inputUsageKind), getKDoc(function))
+            val argumentType = findTypeOrEmptyComplexType(
+                types,
+                TypeKey.from(pulumiName, inputUsageKind),
+                getKDoc(function),
+            )
 
             val outputUsageKind = UsageKind(Root, Function, Output)
-            val resultType =
-                findTypeAsReference<ReferencedRootType>(types, TypeKey.from(pulumiName, outputUsageKind))
+            val resultType = findTypeAsReference<ReferencedRootType>(types, TypeKey.from(pulumiName, outputUsageKind))
 
             FunctionType(pulumiName, argumentType, resultType, getKDoc(function))
         }

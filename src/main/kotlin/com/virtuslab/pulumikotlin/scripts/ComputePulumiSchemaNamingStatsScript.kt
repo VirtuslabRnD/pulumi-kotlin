@@ -74,7 +74,7 @@ class ComputePulumiSchemaNamingStatsScript : CliktCommand() {
 
         val regexAndRuleToTest = listOf(
             Regex("(.+?):(.+?)/(.+?):(.+?)") to { m: MatchResult ->
-                m.groupValues.get(4).lowercase() == m.groupValues.get(3).lowercase()
+                m.groupValues[4].lowercase() == m.groupValues[3].lowercase()
             },
         )
 

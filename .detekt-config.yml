@@ -6,11 +6,28 @@ output-reports:
     - 'XmlOutputReport'
 
 build:
-  maxIssues: 38 # TODO: Remove this setting after adjusting the codebase to Detekt
+  maxIssues: 37 # TODO: Remove this setting after adjusting the codebase to Detekt
 
 style:
+  CanBeNonNullable:
+    active: true
+  CascadingCallWrapping:
+    active: true
+    includeElvis: true
+  ClassOrdering:
+    active: true
+  ExplicitCollectionElementAccessMethod:
+    active: true
   MagicNumber:
-    excludes: [ "**/test/**" , "**/com/virtuslab/pulumikotlin/scripts/*"]
+    excludes: [ "**/test/**" , "**/e2e/**", "**/com/virtuslab/pulumikotlin/scripts/*" ]
+  UnusedImports:
+    active: true
+  UseDataClass:
+    active: true
 complexity:
   LongMethod:
-    excludes: [ "**/test/**" ]
+    excludes: [ "**/test/**" , "**/e2e/**" ]
+naming:
+  FunctionNaming:
+    active: true
+    excludes: [ "**/test/**" , "**/e2e/**" ]

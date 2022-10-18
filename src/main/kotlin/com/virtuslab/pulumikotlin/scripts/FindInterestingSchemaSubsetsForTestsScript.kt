@@ -101,8 +101,8 @@ private fun serializeResource(
     candidateFunctions: List<CandidateEntity>,
 ): String {
     fun encodeTypes(candidate: CandidateEntity): Map<String, JsonElement> {
-        val inputs = candidate.referencedInputTypes.map { it.typeName to parsedSchema.types.get(it.typeName) }
-        val outputs = candidate.referencedOutputTypes.map { it.typeName to parsedSchema.types.get(it.typeName) }
+        val inputs = candidate.referencedInputTypes.map { it.typeName to parsedSchema.types[it.typeName] }
+        val outputs = candidate.referencedOutputTypes.map { it.typeName to parsedSchema.types[it.typeName] }
 
         return (inputs + outputs).toSet().map {
             it.first to json.encodeToJsonElement(it.second)
@@ -113,8 +113,8 @@ private fun serializeResource(
     val types = candidateResources.flatMap { entity -> encodeTypes(entity).map { it.toPair() } } +
         candidateFunctions.flatMap { entity -> encodeTypes(entity).map { it.toPair() } }
 
-    val resourceBody = candidateResources.associate { it.name to parsedSchema.resources.get(it.name) }
-    val functionBody = candidateFunctions.associate { it.name to parsedSchema.functions.get(it.name) }
+    val resourceBody = candidateResources.associate { it.name to parsedSchema.resources[it.name] }
+    val functionBody = candidateFunctions.associate { it.name to parsedSchema.functions[it.name] }
 
     val finalJsonObject = JsonObject(
         mapOf(
@@ -199,7 +199,7 @@ private fun allReferencedTypes(
         is SchemaModel.ReferenceProperty -> {
             val typeName = spec.ref.referencedTypeName
             val theType = TypeAndDetails(typeName, depth, eitherCount)
-            val foundSpec = types.get(typeName)
+            val foundSpec = types[typeName]
             if (foundSpec == null) {
                 error("could not find")
             } else {

@@ -18,6 +18,7 @@ fun String.capitalize() =
 fun String.decapitalize() =
     replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
+@Suppress("UnsafeCallOnNullableType")
 fun <K, V> Map<K, V?>.filterNotNullValues() =
     this
         .filter { it.value != null }

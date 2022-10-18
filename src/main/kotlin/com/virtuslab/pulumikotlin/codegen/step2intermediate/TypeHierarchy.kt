@@ -33,7 +33,13 @@ data class TypeMetadata(
     ) : this(PulumiName.from(name), usageKind, kDoc)
 
     private fun namingFlags(language: LanguageType) =
-        NamingFlags(usageKind.depth, usageKind.subject, usageKind.direction, language, generatedClass)
+        NamingFlags(
+            usageKind.depth,
+            usageKind.subject,
+            usageKind.direction,
+            language,
+            generatedClass,
+        )
 
     fun names(language: LanguageType): NameGeneration {
         return NameGeneration(pulumiName, namingFlags(language))

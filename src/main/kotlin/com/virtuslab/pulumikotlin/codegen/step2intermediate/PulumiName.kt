@@ -19,17 +19,6 @@ data class PulumiName(
     val name: String,
 ) {
 
-    companion object {
-        fun from(string: String): PulumiName {
-            val segments = string.split("/").first().split(":")
-            val providerName = segments.get(0)
-            val namespace = if (segments.getOrNull(1) == "index") segments.drop(2) else segments.drop(1)
-            val name = string.split("/").last().split(":").last()
-
-            return PulumiName(providerName, namespace, name)
-        }
-    }
-
     private data class Modifiers(
         val nameSuffix: String,
         val packageSuffix: List<String>,
@@ -221,6 +210,17 @@ data class PulumiName(
 
     private fun relativeToProviderPackage(packageList: List<String>): List<String> {
         return listOf("com", "pulumi", providerName) + packageList
+    }
+
+    companion object {
+        fun from(string: String): PulumiName {
+            val segments = string.split("/").first().split(":")
+            val providerName = segments.first()
+            val namespace = if (segments.getOrNull(1) == "index") segments.drop(2) else segments.drop(1)
+            val name = string.split("/").last().split(":").last()
+
+            return PulumiName(providerName, namespace, name)
+        }
     }
 }
 
