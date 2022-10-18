@@ -11,12 +11,14 @@ import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
 import com.virtuslab.pulumikotlin.codegen.expressions.addCode
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.UseCharacteristic
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocsIfAvailable
@@ -27,20 +29,8 @@ object ResourceGenerator {
     fun generateResources(resources: List<ResourceType>): List<FileSpec> {
         val files = resources.map { type ->
             val file = FileSpec.builder(
-                type.name.toResourcePackage(
-                    NamingFlags(
-                        Direction.Output,
-                        UseCharacteristic.ResourceRoot,
-                        LanguageType.Kotlin,
-                    ),
-                ),
-                type.name.toResourceName(
-                    NamingFlags(
-                        Direction.Output,
-                        UseCharacteristic.ResourceRoot,
-                        LanguageType.Kotlin,
-                    ),
-                ),
+                type.name.toResourcePackage(NamingFlags(Root, Resource, Output, Kotlin)),
+                type.name.toResourceName(NamingFlags(Root, Resource, Output, Kotlin)),
             )
 
             buildArgsClass(file, type)
@@ -56,8 +46,8 @@ object ResourceGenerator {
 
         val customArgs = ClassName("com.pulumi.kotlin", "CustomArgs")
 
-        val javaFlags = NamingFlags(Direction.Output, UseCharacteristic.ResourceRoot, LanguageType.Java)
-        val kotlinFlags = NamingFlags(Direction.Output, UseCharacteristic.ResourceRoot, LanguageType.Kotlin)
+        val javaFlags = NamingFlags(Root, Resource, Output, Java)
+        val kotlinFlags = NamingFlags(Root, Resource, Output, Kotlin)
 
         val names = resourceType.name
         val resourceClassName = ClassName(names.toResourcePackage(kotlinFlags), names.toResourceName(kotlinFlags))
