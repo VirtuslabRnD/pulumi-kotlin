@@ -45,24 +45,24 @@ tasks.withType<Jar> {
     archiveBaseName.set("${project.rootProject.name}-generator")
 }
 
-val versionConfig = File("src/main/resources/version-config.json")
-var schemas: List<Schema> = getSchemas(versionConfig)
+val versionConfigFile = File("src/main/resources/version-config.json")
+var schemaMetadata: List<SchemaMetadata> = getSchemaMetadata(versionConfigFile)
 
 val createTasksForProvider: (String, String, String, String, List<String>) -> Unit by extra
 
-schemas.forEach { schema ->
+schemaMetadata.forEach { schema ->
     createTasksForProvider(
         "build/generated-src",
         schema.providerName,
         schema.url,
-        "${schema.version}-$version",
+        schema.kotlinVersion,
         schema.customDependencies,
     )
 }
 
 val createGlobalProviderTasks: (List<String>) -> Unit by extra
 
-createGlobalProviderTasks(schemas.map { it.providerName })
+createGlobalProviderTasks(schemaMetadata.map { it.providerName })
 
 sourceSets {
     create("e2eTest") {
@@ -100,3 +100,17 @@ detekt {
 tasks["detekt"].dependsOn(tasks["detektMain"])
 tasks["detekt"].dependsOn(tasks["detektTest"])
 tasks["detekt"].dependsOn(tasks["detektE2eTest"])
+
+tasks.register<Task>("checkForProviderUpdates") {
+    group = "releaseManagement"
+    doLast {
+        updateProviderSchemas(versionConfigFile)
+    }
+}
+
+tasks.register<Task>("updateGeneratorVersion") {
+    group = "releaseManagement"
+    doLast {
+        updateGeneratorVersion(versionConfigFile)
+    }
+}
