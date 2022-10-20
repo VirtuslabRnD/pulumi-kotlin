@@ -114,3 +114,10 @@ tasks.register<Task>("updateGeneratorVersion") {
         updateGeneratorVersion(versionConfigFile)
     }
 }
+
+tasks.register<Task>("postReleaseCleanup") {
+    group = "releaseManagement"
+    doLast {
+        updateGeneratorVersion(versionConfigFile)
+    }
+}

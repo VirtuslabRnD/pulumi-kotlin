@@ -2,7 +2,7 @@
   {
     "providerName": "slack",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-slack/v0.3.0/provider/cmd/pulumi-resource-slack/schema.json",
-    "kotlinVersion": "0.3.0.0",
+    "kotlinVersion": "0.3.0.1-SNAPSHOT",
     "javaVersion": "0.3.0",
     "javaGitTag": "v0.3.0",
     "customDependencies": [
@@ -12,7 +12,7 @@
   {
     "providerName": "random",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.8.2/provider/cmd/pulumi-resource-random/schema.json",
-    "kotlinVersion": "4.8.2.0",
+    "kotlinVersion": "4.8.2.1-SNAPSHOT",
     "javaVersion": "4.8.2",
     "javaGitTag": "v4.8.2",
     "customDependencies": [
@@ -22,7 +22,7 @@
   {
     "providerName": "gcp",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v6.38.0/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "6.38.0.0",
+    "kotlinVersion": "6.38.0.1-SNAPSHOT",
     "javaVersion": "6.38.0",
     "javaGitTag": "v6.38.0",
     "customDependencies": [
