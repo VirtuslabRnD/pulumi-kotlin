@@ -18,5 +18,15 @@
     "customDependencies": [
       "com.pulumi:random:4.8.2"
     ]
+  },
+  {
+    "providerName": "gcp",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v6.38.0/provider/cmd/pulumi-resource-gcp/schema.json",
+    "kotlinVersion": "6.38.0.0",
+    "javaVersion": "6.38.0",
+    "javaGitTag": "v6.38.0",
+    "customDependencies": [
+      "com.pulumi:gcp:6.38.0"
+    ]
   }
 ]

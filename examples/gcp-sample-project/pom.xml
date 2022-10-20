@@ -13,7 +13,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.release>11</maven.compiler.release>
-        <kotlin.version>1.7.10</kotlin.version>
+        <kotlin.version>1.7.20</kotlin.version>
         <mainClass>project.MainKt</mainClass>
         <mainArgs/>
     </properties>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>com.virtuslab</groupId>
             <artifactId>pulumi-gcp-kotlin</artifactId>
-            <version>6.38.0-1.0-SNAPSHOT</version>
+            <version>6.38.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
