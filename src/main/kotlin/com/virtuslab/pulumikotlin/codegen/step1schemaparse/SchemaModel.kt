@@ -24,6 +24,8 @@ data class ParsedSchema(
     val types: TypesMap,
     val functions: FunctionsMap,
     val resources: ResourcesMap,
+    val meta: SchemaModel.Metadata? = null,
+    val language: SchemaModel.PackageLanguage? = null,
 )
 
 @Suppress("SERIALIZER_TYPE_INCOMPATIBLE") // https://github.com/VirtuslabRnD/pulumi-kotlin/issues/63
@@ -258,5 +260,74 @@ object SchemaModel {
         val outputs: ObjectProperty,
         val deprecationMessage: String? = null,
         val description: String? = null,
+    )
+
+    @Serializable
+    data class Metadata(val moduleFormat: String? = null)
+
+    @Serializable
+    data class PackageLanguage(
+        val nodejs: NodejsPackageLanguage? = null,
+        val python: PythonPackageLanguage? = null,
+        val go: GoPackageLanguage? = null,
+        val csharp: CsharpPackageLanguage? = null,
+        val java: JavaPackageLanguage? = null,
+    )
+
+    @Serializable
+    data class NodejsPackageLanguage(
+        val packageName: String? = null,
+        val packageDescription: String? = null,
+        val readme: String? = null,
+        val dependencies: Map<String, String>? = emptyMap(),
+        val devDependencies: Map<String, String>? = emptyMap(),
+        val peerDependencies: Map<String, String>? = emptyMap(),
+        val resolutions: Map<String, String>? = emptyMap(),
+        val typescriptVersion: String? = null,
+        val moduleToPackage: Map<String, String>? = emptyMap(),
+        val compatibility: String? = null,
+        val disableUnionOutputTypes: Boolean? = null,
+        val containsEnums: Boolean? = null,
+        val respectSchemaVersion: Boolean? = null,
+        val pluginName: String? = null,
+        val pluginVersion: String? = null,
+    )
+
+    @Serializable
+    data class PythonPackageLanguage(
+        val packageName: String? = null,
+        val requires: Map<String, String>? = emptyMap(),
+        val readme: String? = null,
+        val moduleNameOverrides: Map<String, String>? = emptyMap(),
+        val compatibility: String? = null,
+        val respectSchemaVersion: Boolean? = null,
+    )
+
+    @Serializable
+    data class GoPackageLanguage(
+        val importBasePath: String? = null,
+        val rootPackageName: String? = null,
+        val moduleToPackage: Map<String, String>? = emptyMap(),
+        val packageImportAliases: Map<String, String>? = null,
+        val generateResourceContainerTypes: Boolean? = null,
+        val respectSchemaVersion: Boolean? = null,
+    )
+
+    @Serializable
+    data class CsharpPackageLanguage(
+        val packageReferences: Map<String, String>? = emptyMap(),
+        val namespaces: Map<String, String>? = emptyMap(),
+        val compatibility: String? = null,
+        val dictionaryConstructors: Boolean? = null,
+        val rootNamespace: String? = null,
+        val respectSchemaVersion: Boolean? = null,
+    )
+
+    @Serializable
+    data class JavaPackageLanguage(
+        val packages: Map<String, String>? = emptyMap(),
+        val basePackage: String? = null,
+        val buildFiles: String? = null,
+        val dependencies: Map<String, String>? = emptyMap(),
     )
 }
