@@ -76,29 +76,33 @@ val createTasksForProvider by extra {
             archiveClassifier.set("sources")
         }
 
-        tasks.register<DokkaTask>(javadocGenerationTaskName) {
-            dependsOn(tasks[generationTaskName])
-            moduleName.set(archiveName)
-            dokkaSourceSets {
-                named("main") {
-                    suppress.set(true)
-                }
-                named(sourceSetName) {
-                    suppress.set(false)
+        // TODO: Remove this once it becomes possible to generate Dokka docs for GCP
+        //  on GitHub Actions without getting an OOM error.
+        if (providerName != "gcp") {
+            tasks.register<DokkaTask>(javadocGenerationTaskName) {
+                dependsOn(tasks[generationTaskName])
+                moduleName.set(archiveName)
+                dokkaSourceSets {
+                    named("main") {
+                        suppress.set(true)
+                    }
+                    named(sourceSetName) {
+                        suppress.set(false)
+                    }
                 }
             }
-        }
 
-        tasks.register<Jar>(javadocJarTaskName) {
-            dependsOn(tasks[javadocGenerationTaskName])
-            group = "documentation"
-            from(tasks[javadocGenerationTaskName])
-            archiveBaseName.set(archiveName)
-            archiveClassifier.set("javadoc")
-            // This setting is needed to enable building JAR archives with more than 65535 files, e.g. Dokka docs for
-            // the full GCP schema. See:
-            // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html#org.gradle.api.tasks.bundling.Jar:zip64
-            isZip64 = true
+            tasks.register<Jar>(javadocJarTaskName) {
+                dependsOn(tasks[javadocGenerationTaskName])
+                group = "documentation"
+                from(tasks[javadocGenerationTaskName])
+                archiveBaseName.set(archiveName)
+                archiveClassifier.set("javadoc")
+                // This setting is needed to enable building JAR archives with more than 65535 files, e.g. Dokka docs for
+                // the full GCP schema. See:
+                // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html#org.gradle.api.tasks.bundling.Jar:zip64
+                isZip64 = true
+            }
         }
 
         publishing {
@@ -113,10 +117,14 @@ val createTasksForProvider by extra {
                     artifactId = archiveName
                     setVersion(version)
                 }
-                create<MavenPublication>(javadocPublicationName) {
-                    artifact(tasks[javadocJarTaskName])
-                    artifactId = archiveName
-                    setVersion(version)
+                // TODO: Remove this once it becomes possible to generate Dokka docs for GCP
+                //  on GitHub Actions without getting an OOM error.
+                if (providerName != "gcp") {
+                    create<MavenPublication>(javadocPublicationName) {
+                        artifact(tasks[javadocJarTaskName])
+                        artifactId = archiveName
+                        setVersion(version)
+                    }
                 }
 
                 publications
