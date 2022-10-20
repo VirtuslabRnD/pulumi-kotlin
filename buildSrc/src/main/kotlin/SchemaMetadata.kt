@@ -9,7 +9,7 @@ data class SchemaMetadata(
     val url: String,
     val kotlinVersion: String,
     val javaVersion: String,
-    val gitTag: String,
+    val javaGitTag: String,
     val customDependencies: List<String>,
 )
 
