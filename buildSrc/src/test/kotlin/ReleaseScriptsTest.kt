@@ -37,7 +37,7 @@ class ReleaseScriptsTest {
         )
         assertEquals(
             versionString,
-            kotlinVersion.toString()
+            kotlinVersion.toString(),
         )
     }
 
@@ -63,7 +63,7 @@ class ReleaseScriptsTest {
         )
         assertEquals(
             versionString,
-            kotlinVersion.toString()
+            kotlinVersion.toString(),
         )
     }
 
@@ -83,7 +83,7 @@ class ReleaseScriptsTest {
         )
         assertEquals(
             versionString,
-            javaVersion.toString()
+            javaVersion.toString(),
         )
     }
 
@@ -106,7 +106,7 @@ class ReleaseScriptsTest {
         )
         assertEquals(
             versionString,
-            javaVersion.toString()
+            javaVersion.toString(),
         )
     }
 
@@ -152,13 +152,6 @@ class ReleaseScriptsTest {
         )
     }
 
-    private fun createMavenSearchResponse(vararg docs: String) =
-        MavenSearchResponse(
-            VersionInfoDetails(
-                docs.map { VersionInfo(it) },
-            ),
-        )
-
     @Test
     fun `updates versions after generator update`() {
         val updatedFileLocation = File("build/tmp/before-generator-update-${RandomStringUtils.random(10)}.json")
@@ -176,6 +169,13 @@ class ReleaseScriptsTest {
             expectedResultsFile.readText(),
         )
     }
+
+    private fun createMavenSearchResponse(vararg docs: String) =
+        MavenSearchResponse(
+            VersionInfoDetails(
+                docs.map { VersionInfo(it) },
+            ),
+        )
 
     private fun createMockHttpClient(responses: Map<String, MavenSearchResponse>) =
         HttpClient(
