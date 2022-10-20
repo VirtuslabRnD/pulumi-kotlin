@@ -34,13 +34,16 @@ fun main(args: Array<String>) {
 }
 
 /**
- * Example program arguments
- * --schema-path src/main/resources/schema-aws-classic.json
- * --name gcp:compute/instance:Instance
+ * Example invocation:
+ *
+ * ```bash
+ * programName \
+ * --schema-path src/main/resources/schema-aws-classic.json \
+ * --name gcp:compute/instance:Instance \
  * --context resource
+ * ```
  */
 class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : CliktCommand() {
-
     private val printStream = PrintStream(outputStream)
 
     private val schemaPath: String by option().required()
@@ -50,7 +53,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
     override fun run() {
         val parsedSchema = Decoder.decode(File(schemaPath).inputStream())
 
-        val propertiesWithNameAndContext = with(parsedSchema) {
+        val allPropertiesToBeFlattened = with(parsedSchema) {
             listOf(
                 extractProperties(types, Type) {
                     listOf(it)
@@ -64,17 +67,19 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
             )
         }
 
-        val propertiesByNameAndContext = propertiesWithNameAndContext
+        val propertiesByNameWithContext: Map<NameWithContext, List<Property>> = allPropertiesToBeFlattened
             .flatten()
             .toMap()
             .lowercaseKeys()
 
-        val childrenByNameAndContext = computeTransitiveClosures(propertiesByNameAndContext).lowercaseKeys()
-        val parentsByNameAndContext = inverse(childrenByNameAndContext).lowercaseKeys()
+        val childrenByNameWithContext: Map<NameWithContext, References> =
+            computeTransitiveClosures(propertiesByNameWithContext).lowercaseKeys()
+        val parentsByNameWithContext: Map<NameWithContext, References> =
+            inverse(childrenByNameWithContext).lowercaseKeys()
 
         val chosenKey = NameWithContext(name, context)
-        val requiredChildren = childrenByNameAndContext[chosenKey] ?: error("could not find $name children ($context)")
-        val requiredParents = parentsByNameAndContext[chosenKey] ?: run {
+        val requiredChildren = childrenByNameWithContext[chosenKey] ?: error("could not find $name children ($context)")
+        val requiredParents = parentsByNameWithContext[chosenKey] ?: run {
             println("could not find $name parents ($context)")
             References.empty()
         }
@@ -110,7 +115,9 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
             .filterNotNullValues()
             .map { it.toPair() }
 
-    private fun computeTransitiveClosures(allProperties: Map<NameWithContext, List<Property>>): TypeKeysToChildren {
+    private fun computeTransitiveClosures(
+        allProperties: Map<NameWithContext, List<Property>>,
+    ): ChildrenByNameWithContext {
         return allProperties
             .mapValues { (key, value) ->
                 value
@@ -124,7 +131,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         propertyWithContext: PropertyWithContext,
         visited: Set<NameWithContext> = emptySet(),
     ): References {
-        val children = when (val property = propertyWithContext.property) {
+        return when (val property = propertyWithContext.property) {
             is ReferencingOtherTypesProperty -> {
                 References.from(
                     getInnerProperties(property).flatMap {
@@ -134,13 +141,11 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
             }
 
             is ReferenceProperty -> {
-                getReference(allProperties, property, visited)
+                getReferences(allProperties, property, visited)
             }
 
             is PrimitiveProperty, is StringEnumProperty -> References.empty()
         }
-
-        return children
     }
 
     private fun getInnerProperties(property: ReferencingOtherTypesProperty): List<Property> {
@@ -152,8 +157,8 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         }
     }
 
-    private fun getReference(
-        map: Map<NameWithContext, List<Property>>,
+    private fun getReferences(
+        allProperties: Map<NameWithContext, List<Property>>,
         property: ReferenceProperty,
         visited: Set<NameWithContext>,
     ): References {
@@ -161,29 +166,31 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         if (typeName.startsWith("pulumi")) {
             return References.empty()
         }
+
         val key = NameWithContext(typeName, Type)
         if (visited.contains(key)) {
             return References.from(key)
         }
-        val foundProperties = map[key]
+
+        val foundProperties = allProperties[key]
         if (foundProperties == null) {
             println("could not find $typeName")
             return References.from(key)
         }
 
-        val recursive = foundProperties
+        val recursiveReferences = foundProperties
             .map {
                 val foundPropertyWithContext = PropertyWithContext(it, Type)
-                computeTransitiveClosure(map, foundPropertyWithContext, visited + key)
+                computeTransitiveClosure(allProperties, foundPropertyWithContext, visited + key)
             }
             .fold(References.empty(), References::merge)
 
-        return recursive.add(key)
+        return recursiveReferences.add(key)
     }
 
-    private fun inverse(typeKeysToChildren: TypeKeysToChildren): TypeKeysToParents {
+    private fun inverse(childrenByNameWithContext: ChildrenByNameWithContext): ParentsByNameWithContext {
         val inverseMap = mutableMapOf<NameWithContext, References>()
-        typeKeysToChildren.forEach { (key, values) ->
+        childrenByNameWithContext.forEach { (key, values) ->
             values.references.forEach { value ->
                 inverseMap.merge(value, References.from(key), References::merge)
             }
@@ -200,11 +207,13 @@ private data class NoDataLossSchemaModel(
 )
 
 private typealias Name = String
-private typealias TypeKeysToChildren = Map<NameWithContext, References>
-private typealias TypeKeysToParents = Map<NameWithContext, References>
+private typealias ChildrenByNameWithContext = Map<NameWithContext, References>
+private typealias ParentsByNameWithContext = Map<NameWithContext, References>
 
 private enum class Context {
-    Function, Type, Resource;
+    Function,
+    Type,
+    Resource,
 }
 
 private data class PropertyWithContext(val property: Property, val context: Context)
@@ -217,18 +226,14 @@ private fun <V : Any> Map<NameWithContext, V>.lowercaseKeys() =
     this.transformKeys { it.withLowercaseTypeName() }
 
 private class References private constructor(val references: Set<NameWithContext>) {
-    fun add(one: NameWithContext) =
-        from(references + one)
+    fun add(one: NameWithContext) = from(references + one)
 
-    fun merge(other: References) =
-        from(references + other.references)
+    fun merge(other: References) = from(references + other.references)
 
     companion object {
-        fun empty() =
-            References(emptySet())
+        fun empty() = References(emptySet())
 
-        fun from(vararg namesWithContext: NameWithContext) =
-            from(namesWithContext.asIterable())
+        fun from(vararg namesWithContext: NameWithContext) = from(namesWithContext.asIterable())
 
         fun from(references: Iterable<NameWithContext>) =
             References(references.toSet().transformKeys { it.withLowercaseTypeName() })

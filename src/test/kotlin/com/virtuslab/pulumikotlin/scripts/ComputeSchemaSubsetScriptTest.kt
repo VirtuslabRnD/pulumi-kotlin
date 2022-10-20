@@ -14,7 +14,7 @@ internal class ComputeSchemaSubsetScriptTest {
 
     @Test
     fun `should find subset when using type (that is referenced by some resource)`() {
-        val output = run(
+        val output = runComputeSchemaSubset(
             "--schema-path",
             resolvedSchemaPath(),
             "--name",
@@ -38,7 +38,7 @@ internal class ComputeSchemaSubsetScriptTest {
 
     @Test
     fun `should find subset when using resource (that references some types)`() {
-        val output = run(
+        val output = runComputeSchemaSubset(
             "--schema-path",
             resolvedSchemaPath(),
             "--name",
@@ -67,7 +67,7 @@ internal class ComputeSchemaSubsetScriptTest {
 
     @Test
     fun `should find subset when using function (that references some types)`() {
-        val output = run(
+        val output = runComputeSchemaSubset(
             "--schema-path",
             resolvedSchemaPath(),
             "--name",
@@ -87,7 +87,7 @@ internal class ComputeSchemaSubsetScriptTest {
 
     @Test
     fun `should work when using type (that is referenced by some function)`() {
-        val output = run(
+        val output = runComputeSchemaSubset(
             "--schema-path",
             resolvedSchemaPath(),
             "--name",
@@ -119,7 +119,7 @@ internal class ComputeSchemaSubsetScriptTest {
         assertEquals(functions, schema.functions.keys)
     }
 
-    private fun run(vararg args: String): String {
+    private fun runComputeSchemaSubset(vararg args: String): String {
         val outputStream = ByteArrayOutputStream()
 
         outputStream.use {
