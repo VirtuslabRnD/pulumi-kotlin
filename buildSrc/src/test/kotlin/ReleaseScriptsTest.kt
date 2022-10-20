@@ -28,6 +28,31 @@ class ReleaseScriptsTest {
                 "5.16.0",
                 null,
             ),
+            false,
+            2,
+        )
+
+        assertEquals(
+            expectedParsedVersion,
+            kotlinVersion,
+        )
+        assertEquals(
+            versionString,
+            kotlinVersion.toString(),
+        )
+    }
+
+    @Test
+    fun `correctly parses Kotlin library version (release, SNAPSHOT)`() {
+        val versionString = "5.16.0.2-SNAPSHOT"
+        val kotlinVersion = KotlinVersion.fromVersionString(versionString)
+
+        val expectedParsedVersion = KotlinVersion(
+            JavaVersion(
+                "5.16.0",
+                null,
+            ),
+            true,
             2,
         )
 
@@ -54,6 +79,7 @@ class ReleaseScriptsTest {
                     "1d411918",
                 ),
             ),
+            false,
             2,
         )
 
@@ -61,6 +87,34 @@ class ReleaseScriptsTest {
             expectedParsedVersion,
             kotlinVersion,
         )
+        assertEquals(
+            versionString,
+            kotlinVersion.toString(),
+        )
+    }
+
+    @Test
+    fun `correctly parses Kotlin library version (non-release, SNAPSHOT)`() {
+        val versionString = "4.7.0.2-alpha.1657304919+1d411918-SNAPSHOT"
+        val kotlinVersion = KotlinVersion.fromVersionString(versionString)
+
+        val expectedParsedVersion = KotlinVersion(
+            JavaVersion(
+                "4.7.0",
+                VersionStringPostfix(
+                    "alpha.1657304919",
+                    "1d411918",
+                ),
+            ),
+            true,
+            2,
+        )
+
+        assertEquals(
+            expectedParsedVersion,
+            kotlinVersion,
+        )
+
         assertEquals(
             versionString,
             kotlinVersion.toString(),
@@ -165,8 +219,26 @@ class ReleaseScriptsTest {
         updateGeneratorVersion(updatedFileLocation)
 
         assertEquals(
-            updatedFileLocation.readText(),
             expectedResultsFile.readText(),
+            updatedFileLocation.readText(),
+        )
+    }
+
+    @Test
+    fun `cleans up after release`() {
+        val updatedFileLocation = File("build/tmp/before-cleanup-${RandomStringUtils.random(10)}.json")
+        val expectedResultsFile = File("src/test/resources/after-cleanup.json")
+
+        Files.copy(
+            File("src/test/resources/before-cleanup.json").toPath(),
+            updatedFileLocation.toPath(),
+        )
+
+        updateVersionsAfterRelease(updatedFileLocation)
+
+        assertEquals(
+            expectedResultsFile.readText(),
+            updatedFileLocation.readText(),
         )
     }
 

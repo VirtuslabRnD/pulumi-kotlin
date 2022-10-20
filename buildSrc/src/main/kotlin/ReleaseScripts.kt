@@ -66,11 +66,13 @@ data class JavaVersion(val version: String, val postfix: VersionStringPostfix?) 
     }
 }
 
-data class KotlinVersion(val javaVersion: JavaVersion, val minor: Int = 0) {
+data class KotlinVersion(val javaVersion: JavaVersion, val isSnapshot: Boolean, val minor: Int = 0) {
 
     companion object {
         fun fromVersionString(versionString: String): KotlinVersion {
-            val versionStringSegments = "(\\d+.\\d+.\\d+).(\\d+)(\\-(.*)\\+(.*))?".toRegex().find(versionString)
+            val versionStringSegments = "(\\d+.\\d+.\\d+).(\\d+)(\\-(.*)\\+([\\w\\d]*))?(\\-SNAPSHOT)?"
+                .toRegex()
+                .find(versionString)
             val javaVersion = versionStringSegments?.groupValues?.get(1) ?: error("Invalid version string")
             val isRelease = versionStringSegments.groupValues[3].isEmpty()
             val postfix = if (!isRelease) {
@@ -81,6 +83,7 @@ data class KotlinVersion(val javaVersion: JavaVersion, val minor: Int = 0) {
             } else {
                 null
             }
+            val isSnapshot = versionStringSegments.groupValues[6].isNotEmpty()
             val kotlinMinor = versionStringSegments.groupValues[2]
 
             return KotlinVersion(
@@ -88,13 +91,15 @@ data class KotlinVersion(val javaVersion: JavaVersion, val minor: Int = 0) {
                     javaVersion,
                     postfix,
                 ),
+                isSnapshot,
                 kotlinMinor.toInt(),
             )
         }
     }
 
     override fun toString(): String {
-        return "${javaVersion.version}.$minor${if (javaVersion.postfix != null) "-${javaVersion.postfix}" else ""}"
+        return "${javaVersion.version}.$minor${if (javaVersion.postfix != null) "-${javaVersion.postfix}" else ""}" +
+            "${if (isSnapshot) "-SNAPSHOT" else ""}"
     }
 }
 
@@ -105,6 +110,7 @@ fun updateGeneratorVersion(versionConfigFile: File) {
         val oldKotlinVersion = KotlinVersion.fromVersionString(it.kotlinVersion)
         val newKotlinVersion = KotlinVersion(
             oldKotlinVersion.javaVersion,
+            false,
             oldKotlinVersion.minor + 1,
         )
 
@@ -151,7 +157,7 @@ fun fetchUpdatedSchemas(
         it
     } else {
         val newJavaVersion = JavaVersion.fromVersionString(versions[0].toString())
-        val newKotlinVersion = KotlinVersion(newJavaVersion)
+        val newKotlinVersion = KotlinVersion(newJavaVersion, false)
         if (newJavaVersion.postfix != null) {
             println("git tag pulumi-$providerName/$newKotlinVersion")
         }
@@ -165,6 +171,33 @@ fun fetchUpdatedSchemas(
             listOf("com.pulumi:$providerName:$newJavaVersion"),
         )
     }
+}
+
+fun updateVersionsAfterRelease(versionConfigFile: File) {
+    val schemas = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
+
+    val updatedSchemas = schemas.map {
+        val oldKotlinVersion = KotlinVersion.fromVersionString(it.kotlinVersion)
+        if (oldKotlinVersion.isSnapshot) {
+            it
+        } else {
+            val newKotlinVersion = KotlinVersion(
+                oldKotlinVersion.javaVersion,
+                true,
+                oldKotlinVersion.minor + 1,
+            )
+            SchemaMetadata(
+                it.providerName,
+                it.url,
+                newKotlinVersion.toString(),
+                it.javaVersion,
+                it.javaGitTag,
+                it.customDependencies,
+            )
+        }
+    }
+
+    versionConfigFile.writeText("${json.encodeToString(updatedSchemas)}\n")
 }
 
 private fun fetchVersions(
