@@ -113,7 +113,7 @@ fun updateGeneratorVersion(versionConfigFile: File) {
             it.url,
             newKotlinVersion.toString(),
             newKotlinVersion.javaVersion.toString(),
-            it.gitTag,
+            it.javaGitTag,
             it.customDependencies,
         )
     }
@@ -158,7 +158,7 @@ fun fetchUpdatedSchemas(
         val newGitTag = newJavaVersion.postfix?.gitHash ?: "v${newJavaVersion.version}"
         SchemaMetadata(
             providerName,
-            it.url.replace(it.gitTag, newGitTag),
+            it.url.replace(it.javaGitTag, newGitTag),
             newKotlinVersion.toString(),
             newJavaVersion.toString(),
             newGitTag,
