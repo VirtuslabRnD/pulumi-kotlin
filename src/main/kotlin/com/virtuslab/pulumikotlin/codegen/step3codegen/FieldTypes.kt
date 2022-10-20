@@ -4,9 +4,9 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Java.Pulumi.outputClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetExtensions.parameterizedBy
 
 sealed class FieldType<T : ReferencedType> {
-
     abstract val type: T
 
     abstract fun toTypeName(): TypeName
@@ -20,7 +20,7 @@ data class NormalField<T : ReferencedType>(override val type: T, val mappingCode
 
 data class OutputWrappedField<T : ReferencedType>(override val type: T) : FieldType<T>() {
     override fun toTypeName(): ParameterizedTypeName {
-        return outputClass(type.toTypeName())
+        return outputClass().parameterizedBy(type)
     }
 }
 

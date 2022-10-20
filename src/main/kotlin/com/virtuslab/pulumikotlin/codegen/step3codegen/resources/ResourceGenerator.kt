@@ -15,7 +15,6 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Java.Pulumi.outputClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customArgsBuilderClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customArgsClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.pulumiDslMarkerAnnotation
@@ -53,12 +52,8 @@ object ResourceGenerator {
         val javaResourceClassName = ClassName(names.toResourcePackage(javaFlags), names.toResourceName(javaFlags))
 
         val fields = resourceType.outputFields.map { field ->
-            PropertySpec.builder(
-                field.name,
-                outputClass(
-                    field.fieldType.type.toTypeName().copy(nullable = !field.required),
-                ),
-            )
+            PropertySpec
+                .builder(field.name, field.toTypeName())
                 .getter(
                     FunSpec.getterBuilder()
                         .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required))

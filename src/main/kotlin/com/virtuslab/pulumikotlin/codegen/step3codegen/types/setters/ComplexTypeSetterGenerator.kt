@@ -7,7 +7,7 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builde
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderPattern
 import com.virtuslab.pulumikotlin.codegen.step3codegen.NormalField
 
-object ComplexTypeGenerator : SetterGenerator {
+object ComplexTypeSetterGenerator : SetterGenerator {
     override fun generate(setter: Setter): Iterable<FunSpec> {
         val typedField = setter.fieldType as? NormalField<*> ?: return emptyList()
         val type = typedField.type as? ReferencedComplexType ?: return emptyList()

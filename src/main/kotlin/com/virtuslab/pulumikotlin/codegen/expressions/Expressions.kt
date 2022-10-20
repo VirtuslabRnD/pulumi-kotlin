@@ -204,9 +204,6 @@ data class Assignment(val to: String, val expression: Expression) : Code() {
 }
 
 data class GroupedCode(val list: List<Code>) : Code() {
-
-    constructor(vararg code: Code) : this(code.toList())
-
     override fun toCodeBlock(): CustomCodeBlock {
         val blocks = list.map { it.toCodeBlock() }
 

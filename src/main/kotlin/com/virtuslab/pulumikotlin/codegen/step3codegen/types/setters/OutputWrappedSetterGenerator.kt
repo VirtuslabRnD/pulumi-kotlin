@@ -6,7 +6,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.addDocsToBuilderMethod
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
 
-object OutputWrappedGenerator : SetterGenerator {
+object OutputWrappedSetterGenerator : SetterGenerator {
     override fun generate(setter: Setter): Iterable<FunSpec> {
         val outputWrappedField = setter.fieldType as? OutputWrappedField<ReferencedType> ?: return emptyList()
 
@@ -14,7 +14,7 @@ object OutputWrappedGenerator : SetterGenerator {
             FunSpec
                 .builder(setter.name)
                 .addModifiers(SUSPEND)
-                .addParameter("value", outputWrappedField.toTypeName().copy(nullable = !setter.fieldRequired))
+                .addParameter("value", outputWrappedField.toTypeName())
                 .addCode("this.%N = value", setter.name)
                 .addDocsToBuilderMethod(setter.kDoc, "value")
                 .build(),

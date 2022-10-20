@@ -1,6 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen.types.setters
 
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.TypeName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.FieldType
@@ -16,6 +17,10 @@ data class Setter(
     val fieldRequired: Boolean,
     val kDoc: KDoc,
 ) {
+
+    fun toTypeName(): TypeName =
+        fieldType.toTypeName().copy(nullable = !fieldRequired)
+
     companion object {
         fun from(originalField: Field<ReferencedType>, overload: FieldType<ReferencedType>) =
             Setter(originalField.name, overload, originalField.required, originalField.kDoc)
@@ -27,11 +32,11 @@ data class Setter(
 
 object AllSetterGenerators : SetterGenerator {
     private val generators = listOf(
-        BasicGenerator,
-        OutputWrappedGenerator,
-        ComplexTypeGenerator,
-        ListTypeGenerator,
-        MapTypeGenerator,
+        BasicSetterGenerator,
+        OutputWrappedSetterGenerator,
+        ComplexTypeSetterGenerator,
+        ListTypeSetterGenerator,
+        MapTypeSetterGenerator,
     )
 
     override fun generate(setter: Setter): Iterable<FunSpec> {

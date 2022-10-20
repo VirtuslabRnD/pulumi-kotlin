@@ -7,6 +7,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.KModifier.INTERNAL
 import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.virtuslab.pulumikotlin.codegen.expressions.ConstructObjectExpression
@@ -23,8 +24,8 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pul
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.applyValueExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.convertibleToJavaClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.pulumiDslMarkerAnnotation
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.toJavaMethod
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.toKotlinMethod
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.toJavaExtensionMethod
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.toKotlinExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.RootType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
@@ -100,8 +101,8 @@ object TypeGenerator {
             .addImports(
                 applySuspendExtensionMethod(),
                 applyValueExtensionMethod(),
-                toJavaMethod(),
-                toKotlinMethod(),
+                toJavaExtensionMethod(),
+                toKotlinExtensionMethod(),
             )
             .addTypes(
                 generateArgsClass(context),
@@ -127,7 +128,7 @@ object TypeGenerator {
             .addDocs("$classDocs\n$propertyDocs")
             .letIf(options.implementToJava) {
                 val innerType = typeMetadata.names(LanguageType.Java).kotlinPoetClassName
-                val convertibleToJava = convertibleToJavaClass(innerType)
+                val convertibleToJava = convertibleToJavaClass().parameterizedBy(innerType)
                 it
                     .addSuperinterface(convertibleToJava)
                     .addFunction(toJavaFunction(typeMetadata, fields))
@@ -265,6 +266,8 @@ object TypeGenerator {
             .build()
     }
 
+    // The number of characters does not matter here, 16 is an arbitrary number.
+    @Suppress("MagicNumber")
     private fun randomStringWith16Characters() =
         Random()
             .ints('a'.code, 'z'.code)
