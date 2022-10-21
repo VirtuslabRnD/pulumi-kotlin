@@ -101,23 +101,24 @@ tasks["detekt"].dependsOn(tasks["detektMain"])
 tasks["detekt"].dependsOn(tasks["detektTest"])
 tasks["detekt"].dependsOn(tasks["detektE2eTest"])
 
-tasks.register<Task>("checkForProviderUpdates") {
+tasks.register<Task>("prepareReleaseOfUpdatedSchemas") {
     group = "releaseManagement"
     doLast {
-        updateProviderSchemas(versionConfigFile)
+        updateProviderSchemas(projectDir, versionConfigFile)
     }
 }
 
-tasks.register<Task>("updateGeneratorVersion") {
+tasks.register<Task>("prepareReleaseAfterGeneratorUpdate") {
     group = "releaseManagement"
     doLast {
-        updateGeneratorVersion(versionConfigFile)
+        updateGeneratorVersion(projectDir, versionConfigFile)
     }
 }
 
-tasks.register<Task>("postReleaseCleanup") {
+tasks.register<Task>("postRelease") {
     group = "releaseManagement"
     doLast {
-        updateGeneratorVersion(versionConfigFile)
+        tagRecentReleases(projectDir, versionConfigFile)
+        replaceReleasedVersionsWithSnapshots(projectDir, versionConfigFile)
     }
 }

@@ -1,16 +1,7 @@
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.headersOf
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.apache.commons.lang3.RandomStringUtils
+import org.apache.maven.artifact.versioning.ComparableVersion
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.file.Files
@@ -19,7 +10,38 @@ import kotlin.test.assertEquals
 class ReleaseScriptsTest {
 
     @Test
-    fun `correctly parses Kotlin library version (release)`() {
+    fun `produces valid versioning model`() {
+        assert(ComparableVersion("0.9.10.5") < ComparableVersion("1.0.0.0-SNAPSHOT"))
+        assert(ComparableVersion("1.0.0.0-SNAPSHOT") < ComparableVersion("1.0.0.0"))
+        assert(ComparableVersion("1.0.0.0") < ComparableVersion("1.0.0.1"))
+        assert(ComparableVersion("1.0.0.2") < ComparableVersion("1.0.0.10"))
+
+        assert(
+            ComparableVersion("4.10.1.0-alpha.1665590627+9c01b95f") <
+                ComparableVersion("5.17.0.10-alpha.1665590627+9c01b95f"),
+        )
+        assert(
+            ComparableVersion("5.17.0.0-alpha.1665590627+9c01b95f-SNAPSHOT") <
+                ComparableVersion("5.17.0.0-alpha.1665590627+9c01b95f"),
+        )
+        assert(
+            ComparableVersion("5.17.0.0-alpha.1665590627+9c01b95f") <
+                ComparableVersion("5.17.0.1-alpha.1665590627+9c01b95f"),
+        )
+        assert(
+            ComparableVersion("5.17.0.2-alpha.1665590627+9c01b95f") <
+                ComparableVersion("5.17.0.10-alpha.1665590627+9c01b95f"),
+        )
+        assert(
+            ComparableVersion("5.14.0-alpha.1663282832+a2389a26") <
+                ComparableVersion("5.14.0-alpha.1663343686+d0e52280"),
+        )
+
+        assert(ComparableVersion("0.9.10.5-alpha.1665590627+9c01b95f") < ComparableVersion("0.9.10.5"))
+    }
+
+    @Test
+    fun `correctly parses Kotlin library version (Java release, Kotlin release)`() {
         val versionString = "5.16.0.2"
         val kotlinVersion = KotlinVersion.fromVersionString(versionString)
 
@@ -43,7 +65,7 @@ class ReleaseScriptsTest {
     }
 
     @Test
-    fun `correctly parses Kotlin library version (release, SNAPSHOT)`() {
+    fun `correctly parses Kotlin library version (Java release, Kotlin SNAPSHOT)`() {
         val versionString = "5.16.0.2-SNAPSHOT"
         val kotlinVersion = KotlinVersion.fromVersionString(versionString)
 
@@ -67,7 +89,7 @@ class ReleaseScriptsTest {
     }
 
     @Test
-    fun `correctly parses Kotlin library version (non-release)`() {
+    fun `correctly parses Kotlin library version (Java alpha, Kotlin alpha)`() {
         val versionString = "4.7.0.2-alpha.1657304919+1d411918"
         val kotlinVersion = KotlinVersion.fromVersionString(versionString)
 
@@ -94,7 +116,7 @@ class ReleaseScriptsTest {
     }
 
     @Test
-    fun `correctly parses Kotlin library version (non-release, SNAPSHOT)`() {
+    fun `correctly parses Kotlin library version (Java alpha, Kotlin alpha SNAPSHOT)`() {
         val versionString = "4.7.0.2-alpha.1657304919+1d411918-SNAPSHOT"
         val kotlinVersion = KotlinVersion.fromVersionString(versionString)
 
@@ -142,7 +164,7 @@ class ReleaseScriptsTest {
     }
 
     @Test
-    fun `correctly parses Java library version (non-release)`() {
+    fun `correctly parses Java library version (alpha)`() {
         val versionString = "4.7.0-alpha.1657304919+1d411918"
         val javaVersion = JavaVersion.fromVersionString(versionString)
 
@@ -165,114 +187,118 @@ class ReleaseScriptsTest {
     }
 
     @Test
-    fun `fetches new schema versions`() {
-        val schemasBeforeUpdate = Json.decodeFromString<List<SchemaMetadata>>(
-            File("src/test/resources/before-provider-updates.json").readText(),
-        )
-        val schemasAfterUpdate = Json.decodeFromString<List<SchemaMetadata>>(
-            File("src/test/resources/after-provider-updates.json").readText(),
+    fun `updates provider schema versions`() {
+        val temporaryGitRepository = "build/tmp/provider-update-test-${RandomStringUtils.randomAlphanumeric(10)}"
+        val beforeUpdateFileName = "before-schema-update.json"
+        val afterUpdateFileName = "after-schema-update.json"
+
+        FileRepositoryBuilder.create(File(temporaryGitRepository, ".git")).create()
+
+        val temporaryBeforeUpdateFile = File("$temporaryGitRepository/$beforeUpdateFileName")
+        val expectedAfterUpdateFile = File("src/test/resources/$afterUpdateFileName")
+
+        Files.copy(
+            File("src/test/resources/$beforeUpdateFileName").toPath(),
+            temporaryBeforeUpdateFile.toPath(),
         )
 
-        val responses = mapOf(
-            "slack" to createMavenSearchResponse(
-                "0.2.2-alpha.1660927837+572a130c",
-                "0.2.2",
-                "0.2.3-alpha.1661880655+57fde9d4",
-                "0.2.3-alpha.1662678388+4c0a6446",
-                "0.3.0",
-                "0.3.1-alpha.1663343588+9977be98",
-            ),
-            "random" to createMavenSearchResponse(
-                "4.6.0",
-                "4.7.0-alpha.1657304919+1d411918",
-                "4.7.0-alpha.1657724819+25d10298",
-                "4.7.0",
-                "4.8.1",
-            ),
-            "aws" to createMavenSearchResponse(),
-            "gcp" to createMavenSearchResponse(
-                "6.40.0",
-                "6.40.0-alpha.1664404181+3cd0302a",
-                "6.39.0",
-                "6.38.0-alpha.1663880792+639e360f",
-            ),
-        )
-
-        val updatedSchemas = fetchUpdatedSchemas(schemasBeforeUpdate, createMockHttpClient(responses))
+        updateProviderSchemas(File(temporaryGitRepository), temporaryBeforeUpdateFile)
 
         assertEquals(
-            schemasAfterUpdate,
-            updatedSchemas,
+            expectedAfterUpdateFile.readText(),
+            temporaryBeforeUpdateFile.readText(),
         )
     }
 
     @Test
     fun `updates versions after generator update`() {
-        val updatedFileLocation = File("build/tmp/before-generator-update-${RandomStringUtils.random(10)}.json")
-        val expectedResultsFile = File("src/test/resources/after-generator-update.json")
+        val temporaryGitRepository = "build/tmp/generator-update-test-${RandomStringUtils.randomAlphanumeric(10)}"
+        val beforeUpdateFileName = "before-generator-update.json"
+        val afterUpdateFileName = "after-generator-update.json"
+
+        FileRepositoryBuilder.create(File(temporaryGitRepository, ".git")).create()
+
+        val temporaryBeforeUpdateFile = File("$temporaryGitRepository/$beforeUpdateFileName")
+        val expectedAfterUpdateFile = File("src/test/resources/$afterUpdateFileName")
 
         Files.copy(
-            File("src/test/resources/before-generator-update.json").toPath(),
-            updatedFileLocation.toPath(),
+            File("src/test/resources/$beforeUpdateFileName").toPath(),
+            temporaryBeforeUpdateFile.toPath(),
         )
 
-        updateGeneratorVersion(updatedFileLocation)
+        updateGeneratorVersion(File(temporaryGitRepository), temporaryBeforeUpdateFile)
 
         assertEquals(
-            expectedResultsFile.readText(),
-            updatedFileLocation.readText(),
+            expectedAfterUpdateFile.readText(),
+            temporaryBeforeUpdateFile.readText(),
         )
     }
 
     @Test
-    fun `cleans up after release`() {
-        val updatedFileLocation = File("build/tmp/before-cleanup-${RandomStringUtils.random(10)}.json")
-        val expectedResultsFile = File("src/test/resources/after-cleanup.json")
+    fun `cleans up after release (moves to SNAPSHOT versions)`() {
+        val temporaryGitRepository = "build/tmp/release-clean-up-test-${RandomStringUtils.randomAlphanumeric(10)}"
+        val beforeUpdateFileName = "before-cleanup.json"
+        val afterUpdateFileName = "after-cleanup.json"
+
+        FileRepositoryBuilder.create(File(temporaryGitRepository, ".git")).create()
+
+        val temporaryBeforeUpdateFile = File("$temporaryGitRepository/$beforeUpdateFileName")
+        val expectedAfterUpdateFile = File("src/test/resources/$afterUpdateFileName")
 
         Files.copy(
-            File("src/test/resources/before-cleanup.json").toPath(),
-            updatedFileLocation.toPath(),
+            File("src/test/resources/$beforeUpdateFileName").toPath(),
+            temporaryBeforeUpdateFile.toPath(),
         )
 
-        updateVersionsAfterRelease(updatedFileLocation)
+        replaceReleasedVersionsWithSnapshots(File(temporaryGitRepository), temporaryBeforeUpdateFile)
 
         assertEquals(
-            expectedResultsFile.readText(),
-            updatedFileLocation.readText(),
+            expectedAfterUpdateFile.readText(),
+            temporaryBeforeUpdateFile.readText(),
         )
     }
 
-    private fun createMavenSearchResponse(vararg docs: String) =
-        MavenSearchResponse(
-            VersionInfoDetails(
-                docs.map { VersionInfo(it) },
-            ),
+    @Test
+    fun `tags released versions`() {
+        val temporaryGitRepository = "build/tmp/tag-release-test-${RandomStringUtils.randomAlphanumeric(10)}"
+        val beforeUpdateFileName = "after-schema-update.json"
+
+        val repository = FileRepositoryBuilder.create(File(temporaryGitRepository, ".git"))
+        repository.create()
+        val git = Git(repository)
+
+        val beforeUpdateFile = File("src/test/resources/$beforeUpdateFileName")
+        val temporaryBeforeUpdateFile = File("$temporaryGitRepository/$beforeUpdateFileName")
+
+        Files.copy(
+            beforeUpdateFile.toPath(),
+            temporaryBeforeUpdateFile.toPath(),
         )
 
-    private fun createMockHttpClient(responses: Map<String, MavenSearchResponse>) =
-        HttpClient(
-            MockEngine { request ->
-                val response = responses.filter {
-                    request.url.parameters["q"]?.contains(it.key) ?: false
-                }
-                    .values
-                    .firstOrNull()
-                    ?: createMavenSearchResponse()
+        git.add().addFilepattern(beforeUpdateFileName).call()
+        git.commit()
+            .setMessage("Prepare release")
+            .setSign(false)
+            .setAllowEmpty(false)
+            .call()
+        git.branchRename().setOldName("master").setNewName("main").call()
 
-                val value = ContentType.Application.Json.toString()
-                respond(
-                    content = Json.encodeToString(response),
-                    status = HttpStatusCode.OK,
-                    headers = headersOf(HttpHeaders.ContentType, value),
-                )
-            },
-        ) {
-            install(ContentNegotiation) {
-                json(
-                    Json {
-                        ignoreUnknownKeys = true
-                    },
-                )
-            }
-        }
+        tagRecentReleases(File(temporaryGitRepository), temporaryBeforeUpdateFile)
+
+        assertEquals(
+            beforeUpdateFile.readText(),
+            temporaryBeforeUpdateFile.readText(),
+        )
+
+        val tagList = git.tagList()
+            .call()
+            .map { it.name }
+            .map { it.replace("refs/tags/", "") }
+
+        assert(
+            tagList.contains("gcp/6.39.0.0") &&
+                tagList.contains("random/4.8.1.0") &&
+                tagList.contains("slack/0.2.3.0-alpha.1661880655+57fde9d4"),
+        )
+    }
 }

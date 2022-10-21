@@ -21,12 +21,12 @@
   },
   {
     "providerName": "aws",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v5.16.0/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "5.16.0.1-SNAPSHOT",
-    "javaVersion": "5.16.0",
-    "javaGitTag": "v5.16.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/9c01b95f/provider/cmd/pulumi-resource-aws/schema.json",
+    "kotlinVersion": "5.17.0.0-alpha.1665590627+9c01b95f-SNAPSHOT",
+    "javaVersion": "5.17.0-alpha.1665590627+9c01b95f",
+    "javaGitTag": "9c01b95f",
     "customDependencies": [
-      "com.pulumi:aws:5.16.0"
+      "com.pulumi:aws:5.17.0-alpha.1665590627+9c01b95f"
     ]
   },
   {

@@ -5,8 +5,12 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
+import io.ktor.client.request.head
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.Url
 import io.ktor.http.appendPathSegments
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.logging.KtorSimpleLogger
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -14,7 +18,11 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.apache.maven.artifact.versioning.ComparableVersion
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
+
+val logger = KtorSimpleLogger("release-management")
 
 @Suppress("OPT_IN_USAGE")
 val json = Json {
@@ -67,7 +75,6 @@ data class JavaVersion(val version: String, val postfix: VersionStringPostfix?) 
 }
 
 data class KotlinVersion(val javaVersion: JavaVersion, val isSnapshot: Boolean, val minor: Int = 0) {
-
     companion object {
         fun fromVersionString(versionString: String): KotlinVersion {
             val versionStringSegments = "(\\d+.\\d+.\\d+).(\\d+)(\\-(.*)\\+([\\w\\d]*))?(\\-SNAPSHOT)?"
@@ -103,15 +110,17 @@ data class KotlinVersion(val javaVersion: JavaVersion, val isSnapshot: Boolean, 
     }
 }
 
-fun updateGeneratorVersion(versionConfigFile: File) {
+fun updateGeneratorVersion(gitDirectory: File, versionConfigFile: File) {
     val schemas = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
+
+    validateIfReleaseIsPossible(schemas)
 
     val updatedSchemas = schemas.map {
         val oldKotlinVersion = KotlinVersion.fromVersionString(it.kotlinVersion)
         val newKotlinVersion = KotlinVersion(
             oldKotlinVersion.javaVersion,
             false,
-            oldKotlinVersion.minor + 1,
+            if (oldKotlinVersion.isSnapshot) oldKotlinVersion.minor else oldKotlinVersion.minor + 1,
         )
 
         SchemaMetadata(
@@ -125,10 +134,16 @@ fun updateGeneratorVersion(versionConfigFile: File) {
     }
 
     versionConfigFile.writeText("${json.encodeToString(updatedSchemas)}\n")
+
+    val tags = getTags(updatedSchemas)
+    val commitMessage = "Prepare release\n\n${tags.joinToString("\n")}"
+    commitChangesInFile(gitDirectory, versionConfigFile, commitMessage)
 }
 
-fun updateProviderSchemas(versionConfigFile: File) {
+fun updateProviderSchemas(gitDirectory: File, versionConfigFile: File) {
     val schemas = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
+
+    validateIfReleaseIsPossible(schemas)
 
     val client = HttpClient(CIO) {
         install(Logging) {
@@ -143,37 +158,44 @@ fun updateProviderSchemas(versionConfigFile: File) {
 
     versionConfigFile.writeText("${json.encodeToString(updatedSchemas)}\n")
 
+    val tags = getTags(updatedSchemas)
+    val commitMessage = "Prepare release\n\n${tags.joinToString("\n")}"
+    commitChangesInFile(gitDirectory, versionConfigFile, commitMessage)
+
     client.close()
 }
 
 fun fetchUpdatedSchemas(
     schemas: List<SchemaMetadata>,
     client: HttpClient,
-) = schemas.map {
-    KotlinVersion
-    val providerName = it.providerName
-    val versions = fetchVersions(client, providerName, ComparableVersion(it.javaVersion))
-    if (versions.isEmpty()) {
-        it
-    } else {
-        val newJavaVersion = JavaVersion.fromVersionString(versions[0].toString())
+) = schemas.map { schema ->
+    val providerName = schema.providerName
+    val versions = fetchVersions(client, providerName, ComparableVersion(schema.javaVersion))
+    versions.map {
+        val newJavaVersion = JavaVersion.fromVersionString(it.toString())
         val newKotlinVersion = KotlinVersion(newJavaVersion, false)
-        if (newJavaVersion.postfix != null) {
-            println("git tag pulumi-$providerName/$newKotlinVersion")
-        }
         val newGitTag = newJavaVersion.postfix?.gitHash ?: "v${newJavaVersion.version}"
+        val url = schema.url.replace(schema.javaGitTag, newGitTag)
         SchemaMetadata(
             providerName,
-            it.url.replace(it.javaGitTag, newGitTag),
+            url,
             newKotlinVersion.toString(),
             newJavaVersion.toString(),
             newGitTag,
             listOf("com.pulumi:$providerName:$newJavaVersion"),
         )
     }
+        .firstOrNull { newSchema ->
+            val schemaExists = verifyUrl(client, newSchema.url)
+            if (!schemaExists) {
+                logger.warn("Skipping release ${newSchema.getKotlinTag()} (cannot find url: ${newSchema.url}")
+            }
+            schemaExists
+        }
+        ?: schema
 }
 
-fun updateVersionsAfterRelease(versionConfigFile: File) {
+fun replaceReleasedVersionsWithSnapshots(gitDirectory: File, versionConfigFile: File) {
     val schemas = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
 
     val updatedSchemas = schemas.map {
@@ -198,6 +220,27 @@ fun updateVersionsAfterRelease(versionConfigFile: File) {
     }
 
     versionConfigFile.writeText("${json.encodeToString(updatedSchemas)}\n")
+
+    commitChangesInFile(gitDirectory, versionConfigFile, "Prepare for next development phase")
+}
+
+fun tagRecentReleases(gitDirectory: File, versionConfigFile: File) {
+    val tagsToCreate = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
+        .filterNot { KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot }
+        .map { it.getKotlinTag() }
+
+    val git = Git(
+        FileRepositoryBuilder()
+            .setGitDir(File("$gitDirectory/.git"))
+            .build(),
+    )
+
+    tagsToCreate.forEach {
+        git.tag()
+            .setName(it)
+            .setSigned(false)
+            .call()
+    }
 }
 
 private fun fetchVersions(
@@ -205,32 +248,109 @@ private fun fetchVersions(
     provider: String,
     since: ComparableVersion,
 ): List<ComparableVersion> = runBlocking {
-    return@runBlocking client.get {
+    return@runBlocking fetchAllPagesSince(client, provider, since)
+        .filter { it > since }
+        .sorted()
+}
+
+private suspend fun fetchAllPagesSince(
+    client: HttpClient,
+    provider: String,
+    since: ComparableVersion,
+    pageNumber: Int = 0,
+): List<ComparableVersion> {
+    val fetchPage = fetchPage(client, provider, pageNumber)
+    if (fetchPage.contains(since) || fetchPage.isEmpty()) {
+        return fetchPage
+    }
+    return fetchPage + fetchAllPagesSince(client, provider, since, pageNumber + 1)
+}
+
+private suspend fun fetchPage(
+    client: HttpClient,
+    provider: String,
+    pageNumber: Int,
+    pageSize: Int = 20,
+) = client.get {
+    url {
+        host = "search.maven.org"
+        appendPathSegments("solrsearch", "select")
+        encodedParameters.append(
+            "q",
+            "g:com.pulumi+AND+a:$provider",
+        )
+        encodedParameters.append(
+            "wt",
+            "json",
+        )
+        encodedParameters.append(
+            "core",
+            "gav",
+        )
+        encodedParameters.append(
+            "rows",
+            pageSize.toString(),
+        )
+        encodedParameters.append(
+            "start",
+            (pageSize * pageNumber).toString(),
+        )
+    }
+}
+    .body<MavenSearchResponse>()
+    .response
+    .docs
+    .map { ComparableVersion(it.version) }
+
+private fun verifyUrl(
+    client: HttpClient,
+    schemaUrl: String,
+): Boolean = runBlocking {
+    val schemaUrlObject = Url(schemaUrl)
+    return@runBlocking client.head {
         url {
-            host = "search.maven.org"
-            appendPathSegments("solrsearch", "select")
-            encodedParameters.append(
-                "q",
-                "g:com.pulumi+AND+a:$provider",
-            )
-            encodedParameters.append(
-                "wt",
-                "json",
-            )
-            encodedParameters.append(
-                "core",
-                "gav",
-            )
-            encodedParameters.append(
-                "rows",
-                "20",
-            )
+            protocol = schemaUrlObject.protocol
+            host = schemaUrlObject.host
+            pathSegments = schemaUrlObject.pathSegments
         }
     }
-        .body<MavenSearchResponse>()
-        .response
-        .docs
-        .map { ComparableVersion(it.version) }
-        .sorted()
-        .filter { it > since }
+        .status
+        .equals(HttpStatusCode.OK)
+}
+
+private fun commitChangesInFile(gitDirectory: File, relativePath: File, commitMessage: String) {
+    val git = Git(
+        FileRepositoryBuilder()
+            .setGitDir(File("$gitDirectory/.git"))
+            .build(),
+    )
+    git.add()
+        .addFilepattern(relativePath.path)
+        .call()
+    git.commit()
+        .setMessage(commitMessage)
+        .setSign(false)
+        .setAllowEmpty(false)
+        .call()
+}
+
+private fun SchemaMetadata.getKotlinTag() = "$providerName/$kotlinVersion"
+
+private fun getTags(updatedSchemas: List<SchemaMetadata>): List<String> {
+    val tags = updatedSchemas.filterNot {
+        KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot
+    }
+        .map { it.getKotlinTag() }
+    return tags
+}
+
+private fun validateIfReleaseIsPossible(schemas: List<SchemaMetadata>) {
+    if (
+        schemas.map { it.kotlinVersion }
+            .map { KotlinVersion.fromVersionString(it) }
+            .filterNot { it.isSnapshot }
+            .isNotEmpty()
+    ) {
+        error("Trying to create a release, but configuration already contains non-SNAPSHOT versions")
+    }
 }
