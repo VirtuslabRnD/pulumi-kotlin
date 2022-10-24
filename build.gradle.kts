@@ -30,6 +30,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("com.google.cloud:google-cloud-compute:1.12.1")
     testImplementation("org.apache.commons:commons-lang3:3.12.0")
+    testImplementation("io.mockk:mockk:1.13.2")
 }
 
 tasks.test {
@@ -78,6 +79,11 @@ tasks.register<Test>("e2eTest") {
     testClassesDirs = sourceSets["e2eTest"].output.classesDirs
     classpath = sourceSets["e2eTest"].runtimeClasspath
     useJUnitPlatform()
+}
+
+tasks.register<JavaExec>("computeSchemaSubset") {
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.virtuslab.pulumikotlin.scripts.ComputeSchemaSubsetScriptKt")
 }
 
 kotlinter {

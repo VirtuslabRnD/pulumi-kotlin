@@ -1,10 +1,12 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen.resources
 
+import com.pulumi.kotlin.KotlinResource
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.KModifier.INTERNAL
+import com.squareup.kotlinpoet.KModifier.OVERRIDE
 import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
@@ -15,8 +17,8 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customArgsBuilderClass
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customArgsClass
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customResourceOptionsBuilderClass
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customResourceOptionsClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.pulumiDslMarkerAnnotation
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
@@ -28,6 +30,9 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ToKotlin.toKotl
 import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 
 object ResourceGenerator {
+
+    private const val JAVA_RESOURCE_PARAMETER_NAME = "javaResource"
+
     fun generateResources(resources: List<ResourceType>): List<FileSpec> {
         val files = resources.map { type ->
             val file = FileSpec.builder(
@@ -64,21 +69,25 @@ object ResourceGenerator {
                 .build()
         }
 
+        val resourceMapperTypeSpec = ResourceMapperGenerator.generateMapper(resourceType)
         val resourceClass = TypeSpec
             .classBuilder(resourceClassName)
+            .superclass(KotlinResource::class)
             .addProperties(
                 listOf(
-                    PropertySpec.builder("javaResource", javaResourceClassName)
-                        .initializer("javaResource")
+                    PropertySpec.builder(JAVA_RESOURCE_PARAMETER_NAME, javaResourceClassName)
+                        .initializer(JAVA_RESOURCE_PARAMETER_NAME)
+                        .addModifiers(OVERRIDE, INTERNAL)
                         .build(),
                 ),
             )
             .primaryConstructor(
                 FunSpec.constructorBuilder()
                     .addModifiers(INTERNAL)
-                    .addParameter("javaResource", javaResourceClassName)
+                    .addParameter(JAVA_RESOURCE_PARAMETER_NAME, javaResourceClassName)
                     .build(),
             )
+            .addSuperclassConstructorParameter("%L, %N", JAVA_RESOURCE_PARAMETER_NAME, resourceMapperTypeSpec)
             .addProperties(fields)
             .addDocsIfAvailable(resourceType.kDoc)
             .addDeprecationWarningIfAvailable(resourceType.kDoc)
@@ -114,11 +123,11 @@ object ResourceGenerator {
             .addParameter(
                 "block",
                 LambdaTypeName.get(
-                    customArgsBuilderClass(),
+                    customResourceOptionsBuilderClass(),
                     returnType = UNIT,
                 ).copy(suspending = true),
             )
-            .addStatement("val builder = %T()", customArgsBuilderClass())
+            .addStatement("val builder = %T()", customResourceOptionsBuilderClass())
             .addStatement("block(builder)")
             .addStatement("this.opts = builder.build()")
             .addDocs("@param block A bag of options that control this resource's behavior.")
@@ -142,9 +151,9 @@ object ResourceGenerator {
                         .mutable(true)
                         .initializer("null")
                         .build(),
-                    PropertySpec.builder("opts", customArgsClass())
+                    PropertySpec.builder("opts", customResourceOptionsClass())
                         .mutable(true)
-                        .initializer("%T()", customArgsClass())
+                        .initializer("%T()", customResourceOptionsClass())
                         .build(),
                 ),
             )
@@ -209,6 +218,7 @@ object ResourceGenerator {
         fileSpecBuilder
             .addType(resourceBuilderClass)
             .addType(resourceClass)
+            .addType(resourceMapperTypeSpec)
             .addImport("com.pulumi.kotlin", "toKotlin")
             .addFunction(resourceFunction)
     }

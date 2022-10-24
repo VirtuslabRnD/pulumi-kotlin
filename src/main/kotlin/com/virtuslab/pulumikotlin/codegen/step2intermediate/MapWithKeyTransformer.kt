@@ -40,5 +40,5 @@ internal class MapWithKeyTransformer<K, V> private constructor(
 internal fun <V : Any> Map<String, V>.lowercaseKeys() =
     transformKeys { it.lowercase() }
 
-internal fun <K, V : Any> Map<K, V>.transformKeys(mapper: (K) -> K) =
-    MapWithKeyTransformer.from(this, mapper)
+internal fun <K, V : Any> Map<K, V>.transformKeys(keyTransformer: (K) -> K) =
+    MapWithKeyTransformer.from(this, keyTransformer)

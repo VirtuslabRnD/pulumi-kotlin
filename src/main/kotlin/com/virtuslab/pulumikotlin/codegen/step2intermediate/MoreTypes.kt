@@ -2,9 +2,9 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.pulumi.core.Output
 import com.pulumi.kotlin.ConvertibleToJava
-import com.pulumi.kotlin.CustomArgs
-import com.pulumi.kotlin.CustomArgsBuilder
 import com.pulumi.kotlin.PulumiTagMarker
+import com.pulumi.kotlin.options.CustomResourceOptions
+import com.pulumi.kotlin.options.CustomResourceOptionsBuilder
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.asClassName
@@ -26,9 +26,9 @@ object MoreTypes {
 
             fun convertibleToJavaClass() = ConvertibleToJava::class.asClassName()
 
-            fun customArgsClass() = CustomArgs::class.asClassName()
+            fun customResourceOptionsClass() = CustomResourceOptions::class.asClassName()
 
-            fun customArgsBuilderClass() = CustomArgsBuilder::class.asClassName()
+            fun customResourceOptionsBuilderClass() = CustomResourceOptionsBuilder::class.asClassName()
         }
 
         fun coroutinesFutureAwaitExtensionMethod() = MemberName("kotlinx.coroutines.future", "await")

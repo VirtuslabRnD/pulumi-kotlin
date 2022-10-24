@@ -21,11 +21,37 @@ There are two ways:
 - `--schema-path` – path to provider's schema (see section below for how to download it).
 - `--output-directory-path` – path to a directory where the generated code should be stored. 
 
-## Where to download the schema from?
+## Schema
 
-It's stored in provider's repository, under `provider/cmd/pulumi-resource-{{provider-name}}` path. 
+### How to download provider's schema?
 
-Example in `pulumi-aws-native` repo: [link](https://github.com/pulumi/pulumi-aws-native/blob/master/provider/cmd/pulumi-resource-aws-native/schema.json).
+
+#### Directly from the repository 
+
+Schema is stored in provider's repository, under `provider/cmd/pulumi-resource-{{provider-name}}` path.
+
+For example, to download `pulumi-aws-native`'s schema, open this [link][pulumi-aws-native-schema-link] 
+and save the file (Right click 'Download' -> 'Save link as...'). 
+
+#### Through `pulumi` CLI
+
+⚠️ Warning: This is not recommended ([issue][slash-encoding-issue]). Schemas downloaded this way have `/` encoded as `%2F` (in `$ref`).  
+
+Use the `pulumi package get-schema` command, for example:
+
+```bash
+pulumi package get-schema 'azure-native' > azure-native-schema.json
+```
+
+### How to compute a subset of some schema?
+
+Run `gradlew computeSchemaSubset` from Gradle or `ComputeSchemaSubsetScript.kt` from IntelliJ.
+
+Example:
+
+```bash
+./gradlew computeSchemaSubset --args="--schema-path=./gcp-schema.json --name=gcp:compute/instance:Instance --context=resource"
+```
 
 ## How does it work under the hood?
 
@@ -93,3 +119,6 @@ suspend fun main() {
 ## Development
 
 Development guidelines can be found [here](https://github.com/VirtuslabRnD/jvm-lab/blob/main/README.md#development-standards-for-kotlin-repositories).
+
+[slash-encoding-issue]: https://github.com/VirtuslabRnD/pulumi-kotlin/issues/87
+[pulumi-aws-native-schema-link]: https://github.com/pulumi/pulumi-aws-native/blob/master/provider/cmd/pulumi-resource-aws-native/schema.json
