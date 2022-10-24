@@ -62,10 +62,7 @@ data class JavaVersion(val version: String, val postfix: VersionStringPostfix?) 
                 null
             }
 
-            return JavaVersion(
-                javaVersion,
-                postfix,
-            )
+            return JavaVersion(javaVersion, postfix)
         }
     }
 
@@ -94,10 +91,7 @@ data class KotlinVersion(val javaVersion: JavaVersion, val isSnapshot: Boolean, 
             val kotlinMinor = versionStringSegments.groupValues[2]
 
             return KotlinVersion(
-                JavaVersion(
-                    javaVersion,
-                    postfix,
-                ),
+                JavaVersion(javaVersion, postfix),
                 isSnapshot,
                 kotlinMinor.toInt(),
             )
