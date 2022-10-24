@@ -10,15 +10,16 @@ import java.util.Optional
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
+import com.pulumi.resources.CustomTimeouts as JavaCustomTimeouts
 
 /**
  * Optional timeouts to supply in as [CustomResourceOptions.customTimeouts].
  *
  * @see [CustomResourceOptions.customTimeouts]
- * @see [com.pulumi.resources.CustomTimeouts]
+ * @see [JavaCustomTimeouts]
  */
-class CustomTimeouts internal constructor(private val javaBackingObject: com.pulumi.resources.CustomTimeouts) :
-    ConvertibleToJava<com.pulumi.resources.CustomTimeouts> {
+class CustomTimeouts internal constructor(private val javaBackingObject: JavaCustomTimeouts) :
+    ConvertibleToJava<JavaCustomTimeouts> {
     val create: Duration?
         get() = javaBackingObject.create?.toKotlin()?.toKotlinDuration()
     val update: Duration?
@@ -26,13 +27,13 @@ class CustomTimeouts internal constructor(private val javaBackingObject: com.pul
     val delete: Duration?
         get() = javaBackingObject.delete?.toKotlin()?.toKotlinDuration()
 
-    override fun toJava(): com.pulumi.resources.CustomTimeouts {
+    override fun toJava(): JavaCustomTimeouts {
         return javaBackingObject
     }
 
     companion object {
         fun golangString(duration: Duration?): String {
-            return com.pulumi.resources.CustomTimeouts.golangString(Optional.ofNullable(duration?.toJavaDuration()))
+            return JavaCustomTimeouts.golangString(Optional.ofNullable(duration?.toJavaDuration()))
         }
     }
 }
@@ -53,7 +54,7 @@ class CustomTimeoutsBuilder(var create: Duration? = null, var update: Duration? 
 
     internal fun build(): CustomTimeouts {
         return CustomTimeouts(
-            com.pulumi.resources.CustomTimeouts(
+            JavaCustomTimeouts(
                 create?.toJavaDuration(),
                 update?.toJavaDuration(),
                 delete?.toJavaDuration(),

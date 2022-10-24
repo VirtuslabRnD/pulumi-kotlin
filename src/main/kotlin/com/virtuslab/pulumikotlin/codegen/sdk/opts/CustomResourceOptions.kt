@@ -5,20 +5,21 @@ package com.pulumi.kotlin.options
 
 import com.pulumi.core.Output
 import com.pulumi.kotlin.ConvertibleToJava
-import com.pulumi.kotlin.GeneralResourceMapper
+import com.pulumi.kotlin.GlobalResourceMapper
 import com.pulumi.kotlin.KotlinProviderResource
 import com.pulumi.kotlin.KotlinResource
 import com.pulumi.kotlin.PulumiTagMarker
 import com.pulumi.kotlin.applyValue
 import com.pulumi.kotlin.toJava
 import com.pulumi.kotlin.toKotlin
+import com.pulumi.resources.CustomResourceOptions as JavaCustomResourceOptions
 
 /**
  * A bag of optional settings that control a [KotlinResource] behavior.
  */
 class CustomResourceOptions internal constructor(
-    private val javaBackingObject: com.pulumi.resources.CustomResourceOptions,
-) : ConvertibleToJava<com.pulumi.resources.CustomResourceOptions> {
+    private val javaBackingObject: JavaCustomResourceOptions,
+) : ConvertibleToJava<JavaCustomResourceOptions> {
 
     /**
      * The names of outputs for this resource that should be treated as secrets. This augments
@@ -84,7 +85,7 @@ class CustomResourceOptions internal constructor(
      *  are done in the correct order.
      */
     val dependsOn: Output<List<KotlinResource>>?
-        get() = javaBackingObject.dependsOn?.applyValue { list -> list.mapNotNull { GeneralResourceMapper.tryMap(it) } }
+        get() = javaBackingObject.dependsOn?.applyValue { list -> list.mapNotNull { GlobalResourceMapper.tryMap(it) } }
 
     /**
      * An optional existing ID to load, rather than create.
@@ -120,7 +121,7 @@ class CustomResourceOptions internal constructor(
      * or are responsible for them.
      */
     val parent: KotlinResource?
-        get() = javaBackingObject.parent?.toKotlin()?.applyValue { GeneralResourceMapper.tryMap(it) }
+        get() = javaBackingObject.parent?.toKotlin()?.applyValue { GlobalResourceMapper.tryMap(it) }
 
     /**
      * An optional URL, corresponding to the url from which the provider plugin that should be
@@ -152,7 +153,7 @@ class CustomResourceOptions internal constructor(
      */
     val provider: KotlinProviderResource?
         get() = javaBackingObject.provider?.toKotlin()
-            ?.applyValue { GeneralResourceMapper.tryMap(it) } as KotlinProviderResource?
+            ?.applyValue { GlobalResourceMapper.tryMap(it) } as KotlinProviderResource?
 
     /**
      * Indicates that changes to certain properties on a resource should force a replacement of the resource
@@ -209,9 +210,9 @@ class CustomResourceOptions internal constructor(
         get() = javaBackingObject.version?.toKotlin()
 
     // generated resources use no args constructor as default value for options
-    constructor() : this(com.pulumi.resources.CustomResourceOptions.Empty)
+    constructor() : this(JavaCustomResourceOptions.Empty)
 
-    override fun toJava(): com.pulumi.resources.CustomResourceOptions = javaBackingObject
+    override fun toJava(): JavaCustomResourceOptions = javaBackingObject
 }
 
 @PulumiTagMarker
@@ -452,7 +453,7 @@ data class CustomResourceOptionsBuilder(
     }
 
     internal fun build(): CustomResourceOptions {
-        val javaBackingObject = com.pulumi.resources.CustomResourceOptions.builder()
+        val javaBackingObject = JavaCustomResourceOptions.builder()
             .additionalSecretOutputs(additionalSecretOutputs)
             .aliases(aliases?.map { it.toJava() })
             .customTimeouts(customTimeouts?.toJava())
@@ -476,7 +477,7 @@ data class CustomResourceOptionsBuilder(
             CustomResourceOptions(javaBackingObject)
         } else {
             CustomResourceOptions(
-                com.pulumi.resources.CustomResourceOptions.merge(
+                JavaCustomResourceOptions.merge(
                     mergeWith?.toJava(),
                     javaBackingObject,
                 ),

@@ -5,10 +5,11 @@ package com.pulumi.kotlin.options
 
 import com.pulumi.core.Output
 import com.pulumi.kotlin.ConvertibleToJava
-import com.pulumi.kotlin.GeneralResourceMapper
+import com.pulumi.kotlin.GlobalResourceMapper
 import com.pulumi.kotlin.KotlinResource
 import com.pulumi.kotlin.PulumiTagMarker
 import com.pulumi.kotlin.toKotlin
+import com.pulumi.core.Alias as JavaAlias
 
 /**
  * Alias is a description of prior name used for a resource. It can be processed in the
@@ -21,10 +22,9 @@ import com.pulumi.kotlin.toKotlin
  * "parent" of a [KotlinResource] was "null".
  * Specifically, pass in: [Alias.noParent]
  * @see [CustomResourceOptions.aliases]
- * @see [com.pulumi.core.Alias]
+ * @see [JavaAlias]
  */
-class Alias internal constructor(private val javaBackingObject: com.pulumi.core.Alias) :
-    ConvertibleToJava<com.pulumi.core.Alias> {
+class Alias internal constructor(private val javaBackingObject: JavaAlias) : ConvertibleToJava<JavaAlias> {
 
     /**
      * The previous urn to alias to. If this is provided, no other properties in this type should be provided.
@@ -63,7 +63,7 @@ class Alias internal constructor(private val javaBackingObject: com.pulumi.core.
      * Only specify one of [Alias.parent] or [Alias.parentUrn] or [Alias.noParent].
      */
     val parent: KotlinResource?
-        get() = GeneralResourceMapper.tryMap(javaBackingObject.parent)
+        get() = GlobalResourceMapper.tryMap(javaBackingObject.parent)
 
     /**
      * The previous parent of the resource. If null, the current parent of the resource is used.
@@ -81,9 +81,7 @@ class Alias internal constructor(private val javaBackingObject: com.pulumi.core.
     val noParent: Boolean
         get() = javaBackingObject.hasNoParent()
 
-    override fun toJava(): com.pulumi.core.Alias {
-        return javaBackingObject
-    }
+    override fun toJava(): JavaAlias = javaBackingObject
 }
 
 /**
@@ -162,6 +160,7 @@ class AliasBuilder internal constructor(
     fun parent(value: KotlinResource?) {
         // TODO verify why java implementation mentions about requiring null in parentUrn but checks null in name
         //  requireNullState(name, () -> "Alias should not specify Alias#parent when Alias#parentUrn is  already.");
+        //  @see https://github.com/VirtuslabRnD/jvm-lab/issues/54
         this.parent = value
     }
 
@@ -171,11 +170,12 @@ class AliasBuilder internal constructor(
     fun parentUrn(value: Output<String?>?) {
         // TODO verify why java implementation mentions about requiring null in parent but checks null in name
         //  requireNullState(name, () -> "Alias should not specify Alias#parent when Alias#parent is  already.");
+        //  @see https://github.com/VirtuslabRnD/jvm-lab/issues/54
         this.parentUrn = value
     }
 
     internal fun build(): Alias {
-        val javaAliasBuilder = com.pulumi.core.Alias.builder()
+        val javaAliasBuilder = JavaAlias.builder()
 
         // FIXME null-checks are necessary workaround for requireNullState(name) in java implementation,
         //  correct this code after fixing the issue in java
@@ -205,11 +205,11 @@ suspend fun alias(block: suspend AliasBuilder.() -> Unit): Alias {
  *
  * @see [Alias.noParent]
  */
-fun noParent(): Alias = Alias(com.pulumi.core.Alias.noParent())
+fun noParent(): Alias = Alias(JavaAlias.noParent())
 
 /**
  * Creates [Alias] with given URN and other properties empty.
  *
  * @see [Alias.urn]
  */
-fun withUrn(urn: String): Alias = Alias(com.pulumi.core.Alias.withUrn(urn))
+fun withUrn(urn: String): Alias = Alias(JavaAlias.withUrn(urn))

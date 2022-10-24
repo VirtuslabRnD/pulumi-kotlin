@@ -1,7 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.sdk
 
 import com.pulumi.core.Output
-import com.pulumi.kotlin.GeneralResourceMapper
+import com.pulumi.kotlin.GlobalResourceMapper
 import com.pulumi.kotlin.KotlinProviderResource
 import com.pulumi.kotlin.KotlinResource
 import com.pulumi.kotlin.ResourceMapper
@@ -13,133 +13,131 @@ import io.mockk.unmockkAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
 import java.util.Optional
 import kotlin.reflect.KClass
-import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.jvm.isAccessible
+import com.pulumi.resources.CustomResource as JavaCustomResource
+import com.pulumi.resources.ProviderResource as JavaProviderResource
+import com.pulumi.resources.Resource as JavaResource
 
 internal class ResourceMappingTest {
+
+    var customResourceMock = mockKotlinResource(KotlinResource::class, JavaCustomResource::class)
+    var providerResourceMock =
+        mockKotlinResource(KotlinProviderResource::class, JavaProviderResource::class)
+
+    @BeforeEach
+    fun prepareMappers() {
+        /**
+         * Two mappers were defined in order to simulate existence of multiple mappers to choose from in runtime
+         */
+        val customResourceMapperMock = mockResourceMapper(customResourceMock, customResourceMock.javaResource)
+        val providerResourceMapperMock = mockResourceMapper(providerResourceMock, providerResourceMock.javaResource)
+
+        /**
+         * Mappers should be registered before use, otherwise [GlobalResourceMapper]
+         * will throw [IllegalStateException], creating a resource with type-safe builder ensures registration of mapper
+         */
+        GlobalResourceMapper.registerMapper(customResourceMapperMock)
+        GlobalResourceMapper.registerMapper(providerResourceMapperMock)
+    }
 
     @AfterEach
     fun cleanUp() {
         unmockkAll()
 
-        // each test can modify internal contents of mappers' set,
-        // it should be cleared in order to avoid conflicts between tests
-        val property = GeneralResourceMapper::class.declaredMemberProperties.find { it.name == "mappers" }
-        property!!.isAccessible = true
-        (property.getter.call() as MutableSet<*>).clear()
-        property.isAccessible = false
+        /**
+         * Each test can modify internal contents of mappers' set,
+         * it should be cleared in order to avoid conflicts between tests
+         */
+        GlobalResourceMapper.clearMappers()
     }
 
     @Test
-    fun `mapper corresponding to type should be chosen and resource should be mapped`() {
-        // given
-        val customResourceMock =
-            mockKotlinResource(KotlinResource::class, com.pulumi.resources.CustomResource::class)
-        val providerResourceMock =
-            mockKotlinResource(KotlinProviderResource::class, com.pulumi.resources.ProviderResource::class)
-        val customResourceMapperMock = mockResourceMapper(customResourceMock, customResourceMock.javaResource)
-        val providerResourceMapperMock = mockResourceMapper(providerResourceMock, providerResourceMock.javaResource)
-
-        /**
-         * Mappers should be registered before use, otherwise [GeneralResourceMapper]
-         * will throw [IllegalStateException], creating a resource with type-safe builder ensures registration of mapper
-         */
-        GeneralResourceMapper.registerMapper(customResourceMapperMock)
-        GeneralResourceMapper.registerMapper(providerResourceMapperMock)
-
+    fun `mapper corresponding to java type CustomResource should be chosen and resource should be mapped`() {
         // when
-        val mappedCustomResource = GeneralResourceMapper.tryMap(customResourceMock.javaResource)
-        val mappedProviderResource = GeneralResourceMapper.tryMap(providerResourceMock.javaResource)
+        val mappedCustomResource = GlobalResourceMapper.tryMap(customResourceMock.javaResource)
 
         // then
-        assertAll(
-            { assertEquals(customResourceMock, mappedCustomResource) },
-            { assertEquals(providerResourceMock, mappedProviderResource) },
-        )
+        assertEquals(customResourceMock, mappedCustomResource)
+    }
+
+    @Test
+    fun `mapper corresponding to java type ProviderResource should be chosen and resource should be mapped`() {
+        // when
+        val mappedProviderResource = GlobalResourceMapper.tryMap(providerResourceMock.javaResource)
+
+        // then
+        assertEquals(providerResourceMock, mappedProviderResource)
     }
 
     @Test
     @Suppress("UNCHECKED_CAST") // casting to avoid overload resolution ambiguity
-    fun `resources wrapped in optionals should be properly mapped`() {
+    fun `CustomResource wrapped in optional should be properly mapped`() {
         // given
-        val customResourceMock =
-            mockKotlinResource(KotlinResource::class, com.pulumi.resources.CustomResource::class)
-        val providerResourceMock =
-            mockKotlinResource(KotlinProviderResource::class, com.pulumi.resources.ProviderResource::class)
-        val customResourceMapperMock = mockResourceMapper(customResourceMock, customResourceMock.javaResource)
-        val providerResourceMapperMock = mockResourceMapper(providerResourceMock, providerResourceMock.javaResource)
-
         val optionalJavaCustomResource =
-            Optional.of(customResourceMock.javaResource) as Optional<com.pulumi.resources.Resource?>?
-        val optionalJavaProviderResource =
-            Optional.of(providerResourceMock.javaResource) as Optional<com.pulumi.resources.Resource?>?
-
-        /**
-         * Mappers should be registered before use, otherwise [GeneralResourceMapper]
-         * will throw [IllegalStateException], creating a resource with type-safe builder ensures registration of mapper
-         */
-        GeneralResourceMapper.registerMapper(customResourceMapperMock)
-        GeneralResourceMapper.registerMapper(providerResourceMapperMock)
+            Optional.of(customResourceMock.javaResource) as Optional<JavaResource?>?
 
         // when
-        val mappedCustomResource = GeneralResourceMapper.tryMap(optionalJavaCustomResource)
-        val mappedProviderResource = GeneralResourceMapper.tryMap(optionalJavaProviderResource)
+        val mappedCustomResource = GlobalResourceMapper.tryMap(optionalJavaCustomResource)
 
         // then
-        assertAll(
-            { assertEquals(customResourceMock, mappedCustomResource) },
-            { assertEquals(providerResourceMock, mappedProviderResource) },
-        )
+        assertEquals(customResourceMock, mappedCustomResource)
     }
 
     @Test
-    fun `resources wrapped in outputs should be properly mapped`() {
+    @Suppress("UNCHECKED_CAST") // casting to avoid overload resolution ambiguity
+    fun `ProviderResource wrapped in optional should be properly mapped`() {
         // given
-        val customResourceMock =
-            mockKotlinResource(KotlinResource::class, com.pulumi.resources.CustomResource::class)
-        val providerResourceMock =
-            mockKotlinResource(KotlinProviderResource::class, com.pulumi.resources.ProviderResource::class)
-        val customResourceMapperMock = mockResourceMapper(customResourceMock, customResourceMock.javaResource)
-        val providerResourceMapperMock = mockResourceMapper(providerResourceMock, providerResourceMock.javaResource)
-
-        val outputJavaCustomResource: Output<com.pulumi.resources.Resource?>? =
-            Output.of(customResourceMock.javaResource)
-        val outputJavaProviderResource: Output<com.pulumi.resources.Resource?>? =
-            Output.of(providerResourceMock.javaResource)
-
-        /**
-         * Mappers should be registered before use, otherwise [GeneralResourceMapper]
-         * will throw [IllegalStateException], creating a resource with type-safe builder ensures registration of mapper
-         */
-        GeneralResourceMapper.registerMapper(customResourceMapperMock)
-        GeneralResourceMapper.registerMapper(providerResourceMapperMock)
+        val optionalJavaProviderResource =
+            Optional.of(providerResourceMock.javaResource) as Optional<JavaResource?>?
 
         // when
-        val mappedCustomResource = GeneralResourceMapper.tryMap(outputJavaCustomResource)
-        val mappedProviderResource = GeneralResourceMapper.tryMap(outputJavaProviderResource)
+        val mappedProviderResource = GlobalResourceMapper.tryMap(optionalJavaProviderResource)
+
+        // then
+        assertEquals(providerResourceMock, mappedProviderResource)
+    }
+
+    @Test
+    fun `CustomResource wrapped in Output should be properly mapped`() {
+        // given
+        val outputJavaCustomResource: Output<JavaResource?>? =
+            Output.of(customResourceMock.javaResource)
+
+        // when
+        val mappedCustomResource = GlobalResourceMapper.tryMap(outputJavaCustomResource)
 
         // then
         val mappedOutputCustomResourceContents = extractOutputValue(mappedCustomResource)
+
+        assertEquals(customResourceMock, mappedOutputCustomResourceContents)
+    }
+
+    @Test
+    fun `ProviderResource wrapped in Output should be properly mapped`() {
+        // given
+        val outputJavaProviderResource: Output<JavaResource?>? =
+            Output.of(providerResourceMock.javaResource)
+
+        // when
+        val mappedProviderResource = GlobalResourceMapper.tryMap(outputJavaProviderResource)
+
+        // then
         val mappedOutputProviderResourceContents = extractOutputValue(mappedProviderResource)
 
-        assertAll(
-            { assertEquals(customResourceMock, mappedOutputCustomResourceContents) },
-            { assertEquals(providerResourceMock, mappedOutputProviderResourceContents) },
-        )
+        assertEquals(providerResourceMock, mappedOutputProviderResourceContents)
     }
 
     @Test
     fun `mapping of null should return null`() {
         // given
-        val resource: com.pulumi.resources.Resource? = null
+        val resource: JavaResource? = null
 
         // when
-        val mappedValue = GeneralResourceMapper.tryMap(resource)
+        val mappedValue = GlobalResourceMapper.tryMap(resource)
 
         // then
         assertNull(mappedValue)
@@ -150,10 +148,10 @@ internal class ResourceMappingTest {
     fun `mapping of empty Optional should return null`() {
         // given
         val emptyOptionalResource =
-            Optional.empty<com.pulumi.resources.Resource?>() as Optional<com.pulumi.resources.Resource?>?
+            Optional.empty<JavaResource?>() as Optional<JavaResource?>?
 
         // when
-        val mappedValue = GeneralResourceMapper.tryMap(emptyOptionalResource)
+        val mappedValue = GlobalResourceMapper.tryMap(emptyOptionalResource)
 
         // then
         assertNull(mappedValue)
@@ -163,10 +161,10 @@ internal class ResourceMappingTest {
     @Suppress("UNCHECKED_CAST") // casting to avoid overload resolution ambiguity
     fun `mapping of empty Output should return empty Output`() {
         // given
-        val emptyOutputResource = Output.ofNullable(null) as Output<com.pulumi.resources.Resource?>?
+        val emptyOutputResource = Output.ofNullable(null) as Output<JavaResource?>?
 
         // when
-        val mappedValue = GeneralResourceMapper.tryMap(emptyOutputResource)
+        val mappedValue = GlobalResourceMapper.tryMap(emptyOutputResource)
 
         // then
         val mappedOutputContents = extractOutputValue(mappedValue)
@@ -176,16 +174,21 @@ internal class ResourceMappingTest {
     @Test
     fun `IllegalStateException should be thrown, when corresponding mapper was not registered in context`() {
         // given
+        // BeforeEach method mocks mappers, it should be revoked before this test
+        // to simulate lack of corresponding mapper
+        unmockkAll()
+        GlobalResourceMapper.clearMappers()
+
         val customResourceMock =
-            mockKotlinResource(KotlinResource::class, com.pulumi.resources.CustomResource::class)
+            mockKotlinResource(KotlinResource::class, JavaCustomResource::class)
 
         // when - then
-        assertThrows<IllegalStateException> {
-            GeneralResourceMapper.tryMap(customResourceMock.javaResource)
+        assertThrows<IllegalArgumentException> {
+            GlobalResourceMapper.tryMap(customResourceMock.javaResource)
         }
     }
 
-    private fun <T : KotlinResource, R : com.pulumi.resources.Resource> mockKotlinResource(
+    private fun <T : KotlinResource, R : JavaResource> mockKotlinResource(
         kotlinResourceClass: KClass<T>,
         javaResourceEquivalentClass: KClass<R>,
     ): KotlinResource {
@@ -199,24 +202,24 @@ internal class ResourceMappingTest {
         return kotlinResourceMock
     }
 
-    private fun <T : KotlinResource, R : com.pulumi.resources.Resource> mockResourceMapper(
+    private inline fun <reified T : KotlinResource, reified R : JavaResource> mockResourceMapper(
         kotlinResource: T,
         javaResource: R,
     ): ResourceMapper<T> {
         val resourceMapperMock = mockk<ResourceMapper<T>>()
 
         every {
-            resourceMapperMock.doesSupportMappingOfType(any())
+            resourceMapperMock.doesSupportMappingOfType(ofType(JavaResource::class))
         } answers {
             /**
              * This call is default implementation of [ResourceMapper.doesSupportMappingOfType]
              * generated by [com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ResourceMapperGenerator]
              */
-            firstArg<com.pulumi.resources.Resource>()::class == kotlinResource.javaResource::class
+            firstArg<JavaResource>()::class == kotlinResource.javaResource::class
         }
 
         every {
-            resourceMapperMock.map(javaResource)
+            resourceMapperMock.map(ofType(javaResource::class))
         } returns kotlinResource
 
         return resourceMapperMock

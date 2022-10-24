@@ -5,53 +5,52 @@ package com.pulumi.kotlin.options
 
 import com.pulumi.kotlin.toKotlin
 import java.util.Optional
+import com.pulumi.resources.ResourceArgs as JavaResourceArgs
+import com.pulumi.resources.ResourceOptions as JavaResourceOptions
+import com.pulumi.resources.ResourceTransformation as JavaResourceTransformation
+import com.pulumi.resources.ResourceTransformation.Args as JavaResourceTransformationArgs
+import com.pulumi.resources.ResourceTransformation.Result as JavaResourceTransformationResult
 
 /**
  * The callback signature for the [CustomResourceOptions.resourceTransformations] option.
  *
- * @see [com.pulumi.resources.ResourceTransformation]
+ * @see [JavaResourceTransformation]
  */
 fun interface ResourceTransformation {
-    fun apply(args: com.pulumi.resources.ResourceTransformation.Args):
-        com.pulumi.resources.ResourceTransformation.Result?
+    fun apply(args: JavaResourceTransformationArgs): JavaResourceTransformationResult?
 }
 
-internal fun ResourceTransformation.toJava(): com.pulumi.resources.ResourceTransformation {
-    return com.pulumi.resources.ResourceTransformation { javaArgs -> Optional.ofNullable(this.apply(javaArgs)) }
+internal fun ResourceTransformation.toJava(): JavaResourceTransformation {
+    return JavaResourceTransformation { javaArgs -> Optional.ofNullable(this.apply(javaArgs)) }
 }
 
-internal fun com.pulumi.resources.ResourceTransformation.toKotlin(): ResourceTransformation {
+internal fun JavaResourceTransformation.toKotlin(): ResourceTransformation {
     return ResourceTransformation { this.apply(it).toKotlin() }
 }
 
 class ResourceTransformationResultBuilder(
-    var args: com.pulumi.resources.ResourceArgs? = null,
-    var options: com.pulumi.resources.ResourceOptions? = null,
+    var args: JavaResourceArgs? = null,
+    var options: JavaResourceOptions? = null,
 ) {
 
-    fun args(value: com.pulumi.resources.ResourceArgs) {
+    fun args(value: JavaResourceArgs) {
         this.args = value
     }
 
-    fun options(value: com.pulumi.resources.ResourceOptions) {
+    fun options(value: JavaResourceOptions) {
         this.options = value
     }
 
-    internal fun build(): com.pulumi.resources.ResourceTransformation.Result {
-        return com.pulumi.resources.ResourceTransformation.Result(
-            args!!,
-            options!!,
-        )
-    }
+    internal fun build(): JavaResourceTransformationResult = JavaResourceTransformationResult(args!!, options!!)
 }
 
 /**
- * Creates [com.pulumi.resources.ResourceTransformation.Result]
+ * Creates [JavaResourceTransformationResult]
  * with use of type-safe [ResourceTransformationResultBuilder].
  */
 fun transformationResult(
     block: ResourceTransformationResultBuilder.() -> Unit,
-): com.pulumi.resources.ResourceTransformation.Result {
+): JavaResourceTransformationResult {
     val builder = ResourceTransformationResultBuilder()
     block(builder)
     return builder.build()

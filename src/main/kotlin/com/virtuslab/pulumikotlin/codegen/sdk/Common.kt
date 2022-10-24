@@ -8,6 +8,8 @@ import com.pulumi.core.Either
 import com.pulumi.core.Output
 import kotlinx.coroutines.runBlocking
 import java.util.Optional
+import com.pulumi.resources.ProviderResource as JavaProviderResource
+import com.pulumi.resources.Resource as JavaResource
 
 @DslMarker
 annotation class PulumiTagMarker
@@ -42,7 +44,7 @@ fun <T> Output<T>.toJava(): Output<T> {
 }
 
 @JvmName("A500F3FFG")
-fun Output<out List<KotlinResource>>.toJava(): Output<List<com.pulumi.resources.Resource>> {
+fun Output<out List<KotlinResource>>.toJava(): Output<List<JavaResource>> {
     return applyValue { listOfKotlinResources -> listOfKotlinResources.map { it.javaResource } }
 }
 
@@ -94,7 +96,7 @@ interface ConvertibleToJava<T> {
 }
 
 /**
- * Parent class for resources within Kotlin SDK - equivalent to [com.pulumi.resources.Resource].
+ * Parent class for resources within Kotlin SDK - equivalent to [JavaResource].
  *
  * Each resource within Kotlin SDK should have corresponding [ResourceMapper],
  * in order to properly translate Java resources to Kotlin representation.
@@ -104,20 +106,20 @@ interface ConvertibleToJava<T> {
  */
 @Suppress("UnnecessaryAbstractClass")
 abstract class KotlinResource
-private constructor(internal open val javaResource: com.pulumi.resources.Resource) {
+private constructor(internal open val javaResource: JavaResource) {
     protected constructor(
-        javaResource: com.pulumi.resources.Resource,
+        javaResource: JavaResource,
         mapper: ResourceMapper<KotlinResource>,
     ) : this(javaResource) {
-        GeneralResourceMapper.registerMapper(mapper)
+        GlobalResourceMapper.registerMapper(mapper)
     }
 }
 
 /**
- * Parent class for provider resources within Kotlin SDK - equivalent to [com.pulumi.resources.ProviderResource].
+ * Parent class for provider resources within Kotlin SDK - equivalent to [JavaProviderResource].
  */
 abstract class KotlinProviderResource protected constructor(
-    override val javaResource: com.pulumi.resources.ProviderResource,
+    override val javaResource: JavaProviderResource,
     mapper: ResourceMapper<KotlinResource>,
 ) : KotlinResource(javaResource, mapper)
 

@@ -1,7 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.sdk.opts
 
 import com.pulumi.core.Output
-import com.pulumi.kotlin.GeneralResourceMapper
+import com.pulumi.kotlin.GlobalResourceMapper
 import com.pulumi.kotlin.KotlinProviderResource
 import com.pulumi.kotlin.KotlinResource
 import com.pulumi.kotlin.options.ResourceTransformation
@@ -11,8 +11,6 @@ import com.pulumi.kotlin.options.noParent
 import com.pulumi.kotlin.options.opts
 import com.pulumi.kotlin.options.transformationResult
 import com.pulumi.kotlin.options.withUrn
-import com.virtuslab.pulumikotlin.assertOutputPropertyEqual
-import com.virtuslab.pulumikotlin.concat
 import com.virtuslab.pulumikotlin.extractOutputValue
 import io.mockk.every
 import io.mockk.mockk
@@ -25,12 +23,18 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import kotlin.reflect.KClass
 import kotlin.test.assertContentEquals
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import kotlin.time.Duration.Companion.milliseconds
+import com.pulumi.resources.ProviderResource as JavaProviderResource
+import com.pulumi.resources.Resource as JavaResource
+import com.pulumi.resources.ResourceArgs as JavaResourceArgs
+import com.pulumi.resources.ResourceOptions as JavaResourceOptions
+import com.pulumi.resources.ResourceTransformation.Args as JavaResourceTransformationArgs
+import com.pulumi.resources.ResourceTransformation.Result as JavaResourceTransformationResult
 
 internal class CustomResourceOptionsTest {
 
@@ -40,31 +44,18 @@ internal class CustomResourceOptionsTest {
     }
 
     @Test
-    fun `option additionalSecretOutputs should be properly set`() = runBlocking {
-        // given
-        val additionalSecretOutputs = listOf("username", "password")
-
+    fun `option additionalSecretOutputs should be properly set, when list given as input`() = runBlocking {
         // when
         val optsCreatedWithList = opts {
-            additionalSecretOutputs(additionalSecretOutputs)
-        }
-        val optsCreatedWithVararg = opts {
-            additionalSecretOutputs(*additionalSecretOutputs.toTypedArray())
+            additionalSecretOutputs(listOf("username", "password"))
         }
 
         // then
         assertAll(
             {
                 assertContentEquals(
+                    listOf("username", "password"),
                     optsCreatedWithList.additionalSecretOutputs,
-                    additionalSecretOutputs,
-                    "additionalSecretOutputs created with list arg",
-                )
-            },
-            {
-                assertContentEquals(
-                    optsCreatedWithVararg.additionalSecretOutputs,
-                    additionalSecretOutputs,
                     "additionalSecretOutputs created with list arg",
                 )
             },
@@ -72,74 +63,187 @@ internal class CustomResourceOptionsTest {
     }
 
     @Test
-    fun `option aliases should be properly set`() = runBlocking {
-        // given
-        val aliasUrn = "urn:pulumi:production::acmecorp::custom:resources:Resource:s3/bucket:Bucket::my-bucket"
-        val aliasName = "old-resource-name"
-        val alias = alias {
-            name(aliasName)
+    fun `option additionalSecretOutputs should be properly set, when varargs given as input`() = runBlocking {
+        // when
+        val opts = opts {
+            additionalSecretOutputs("username", "password")
         }
-        val outputAlias = Output.of(alias)
-        val outputAliasesList = listOf(outputAlias)
+
+        // then
+        assertAll(
+            {
+                assertContentEquals(
+                    listOf("username", "password"),
+                    opts.additionalSecretOutputs,
+                    "additionalSecretOutputs created with list arg",
+                )
+            },
+        )
+    }
+
+    @Test
+    fun `option aliases should be properly set, when created with type-safe builder`() = runBlocking {
+        // given
+        val alias = alias {
+            name("old-resource-name")
+        }
 
         // when
-        val optsCreatedWithMultipleMethods = opts {
+        val opts = opts {
             aliases(
                 alias {
-                    name(aliasName)
+                    name("old-resource-name")
                 },
-                withUrn(aliasUrn),
+                withUrn("urn:pulumi:production::acmecorp::custom:resources:Resource:s3/bucket:Bucket::my-bucket"),
                 noParent(),
                 alias,
             )
         }
-        val optsCreatedWithVarargs = opts {
-            aliases(
-                alias,
-                alias,
-            )
-        }
-        val optsCreatedWithOutputVarargs = opts {
-            aliases(outputAlias)
-        }
-        val optsCreatedWithList = opts {
-            aliases(outputAliasesList)
-        }
 
         // then
-        val assertionsForAliases = concat(
-            optsCreatedWithVarargs.aliases,
-            optsCreatedWithOutputVarargs.aliases,
-            optsCreatedWithList.aliases,
-        )
-            .map { extractOutputValue(it) }
-            .map { extractedAlias ->
-                assertOutputPropertyEqual(
-                    extractedAlias,
-                    aliasName,
-                    "alias name",
-                ) { it?.name }
+        val actualAliasesFromOpts = opts.aliases?.map { extractOutputValue(it) }.orEmpty()
+        val actualAliasesWithUrn =
+            actualAliasesFromOpts.filter {
+                it?.urn == "urn:pulumi:production::acmecorp::custom:resources:Resource:s3/bucket:Bucket::my-bucket"
             }
-            .toTypedArray()
+        val actualAliasesWithoutParent = actualAliasesFromOpts.filter { it?.noParent!! }
+        val actualAliasesWithName = actualAliasesFromOpts.filter { extractOutputValue(it?.name) == "old-resource-name" }
 
-        // then
         assertAll(
-            { assertEquals(optsCreatedWithMultipleMethods.aliases!!.size, 4) },
-            { assertTrue { assertionsForAliases.isNotEmpty() } },
-            *assertionsForAliases,
+            { assertEquals(4, actualAliasesFromOpts.size, "total aliases amount") },
+            { assertEquals(1, actualAliasesWithUrn.size, "aliases with given urn amount") },
+            { assertEquals(1, actualAliasesWithoutParent.size, "aliases without parent amount") },
+            { assertEquals(2, actualAliasesWithName.size, "aliases with given name amount") },
         )
     }
 
     @Test
-    fun `option customTimeouts should be properly set`() = runBlocking {
+    fun `option aliases should be properly set, when created with varargs`() = runBlocking {
+        // when
+        val opts = opts {
+            aliases(
+                alias {
+                    name("old-resource-name")
+                },
+                alias {
+                    name("old-resource-name")
+                },
+            )
+        }
+
+        // then
+        val actualAliasesWithName = opts.aliases
+            ?.map { extractOutputValue(it) }
+            .orEmpty()
+            .filter { extractOutputValue(it?.name) == "old-resource-name" }
+
+        assertEquals(2, actualAliasesWithName.size, "total amount of aliases with given name")
+    }
+
+    @Test
+    fun `option aliases should be properly set, when created with varargs of outputs`() = runBlocking {
+        // when
+        val opts = opts {
+            aliases(
+                Output.of(
+                    alias {
+                        name("old-resource-name")
+                    },
+                ),
+                Output.of(
+                    alias {
+                        name("old-resource-name")
+                    },
+                ),
+            )
+        }
+
+        // then
+        val actualAliasesWithName = opts.aliases
+            ?.map { extractOutputValue(it) }
+            .orEmpty()
+            .filter { extractOutputValue(it?.name) == "old-resource-name" }
+
+        assertEquals(2, actualAliasesWithName.size, "total amount of aliases with given name")
+    }
+
+    @Test
+    fun `option aliases should be properly set, when created with list`() = runBlocking {
+        // when
+        val opts = opts {
+            aliases(
+                listOf(
+                    Output.of(
+                        alias {
+                            name("old-resource-name")
+                        },
+                    ),
+                    Output.of(
+                        alias {
+                            name("old-resource-name")
+                        },
+                    ),
+                ),
+            )
+        }
+
+        // then
+        val actualAliasesWithName = opts.aliases
+            ?.map { extractOutputValue(it) }
+            .orEmpty()
+            .filter { extractOutputValue(it?.name) == "old-resource-name" }
+
+        assertEquals(2, actualAliasesWithName.size, "total amount of aliases with given name")
+    }
+
+    @Test
+    fun `option customTimeouts should be properly set, when created with type-safe builder`() = runBlocking {
+        // when
+        val opts = opts {
+            customTimeouts {
+                create(100.milliseconds)
+                update(100.milliseconds)
+                delete(100.milliseconds)
+            }
+        }
+
+        // then
+        assertAll(
+            {
+                assertEquals(
+                    100.milliseconds,
+                    opts.customTimeouts!!.create!!,
+                    "custom timeouts - create",
+                )
+            },
+            {
+                assertEquals(
+                    100.milliseconds,
+                    opts.customTimeouts!!.update!!,
+                    "custom timeouts - update",
+                )
+            },
+            {
+                assertEquals(
+                    100.milliseconds,
+                    opts.customTimeouts!!.delete!!,
+                    "custom timeouts - delete",
+                )
+            },
+
+        )
+    }
+
+    @Test
+    fun `option customTimeouts should be properly set, when created with object`() = runBlocking {
         // given
-        val duration = 100.toDuration(DurationUnit.MILLISECONDS)
-        val customTimeouts = customTimeouts { create(duration); update(duration); delete(duration) }
+        val customTimeouts = customTimeouts {
+            create(100.milliseconds)
+            update(100.milliseconds)
+            delete(100.milliseconds)
+        }
 
         // when
-        val optsCreatedWithArgs = opts {
-            customTimeouts { create(duration); update(duration); delete(duration) }
-        }
         val optsCreatedWithObject = opts {
             customTimeouts(customTimeouts)
         }
@@ -148,45 +252,23 @@ internal class CustomResourceOptionsTest {
         assertAll(
             {
                 assertEquals(
-                    optsCreatedWithArgs.customTimeouts!!.create,
-                    duration,
-                    "opts.customTimeouts.create created with args",
+                    100.milliseconds,
+                    optsCreatedWithObject.customTimeouts!!.create!!,
+                    "custom timeouts - create",
                 )
             },
             {
                 assertEquals(
-                    optsCreatedWithArgs.customTimeouts!!.update,
-                    duration,
-                    "opts.customTimeouts.update created with args",
+                    100.milliseconds,
+                    optsCreatedWithObject.customTimeouts!!.update!!,
+                    "custom timeouts - update",
                 )
             },
             {
                 assertEquals(
-                    optsCreatedWithArgs.customTimeouts!!.delete,
-                    duration,
-                    "opts.customTimeouts.delete created with args",
-                )
-            },
-
-            {
-                assertEquals(
-                    optsCreatedWithObject.customTimeouts!!.create,
-                    duration,
-                    "opts.customTimeouts.create created with object",
-                )
-            },
-            {
-                assertEquals(
-                    optsCreatedWithObject.customTimeouts!!.update,
-                    duration,
-                    "opts.customTimeouts.update created with object",
-                )
-            },
-            {
-                assertEquals(
-                    optsCreatedWithObject.customTimeouts!!.delete,
-                    duration,
-                    "opts.customTimeouts.delete created with object",
+                    100.milliseconds,
+                    optsCreatedWithObject.customTimeouts!!.delete!!,
+                    "custom timeouts - delete",
                 )
             },
         )
@@ -200,109 +282,145 @@ internal class CustomResourceOptionsTest {
         }
 
         // then
-        assertTrue(optsDeleteBeforeReplaceTrue.deleteBeforeReplace, "opts.deleteBeforeReplace")
+        assertTrue(optsDeleteBeforeReplaceTrue.deleteBeforeReplace, "deleteBeforeReplace")
     }
 
     @Test
-    fun `option dependsOn should be properly set`() = runBlocking {
+    fun `option dependsOn should be properly set with varargs`() = runBlocking {
         // given
         val kotlinResource1 =
-            mockKotlinSdkResource(KotlinResource::class, com.pulumi.resources.Resource::class)
+            mockKotlinResource(KotlinResource::class, JavaResource::class)
         val kotlinResource2 =
-            mockKotlinSdkResource(KotlinResource::class, com.pulumi.resources.Resource::class)
+            mockKotlinResource(KotlinResource::class, JavaResource::class)
         val kotlinResource3 =
-            mockKotlinSdkResource(KotlinResource::class, com.pulumi.resources.Resource::class)
-        val kotlinSdkResources = listOf(kotlinResource1, kotlinResource2, kotlinResource3)
-        val outputListOfKotlinSdkResources = Output.of(kotlinSdkResources)
-        val expectedResourcesAmount = 3
+            mockKotlinResource(KotlinResource::class, JavaResource::class)
 
         // when
-        val optsCreatedWithVarargs = opts {
+        val opts = opts {
             dependsOn(kotlinResource1, kotlinResource2, kotlinResource3)
         }
-        val optsCreatedWithList = opts {
-            dependsOn(kotlinSdkResources)
-        }
-        val optsCreatedWithOutputList = opts {
-            dependsOn(outputListOfKotlinSdkResources)
-        }
 
         // then
-        val actualValueFromVarargs = extractOutputValue(optsCreatedWithVarargs.dependsOn)
-        val actualValueFromList = extractOutputValue(optsCreatedWithList.dependsOn)
-        val actualValueFromOutputList = extractOutputValue(optsCreatedWithOutputList.dependsOn)
+        val actualDependsOnList = extractOutputValue(opts.dependsOn).orEmpty()
 
-        assertAll(
-            { assertEquals(expectedResourcesAmount, actualValueFromVarargs?.size) },
-            { assertEquals(expectedResourcesAmount, actualValueFromList?.size) },
-            { assertEquals(expectedResourcesAmount, actualValueFromOutputList?.size) },
-        )
+        assertEquals(3, actualDependsOnList.size, "amount of dependencies")
     }
 
     @Test
-    fun `option id should be properly set`() = runBlocking {
+    fun `option dependsOn should be properly set with list`() = runBlocking {
         // given
-        val id = "id"
-        val outputId = Output.of("id")
+        val kotlinResource1 =
+            mockKotlinResource(KotlinResource::class, JavaResource::class)
+        val kotlinResource2 =
+            mockKotlinResource(KotlinResource::class, JavaResource::class)
+        val kotlinResource3 =
+            mockKotlinResource(KotlinResource::class, JavaResource::class)
+        val kotlinResources = listOf(kotlinResource1, kotlinResource2, kotlinResource3)
 
         // when
-        val optsCreatedWithArg = opts {
-            id(id)
-        }
-        val optsCreatedWithOutputArg = opts {
-            id(outputId)
+        val opts = opts {
+            dependsOn(kotlinResources)
         }
 
         // then
-        assertAll(
-            assertOutputPropertyEqual(optsCreatedWithArg, id, "opts.id") { it.id },
-            assertOutputPropertyEqual(optsCreatedWithOutputArg, "id", "opts.id") { it.id },
-        )
+        val actualDependsOnList = extractOutputValue(opts.dependsOn).orEmpty()
+
+        assertEquals(3, actualDependsOnList.size, "amount of dependencies")
     }
 
     @Test
-    fun `option ignoreChanges should be properly set`() = runBlocking {
+    fun `option dependsOn should be properly set with output of list`() = runBlocking {
         // given
-        val ignoredChange1 = "resource-name-1"
-        val ignoredChange2 = "resource-name-2"
-        val ignoredChanges = listOf(ignoredChange1, ignoredChange2)
+        val kotlinResource1 =
+            mockKotlinResource(KotlinResource::class, JavaResource::class)
+        val kotlinResource2 =
+            mockKotlinResource(KotlinResource::class, JavaResource::class)
+        val kotlinResource3 =
+            mockKotlinResource(KotlinResource::class, JavaResource::class)
+        val kotlinResources = listOf(kotlinResource1, kotlinResource2, kotlinResource3)
+        val outputListOfKotlinResources = Output.of(kotlinResources)
 
         // when
-        val optsCreatedWithVarargs = opts {
+        val opts = opts {
+            dependsOn(outputListOfKotlinResources)
+        }
+
+        // then
+        val actualDependsOnList = extractOutputValue(opts.dependsOn).orEmpty()
+
+        assertEquals(3, actualDependsOnList.size, "amount of dependencies")
+    }
+
+    @Test
+    fun `option id should be properly set with string`() = runBlocking {
+        // when
+        val opts = opts {
+            id("id")
+        }
+
+        // then
+        val actualId = extractOutputValue(opts.id)
+
+        assertEquals("id", actualId, "id")
+    }
+
+    @Test
+    fun `option id should be properly set with output of string`() = runBlocking {
+        // when
+        val opts = opts {
+            id(Output.of("id"))
+        }
+
+        // then
+        val actualId = extractOutputValue(opts.id)
+
+        assertEquals("id", actualId, "id")
+    }
+
+    @Test
+    fun `option ignoreChanges should be properly set with varargs`() = runBlocking {
+        // when
+        val opts = opts {
             ignoreChanges(
-                ignoredChange1,
-                ignoredChange2,
+                "resource-name-1",
+                "resource-name-2",
             )
         }
-        val optsCreatedWithList = opts {
+
+        // then
+        assertContentEquals(listOf("resource-name-1", "resource-name-2"), opts.ignoreChanges, "ignored changes")
+    }
+
+    @Test
+    fun `option ignoreChanges should be properly set with list`() = runBlocking {
+        // given
+        val ignoredChanges = listOf("resource-name-1", "resource-name-2")
+
+        // when
+        val opts = opts {
             ignoreChanges(ignoredChanges)
         }
 
-        assertAll(
-            { assertContentEquals(ignoredChanges, optsCreatedWithVarargs.ignoreChanges) },
-            { assertContentEquals(ignoredChanges, optsCreatedWithList.ignoreChanges) },
-        )
+        // then
+        assertContentEquals(ignoredChanges, opts.ignoreChanges, "ignored changes")
     }
 
     @Test
     fun `option importId should be properly set`() = runBlocking {
-        // given
-        val importId = "import-id"
-
         // when
         val opts = opts {
-            importId(importId)
+            importId("import-id")
         }
 
         // then
-        assertEquals(opts.importId, importId, "opts.importId")
+        assertEquals("import-id", opts.importId, "importId")
     }
 
     @Test
     fun `option parent should be properly set`() = runBlocking {
         // given
         val parentKotlinResource =
-            mockKotlinSdkResource(KotlinResource::class, com.pulumi.resources.Resource::class)
+            mockKotlinResource(KotlinResource::class, JavaResource::class)
 
         // when
         val opts = opts {
@@ -310,44 +428,36 @@ internal class CustomResourceOptionsTest {
         }
 
         // then
-        assertEquals(opts.parent, parentKotlinResource, "opts.parent")
+        assertEquals(parentKotlinResource, opts.parent, "parent")
     }
 
     @Test
     fun `option pluginDownloadURL should be properly set`() = runBlocking {
-        // given
-        val pluginDownloadURL = "https://example.org"
-
         // when
         val opts = opts {
-            pluginDownloadURL(pluginDownloadURL)
+            pluginDownloadURL("https://example.org")
         }
 
         // then
-        assertEquals(opts.pluginDownloadURL, pluginDownloadURL, "opts.pluginDownloadURL")
+        assertEquals("https://example.org", opts.pluginDownloadURL, "pluginDownloadURL")
     }
 
     @Test
     fun `option protect should be properly set`() = runBlocking {
         // when
-        val optsProtectTrue = opts {
+        val opts = opts {
             protect(true)
-        }
-        val optsProtectFalse = opts {
         }
 
         // then
-        assertAll(
-            { assertTrue { optsProtectTrue.protect } },
-            { assertFalse { optsProtectFalse.protect } },
-        )
+        assertTrue(opts.protect)
     }
 
     @Test
     fun `option provider should be properly set`() = runBlocking {
         // given
         val providerResource =
-            mockKotlinSdkResource(KotlinProviderResource::class, com.pulumi.resources.ProviderResource::class)
+            mockKotlinResource(KotlinProviderResource::class, JavaProviderResource::class)
 
         // when
         val opts = opts {
@@ -355,54 +465,93 @@ internal class CustomResourceOptionsTest {
         }
 
         // then
-        assertEquals(opts.provider, providerResource, "opts.provider")
+        assertEquals(providerResource, opts.provider, "provider")
     }
 
     @Test
-    fun `option replaceOnChanges should be properly set`() = runBlocking {
+    fun `option replaceOnChanges should be properly set with varargs`() = runBlocking {
         // given
-        val replaceOnChange1 = "resource-to-replace-1"
-        val replaceOnChange2 = "resource-to-replace-2"
-        val replaceOnChangeList = listOf(replaceOnChange1, replaceOnChange2)
 
         // when
-        val optsCreatedWithVarargs = opts {
-            replaceOnChanges(replaceOnChange1, replaceOnChange2)
+        val opts = opts {
+            replaceOnChanges("resource-to-replace-1", "resource-to-replace-2")
         }
-        val optsCreatedWithList = opts {
+
+        // then
+        assertContentEquals(
+            listOf("resource-to-replace-1", "resource-to-replace-2"),
+            opts.replaceOnChanges,
+            "replaceOnChanges",
+        )
+    }
+
+    @Test
+    fun `option replaceOnChanges should be properly set with list`() = runBlocking {
+        // given
+        val replaceOnChangeList = listOf("resource-to-replace-1", "resource-to-replace-2")
+
+        // when
+        val opts = opts {
             replaceOnChanges(replaceOnChangeList)
         }
 
         // then
-        assertAll(
-            {
-                assertContentEquals(
-                    replaceOnChangeList,
-                    optsCreatedWithVarargs.replaceOnChanges,
-                    "opts.replaceOnChanges",
-                )
-            },
-            {
-                assertContentEquals(
-                    replaceOnChangeList,
-                    optsCreatedWithList.replaceOnChanges,
-                    "opts.replaceOnChanges",
-                )
-            },
+        assertContentEquals(
+            listOf("resource-to-replace-1", "resource-to-replace-2"),
+            opts.replaceOnChanges,
+            "replaceOnChanges",
         )
     }
 
     @Test
-    fun `option resourceTransformations should be properly set`() = runBlocking {
+    fun `option resourceTransformations should be properly set with varargs`() = runBlocking {
         // given
-        val javaResourceMock = mockk<com.pulumi.resources.Resource>()
-        val javaResourceArgsMock = mockk<com.pulumi.resources.ResourceArgs>()
-        val javaResourceOptionsMock = mockk<com.pulumi.resources.ResourceOptions>()
-        val javaArgs = com.pulumi.resources.ResourceTransformation.Args(
+        val javaResourceMock = mockk<JavaResource>()
+        val javaResourceArgsMock = mockk<JavaResourceArgs>()
+        val javaResourceOptionsMock = mockk<JavaResourceOptions>()
+        val javaArgs = JavaResourceTransformationArgs(
             javaResourceMock,
             javaResourceArgsMock,
             javaResourceOptionsMock,
         )
+
+        val expectedResourceTransformationResult =
+            JavaResourceTransformationResult(javaResourceArgsMock, javaResourceOptionsMock)
+
+        // when
+        val opts = opts {
+            resourceTransformations(
+                ResourceTransformation { transformation ->
+                    transformationResult {
+                        args(transformation.args())
+                        options(transformation.options())
+                    }
+                },
+            )
+        }
+
+        // then
+        assertResourceTransformationResultEquals(
+            expectedResourceTransformationResult,
+            opts.resourceTransformations,
+            javaArgs,
+        )
+    }
+
+    @Test
+    fun `option resourceTransformations should be properly set with list`() = runBlocking {
+        // given
+        val javaResourceMock = mockk<JavaResource>()
+        val javaResourceArgsMock = mockk<JavaResourceArgs>()
+        val javaResourceOptionsMock = mockk<JavaResourceOptions>()
+        val javaArgs = JavaResourceTransformationArgs(
+            javaResourceMock,
+            javaResourceArgsMock,
+            javaResourceOptionsMock,
+        )
+
+        val expectedResourceTransformationResult =
+            JavaResourceTransformationResult(javaResourceArgsMock, javaResourceOptionsMock)
 
         val resourceTransformation = ResourceTransformation { transformation ->
             transformationResult {
@@ -410,82 +559,55 @@ internal class CustomResourceOptionsTest {
                 options(transformation.options())
             }
         }
-        val resourceTransformationsList = listOf(resourceTransformation)
 
         // when
-        val optsCreatedWithVarargs = opts {
-            resourceTransformations(resourceTransformation)
-        }
-        val optsCreatedWithList = opts {
-            resourceTransformations(resourceTransformationsList)
+        val opts = opts {
+            resourceTransformations(listOf(resourceTransformation))
         }
 
         // then
-        val transformationCreatedWithVarargsApplicationResult = optsCreatedWithVarargs.resourceTransformations
-            ?.map { it.apply(javaArgs) }
-        val transformationCreatedWithListApplicationResult = optsCreatedWithList.resourceTransformations
-            ?.map { it.apply(javaArgs) }
-
-        assertAll(
-            { assertEquals(1, transformationCreatedWithVarargsApplicationResult!!.size) },
-            { assertEquals(1, transformationCreatedWithListApplicationResult!!.size) },
-
-            {
-                assertTrue(
-                    transformationCreatedWithVarargsApplicationResult!!
-                        .map { it!!.args() == javaResourceArgsMock && it.options() == javaResourceOptionsMock }
-                        .reduce { acc, b -> acc && b },
-                )
-            },
-            {
-                assertTrue(
-                    transformationCreatedWithListApplicationResult!!
-                        .map { it!!.args() == javaResourceArgsMock && it.options() == javaResourceOptionsMock }
-                        .reduce { acc, b -> acc && b },
-                )
-            },
+        assertResourceTransformationResultEquals(
+            expectedResourceTransformationResult,
+            opts.resourceTransformations,
+            javaArgs,
         )
     }
 
     @Test
     fun `option retainOnDelete should be properly set`() = runBlocking {
         // when
-        val optsRetainOnDeleteTrue = opts {
+        val opts = opts {
             retainOnDelete(true)
         }
 
         // then
-        assertAll(
-            { assertTrue(optsRetainOnDeleteTrue.retainOnDelete, "opts.retainOnDelete") },
-        )
+        assertTrue(opts.retainOnDelete, "retainOnDelete")
     }
 
     @Test
     fun `option urn should be properly set`() = runBlocking {
-        // given
-        val urn = "urn:pulumi:production::acmecorp::custom:resources:Resource:s3/bucket:Bucket::my-bucket"
-
         // when
         val opts = opts {
-            urn(urn)
+            urn("urn:pulumi:production::acmecorp::custom:resources:Resource:s3/bucket:Bucket::my-bucket")
         }
 
         // then
-        assertEquals(opts.urn, urn, "opts.urn")
+        assertEquals(
+            "urn:pulumi:production::acmecorp::custom:resources:Resource:s3/bucket:Bucket::my-bucket",
+            opts.urn,
+            "opts.urn",
+        )
     }
 
     @Test
     fun `option version should be properly set`() = runBlocking {
-        // given
-        val version = "1.0.0"
-
         // when
         val opts = opts {
-            version(version)
+            version("1.0.0")
         }
 
         // then
-        assertEquals(opts.version, version, "opts.version")
+        assertEquals("1.0.0", opts.version, "opts.version")
     }
 
     @Test
@@ -494,9 +616,10 @@ internal class CustomResourceOptionsTest {
         val username = "username"
         val password = "password"
         val oldResourceName = "old-resource-name"
-        val duration = 100.toDuration(DurationUnit.MILLISECONDS)
+        val duration = 100.milliseconds
         val oldProjectName = "old-project-name"
-        val givenOptions = opts {
+
+        val givenOpts = opts {
             additionalSecretOutputs(username)
             aliases(
                 {
@@ -519,7 +642,7 @@ internal class CustomResourceOptionsTest {
             customTimeouts {
                 create(duration)
             }
-            mergeWith(givenOptions)
+            mergeWith(givenOpts)
         }
 
         // then
@@ -533,7 +656,7 @@ internal class CustomResourceOptionsTest {
             { assertContentEquals(listOf(username, password), currentOptions.additionalSecretOutputs) },
             { assertContentEquals(listOf(oldResourceName, oldProjectName), oldNamesExtractedFromAliases) },
             { assertNull(currentOptions.customTimeouts!!.update) },
-            { assertEquals(duration, currentOptions.customTimeouts!!.create) },
+            { assertEquals(duration, currentOptions.customTimeouts!!.create!!) },
         )
     }
 
@@ -565,22 +688,39 @@ internal class CustomResourceOptionsTest {
         )
     }
 
-    private fun <T : KotlinResource, R : com.pulumi.resources.Resource> mockKotlinSdkResource(
+    private fun assertResourceTransformationResultEquals(
+        expectedResult: JavaResourceTransformationResult,
+        actualTransformations: List<ResourceTransformation>?,
+        transformationArgs: JavaResourceTransformationArgs,
+    ) {
+        if (actualTransformations.isNullOrEmpty()) {
+            fail<JavaResourceTransformationResult>("Resource transformation results are empty!")
+        }
+
+        val actualToExpectedResult = actualTransformations!!
+            .map { it.apply(transformationArgs) }
+            // assert that after invocation of transformation the invocation results would be the same as expected,
+            .map { { assertTrue { it!!.args() == expectedResult.args() && it.options() == expectedResult.options() } } }
+
+        assertAll(actualToExpectedResult)
+    }
+
+    private fun <T : KotlinResource, R : JavaResource> mockKotlinResource(
         kotlinResourceToMock: KClass<T>,
         javaResourceEquivalentToMock: KClass<R>,
     ): T {
-        val mockedKotlinSdkResource = mockkClass(kotlinResourceToMock)
+        val mockedKotlinResource = mockkClass(kotlinResourceToMock)
         val mockedJavaResource = mockkClass(javaResourceEquivalentToMock)
 
         every {
-            mockedKotlinSdkResource.javaResource
+            mockedKotlinResource.javaResource
         } returns mockedJavaResource
 
-        mockkObject(GeneralResourceMapper)
+        mockkObject(GlobalResourceMapper)
         every {
-            GeneralResourceMapper.tryMap(any<com.pulumi.resources.Resource>())
-        } returns mockedKotlinSdkResource
+            GlobalResourceMapper.tryMap(any<JavaResource>())
+        } returns mockedKotlinResource
 
-        return mockedKotlinSdkResource
+        return mockedKotlinResource
     }
 }

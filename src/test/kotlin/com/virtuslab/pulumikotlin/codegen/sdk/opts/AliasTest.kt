@@ -4,7 +4,7 @@ import com.pulumi.core.Output
 import com.pulumi.kotlin.options.alias
 import com.pulumi.kotlin.options.noParent
 import com.pulumi.kotlin.options.withUrn
-import com.virtuslab.pulumikotlin.assertOutputPropertyEqual
+import com.virtuslab.pulumikotlin.extractOutputValue
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -13,62 +13,74 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-private const val ALIAS_URN = "urn:pulumi:production::acmecorp::custom:resources:Resource:s3/bucket:Bucket::my-bucket"
-private const val ALIAS_NAME = "old-resource-name"
-private const val ALIAS_TYPE = "custom-resource"
-private const val ALIAS_STACK = "production"
-private const val ALIAS_PROJECT = " acmecorp"
-
 // FIXME java builder methods are probably bugged, they verify nullstate of incorrect fields,
 //  hence not all methods in type-safe builders could be tested,
 //  complete these tests, when this case is solved
+//  @see  https://github.com/VirtuslabRnD/jvm-lab/issues/54
 internal class AliasTest {
 
     @Test
-    fun `alias should be created with builder`() = runBlocking {
-        // given
-        val outputAliasName = Output.of(ALIAS_NAME)
-        val outputAliasType = Output.of(ALIAS_TYPE)
-        val outputAliasStack = Output.of(ALIAS_STACK)
-        val outputAliasProject = Output.of(ALIAS_PROJECT)
-
+    fun `alias should be properly instantiated with use of strings in type-safe builder`() = runBlocking {
         // when
-        val aliasCreatedWithStrings = alias {
-            name(ALIAS_NAME)
-            type(ALIAS_TYPE)
-            stack(ALIAS_STACK)
-            project(ALIAS_PROJECT)
-        }
-
-        val aliasCreatedWithOutputs = alias {
-            name(outputAliasName)
-            type(outputAliasType)
-            stack(outputAliasStack)
-            project(outputAliasProject)
+        val alias = alias {
+            name("old-resource-name")
+            type("custom-resource")
+            stack("production")
+            project("acmecorp")
         }
 
         // then
-        assertAll(
-            assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_NAME, "name") { it.name },
-            assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_TYPE, "type") { it.type },
-            assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_STACK, "stack") { it.stack },
-            assertOutputPropertyEqual(aliasCreatedWithStrings, ALIAS_PROJECT, "project") { it.project },
+        val actualAliasName = extractOutputValue(alias.name)
+        val actualAliasType = extractOutputValue(alias.type)
+        val actualAliasStack = extractOutputValue(alias.stack)
+        val actualAliasProject = extractOutputValue(alias.project)
 
-            assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_NAME, "name") { it.name },
-            assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_TYPE, "type") { it.type },
-            assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_STACK, "stack") { it.stack },
-            assertOutputPropertyEqual(aliasCreatedWithOutputs, ALIAS_PROJECT, "project") { it.project },
+        assertAll(
+            { assertEquals("old-resource-name", actualAliasName, message = "old-resource-name") },
+            { assertEquals("custom-resource", actualAliasType, message = "custom-resource") },
+            { assertEquals("production", actualAliasStack, message = "production") },
+            { assertEquals("acmecorp", actualAliasProject, message = "acmecorp") },
+        )
+    }
+
+    @Test
+    fun `alias should be properly instantiated with use of outputs of strings in type-safe builder`() = runBlocking {
+        // when
+        val alias = alias {
+            name(Output.of("old-resource-name"))
+            type(Output.of("custom-resource"))
+            stack(Output.of("production"))
+            project(Output.of("acmecorp"))
+        }
+
+        // then
+        val actualAliasName = extractOutputValue(alias.name)
+        val actualAliasType = extractOutputValue(alias.type)
+        val actualAliasStack = extractOutputValue(alias.stack)
+        val actualAliasProject = extractOutputValue(alias.project)
+
+        assertAll(
+            { assertEquals("old-resource-name", actualAliasName, message = "old-resource-name") },
+            { assertEquals("custom-resource", actualAliasType, message = "custom-resource") },
+            { assertEquals("production", actualAliasStack, message = "production") },
+            { assertEquals("acmecorp", actualAliasProject, message = "acmecorp") },
         )
     }
 
     @Test
     fun `alias should be created with method withUrn`() = runBlocking {
         // when
-        val alias = withUrn(ALIAS_URN)
+        val alias = withUrn("urn:pulumi:production::acmecorp::custom:resources:Resource:s3/bucket:Bucket::my-bucket")
 
         // then
         assertAll(
-            { assertEquals(alias.urn, ALIAS_URN, "urn") },
+            {
+                assertEquals(
+                    "urn:pulumi:production::acmecorp::custom:resources:Resource:s3/bucket:Bucket::my-bucket",
+                    alias.urn,
+                    "urn",
+                )
+            },
             { assertNull(alias.name, "name") },
             { assertNull(alias.type, "type") },
             { assertNull(alias.project, "project") },
