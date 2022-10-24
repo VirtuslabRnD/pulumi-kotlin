@@ -78,9 +78,9 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
             inverse(childrenByNameWithContext).lowercaseKeys()
 
         val chosenKey = NameWithContext(name, context)
-        val requiredChildren = childrenByNameWithContext[chosenKey] ?: error("could not find $name children ($context)")
+        val requiredChildren = childrenByNameWithContext[chosenKey] ?: error("Could not find $name children ($context)")
         val requiredParents = parentsByNameWithContext[chosenKey] ?: run {
-            println("could not find $name parents ($context)")
+            println("Could not find $name parents ($context)")
             References.empty()
         }
 
@@ -174,7 +174,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
 
         val foundProperties = allProperties[key]
         if (foundProperties == null) {
-            println("could not find $typeName")
+            println("Could not find $typeName")
             return References.from(key)
         }
 

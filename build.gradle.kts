@@ -80,6 +80,11 @@ tasks.register<Test>("e2eTest") {
     useJUnitPlatform()
 }
 
+tasks.register<JavaExec>("computeSchemaSubset") {
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.virtuslab.pulumikotlin.scripts.ComputeSchemaSubsetScriptKt")
+}
+
 kotlinter {
     reporters = arrayOf("html", "plain")
 }

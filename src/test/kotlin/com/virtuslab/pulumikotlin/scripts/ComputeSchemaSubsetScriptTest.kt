@@ -14,19 +14,16 @@ internal class ComputeSchemaSubsetScriptTest {
 
     @Test
     fun `should find subset when using type (that is referenced by some resource)`() {
-        val output = runComputeSchemaSubset(
-            "--schema-path",
-            resolvedSchemaPath(),
-            "--name",
-            "aws:accessanalyzer/ArchiveRuleFilter:ArchiveRuleFilter",
-            "--context",
-            "type",
+        val outputSchema = runComputeSchemaSubsetScript(
+            schemaPath = resolvedAwsClassicSchemaPath(),
+            name = "aws:accessanalyzer/ArchiveRuleFilter:ArchiveRuleFilter",
+            context = "type",
         )
 
-        val schema = Json.decodeFromString<Schema>(output)
+        val decodedOutputSchema = Json.decodeFromString<Schema>(outputSchema)
 
         assertContainsOnly(
-            schema,
+            decodedOutputSchema,
             types = setOf(
                 "aws:accessanalyzer/ArchiveRuleFilter:ArchiveRuleFilter",
             ),
@@ -38,19 +35,16 @@ internal class ComputeSchemaSubsetScriptTest {
 
     @Test
     fun `should find subset when using resource (that references some types)`() {
-        val output = runComputeSchemaSubset(
-            "--schema-path",
-            resolvedSchemaPath(),
-            "--name",
-            "aws:lambda/function:Function",
-            "--context",
-            "resource",
+        val outputSchema = runComputeSchemaSubsetScript(
+            schemaPath = resolvedAwsClassicSchemaPath(),
+            name = "aws:lambda/function:Function",
+            context = "resource",
         )
 
-        val schema = Json.decodeFromString<Schema>(output)
+        val decodedOutputSchema = Json.decodeFromString<Schema>(outputSchema)
 
         assertContainsOnly(
-            schema,
+            decodedOutputSchema,
             types = setOf(
                 "aws:lambda/Runtime:Runtime",
                 "aws:lambda/FunctionDeadLetterConfig:FunctionDeadLetterConfig",
@@ -67,19 +61,16 @@ internal class ComputeSchemaSubsetScriptTest {
 
     @Test
     fun `should find subset when using function (that references some types)`() {
-        val output = runComputeSchemaSubset(
-            "--schema-path",
-            resolvedSchemaPath(),
-            "--name",
-            "aws:fsx/getOpenZfsSnapshot:getOpenZfsSnapshot",
-            "--context",
-            "function",
+        val outputSchema = runComputeSchemaSubsetScript(
+            schemaPath = resolvedAwsClassicSchemaPath(),
+            name = "aws:fsx/getOpenZfsSnapshot:getOpenZfsSnapshot",
+            context = "function",
         )
 
-        val schema = Json.decodeFromString<Schema>(output)
+        val decodedOutputSchema = Json.decodeFromString<Schema>(outputSchema)
 
         assertContainsOnly(
-            schema,
+            decodedOutputSchema,
             types = setOf("aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter"),
             functions = setOf("aws:fsx/getOpenZfsSnapshot:getOpenZfsSnapshot"),
         )
@@ -87,26 +78,23 @@ internal class ComputeSchemaSubsetScriptTest {
 
     @Test
     fun `should work when using type (that is referenced by some function)`() {
-        val output = runComputeSchemaSubset(
-            "--schema-path",
-            resolvedSchemaPath(),
-            "--name",
-            "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
-            "--context",
-            "type",
+        val outputSchema = runComputeSchemaSubsetScript(
+            schemaPath = resolvedAwsClassicSchemaPath(),
+            name = "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
+            context = "type",
         )
 
-        val schema = Json.decodeFromString<Schema>(output)
+        val decodedOutputSchema = Json.decodeFromString<Schema>(outputSchema)
 
         assertContainsOnly(
-            schema,
+            decodedOutputSchema,
             types = setOf("aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter"),
             functions = setOf("aws:fsx/getOpenZfsSnapshot:getOpenZfsSnapshot"),
         )
     }
 
-    private fun resolvedSchemaPath() =
-        Paths.get(SCHEMA_PATH).absolutePathString()
+    private fun resolvedAwsClassicSchemaPath() =
+        Paths.get(SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE).absolutePathString()
 
     private fun assertContainsOnly(
         schema: Schema,
@@ -119,11 +107,20 @@ internal class ComputeSchemaSubsetScriptTest {
         assertEquals(functions, schema.functions.keys)
     }
 
-    private fun runComputeSchemaSubset(vararg args: String): String {
+    private fun runComputeSchemaSubsetScript(schemaPath: String, name: String, context: String): String {
         val outputStream = ByteArrayOutputStream()
 
         outputStream.use {
-            ComputeSchemaSubsetScript(it).main(args.toList())
+            ComputeSchemaSubsetScript(it).main(
+                listOf(
+                    "--schema-path",
+                    schemaPath,
+                    "--name",
+                    name,
+                    "--context",
+                    context,
+                ),
+            )
         }
 
         return outputStream.toByteArray().decodeToString()
@@ -137,5 +134,5 @@ internal class ComputeSchemaSubsetScriptTest {
     )
 }
 
-private const val SCHEMA_PATH =
+private const val SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE =
     "src/test/resources/schema-aws-classic-5.16.2-subset-for-compute-schema-subset-script-test.json"
