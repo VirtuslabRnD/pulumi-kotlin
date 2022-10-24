@@ -521,7 +521,7 @@ internal class CustomResourceOptionsTest {
         // when
         val opts = opts {
             resourceTransformations(
-                ResourceTransformation { transformation ->
+                { transformation ->
                     transformationResult {
                         args(transformation.args())
                         options(transformation.options())

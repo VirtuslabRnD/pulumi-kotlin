@@ -74,11 +74,9 @@ internal class ResourceMappingTest {
     }
 
     @Test
-    @Suppress("UNCHECKED_CAST") // casting to avoid overload resolution ambiguity
     fun `CustomResource wrapped in optional should be properly mapped`() {
         // given
-        val optionalJavaCustomResource =
-            Optional.of(customResourceMock.javaResource) as Optional<JavaResource?>?
+        val optionalJavaCustomResource = Optional.of(customResourceMock.javaResource)
 
         // when
         val mappedCustomResource = GlobalResourceMapper.tryMap(optionalJavaCustomResource)
@@ -88,11 +86,9 @@ internal class ResourceMappingTest {
     }
 
     @Test
-    @Suppress("UNCHECKED_CAST") // casting to avoid overload resolution ambiguity
     fun `ProviderResource wrapped in optional should be properly mapped`() {
         // given
-        val optionalJavaProviderResource =
-            Optional.of(providerResourceMock.javaResource) as Optional<JavaResource?>?
+        val optionalJavaProviderResource = Optional.of(providerResourceMock.javaResource)
 
         // when
         val mappedProviderResource = GlobalResourceMapper.tryMap(optionalJavaProviderResource)
@@ -104,8 +100,7 @@ internal class ResourceMappingTest {
     @Test
     fun `CustomResource wrapped in Output should be properly mapped`() {
         // given
-        val outputJavaCustomResource: Output<JavaResource?>? =
-            Output.of(customResourceMock.javaResource)
+        val outputJavaCustomResource = Output.of(customResourceMock.javaResource)
 
         // when
         val mappedCustomResource = GlobalResourceMapper.tryMap(outputJavaCustomResource)
@@ -119,8 +114,7 @@ internal class ResourceMappingTest {
     @Test
     fun `ProviderResource wrapped in Output should be properly mapped`() {
         // given
-        val outputJavaProviderResource: Output<JavaResource?>? =
-            Output.of(providerResourceMock.javaResource)
+        val outputJavaProviderResource = Output.of(providerResourceMock.javaResource)
 
         // when
         val mappedProviderResource = GlobalResourceMapper.tryMap(outputJavaProviderResource)
@@ -144,11 +138,9 @@ internal class ResourceMappingTest {
     }
 
     @Test
-    @Suppress("UNCHECKED_CAST") // casting to avoid overload resolution ambiguity
     fun `mapping of empty Optional should return null`() {
         // given
-        val emptyOptionalResource =
-            Optional.empty<JavaResource?>() as Optional<JavaResource?>?
+        val emptyOptionalResource = Optional.empty<JavaResource>()
 
         // when
         val mappedValue = GlobalResourceMapper.tryMap(emptyOptionalResource)
@@ -158,10 +150,9 @@ internal class ResourceMappingTest {
     }
 
     @Test
-    @Suppress("UNCHECKED_CAST") // casting to avoid overload resolution ambiguity
     fun `mapping of empty Output should return empty Output`() {
         // given
-        val emptyOutputResource = Output.ofNullable(null) as Output<JavaResource?>?
+        val emptyOutputResource = Output.ofNullable<JavaResource>(null)
 
         // when
         val mappedValue = GlobalResourceMapper.tryMap(emptyOutputResource)

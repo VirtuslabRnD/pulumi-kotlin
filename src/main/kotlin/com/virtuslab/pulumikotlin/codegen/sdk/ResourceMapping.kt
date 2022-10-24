@@ -55,7 +55,7 @@ internal object GlobalResourceMapper {
      * If given [optionalJavaResource] is present, looks for corresponding [ResourceMapper]
      * and maps it to proper [KotlinResource]. Otherwise, returns null.
      */
-    internal fun tryMap(optionalJavaResource: Optional<JavaResource?>?): KotlinResource? {
+    internal fun tryMap(optionalJavaResource: Optional<JavaResource>?): KotlinResource? {
         return if (optionalJavaResource?.isPresent == true) tryMap(optionalJavaResource.get()) else null
     }
 
@@ -64,7 +64,7 @@ internal object GlobalResourceMapper {
      * and transforms it to proper [Output] with [KotlinResource].
      * Returned [Output] can be empty if given [outputJavaResource] is empty.
      */
-    internal fun tryMap(outputJavaResource: Output<JavaResource?>?): Output<KotlinResource?>? {
+    internal fun tryMap(outputJavaResource: Output<JavaResource>?): Output<KotlinResource?>? {
         return outputJavaResource?.applyValue { tryMap(it) }
     }
 
