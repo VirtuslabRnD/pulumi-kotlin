@@ -27,7 +27,6 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.2")
     implementation("org.jetbrains.kotlin:kotlin-maven-serialization:1.7.20")
     implementation("org.apache.maven:maven-artifact:3.8.6")
-    implementation("org.apache.logging.log4j:log4j-core:2.19.0")
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.20")
