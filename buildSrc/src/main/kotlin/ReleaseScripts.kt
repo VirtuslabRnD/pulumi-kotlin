@@ -169,10 +169,10 @@ fun fetchUpdatedSchemas(
         val newJavaVersion = JavaVersion.fromVersionString(it.toString())
         val newKotlinVersion = KotlinVersion(newJavaVersion, false)
         val newGitTag = newJavaVersion.postfix?.gitHash ?: "v${newJavaVersion.version}"
-        val url = schema.url.replace(schema.javaGitTag, newGitTag)
+        val newUrl = schema.url.replace(schema.javaGitTag, newGitTag)
         SchemaMetadata(
             providerName,
-            url,
+            newUrl,
             newKotlinVersion.toString(),
             newJavaVersion.toString(),
             newGitTag,
@@ -223,11 +223,7 @@ fun tagRecentReleases(gitDirectory: File, versionConfigFile: File) {
         .filterNot { KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot }
         .map { it.getKotlinTag() }
 
-    val git = Git(
-        FileRepositoryBuilder()
-            .setGitDir(File("$gitDirectory/.git"))
-            .build(),
-    )
+    val git = createGitInstance(gitDirectory)
 
     tagsToCreate.forEach {
         git.tag()
@@ -313,11 +309,7 @@ private fun verifyUrl(
 }
 
 private fun commitChangesInFile(gitDirectory: File, relativePath: File, commitMessage: String) {
-    val git = Git(
-        FileRepositoryBuilder()
-            .setGitDir(File("$gitDirectory/.git"))
-            .build(),
-    )
+    val git = createGitInstance(gitDirectory)
     git.add()
         .addFilepattern(relativePath.path)
         .call()
@@ -348,3 +340,9 @@ private fun validateIfReleaseIsPossible(schemas: List<SchemaMetadata>) {
         error("Trying to create a release, but configuration already contains non-SNAPSHOT versions")
     }
 }
+
+private fun createGitInstance(gitDirectory: File) = Git(
+    FileRepositoryBuilder()
+        .setGitDir(File(gitDirectory, ".git"))
+        .build(),
+)
