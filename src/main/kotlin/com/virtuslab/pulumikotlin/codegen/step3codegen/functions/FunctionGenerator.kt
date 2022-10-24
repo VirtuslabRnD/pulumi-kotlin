@@ -23,9 +23,11 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.FunctionType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.coroutinesFutureAwaitExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetExtensions.addImport
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
@@ -53,7 +55,7 @@ object FunctionGenerator {
                         name.toFunctionGroupObjectName(namingFlags),
                     )
                     .addType(objectSpecBuilder.build())
-                    .addImport("kotlinx.coroutines.future", "await")
+                    .addImport(coroutinesFutureAwaitExtensionMethod())
                     .build()
 
                 listOf(fileSpec)

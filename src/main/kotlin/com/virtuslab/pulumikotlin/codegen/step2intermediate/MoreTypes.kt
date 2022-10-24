@@ -1,48 +1,46 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
-import com.squareup.kotlinpoet.ClassName
+import com.pulumi.core.Output
+import com.pulumi.kotlin.ConvertibleToJava
+import com.pulumi.kotlin.PulumiTagMarker
+import com.pulumi.kotlin.options.CustomResourceOptions
+import com.pulumi.kotlin.options.CustomResourceOptionsBuilder
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.MemberName.Companion.member
-import com.squareup.kotlinpoet.ParameterizedTypeName
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.asTypeName
 
 object MoreTypes {
 
     object Kotlin {
         object Pulumi {
-            fun toJava(): MemberName {
-                return MemberName("com.pulumi.kotlin", "toJava")
-            }
+            fun toJavaExtensionMethod() = MemberName("com.pulumi.kotlin", "toJava")
 
-            fun applySuspend(): MemberName {
-                return MemberName("com.pulumi.kotlin", "applySuspend")
-            }
+            fun toKotlinExtensionMethod() = MemberName("com.pulumi.kotlin", "toKotlin")
 
-            fun ConvertibleToJava(type: TypeName): ParameterizedTypeName =
-                ClassName("com.pulumi.kotlin", "ConvertibleToJava").parameterizedBy(type)
+            fun applySuspendExtensionMethod() = MemberName("com.pulumi.kotlin", "applySuspend")
+
+            fun applyValueExtensionMethod() = MemberName("com.pulumi.kotlin", "applyValue")
+
+            fun pulumiDslMarkerAnnotation() = PulumiTagMarker::class.asClassName()
+
+            fun convertibleToJavaClass() = ConvertibleToJava::class.asClassName()
+
+            fun customResourceOptionsClass() = CustomResourceOptions::class.asClassName()
+
+            fun customResourceOptionsBuilderClass() = CustomResourceOptionsBuilder::class.asClassName()
         }
 
-        fun Pair(leftType: TypeName, rightType: TypeName): ParameterizedTypeName {
-            return ClassName("kotlin", "Pair").parameterizedBy(leftType, rightType)
-        }
+        fun coroutinesFutureAwaitExtensionMethod() = MemberName("kotlinx.coroutines.future", "await")
+
+        fun pairClass() = Pair::class.asTypeName()
     }
 
     object Java {
         object Pulumi {
+            fun outputOfMethod() = outputClass().member("of")
 
-            object Output {
-                val of: MemberName
-                    get() = Output().member("of")
-            }
-
-            fun Output(): ClassName {
-                return ClassName("com.pulumi.core", "Output")
-            }
-
-            fun Output(type: TypeName): ParameterizedTypeName {
-                return ClassName("com.pulumi.core", "Output").parameterizedBy(type)
-            }
+            fun outputClass() = Output::class.asClassName()
         }
     }
 }

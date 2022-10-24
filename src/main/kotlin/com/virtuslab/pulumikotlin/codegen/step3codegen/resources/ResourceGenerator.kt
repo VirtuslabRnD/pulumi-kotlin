@@ -1,9 +1,6 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen.resources
 
 import com.pulumi.kotlin.KotlinResource
-import com.pulumi.kotlin.PulumiTagMarker
-import com.pulumi.kotlin.options.CustomResourceOptions
-import com.pulumi.kotlin.options.CustomResourceOptionsBuilder
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -15,13 +12,14 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
-import com.squareup.kotlinpoet.asClassName
 import com.virtuslab.pulumikotlin.codegen.expressions.addCode
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customResourceOptionsBuilderClass
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customResourceOptionsClass
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.pulumiDslMarkerAnnotation
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
@@ -51,10 +49,6 @@ object ResourceGenerator {
     }
 
     private fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType) {
-        val dslTag = PulumiTagMarker::class.asClassName()
-
-        val customResourceOptionsClassName = CustomResourceOptions::class.asClassName()
-
         val javaFlags = NamingFlags(Root, Resource, Output, Java)
         val kotlinFlags = NamingFlags(Root, Resource, Output, Kotlin)
 
@@ -63,12 +57,8 @@ object ResourceGenerator {
         val javaResourceClassName = ClassName(names.toResourcePackage(javaFlags), names.toResourceName(javaFlags))
 
         val fields = resourceType.outputFields.map { field ->
-            PropertySpec.builder(
-                field.name,
-                MoreTypes.Java.Pulumi.Output(
-                    field.fieldType.type.toTypeName().copy(nullable = !field.required),
-                ),
-            )
+            PropertySpec
+                .builder(field.name, field.toTypeName())
                 .getter(
                     FunSpec.getterBuilder()
                         .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required))
@@ -127,18 +117,17 @@ object ResourceGenerator {
             .addDocs("@param block The arguments to use to populate this resource's properties.")
             .build()
 
-        val customResourceOptionsBuilderClassName = CustomResourceOptionsBuilder::class.asClassName()
         val optsFunction = FunSpec
             .builder("opts")
             .addModifiers(KModifier.SUSPEND)
             .addParameter(
                 "block",
                 LambdaTypeName.get(
-                    customResourceOptionsBuilderClassName,
+                    customResourceOptionsBuilderClass(),
                     returnType = UNIT,
                 ).copy(suspending = true),
             )
-            .addStatement("val builder = %T()", customResourceOptionsBuilderClassName)
+            .addStatement("val builder = %T()", customResourceOptionsBuilderClass())
             .addStatement("block(builder)")
             .addStatement("this.opts = builder.build()")
             .addDocs("@param block A bag of options that control this resource's behavior.")
@@ -151,7 +140,7 @@ object ResourceGenerator {
                     .addModifiers(INTERNAL)
                     .build(),
             )
-            .addAnnotation(dslTag)
+            .addAnnotation(pulumiDslMarkerAnnotation())
             .addProperties(
                 listOf(
                     PropertySpec.builder("name", STRING.copy(nullable = true))
@@ -162,9 +151,9 @@ object ResourceGenerator {
                         .mutable(true)
                         .initializer("null")
                         .build(),
-                    PropertySpec.builder("opts", customResourceOptionsClassName)
+                    PropertySpec.builder("opts", customResourceOptionsClass())
                         .mutable(true)
-                        .initializer("%T()", customResourceOptionsClassName)
+                        .initializer("%T()", customResourceOptionsClass())
                         .build(),
                 ),
             )
