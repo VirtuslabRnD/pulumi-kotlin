@@ -19,7 +19,7 @@ interface ResourceMapper<out T : KotlinResource> {
      * Returns `true` if given subtype of [JavaResource] matches the type
      * of [KotlinResource]'s backing object (can be mapped to type [T]), `false` otherwise.
      */
-    fun doesSupportMappingOfType(javaResource: JavaResource): Boolean
+    fun supportsMappingOfType(javaResource: JavaResource): Boolean
 
     /**
      * Creates new instance of corresponding [KotlinResource] for given [JavaResource],
@@ -44,7 +44,7 @@ internal object GlobalResourceMapper {
     internal fun tryMap(javaResource: JavaResource?): KotlinResource? {
         if (javaResource == null) return null
 
-        val mapper = requireNotNull(mappers.find { it.doesSupportMappingOfType(javaResource) }) {
+        val mapper = requireNotNull(mappers.find { it.supportsMappingOfType(javaResource) }) {
             "mapper for a type ${javaResource::class.java} was either not declared or not instantiated"
         }
 

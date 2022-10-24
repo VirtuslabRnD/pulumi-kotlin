@@ -215,6 +215,9 @@ class CustomResourceOptions internal constructor(
     override fun toJava(): JavaCustomResourceOptions = javaBackingObject
 }
 
+/**
+ * Builder for [CustomResourceOptions].
+ */
 @PulumiTagMarker
 @Suppress("TooManyFunctions") // different overloads of method for the same property are required
 data class CustomResourceOptionsBuilder(

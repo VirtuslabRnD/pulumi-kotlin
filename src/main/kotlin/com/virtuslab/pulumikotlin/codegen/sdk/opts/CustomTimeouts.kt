@@ -38,6 +38,9 @@ class CustomTimeouts internal constructor(private val javaBackingObject: JavaCus
     }
 }
 
+/**
+ * Builder for [CustomTimeouts]
+ */
 @PulumiTagMarker
 class CustomTimeoutsBuilder(var create: Duration? = null, var update: Duration? = null, var delete: Duration? = null) {
     fun create(value: Duration?) {

@@ -28,6 +28,9 @@ internal fun JavaResourceTransformation.toKotlin(): ResourceTransformation {
     return ResourceTransformation { this.apply(it).toKotlin() }
 }
 
+/**
+ * Builder for [JavaResourceTransformationResult].
+ */
 class ResourceTransformationResultBuilder(
     var args: JavaResourceArgs? = null,
     var options: JavaResourceOptions? = null,
@@ -41,6 +44,7 @@ class ResourceTransformationResultBuilder(
         this.options = value
     }
 
+    @Suppress("UnsafeCallOnNullableType") // NPE calls will be removed in the future https://github.com/VirtuslabRnD/pulumi-kotlin/issues/62
     internal fun build(): JavaResourceTransformationResult = JavaResourceTransformationResult(args!!, options!!)
 }
 

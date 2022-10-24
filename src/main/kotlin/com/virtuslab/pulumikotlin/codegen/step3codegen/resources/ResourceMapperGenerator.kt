@@ -18,7 +18,7 @@ object ResourceMapperGenerator {
 
     private const val MAPPER_NAME_SUFFIX = "Mapper"
 
-    private const val FUNCTION_NAME_DOES_SUPPORT_MAPPING_OF_TYPE = "doesSupportMappingOfType"
+    private const val FUNCTION_NAME_DOES_SUPPORT_MAPPING_OF_TYPE = "supportsMappingOfType"
 
     private const val FUNCTION_NAME_MAP = "map"
 
@@ -38,12 +38,12 @@ object ResourceMapperGenerator {
 
         return TypeSpec.objectBuilder(mapperObjectName)
             .addSuperinterface(parametrizedMapperInterfaceTypeName)
-            .addFunction(createFunctionDoesSupportMappingOfType(javaResourceClassName))
-            .addFunction(createFunctionMap(kotlinResourceClassName, javaResourceClassName))
+            .addFunction(createSupportsMappingOfTypeFunction(javaResourceClassName))
+            .addFunction(createMapFunction(kotlinResourceClassName, javaResourceClassName))
             .build()
     }
 
-    private fun createFunctionDoesSupportMappingOfType(javaResourceClassName: ClassName): FunSpec {
+    private fun createSupportsMappingOfTypeFunction(javaResourceClassName: ClassName): FunSpec {
         return FunSpec.builder(FUNCTION_NAME_DOES_SUPPORT_MAPPING_OF_TYPE)
             .addModifiers(KModifier.OVERRIDE)
             .addParameter(LITERAL_JAVA_RESOURCE, com.pulumi.resources.Resource::class)
@@ -52,7 +52,7 @@ object ResourceMapperGenerator {
             .build()
     }
 
-    private fun createFunctionMap(kotlinResourceClassName: ClassName, javaResourceClassName: ClassName): FunSpec {
+    private fun createMapFunction(kotlinResourceClassName: ClassName, javaResourceClassName: ClassName): FunSpec {
         return FunSpec.builder(FUNCTION_NAME_MAP)
             .addModifiers(KModifier.OVERRIDE)
             .addParameter(LITERAL_JAVA_RESOURCE, com.pulumi.resources.Resource::class)
