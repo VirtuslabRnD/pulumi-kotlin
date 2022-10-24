@@ -209,7 +209,7 @@ fun Code_generation_gradle.createJavadocJarTask(
     }
 }
 
-fun createPublication(
+fun Code_generation_gradle.createPublication(
     publicationContainer: PublicationContainer,
     sourceSetName: String,
     jarTaskName: String,
@@ -223,7 +223,7 @@ fun createPublication(
     }
 }
 
-fun createSourcesPublication(
+fun Code_generation_gradle.createSourcesPublication(
     publicationContainer: PublicationContainer,
     sourcesPublicationName: String,
     sourcesJarTaskName: String,
@@ -237,7 +237,7 @@ fun createSourcesPublication(
     }
 }
 
-fun createJavadocPublication(
+fun Code_generation_gradle.createJavadocPublication(
     publicationContainer: PublicationContainer,
     javadocPublicationName: String,
     javadocJarTaskName: String,
