@@ -14,7 +14,8 @@ val tasksToDisable: List<(String) -> String> = listOf(
 )
 
 val createTasksForProvider by extra {
-    fun(outputDirectory: String, schema: SchemaMetadata) {
+    fun(schema: SchemaMetadata) {
+        val outputDirectory = File("build", "generated-src")
         val providerName = schema.providerName
         val schemaUrl = schema.url
         val version = schema.kotlinVersion
@@ -33,7 +34,7 @@ val createTasksForProvider by extra {
         val sourcesPublicationName = "${sourceSetName}Sources"
         val javadocPublicationName = "${sourceSetName}Javadoc"
         val downloadTaskName = "download${providerName.capitalized()}Schema"
-        val schemaDownloadPath = "build/tmp/schema/$providerName-$version.json"
+        val schemaDownloadPath = File("build/tmp/schema", "$providerName-$version.json")
 
         createDownloadTask(downloadTaskName, schemaUrl, schemaDownloadPath)
         createGenerationTask(generationTaskName, downloadTaskName, schemaDownloadPath, outputDirectory, providerName)
@@ -44,13 +45,8 @@ val createTasksForProvider by extra {
 
         createJarTask(jarTaskName, generationTaskName, sourceSetName, archiveName)
         createSourcesJarTask(sourcesJarTaskName, generationTaskName, sourceSetName, archiveName)
-
-        // TODO: Remove this once it becomes possible to generate Dokka docs for GCP
-        //  on GitHub Actions without getting an OOM error.
-        if (providerName != "gcp") {
-            createJavadocGenerationTask(javadocGenerationTaskName, generationTaskName, archiveName, sourceSetName)
-            createJavadocJarTask(javadocJarTaskName, javadocGenerationTaskName, archiveName)
-        }
+        createJavadocGenerationTask(javadocGenerationTaskName, generationTaskName, archiveName, sourceSetName)
+        createJavadocJarTask(javadocJarTaskName, javadocGenerationTaskName, archiveName)
 
         publishing {
             repositories {
@@ -67,11 +63,7 @@ val createTasksForProvider by extra {
             publications {
                 createPublication(this, sourceSetName, jarTaskName, archiveName, version)
                 createSourcesPublication(this, sourcesPublicationName, sourcesJarTaskName, archiveName, version)
-                // TODO: Remove this once it becomes possible to generate Dokka docs for GCP
-                //  on GitHub Actions without getting an OOM error.
-                if (providerName != "gcp") {
-                    createJavadocPublication(this, javadocPublicationName, javadocJarTaskName, archiveName, version)
-                }
+                createJavadocPublication(this, javadocPublicationName, javadocJarTaskName, archiveName, version)
 
                 publications
                     .filter { it.name in listOf(sourceSetName, sourcesPublicationName, javadocPublicationName) }
@@ -107,19 +99,19 @@ val createGlobalProviderTasks by extra {
 fun Code_generation_gradle.createDownloadTask(
     taskName: String,
     schemaUrl: String,
-    schemaDownloadPath: String,
+    schemaDownloadPath: File,
 ) {
     task<Download>(taskName) {
         src(schemaUrl)
-        dest(schemaDownloadPath)
+        dest(schemaDownloadPath.canonicalPath)
     }
 }
 
 fun Code_generation_gradle.createGenerationTask(
     generationTaskName: String,
     downloadTaskName: String,
-    schemaDownloadPath: String,
-    outputDirectory: String,
+    schemaDownloadPath: File,
+    outputDirectory: File,
     providerName: String,
 ) {
     task<JavaExec>(generationTaskName) {
@@ -127,15 +119,18 @@ fun Code_generation_gradle.createGenerationTask(
         classpath = project.sourceSets["main"].runtimeClasspath
         group = "generation"
         mainClass.set("com.virtuslab.pulumikotlin.codegen.MainKt")
-        setArgsString("--schema-path $schemaDownloadPath --output-directory-path $outputDirectory/$providerName")
+        setArgsString(
+            "--schema-path ${schemaDownloadPath.canonicalPath} " +
+                "--output-directory-path ${File(outputDirectory, providerName).canonicalPath}",
+        )
     }
 }
 
-fun Code_generation_gradle.createSourceSet(sourceSetName: String, outputDirectory: String, providerName: String) {
+fun Code_generation_gradle.createSourceSet(sourceSetName: String, outputDirectory: File, providerName: String) {
     project.sourceSets {
         create(sourceSetName) {
             java {
-                srcDir("$outputDirectory/$providerName")
+                srcDir(File(outputDirectory, providerName))
                 compileClasspath += sourceSets["main"].compileClasspath
             }
         }

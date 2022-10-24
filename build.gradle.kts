@@ -52,12 +52,10 @@ tasks.withType<Jar> {
 val versionConfigFile = File("src/main/resources/version-config.json")
 var schemaMetadata: List<SchemaMetadata> = getSchemaMetadata(versionConfigFile)
 
-val createTasksForProvider: (String, SchemaMetadata) -> Unit by extra
-
-schemaMetadata.forEach { schema -> createTasksForProvider("build/generated-src", schema) }
-
+val createTasksForProvider: (SchemaMetadata) -> Unit by extra
 val createGlobalProviderTasks: (List<String>) -> Unit by extra
 
+schemaMetadata.forEach { createTasksForProvider(it) }
 createGlobalProviderTasks(schemaMetadata.map { it.providerName })
 
 sourceSets {
