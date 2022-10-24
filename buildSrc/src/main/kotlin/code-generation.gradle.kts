@@ -1,6 +1,7 @@
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.dokka.gradle.DokkaTask
+import java.nio.file.Paths
 
 plugins {
     `java-library`
@@ -15,7 +16,8 @@ val tasksToDisable: List<(String) -> String> = listOf(
 
 val createTasksForProvider by extra {
     fun(schema: SchemaMetadata) {
-        val outputDirectory = File("build", "generated-src")
+        val rootDir = project.rootDir.absolutePath
+        val outputDirectory = Paths.get(rootDir, "build", "generated-src").toFile()
         val providerName = schema.providerName
         val schemaUrl = schema.url
         val version = schema.kotlinVersion
@@ -34,7 +36,8 @@ val createTasksForProvider by extra {
         val sourcesPublicationName = "${sourceSetName}Sources"
         val javadocPublicationName = "${sourceSetName}Javadoc"
         val downloadTaskName = "download${providerName.capitalized()}Schema"
-        val schemaDownloadPath = File("build/tmp/schema", "$providerName-$version.json")
+
+        val schemaDownloadPath = Paths.get(rootDir, "build", "tmp", "schema", "$providerName-$version.json").toFile()
 
         createDownloadTask(downloadTaskName, schemaUrl, schemaDownloadPath)
         createGenerationTask(generationTaskName, downloadTaskName, schemaDownloadPath, outputDirectory, providerName)
@@ -120,8 +123,8 @@ fun Code_generation_gradle.createGenerationTask(
         group = "generation"
         mainClass.set("com.virtuslab.pulumikotlin.codegen.MainKt")
         setArgsString(
-            "--schema-path ${schemaDownloadPath.canonicalPath} " +
-                "--output-directory-path ${File(outputDirectory, providerName).canonicalPath}",
+            "--schema-path $schemaDownloadPath " +
+                "--output-directory-path ${File(outputDirectory, providerName)}",
         )
     }
 }
