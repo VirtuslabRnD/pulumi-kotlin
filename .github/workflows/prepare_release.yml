@@ -27,7 +27,7 @@ jobs:
       - name: Check number of commits
         id: check_number_of_commits
         run: |
-          number_of_commits=$(git rev-list --ancestry-path  tmp-main...origin/tmp-main | wc -l | awk '{print $1}')
+          number_of_commits=$(git tag --points-at HEAD | wc -l | awk '{print $1}')
           [[ "$number_of_commits" == "0" ]] && is_release=false  || is_release=true
           echo "is_release=$is_release"
           echo "is_release=$is_release" >> $GITHUB_OUTPUT
