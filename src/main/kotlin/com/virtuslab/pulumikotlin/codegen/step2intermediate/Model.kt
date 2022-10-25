@@ -37,6 +37,59 @@ data class NamingFlags(
     val generatedClass: GeneratedClass = NormalClass,
 )
 
+/**
+ * Bundles variables regarding naming conventions contained in schema:
+ * // FIXME lacking description
+ *
+ * * [moduleFormat] - ModuleFormat is a regex that is used by the importer to extract a module name
+ *      from the module portion of a type token. Packages that use the module format
+ *      “namespace1/namespace2/…/namespaceN” do not need to specify a format. The regex must define one capturing group
+ *      that contains the module name, which must be formatted as “namespace1/namespace2/…namespaceN”.
+ *
+ *      ```json
+ *      "meta": {
+ *          "moduleFormat": "(.*)(?:/[^/]*)"
+ *      }
+ *      ```
+ * * [basePackage] - Prefixes the generated Java package. This setting defaults to “com.pulumi”.
+ *      ```json
+ *      "language": {
+ *          "java": {
+ *              "packages": {
+ *                  "aws-native": "awsnative"
+ *              }
+ *          }
+ *      }
+ *      ```
+ * * [packageOverrides] - Overrides for module names to Java package names. Example: “autoscaling/v1” -> “autoscaling.v1”.
+ */
+data class PulumiNamingConfiguration private constructor(
+    val providerName: String,
+    val moduleFormat: String? = null,
+    val basePackage: String,
+    val packageOverrides: Map<String, String>,
+) {
+
+    val baseNamespace: List<String>
+        get() = basePackage.split(".")
+
+    companion object {
+
+        private const val DEFAULT_BASE_PACKAGE = "com.pulumi"
+        operator fun invoke(
+            providerName: String,
+            moduleFormat: String?,
+            basePackage: String?,
+            packageOverrides: Map<String, String>?,
+        ) = PulumiNamingConfiguration(
+            providerName,
+            moduleFormat,
+            basePackage ?: DEFAULT_BASE_PACKAGE,
+            packageOverrides ?: emptyMap(),
+        )
+    }
+}
+
 data class ResourceType(
     val name: PulumiName,
     val argsType: ReferencedComplexType,

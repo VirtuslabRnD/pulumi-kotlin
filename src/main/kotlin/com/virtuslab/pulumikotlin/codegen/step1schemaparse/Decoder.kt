@@ -10,13 +10,14 @@ object Decoder {
     fun decode(inputStream: InputStream): ParsedSchema {
         val schema = Json.parseToJsonElement(inputStream.bufferedReader().readText())
 
+        val providerName = Json.decodeFromJsonElement<String>(schema.jsonObject["name"]!!) // FIXME !!
         val types = schema.decodeMap<String, SchemaModel.RootTypeProperty>("types")
         val functions = schema.decodeMap<String, SchemaModel.Function>("functions")
         val resources = schema.decodeMap<String, SchemaModel.Resource>("resources")
         val metadata = schema.decodeObject<SchemaModel.Metadata>("meta")
         val packageLanguage = schema.decodeObject<SchemaModel.PackageLanguage>("language")
 
-        return ParsedSchema(types, functions, resources, metadata, packageLanguage)
+        return ParsedSchema(providerName, types, functions, resources, metadata, packageLanguage)
     }
 
     private inline fun <reified K, reified V> JsonElement.decodeMap(key: String): Map<K, V> =

@@ -99,7 +99,7 @@ object IntermediateRepresentationGenerator {
                 Field(propertyName.value, OutputWrappedField(reference), isRequired, kDoc = getKDoc(property))
             }
 
-            val pulumiName = PulumiName.from(typeName)
+            val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
             val inputUsageKind = UsageKind(Root, Resource, Input)
             val argumentType =
                 findTypeAsReference<ReferencedComplexType>(
@@ -112,7 +112,7 @@ object IntermediateRepresentationGenerator {
 
     private fun createFunctions(types: Map<TypeKey, RootType>, context: Context): List<FunctionType> {
         return context.schema.functions.map { (typeName, function) ->
-            val pulumiName = PulumiName.from(typeName)
+            val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
 
             val inputUsageKind = UsageKind(Root, Function, Input)
             val argumentType = findTypeOrEmptyComplexType(
@@ -156,15 +156,17 @@ object IntermediateRepresentationGenerator {
             }
             allUsagesForTypeName
         }
+
+        val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
         return usages.map { usage ->
             when (rootType) {
                 is ObjectProperty -> ComplexType(
-                    TypeMetadata(typeName, usage, getKDoc(rootType), NormalClass),
+                    TypeMetadata(pulumiName, usage, getKDoc(rootType), NormalClass),
                     createComplexTypeFields(rootType, context, usage),
                 )
 
                 is StringEnumProperty -> EnumType(
-                    TypeMetadata(typeName, usage, getKDoc(rootType), EnumClass),
+                    TypeMetadata(pulumiName, usage, getKDoc(rootType), EnumClass),
                     rootType.enum.map { it.name ?: it.value },
                 )
             }
@@ -207,13 +209,14 @@ object IntermediateRepresentationGenerator {
         }
 
         val referencedTypeName = property.referencedTypeName
+        val pulumiName = PulumiName.from(referencedTypeName, context.namingConfiguration)
         return when (context.referenceFinder.resolve(referencedTypeName)) {
             is ObjectProperty -> ReferencedComplexType(
-                TypeMetadata(referencedTypeName, usageKind, getKDoc(property)),
+                TypeMetadata(pulumiName, usageKind, getKDoc(property)),
             )
 
             is StringEnumProperty -> ReferencedEnumType(
-                TypeMetadata(referencedTypeName, usageKind, getKDoc(property), EnumClass),
+                TypeMetadata(pulumiName, usageKind, getKDoc(property), EnumClass),
             )
 
             null -> {
@@ -255,7 +258,15 @@ object IntermediateRepresentationGenerator {
         }
     }
 
-    private data class Context(val schema: ParsedSchema, val referenceFinder: ReferenceFinder)
+    private data class Context(val schema: ParsedSchema, val referenceFinder: ReferenceFinder) {
+        val namingConfiguration: PulumiNamingConfiguration =
+            PulumiNamingConfiguration(
+                schema.providerName,
+                schema.meta?.moduleFormat,
+                schema.language?.java?.basePackage,
+                schema.language?.java?.packages,
+            )
+    }
 
     private data class TypeKey(val name: PulumiName, val usageKind: UsageKind) {
 

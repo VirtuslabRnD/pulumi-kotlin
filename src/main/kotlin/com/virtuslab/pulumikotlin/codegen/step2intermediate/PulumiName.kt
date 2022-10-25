@@ -50,6 +50,31 @@ data class PulumiName(
                 listOf("enums"),
                 shouldConstructBuilders = false,
             )
+            // FIXME verify if this part is properly implemented
+
+//            NamingFlags(Nested, Function, Input, Kotlin, EnumClass) -> Modifiers(
+//                "",
+//                listOf("enums"),
+//                shouldConstructBuilders = false,
+//            )
+//
+//            NamingFlags(Nested, Function, Output, Kotlin, EnumClass) -> Modifiers(
+//                "",
+//                listOf("enums"),
+//                shouldConstructBuilders = false,
+//            )
+//
+//            NamingFlags(Nested, Function, Input, Java, EnumClass) -> Modifiers(
+//                "",
+//                listOf("enums"),
+//                shouldConstructBuilders = false,
+//            )
+//
+//            NamingFlags(Nested, Function, Output, Java, EnumClass) -> Modifiers(
+//                "",
+//                listOf("enums"),
+//                shouldConstructBuilders = false,
+//            )
 
             NamingFlags(Nested, Function, Input, Kotlin) -> Modifiers(
                 "Args",
@@ -213,13 +238,29 @@ data class PulumiName(
     }
 
     companion object {
-        fun from(string: String): PulumiName {
-            val segments = string.split("/").first().split(":")
+        fun from(objectKey: String, namingConfiguration: PulumiNamingConfiguration): PulumiName {
+            val segments = objectKey.split("/").first().split(":")
             val providerName = segments.first()
             val namespace = if (segments.getOrNull(1) == "index") segments.drop(2) else segments.drop(1)
-            val name = string.split("/").last().split(":").last()
+            val name = objectKey.split("/").last().split(":").last()
 
             return PulumiName(providerName, namespace, name)
+        }
+
+        private fun splitToPackageSegments(
+            objectKey: String,
+            namingConfiguration: PulumiNamingConfiguration,
+        ): List<String> {
+            val (providerName, moduleFormat, _, packageOverrides) = namingConfiguration
+            TODO("not yet implemented")
+        }
+
+        private fun handlePackageSpecificSplit(
+            providerName: String,
+            objectKey: String,
+            packageOverrides: Map<String, String>,
+        ) {
+            TODO("not yet implemented")
         }
     }
 }
