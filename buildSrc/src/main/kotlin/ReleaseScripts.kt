@@ -164,7 +164,12 @@ fun fetchUpdatedSchemas(
     client: HttpClient,
 ) = schemas.map { schema ->
     val providerName = schema.providerName
-    val versions = fetchVersions(client, providerName, ComparableVersion(schema.javaVersion))
+    val versions = fetchVersions(
+        client,
+        providerName,
+        ComparableVersion(schema.javaVersion),
+        KotlinVersion.fromVersionString(schema.kotlinVersion),
+    )
     versions.map {
         val newJavaVersion = JavaVersion.fromVersionString(it.toString())
         val newKotlinVersion = KotlinVersion(newJavaVersion, false)
@@ -237,9 +242,10 @@ private fun fetchVersions(
     client: HttpClient,
     provider: String,
     since: ComparableVersion,
+    kotlinVersion: KotlinVersion,
 ): List<ComparableVersion> = runBlocking {
     return@runBlocking fetchAllPagesSince(client, provider, since)
-        .filter { it > since }
+        .filter { it > since || (kotlinVersion.isSnapshot && kotlinVersion.minor == 0 && it == since) }
         .sorted()
 }
 
