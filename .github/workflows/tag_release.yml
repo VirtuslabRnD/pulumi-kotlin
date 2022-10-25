@@ -3,7 +3,7 @@ name: Tag release
 on:
   push:
     branches:
-      - main
+      - tmp-main
 
 jobs:
   tag-release:
