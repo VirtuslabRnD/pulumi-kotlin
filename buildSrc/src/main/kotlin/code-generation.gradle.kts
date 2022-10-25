@@ -64,9 +64,13 @@ val createTasksForProvider by extra {
             }
 
             publications {
-                createPublication(this, sourceSetName, jarTaskName, archiveName, version)
-                createSourcesPublication(this, sourcesPublicationName, sourcesJarTaskName, archiveName, version)
-                createJavadocPublication(this, javadocPublicationName, javadocJarTaskName, archiveName, version)
+                create<MavenPublication>(sourceSetName) {
+                    artifact(tasks[jarTaskName])
+                    artifact(tasks[sourcesJarTaskName])
+                    artifact(tasks[javadocJarTaskName])
+                    artifactId = archiveName
+                    setVersion(version)
+                }
 
                 publications
                     .filter { it.name in listOf(sourceSetName, sourcesPublicationName, javadocPublicationName) }
@@ -204,48 +208,6 @@ fun Code_generation_gradle.createJavadocJarTask(
         // the full GCP schema. See:
         // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html#org.gradle.api.tasks.bundling.Jar:zip64
         isZip64 = true
-    }
-}
-
-fun Code_generation_gradle.createPublication(
-    publicationContainer: PublicationContainer,
-    sourceSetName: String,
-    jarTaskName: String,
-    archiveName: String,
-    version: String,
-) {
-    publicationContainer.create<MavenPublication>(sourceSetName) {
-        artifact(tasks[jarTaskName])
-        artifactId = archiveName
-        setVersion(version)
-    }
-}
-
-fun Code_generation_gradle.createSourcesPublication(
-    publicationContainer: PublicationContainer,
-    sourcesPublicationName: String,
-    sourcesJarTaskName: String,
-    archiveName: String,
-    version: String,
-) {
-    publicationContainer.create<MavenPublication>(sourcesPublicationName) {
-        artifact(tasks[sourcesJarTaskName])
-        artifactId = archiveName
-        setVersion(version)
-    }
-}
-
-fun Code_generation_gradle.createJavadocPublication(
-    publicationContainer: PublicationContainer,
-    javadocPublicationName: String,
-    javadocJarTaskName: String,
-    archiveName: String,
-    version: String,
-) {
-    publicationContainer.create<MavenPublication>(javadocPublicationName) {
-        artifact(tasks[javadocJarTaskName])
-        artifactId = archiveName
-        setVersion(version)
     }
 }
 
