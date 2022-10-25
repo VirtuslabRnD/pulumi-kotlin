@@ -296,9 +296,10 @@ class ReleaseScriptsTest {
             .map { it.replace("refs/tags/", "") }
 
         assert(
-            tagList.contains("gcp/6.39.0.0") &&
+            tagList.contains("slack/0.2.2.0") &&
                 tagList.contains("random/4.8.1.0") &&
-                tagList.contains("slack/0.2.3.0-alpha.1661880655+57fde9d4"),
+                tagList.contains("aws/5.17.0.0-alpha.1665590627+9c01b95f") &&
+                tagList.contains("gcp/6.39.0.0"),
         )
     }
 }
