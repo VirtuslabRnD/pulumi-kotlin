@@ -109,10 +109,16 @@ tasks.register<Task>("prepareReleaseAfterGeneratorUpdate") {
     }
 }
 
-tasks.register<Task>("postRelease") {
+tasks.register<Task>("tagRecentRelease") {
     group = "releaseManagement"
     doLast {
         tagRecentReleases(projectDir, versionConfigFile)
+    }
+}
+
+tasks.register<Task>("postRelease") {
+    group = "releaseManagement"
+    doLast {
         replaceReleasedVersionsWithSnapshots(projectDir, versionConfigFile)
     }
 }
