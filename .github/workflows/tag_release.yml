@@ -20,8 +20,33 @@ jobs:
         run: |
           ./gradlew tagRecentRelease
           git push --tags
-      - name: Trigger release
-        uses: benc-uk/workflow-dispatch@v1
+  publish:
+    name: Publish packages
+    needs: tag-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out project sources
+        uses: actions/checkout@v2
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Publish packages
+        run: ./gradlew publishAllPublicationsToGitHubPackagesRepository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Git user
+        uses: fregante/setup-git-user@v1
+      - name: Create branch
+        run: git checkout -b release
+      - name: Prepare for next development phase
+        run: ./gradlew postRelease
+      - name: Push branch
+        run: git push origin release
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v4
         with:
-          workflow: Release and publish packages to GitHub Packages
-          repo: VirtuslabRnD/pulumi-kotlin
+          title: Prepare for next development phase
+          branch: release
+          base: tmp-main
