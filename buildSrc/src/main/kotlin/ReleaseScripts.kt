@@ -326,7 +326,7 @@ private fun commitChangesInFile(gitDirectory: File, relativePath: File, commitMe
         .call()
 }
 
-private fun SchemaMetadata.getKotlinTag() = "$providerName/$kotlinVersion"
+private fun SchemaMetadata.getKotlinTag() = "$providerName/v$kotlinVersion"
 
 private fun getTags(updatedSchemas: List<SchemaMetadata>): List<String> {
     val tags = updatedSchemas.filterNot {
