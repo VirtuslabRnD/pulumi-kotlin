@@ -38,4 +38,4 @@ jobs:
         with:
           title: Prepare for next development phase
           branch: release
-          base: main
+          base: tmp-main
