@@ -65,8 +65,6 @@ jobs:
         run: git checkout -b release
       - name: Prepare for next development phase
         run: ./gradlew postRelease
-      - name: Push branch
-        run: git push origin release
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
         with:
