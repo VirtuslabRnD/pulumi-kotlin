@@ -1,0 +1,41 @@
+name: Release and publish packages to GitHub Packages
+
+on:
+  push:
+    tags:
+      - '**'
+
+jobs:
+  publish:
+    name: Publish packages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out project sources
+        uses: actions/checkout@v2
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Publish packages
+        run: ./gradlew publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Git user
+        uses: fregante/setup-git-user@v1
+      - name: Create branch
+        uses: peterjgrainger/action-create-branch@v2.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: release
+      - name: Prepare for next development phase
+        run: ./gradlew postRelease
+      - name: Push branch
+        run: git push origin release
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          title: Prepare for next development phase
+          branch: release
+          base: main
