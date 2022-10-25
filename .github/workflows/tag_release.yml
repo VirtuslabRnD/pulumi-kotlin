@@ -16,13 +16,12 @@ jobs:
           fetch-depth: 2
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
-      - name: Check if release file was changed
-        id: changed-files-specific
-        uses: tj-actions/changed-files@v33
-        with:
-          files: src/main/resources/version-config.json
       - name: Tag new versions of Pulumi Kotlin (if available)
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
         run: |
           ./gradlew tagRecentRelease
           git push --tags
+      - name: Trigger release
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Release and publish packages to GitHub Packages
+          repo: VirtuslabRnD/pulumi-kotlin
