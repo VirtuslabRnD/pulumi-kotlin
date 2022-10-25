@@ -11,9 +11,9 @@ jobs:
     name: Compile and test pulumi-kotlin
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout project sources
+      - name: Check out project sources
         uses: actions/checkout@v2
-      - name: Setup Gradle
+      - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Compile and test code
         run: ./gradlew build test -x check
@@ -28,9 +28,9 @@ jobs:
     name: Analyze pulumi-kotlin
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout project sources
+      - name: Check out project sources
         uses: actions/checkout@v2
-      - name: Setup Gradle
+      - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Run Ktlint
         run: ./gradlew lintKotlin
@@ -54,9 +54,9 @@ jobs:
     name: Publish pulumi-kotlin to Maven Local Repository
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout project sources
+      - name: Check out project sources
         uses: actions/checkout@v2
-      - name: Setup Gradle
+      - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Publish to Maven Local
         run: ./gradlew publishToMavenLocal
@@ -67,9 +67,9 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - name: Checkout project sources
+      - name: Check out project sources
         uses: actions/checkout@v2
-      - name: Setup Gradle
+      - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2

@@ -10,8 +10,12 @@ jobs:
     name: Tag release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout project sources
+      - name: Check out project sources
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
       - name: Check if release file was changed
         id: changed-files-specific
         uses: tj-actions/changed-files@v33
