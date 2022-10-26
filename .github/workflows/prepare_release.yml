@@ -27,7 +27,6 @@ jobs:
         run: |
           number_of_commits=$(git tag --points-at HEAD | wc -l | awk '{print $1}')
           [[ "$number_of_commits" == "0" ]] && is_release=false  || is_release=true
-          echo "is_release=$is_release"
           echo "is_release=$is_release" >> $GITHUB_OUTPUT
       - name: Push tags
         run: git push --tags
