@@ -136,6 +136,7 @@ fun fetchUpdatedSchemas(
     client: HttpClient,
 ) = schemas.map { schema ->
     val providerName = schema.providerName
+    val oldJavaVersion = Semver(schema.javaVersion)
     val versions = fetchVersions(
         client,
         providerName,
@@ -161,7 +162,15 @@ fun fetchUpdatedSchemas(
             if (!schemaExists) {
                 logger.warn("Skipping release ${newSchema.getKotlinTag()} (cannot find url: ${newSchema.url}")
             }
-            schemaExists
+            val newJavaVersion = Semver(newSchema.javaVersion)
+            val sameMajor = newJavaVersion.major == oldJavaVersion.major
+            if (!sameMajor) {
+                logger.warn(
+                    "Version with major update available: ${newSchema.getKotlinTag()}. " +
+                        "Current version: ${schema.getKotlinTag()}",
+                )
+            }
+            schemaExists && sameMajor
         }
         ?: schema
 }
