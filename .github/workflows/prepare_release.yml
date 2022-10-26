@@ -6,50 +6,50 @@ on:
       - tmp-main
 
 jobs:
-  tag:
-    name: Tag release
-    runs-on: ubuntu-latest
-    outputs:
-      is_release: ${{ steps.check_number_of_commits.outputs.is_release }}
-    steps:
-      - name: Check out project sources
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
-      - name: Set up Git user
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
-      - name: Tag new versions of Pulumi Kotlin (if available)
-        run: ./gradlew tagRecentRelease
-      - name: Check number of commits
-        id: check_number_of_commits
-        run: |
-          number_of_commits=$(git tag --points-at HEAD | wc -l | awk '{print $1}')
-          [[ "$number_of_commits" == "0" ]] && is_release=false  || is_release=true
-          echo "is_release=$is_release"
-          echo "is_release=$is_release" >> $GITHUB_OUTPUT
-      - name: Push tags
-        run: git push --tags
-  publish:
-    name: Publish packages
-    needs: tag
-    runs-on: ubuntu-latest
-    if: ${{ needs.tag.outputs.is_release == 'true' }}
-    steps:
-      - name: Check out project sources
-        uses: actions/checkout@v2
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
-      - name: Publish packages
-        run: ./gradlew publishAllPublicationsToGitHubPackagesRepository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#  tag:
+#    name: Tag release
+#    runs-on: ubuntu-latest
+#    outputs:
+#      is_release: ${{ steps.check_number_of_commits.outputs.is_release }}
+#    steps:
+#      - name: Check out project sources
+#        uses: actions/checkout@v2
+#        with:
+#          fetch-depth: 2
+#      - name: Set up Git user
+#        run: |
+#          git config user.name 'github-actions[bot]'
+#          git config user.email 'github-actions[bot]@users.noreply.github.com'
+#      - name: Set up Gradle
+#        uses: gradle/gradle-build-action@v2
+#      - name: Tag new versions of Pulumi Kotlin (if available)
+#        run: ./gradlew tagRecentRelease
+#      - name: Check number of commits
+#        id: check_number_of_commits
+#        run: |
+#          number_of_commits=$(git tag --points-at HEAD | wc -l | awk '{print $1}')
+#          [[ "$number_of_commits" == "0" ]] && is_release=false  || is_release=true
+#          echo "is_release=$is_release"
+#          echo "is_release=$is_release" >> $GITHUB_OUTPUT
+#      - name: Push tags
+#        run: git push --tags
+#  publish:
+#    name: Publish packages
+#    needs: tag
+#    runs-on: ubuntu-latest
+#    if: ${{ needs.tag.outputs.is_release == 'true' }}
+#    steps:
+#      - name: Check out project sources
+#        uses: actions/checkout@v2
+#      - name: Set up Gradle
+#        uses: gradle/gradle-build-action@v2
+#      - name: Publish packages
+#        run: ./gradlew publishAllPublicationsToGitHubPackagesRepository
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   cleanup:
     name: Clean up after release
-    needs: publish
+#    needs: publish
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -57,10 +57,6 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
-      - name: Set up Git user
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
       - name: Prepare for next development phase
         run: ./gradlew postRelease
       - name: Create pull request
