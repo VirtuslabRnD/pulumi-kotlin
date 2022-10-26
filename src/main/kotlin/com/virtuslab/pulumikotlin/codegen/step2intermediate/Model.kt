@@ -41,7 +41,7 @@ data class NamingFlags(
  * Bundles variables regarding naming conventions contained in schema:
  * // FIXME lacking description
  *
- * * [moduleFormat] - ModuleFormat is a regex that is used by the importer to extract a module name
+ * * [moduleFormatRegex] - ModuleFormat is a regex that is used by the importer to extract a module name
  *      from the module portion of a type token. Packages that use the module format
  *      “namespace1/namespace2/…/namespaceN” do not need to specify a format. The regex must define one capturing group
  *      that contains the module name, which must be formatted as “namespace1/namespace2/…namespaceN”.
@@ -65,7 +65,7 @@ data class NamingFlags(
  */
 data class PulumiNamingConfiguration private constructor(
     val providerName: String,
-    val moduleFormat: String? = null,
+    val moduleFormatRegex: Regex,
     val basePackage: String,
     val packageOverrides: Map<String, String>,
 ) {
@@ -74,16 +74,17 @@ data class PulumiNamingConfiguration private constructor(
         get() = basePackage.split(".")
 
     companion object {
-
         private const val DEFAULT_BASE_PACKAGE = "com.pulumi"
+        private const val DEFAULT_MODULE_FORMAT_REGEX_LITERAL = "(.*)"
+
         operator fun invoke(
             providerName: String,
-            moduleFormat: String?,
-            basePackage: String?,
-            packageOverrides: Map<String, String>?,
+            moduleFormat: String? = null,
+            basePackage: String? = null,
+            packageOverrides: Map<String, String>? = null,
         ) = PulumiNamingConfiguration(
             providerName,
-            moduleFormat,
+            moduleFormat?.toRegex() ?: DEFAULT_MODULE_FORMAT_REGEX_LITERAL.toRegex(),
             basePackage ?: DEFAULT_BASE_PACKAGE,
             packageOverrides ?: emptyMap(),
         )

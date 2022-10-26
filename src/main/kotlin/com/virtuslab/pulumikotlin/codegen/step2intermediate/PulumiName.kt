@@ -14,7 +14,7 @@ import com.virtuslab.pulumikotlin.codegen.utils.capitalize
 import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 
 data class PulumiName(
-    val providerName: String,
+    val packageProviderName: String,
     val namespace: List<String>,
     val name: String,
 ) {
@@ -179,15 +179,15 @@ data class PulumiName(
     fun toResourcePackage(namingFlags: NamingFlags): String {
         // TODO: todo
         return when (namingFlags.language) {
-            Kotlin -> packageToString(relativeToProviderPackage(namespace) + listOf("kotlin"))
-            Java -> packageToString(relativeToProviderPackage(namespace))
+            Kotlin -> packageToString(namespace + listOf("kotlin"))
+            Java -> packageToString(namespace)
         }
     }
 
     fun toFunctionGroupObjectPackage(namingFlags: NamingFlags): String {
         return when (namingFlags.language) {
-            Kotlin -> packageToString(relativeToProviderPackage(namespace) + listOf("kotlin"))
-            Java -> packageToString(relativeToProviderPackage(namespace))
+            Kotlin -> packageToString(namespace + listOf("kotlin"))
+            Java -> packageToString(namespace)
         }
     }
 
@@ -195,7 +195,7 @@ data class PulumiName(
         return when (namingFlags.language) {
             Kotlin, Java -> {
                 if (namespace.isEmpty()) {
-                    providerName.capitalize() + "Functions"
+                    packageProviderName.capitalize() + "Functions"
                 } else {
                     namespace.last().capitalize() + "Functions"
                 }
@@ -219,7 +219,7 @@ data class PulumiName(
 
     fun toPackage(namingFlags: NamingFlags): String {
         val modifiers = getModifiers(namingFlags)
-        return packageToString(relativeToProviderPackage(namespace) + modifiers.packageSuffix)
+        return packageToString(namespace + modifiers.packageSuffix)
     }
 
     fun toFunctionName(namingFlags: NamingFlags): String {
@@ -233,34 +233,44 @@ data class PulumiName(
         return packageList.joinToString(".")
     }
 
+    // FIXME delete?
     private fun relativeToProviderPackage(packageList: List<String>): List<String> {
-        return listOf("com", "pulumi", providerName) + packageList
+        return listOf("com", "pulumi", packageProviderName) + packageList
     }
 
     companion object {
-        fun from(objectKey: String, namingConfiguration: PulumiNamingConfiguration): PulumiName {
-            val segments = objectKey.split("/").first().split(":")
-            val providerName = segments.first()
-            val namespace = if (segments.getOrNull(1) == "index") segments.drop(2) else segments.drop(1)
-            val name = objectKey.split("/").last().split(":").last()
+        private const val EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN = 3
 
-            return PulumiName(providerName, namespace, name)
-        }
+        fun from(token: String, namingConfiguration: PulumiNamingConfiguration): PulumiName {
+            // token = pkg ":" module ":" member
 
-        private fun splitToPackageSegments(
-            objectKey: String,
-            namingConfiguration: PulumiNamingConfiguration,
-        ): List<String> {
-            val (providerName, moduleFormat, _, packageOverrides) = namingConfiguration
-            TODO("not yet implemented")
-        }
+            val segments = token.split(":")
 
-        private fun handlePackageSpecificSplit(
-            providerName: String,
-            objectKey: String,
-            packageOverrides: Map<String, String>,
-        ) {
-            TODO("not yet implemented")
+            if (segments.size != EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN) error("malformed token $token")
+
+            fun substituteWithOverride(name: String): String = namingConfiguration.packageOverrides[name] ?: name
+
+            fun extractModule(): String {
+                when (val module = segments[1]) {
+                    "providers" -> return ""
+                    else -> {
+                        val moduleMatches = namingConfiguration.moduleFormatRegex.findAll(module)
+                            .flatMap { it.groups }
+                            .map { it?.value.orEmpty() }
+                            .toList()
+
+                        if (moduleMatches.size < 2 || moduleMatches[1].startsWith("index")) return ""
+                        return moduleMatches[1]
+                    }
+                }
+            }
+
+            val packageProviderName = substituteWithOverride(namingConfiguration.providerName)
+            val moduleName = substituteWithOverride(extractModule())
+
+            val namespace = (namingConfiguration.baseNamespace + packageProviderName + moduleName).filter { it.isNotBlank() }
+
+            return PulumiName(packageProviderName, namespace, segments[2])
         }
     }
 }
