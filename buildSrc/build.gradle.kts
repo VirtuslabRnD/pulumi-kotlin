@@ -28,6 +28,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-maven-serialization:1.7.20")
     implementation("org.apache.maven:maven-artifact:3.8.6")
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r")
+    implementation("org.semver4j:semver4j:2.2.0")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.20")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")

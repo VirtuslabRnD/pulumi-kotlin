@@ -20,6 +20,7 @@ import kotlinx.serialization.json.Json
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import org.semver4j.Semver
 import java.io.File
 
 val logger = KtorSimpleLogger("release-management")
@@ -40,66 +41,35 @@ data class VersionInfoDetails(val docs: List<VersionInfo>)
 @Serializable
 class MavenSearchResponse(val response: VersionInfoDetails)
 
-data class VersionStringPostfix(val id: String, val gitHash: String) {
-    override fun toString(): String {
-        return "$id+$gitHash"
-    }
-}
+private fun Semver.getGitTag(): String = if (build.isNotEmpty()) build.joinToString(".") else "v$version"
 
-data class JavaVersion(val version: String, val postfix: VersionStringPostfix?) {
-
-    companion object {
-        fun fromVersionString(versionString: String): JavaVersion {
-            val versionStringSegments = "(\\d+.\\d+.\\d+)(\\-(.*)\\+(.*))?".toRegex().find(versionString)
-            val javaVersion = versionStringSegments?.groupValues?.get(1) ?: error("Invalid version string")
-            val isRelease = versionStringSegments.groupValues[2].isEmpty()
-            val postfix = if (!isRelease) {
-                VersionStringPostfix(
-                    versionStringSegments.groupValues[3],
-                    versionStringSegments.groupValues[4],
-                )
-            } else {
-                null
-            }
-
-            return JavaVersion(javaVersion, postfix)
-        }
-    }
-
-    override fun toString(): String {
-        return "$version${if (postfix != null) "-$postfix" else ""}"
-    }
-}
-
-data class KotlinVersion(val javaVersion: JavaVersion, val isSnapshot: Boolean, val minor: Int = 0) {
+data class KotlinVersion(val javaVersion: Semver, val kotlinMinor: Int = 0, val isSnapshot: Boolean) {
     companion object {
         fun fromVersionString(versionString: String): KotlinVersion {
-            val versionStringSegments = "(\\d+.\\d+.\\d+).(\\d+)(\\-(.*)\\+([\\w\\d]*))?(\\-SNAPSHOT)?"
+            val versionStringSegments = "^(\\d+.\\d+.\\d+).(\\d+)(\\-.*\\+[\\w\\d]+)?(\\-SNAPSHOT)?\$"
                 .toRegex()
                 .find(versionString)
             val javaVersion = versionStringSegments?.groupValues?.get(1) ?: error("Invalid version string")
-            val isRelease = versionStringSegments.groupValues[3].isEmpty()
-            val postfix = if (!isRelease) {
-                VersionStringPostfix(
-                    versionStringSegments.groupValues[4],
-                    versionStringSegments.groupValues[5],
-                )
-            } else {
-                null
-            }
-            val isSnapshot = versionStringSegments.groupValues[6].isNotEmpty()
             val kotlinMinor = versionStringSegments.groupValues[2]
-
+            val postfix = versionStringSegments.groupValues[3]
+            val isSnapshot = versionStringSegments.groupValues[4].isNotEmpty()
             return KotlinVersion(
-                JavaVersion(javaVersion, postfix),
-                isSnapshot,
+                Semver("$javaVersion$postfix"),
                 kotlinMinor.toInt(),
+                isSnapshot,
             )
         }
     }
 
     override fun toString(): String {
-        return "${javaVersion.version}.$minor${if (javaVersion.postfix != null) "-${javaVersion.postfix}" else ""}" +
+        val javaVersionWithoutPostfix = javaVersion.withClearedPreReleaseAndBuild().toString()
+
+        return javaVersion
+            .toString()
+            .replace(
+                javaVersionWithoutPostfix,
+                "$javaVersionWithoutPostfix.$kotlinMinor",
+            ) +
             "${if (isSnapshot) "-SNAPSHOT" else ""}"
     }
 }
@@ -113,8 +83,8 @@ fun updateGeneratorVersion(gitDirectory: File, versionConfigFile: File) {
         val oldKotlinVersion = KotlinVersion.fromVersionString(it.kotlinVersion)
         val newKotlinVersion = KotlinVersion(
             oldKotlinVersion.javaVersion,
+            oldKotlinVersion.kotlinMinor,
             false,
-            if (oldKotlinVersion.isSnapshot) oldKotlinVersion.minor else oldKotlinVersion.minor + 1,
         )
 
         SchemaMetadata(
@@ -154,7 +124,8 @@ fun updateProviderSchemas(gitDirectory: File, versionConfigFile: File) {
 
     val tags = getTags(updatedSchemas)
     val commitMessage = "Prepare release\n\n" +
-        "This release includes the following versions:\n${tags.joinToString("\n")}"
+        "This release includes the following versions:\n" +
+        "${tags.joinToString("\n")}"
     commitChangesInFile(gitDirectory, versionConfigFile, commitMessage)
 
     client.close()
@@ -172,9 +143,9 @@ fun fetchUpdatedSchemas(
         KotlinVersion.fromVersionString(schema.kotlinVersion),
     )
     versions.map {
-        val newJavaVersion = JavaVersion.fromVersionString(it.toString())
-        val newKotlinVersion = KotlinVersion(newJavaVersion, false)
-        val newGitTag = newJavaVersion.postfix?.gitHash ?: "v${newJavaVersion.version}"
+        val newJavaVersion = Semver(it.toString())
+        val newKotlinVersion = KotlinVersion(newJavaVersion, 0, false)
+        val newGitTag = newJavaVersion.getGitTag()
         val newUrl = schema.url.replace(schema.javaGitTag, newGitTag)
         SchemaMetadata(
             providerName,
@@ -205,8 +176,8 @@ fun replaceReleasedVersionsWithSnapshots(gitDirectory: File, versionConfigFile: 
         } else {
             val newKotlinVersion = KotlinVersion(
                 oldKotlinVersion.javaVersion,
+                oldKotlinVersion.kotlinMinor + 1,
                 true,
-                oldKotlinVersion.minor + 1,
             )
             SchemaMetadata(
                 it.providerName,
@@ -246,7 +217,7 @@ private fun fetchVersions(
     kotlinVersion: KotlinVersion,
 ): List<ComparableVersion> = runBlocking {
     return@runBlocking fetchAllPagesSince(client, provider, since)
-        .filter { it > since || (kotlinVersion.isSnapshot && kotlinVersion.minor == 0 && it == since) }
+        .filter { it > since || (kotlinVersion.isSnapshot && kotlinVersion.kotlinMinor == 0 && it == since) }
         .sorted()
 }
 
