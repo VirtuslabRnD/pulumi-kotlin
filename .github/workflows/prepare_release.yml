@@ -61,13 +61,10 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-      - name: Create branch
-        run: git checkout -b release
       - name: Prepare for next development phase
         run: ./gradlew postRelease
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
         with:
           title: Prepare for next development phase
-          branch: release
           base: tmp-main
