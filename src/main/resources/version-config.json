@@ -1,12 +1,12 @@
 [
   {
     "providerName": "slack",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-slack/6be8d50d/provider/cmd/pulumi-resource-slack/schema.json",
-    "kotlinVersion": "0.3.1.2-alpha.1663282396+6be8d50d-SNAPSHOT",
-    "javaVersion": "0.3.1-alpha.1663282396+6be8d50d",
-    "javaGitTag": "6be8d50d",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-slack/9977be98/provider/cmd/pulumi-resource-slack/schema.json",
+    "kotlinVersion": "0.3.1.0-alpha.1663343588+9977be98",
+    "javaVersion": "0.3.1-alpha.1663343588+9977be98",
+    "javaGitTag": "9977be98",
     "customDependencies": [
-      "com.pulumi:slack:0.3.1-alpha.1663282396+6be8d50d"
+      "com.pulumi:slack:0.3.1-alpha.1663343588+9977be98"
     ]
   },
   {
@@ -21,12 +21,12 @@
   },
   {
     "providerName": "random",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.8.2/provider/cmd/pulumi-resource-random/schema.json",
-    "kotlinVersion": "4.8.2.2-SNAPSHOT",
-    "javaVersion": "4.8.2",
-    "javaGitTag": "v4.8.2",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/e3dd1924/provider/cmd/pulumi-resource-random/schema.json",
+    "kotlinVersion": "4.9.0.0-alpha.1659029910+e3dd1924",
+    "javaVersion": "4.9.0-alpha.1659029910+e3dd1924",
+    "javaGitTag": "e3dd1924",
     "customDependencies": [
-      "com.pulumi:random:4.8.2"
+      "com.pulumi:random:4.9.0-alpha.1659029910+e3dd1924"
     ]
   },
   {
