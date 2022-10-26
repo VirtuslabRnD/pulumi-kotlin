@@ -107,7 +107,7 @@ val createGlobalProviderTasks by extra {
     }
 }
 
-fun Code_generation_gradle.createDownloadTask(
+fun createDownloadTask(
     taskName: String,
     schemaUrl: String,
     schemaDownloadPath: File,
@@ -118,7 +118,7 @@ fun Code_generation_gradle.createDownloadTask(
     }
 }
 
-fun Code_generation_gradle.createGenerationTask(
+fun createGenerationTask(
     generationTaskName: String,
     downloadTaskName: String,
     schemaDownloadPath: File,
@@ -137,7 +137,7 @@ fun Code_generation_gradle.createGenerationTask(
     }
 }
 
-fun Code_generation_gradle.createSourceSet(sourceSetName: String, outputDirectory: File, providerName: String) {
+fun createSourceSet(sourceSetName: String, outputDirectory: File, providerName: String) {
     project.sourceSets {
         create(sourceSetName) {
             java {
@@ -148,7 +148,7 @@ fun Code_generation_gradle.createSourceSet(sourceSetName: String, outputDirector
     }
 }
 
-fun Code_generation_gradle.createJarTask(
+fun createJarTask(
     jarTaskName: String,
     generationTaskName: String,
     sourceSetName: String,
@@ -162,7 +162,7 @@ fun Code_generation_gradle.createJarTask(
     }
 }
 
-fun Code_generation_gradle.createSourcesJarTask(
+fun createSourcesJarTask(
     sourcesJarTaskName: String,
     generationTaskName: String,
     sourceSetName: String,
@@ -177,7 +177,7 @@ fun Code_generation_gradle.createSourcesJarTask(
     }
 }
 
-fun Code_generation_gradle.createJavadocGenerationTask(
+fun createJavadocGenerationTask(
     javadocGenerationTaskName: String,
     generationTaskName: String,
     archiveName: String,
@@ -197,7 +197,7 @@ fun Code_generation_gradle.createJavadocGenerationTask(
     }
 }
 
-fun Code_generation_gradle.createJavadocJarTask(
+fun createJavadocJarTask(
     javadocJarTaskName: String,
     javadocGenerationTaskName: String,
     archiveName: String,
@@ -215,7 +215,7 @@ fun Code_generation_gradle.createJavadocJarTask(
     }
 }
 
-fun Code_generation_gradle.configurePom(
+fun configurePom(
     mavenPublication: MavenPublication,
     implementationDependency: String,
 ) {
