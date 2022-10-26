@@ -1,0 +1,80 @@
+{
+  "name": "azure-native",
+  "types": {
+    "azure-native:batch:ApplicationPackageReference": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string",
+          "description": "If this is omitted, and no default version is specified for this application, the request fails with the error code InvalidApplicationPackageReferences. If you are calling the REST API directly, the HTTP status code is 409."
+        }
+      },
+      "type": "object",
+      "required": [
+        "id"
+      ]
+    },
+    "azure-native:batch:ApplicationPackageReferenceResponse": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string",
+          "description": "If this is omitted, and no default version is specified for this application, the request fails with the error code InvalidApplicationPackageReferences. If you are calling the REST API directly, the HTTP status code is 409."
+        }
+      },
+      "type": "object",
+      "required": [
+        "id"
+      ]
+    },
+    "azure-native:batch:AutoScaleRunErrorResponse": {
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "An identifier for the error. Codes are invariant and are intended to be consumed programmatically."
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/types/azure-native:batch:AutoScaleRunErrorResponse"
+          }
+        },
+        "message": {
+          "type": "string",
+          "description": "A message describing the error, intended to be suitable for display in a user interface."
+        }
+      },
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ]
+    },
+    "azure-native:batch:AutoScaleRunResponse": {
+      "properties": {
+        "error": {
+          "type": "object",
+          "$ref": "#/types/azure-native:batch:AutoScaleRunErrorResponse"
+        },
+        "evaluationTime": {
+          "type": "string"
+        },
+        "results": {
+          "type": "string",
+          "description": "Each variable value is returned in the form $variable=value, and variables are separated by semicolons."
+        }
+      },
+      "type": "object",
+      "required": [
+        "evaluationTime"
+      ]
+    }
+  },
+  "resources": {},
+  "functions": {}
+}

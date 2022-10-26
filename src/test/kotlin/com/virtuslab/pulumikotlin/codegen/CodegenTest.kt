@@ -455,6 +455,11 @@ class CodegenTest {
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_WITH_ASSET, code)
     }
 
+    @Test
+    fun `IpAllocationMethod (azure-native) should work despite being defined two times (with different casing)`() {
+        assertGeneratedCodeCompiles(SCHEMA_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION)
+    }
+
     private fun assertGeneratedCodeCompiles(schemaPath: String) {
         assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
     }
@@ -589,3 +594,5 @@ private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ARCHIVE = "schema-aws-classic-5
 private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ASSET = "schema-aws-classic-5.16.2-subset-with-asset.json"
 private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_INDEX = "schema-aws-classic-5.15.2-subset-with-index.json"
 private const val SCHEMA_SLACK_SUBSET_WITH_INDEX = "schema-slack-0.3.0-subset-with-index.json"
+private const val SCHEMA_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION =
+    "schema-azure-native-3.44.2-subset-with-ip-allocation.json"

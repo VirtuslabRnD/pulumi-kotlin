@@ -1,7 +1,5 @@
 package com.virtuslab.pulumikotlin.codegen.utils
 
-import java.util.Locale
-
 fun <T> T.letIf(predicate: (T) -> Boolean, mapper: (T) -> T) =
     if (predicate(this)) {
         mapper(this)
@@ -12,22 +10,10 @@ fun <T> T.letIf(predicate: (T) -> Boolean, mapper: (T) -> T) =
 fun <T> T.letIf(predicate: Boolean, mapper: (T) -> T) =
     letIf({ predicate }, mapper)
 
-fun String.capitalize() =
-    replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+fun Long.isOdd() = this % 2L != 0L
 
-fun String.decapitalize() =
-    replaceFirstChar { it.lowercase(Locale.getDefault()) }
+fun Long.isEven() = !isOdd()
 
-@Suppress("UnsafeCallOnNullableType")
-fun <K, V> Map<K, V?>.filterNotNullValues() =
-    this
-        .filter { it.value != null }
-        .map { (key, value) -> key to value!! }
-        .toMap()
+fun Int.isOdd() = toLong().isOdd()
 
-fun <K, V> Grouping<K, V>.valuesToSet() =
-    valuesToSet { it }
-
-fun <K, V, R> Grouping<V, K>.valuesToSet(valueSelector: (V) -> R): Map<K, Set<R>> {
-    return fold(emptySet()) { acc, v -> acc + valueSelector(v) }
-}
+fun Int.isEven() = !isOdd()

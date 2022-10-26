@@ -1,8 +1,12 @@
 package com.virtuslab.pulumikotlin.scripts
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.RawOption
+import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.enum
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Decoder
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArrayProperty
@@ -17,14 +21,19 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringEnu
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.referencedTypeName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.transformKeys
 import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
+import com.virtuslab.pulumikotlin.codegen.utils.shorten
 import com.virtuslab.pulumikotlin.scripts.Context.Function
 import com.virtuslab.pulumikotlin.scripts.Context.Resource
 import com.virtuslab.pulumikotlin.scripts.Context.Type
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.encodeToJsonElement
 import mu.KotlinLogging
 import java.io.File
 import java.io.OutputStream
@@ -34,25 +43,66 @@ fun main(args: Array<String>) {
     ComputeSchemaSubsetScript().main(args)
 }
 
-/**
- * Example invocation:
- *
- * ```bash
- * programName \
- * --schema-path src/main/resources/schema-aws-classic.json \
- * --name gcp:compute/instance:Instance \
- * --context resource
- * ```
- */
-class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : CliktCommand() {
+private const val HELP =
+    """
+        Example invocation:
+        ```
+        programName \ 
+        --schema-path src/main/resources/schema-aws-classic.json \
+        --name gcp:compute/instance:Instance \
+        --context resource
+        ```
+    """
+
+class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : CliktCommand(help = HELP) {
 
     private val logger = KotlinLogging.logger {}
-
     private val printStream = PrintStream(outputStream)
 
     private val schemaPath: String by option().required()
     private val name: String by option().required()
     private val context: Context by option().enum<Context>().required()
+    private val shortenDescriptions: Boolean by option().boolean(default = false)
+
+    private val loadFullParentsHelp =
+        """
+            Whether to include parents and load parents' references. 
+            For example, given this input schema:
+            
+                (simplified model, 'B -> {C}' means that 'B has reference to C')
+                
+                ```
+                types:
+                    B -> {C}
+                    C -> {D}
+                    D -> {}
+                    E -> {}
+                resources:
+                    A -> {B}
+                ```
+                
+            and options: name=C, context=type, the following schema will be computed:
+            
+            - with loadFullParents=true:
+                ```
+                types:
+                    B -> {C}
+                    C -> {D}
+                    D -> {}
+                resources:
+                    A -> {B}
+                ```
+                
+            - with loadFullParents=false:
+                ```
+                types:
+                    C -> {D}
+                    D -> {}
+                resources:
+                    <<empty>>
+                ```
+        """
+    private val loadFullParents: Boolean by option(help = loadFullParentsHelp).boolean(default = false)
 
     override fun run() {
         val parsedSchema = Decoder.decode(File(schemaPath).inputStream())
@@ -71,21 +121,25 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
             )
         }
 
-        val propertiesByNameWithContext: Map<NameWithContext, List<Property>> = allPropertiesToBeFlattened
+        val propertiesByNameWithContext = allPropertiesToBeFlattened
             .flatten()
             .toMap()
             .lowercaseKeys()
 
-        val childrenByNameWithContext: Map<NameWithContext, References> =
-            computeTransitiveClosures(propertiesByNameWithContext).lowercaseKeys()
-        val parentsByNameWithContext: Map<NameWithContext, References> =
-            inverse(childrenByNameWithContext).lowercaseKeys()
-
         val chosenKey = NameWithContext(name, context)
+
+        val childrenByNameWithContext = computeTransitiveClosures(propertiesByNameWithContext).lowercaseKeys()
         val requiredChildren = childrenByNameWithContext[chosenKey] ?: error("Could not find $name children ($context)")
+
+        val parentsByNameWithContext = inverse(childrenByNameWithContext).lowercaseKeys()
         val requiredParents = parentsByNameWithContext[chosenKey] ?: run {
             logger.info("Could not find $name parents ($context)")
             References.empty()
+        }
+        val allReferences = if (loadFullParents) {
+            requiredChildren.merge(requiredParents)
+        } else {
+            requiredChildren
         }
 
         val json = Json {
@@ -98,18 +152,20 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         fun <V> getFiltered(map: Map<String, V>, context: Context) =
             map.filterKeys {
                 val key = NameWithContext(it, context)
-                key == chosenKey || key in requiredChildren.references || key in requiredParents.references
+                key == chosenKey || allReferences.contains(key)
             }
 
         val newSchema = with(noDataLossSchemaModel) {
-            NoDataLossSchemaModel(
+            copy(
                 types = getFiltered(types, Type),
                 resources = getFiltered(resources, Resource),
                 functions = getFiltered(functions, Function),
             )
         }
 
-        printStream.println(json.encodeToString(newSchema))
+        val encodedNewSchema = json.encodeToJsonElement(removeDescriptionFieldIfNeeded(newSchema))
+
+        printStream.println(encodedNewSchema)
     }
 
     private fun <V> extractProperties(map: Map<String, V>, context: Context, propertyExtractor: (V) -> List<Property>) =
@@ -139,7 +195,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
             is ReferencingOtherTypesProperty -> {
                 References.from(
                     getInnerProperties(property).flatMap {
-                        computeTransitiveClosure(allProperties, PropertyWithContext(it, Type), visited).references
+                        computeTransitiveClosure(allProperties, PropertyWithContext(it, Type), visited).value
                     },
                 )
             }
@@ -172,6 +228,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         }
 
         val key = NameWithContext(typeName, Type)
+
         if (visited.contains(key)) {
             return References.from(key)
         }
@@ -192,19 +249,65 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         return recursiveReferences.add(key)
     }
 
-    private fun inverse(childrenByNameWithContext: ChildrenByNameWithContext): ParentsByNameWithContext {
+    private fun inverse(
+        childrenByNameWithContext: ChildrenByNameWithContext,
+    ): ParentsByNameWithContext {
         val inverseMap = mutableMapOf<NameWithContext, References>()
-        childrenByNameWithContext.forEach { (key, values) ->
-            values.references.forEach { value ->
-                inverseMap.merge(value, References.from(key), References::merge)
+        childrenByNameWithContext
+            .entries
+            .forEach { (key, references) ->
+                val allReferences = References.from(key).merge(references)
+                references.value.forEach { value ->
+                    inverseMap.merge(value, allReferences, References::merge)
+                }
+            }
+        return inverseMap
+    }
+
+    private fun removeDescriptionFieldIfNeeded(schemaModel: NoDataLossSchemaModel): NoDataLossSchemaModel {
+        if (!shortenDescriptions) {
+            return schemaModel
+        }
+
+        return schemaModel.copy(
+            types = schemaModel.types.mapValues { removeDescriptionField(it.value) },
+            functions = schemaModel.functions.mapValues { removeDescriptionField(it.value) },
+            resources = schemaModel.resources.mapValues { removeDescriptionField(it.value) },
+        )
+    }
+
+    private fun removeDescriptionField(jsonElement: JsonElement): JsonElement {
+        return when (jsonElement) {
+            is JsonObject -> {
+                val mapped = jsonElement.mapValues { (key, value) ->
+                    if (key == "description" && value is JsonPrimitive) {
+                        JsonPrimitive(value.contentOrNull?.shorten(desiredLength = 100))
+                    } else {
+                        removeDescriptionField(value)
+                    }
+                }
+                JsonObject(mapped)
+            }
+
+            is JsonArray -> {
+                JsonArray(jsonElement.map { removeDescriptionField(it) })
+            }
+
+            is JsonPrimitive -> {
+                jsonElement
             }
         }
-        return inverseMap
     }
 }
 
 @Serializable
 private data class NoDataLossSchemaModel(
+    val name: JsonElement? = null,
+    val displayName: JsonElement? = null,
+    val version: JsonElement? = null,
+    val meta: JsonElement? = null,
+    val config: JsonElement? = null,
+    val language: JsonElement? = null,
     val types: Map<String, JsonElement>,
     val resources: Map<String, JsonElement>,
     val functions: Map<String, JsonElement>,
@@ -229,17 +332,25 @@ private data class NameWithContext(val name: Name, val context: Context) {
 private fun <V : Any> Map<NameWithContext, V>.lowercaseKeys() =
     this.transformKeys { it.withLowercaseTypeName() }
 
-private class References private constructor(val references: Set<NameWithContext>) {
-    fun add(one: NameWithContext) = from(references + one)
+private class References private constructor(private val underlyingValue: Set<NameWithContext>) {
+    val value by lazy { underlyingValue.transformKeys { it.withLowercaseTypeName() } }
 
-    fun merge(other: References) = from(references + other.references)
+    fun contains(name: NameWithContext) = value.contains(name)
+
+    fun add(one: NameWithContext) = from(underlyingValue + one)
+
+    fun merge(other: References) = from(underlyingValue + other.underlyingValue)
 
     companion object {
-        fun empty() = References(emptySet())
+        fun empty() = from(emptySet())
 
-        fun from(vararg namesWithContext: NameWithContext) = from(namesWithContext.asIterable())
+        fun from(vararg namesWithContext: NameWithContext) = from(namesWithContext.toSet())
 
-        fun from(references: Iterable<NameWithContext>) =
-            References(references.toSet().transformKeys { it.withLowercaseTypeName() })
+        fun from(references: Set<NameWithContext>) = References(references)
+
+        fun from(references: Iterable<NameWithContext>) = from(references.toSet())
     }
 }
+
+private fun RawOption.boolean(default: Boolean) =
+    choice("true", "false").convert { it.toBooleanStrict() }.default(default, default.toString())

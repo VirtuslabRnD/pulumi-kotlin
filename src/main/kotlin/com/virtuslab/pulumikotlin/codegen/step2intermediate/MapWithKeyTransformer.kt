@@ -18,8 +18,18 @@ internal class MapWithKeyTransformer<K, V> private constructor(
             val transformedMap = mutableMapOf<K, V>()
             baseMap.forEach { (key, value) ->
                 val transformedKey = keyTransformer(key)
-                transformedMap.merge(transformedKey, value) { _, _ ->
-                    throw ConflictsNotAllowed.from(key, transformedKey)
+                transformedMap.merge(transformedKey, value) { oldValue, newValue ->
+                    if (oldValue === newValue) {
+                        newValue
+                    } else if (oldValue == newValue) {
+                        println(
+                            "WARN: Found conflicting keys ($key, $transformedKey), " +
+                                "but values are the same ($oldValue, $newValue).",
+                        )
+                        newValue
+                    } else {
+                        throw ConflictsNotAllowed.from(key, transformedKey)
+                    }
                 }
             }
             return MapWithKeyTransformer(transformedMap, keyTransformer)
