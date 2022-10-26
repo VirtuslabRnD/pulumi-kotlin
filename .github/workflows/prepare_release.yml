@@ -52,8 +52,8 @@ jobs:
 #    needs: publish
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write
+      contents: write
+      pull-requests: write
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
