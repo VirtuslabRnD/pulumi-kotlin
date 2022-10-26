@@ -17,9 +17,7 @@ jobs:
         with:
           fetch-depth: 2
       - name: Set up Git user
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
+        uses: fregante/setup-git-user@v1
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Tag new versions of Pulumi Kotlin (if available)
@@ -63,4 +61,15 @@ jobs:
         uses: peter-evans/create-pull-request@v4
         with:
           title: Prepare for next development phase
+          body: |
+            ## Task
+
+            Resolves: None
+
+            ## Description
+
+            This PR was triggered automatically after a release. It replaces the released versions with SNAPSHOT versions.
           base: tmp-main
+          branch: prepare-for-next-development-phase
+          branch-suffix: short-commit-hash
+          delete-branch: true
