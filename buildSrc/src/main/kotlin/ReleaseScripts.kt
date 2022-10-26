@@ -153,7 +153,8 @@ fun updateProviderSchemas(gitDirectory: File, versionConfigFile: File) {
     versionConfigFile.writeText("${json.encodeToString(updatedSchemas)}\n")
 
     val tags = getTags(updatedSchemas)
-    val commitMessage = "Prepare release\n\n${tags.joinToString("\n")}"
+    val commitMessage = "Prepare release\n\n" +
+        "This release includes the following versions:\n${tags.joinToString("\n")}"
     commitChangesInFile(gitDirectory, versionConfigFile, commitMessage)
 
     client.close()
