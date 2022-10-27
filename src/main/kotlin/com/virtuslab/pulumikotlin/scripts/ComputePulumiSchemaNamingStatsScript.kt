@@ -14,6 +14,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import mu.KotlinLogging
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -32,6 +33,9 @@ fun main(args: Array<String>) {
  * I'm also not sure about the other providers like kubernetes.
  */
 class ComputePulumiSchemaNamingStatsScript : CliktCommand() {
+
+    private val logger = KotlinLogging.logger {}
+
     private val schemaPaths: List<String> by option()
         .split(",")
         .required()
@@ -105,8 +109,8 @@ class ComputePulumiSchemaNamingStatsScript : CliktCommand() {
             }
         }
 
-        println(json.encodeToString(stats))
-        println(json.encodeToString(moreStats))
+        logger.info(json.encodeToString(stats))
+        logger.info(json.encodeToString(moreStats))
     }
 }
 

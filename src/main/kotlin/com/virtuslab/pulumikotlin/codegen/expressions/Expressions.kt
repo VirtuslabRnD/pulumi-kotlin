@@ -123,13 +123,7 @@ data class ConstructObjectExpression(val typeName: TypeName, val fields: Map<Str
 
 data class CustomCodeBlock(val text: String, val args: List<Any>) {
     fun toKotlinPoetCodeBlock(): CodeBlock {
-        try {
-            return CodeBlock.of(text, *args.toTypedArray())
-        } catch (e: Exception) {
-            println("Exception debug info: text: $text")
-            println("Exception debug info: args: $args")
-            throw e
-        }
+        return CodeBlock.of(text, *args.toTypedArray())
     }
 }
 
@@ -178,13 +172,7 @@ data class CustomExpression(val text: String, val args: List<Any>) : Expression(
     }
 
     override fun toCodeBlock(): CustomCodeBlock {
-        return try {
-            CustomCodeBlock(text, args)
-        } catch (e: Exception) {
-            println("Text" + text)
-            println("Args" + args)
-            throw e
-        }
+        return CustomCodeBlock(text, args)
     }
 }
 

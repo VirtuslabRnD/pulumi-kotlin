@@ -32,6 +32,7 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
 import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
+import mu.KotlinLogging
 
 /**
  * Takes parsed schema as an input and produces types that are prepared for code generation. More specifically:
@@ -40,6 +41,8 @@ import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
  * - it generates synthetic types from resources (input properties) and functions (inputs and outputs)
  */
 object IntermediateRepresentationGenerator {
+
+    private val logger = KotlinLogging.logger {}
 
     fun getIntermediateRepresentation(schema: ParsedSchema): IntermediateRepresentation {
         val referenceFinder = ReferenceFinder(schema)
@@ -152,7 +155,7 @@ object IntermediateRepresentationGenerator {
         val usages = forcedUsageKinds.ifEmpty {
             val allUsagesForTypeName = context.referenceFinder.getUsages(typeName)
             if (allUsagesForTypeName.isEmpty()) {
-                println("$typeName references were empty for $typeName (${rootType.javaClass})")
+                logger.info("$typeName references were empty for $typeName (${rootType.javaClass})")
             }
             allUsagesForTypeName
         }
@@ -220,7 +223,7 @@ object IntermediateRepresentationGenerator {
             )
 
             null -> {
-                println("Not found type for $referencedTypeName, defaulting to Any")
+                logger.info("Not found type for $referencedTypeName, defaulting to Any")
                 return AnyType
             }
         }

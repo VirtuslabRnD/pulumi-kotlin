@@ -7,12 +7,15 @@ import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.OK
 import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.SCRIPT_EXECUTION_ERROR
 import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
+import mu.KotlinLogging
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.lang.System.lineSeparator
 import kotlin.test.assertEquals
 
 class CodegenTest {
+
+    private val logger = KotlinLogging.logger {}
 
     private val classPath = listOf(
         artifact("com.pulumi:pulumi:0.6.0"),
@@ -468,7 +471,7 @@ class CodegenTest {
         val compilationResult = generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles)
 
         if (compilationResult.exitCode == COMPILATION_ERROR) {
-            println("Code did not compile (as expected). Encountered problems: ${compilationResult.messages}")
+            logger.info("Code did not compile (as expected). Encountered problems:\n${compilationResult.messages}")
         }
         assertEquals(
             COMPILATION_ERROR,
