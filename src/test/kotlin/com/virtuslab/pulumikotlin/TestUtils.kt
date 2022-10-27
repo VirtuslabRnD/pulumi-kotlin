@@ -16,4 +16,4 @@ internal fun <T> concat(vararg iterables: Iterable<T>?): List<T> =
     concat(iterables.filterNotNull().asIterable())
 
 internal fun namingConfigurationWithSlashInModuleFormat(providerName: String) =
-    PulumiNamingConfiguration(providerName = providerName, moduleFormat = "(.*)(?:/[^/]*)")
+    PulumiNamingConfiguration.create(providerName = providerName, moduleFormat = "(.*)(?:/[^/]*)")

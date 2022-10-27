@@ -262,7 +262,7 @@ object IntermediateRepresentationGenerator {
         val schema: ParsedSchema,
         val referenceFinder: ReferenceFinder,
         val namingConfiguration: PulumiNamingConfiguration =
-            PulumiNamingConfiguration(
+            PulumiNamingConfiguration.create(
                 schema.providerName,
                 schema.meta?.moduleFormat,
                 schema.language?.java?.basePackage,

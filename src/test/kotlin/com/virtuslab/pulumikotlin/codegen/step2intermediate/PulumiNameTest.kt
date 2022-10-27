@@ -272,7 +272,7 @@ internal class PulumiNameTest {
     fun `PulumiName is correctly created as per given naming configuration`() {
         // given
         val token = "provider:module***objectName:ObjectName"
-        val namingConfiguration = PulumiNamingConfiguration(
+        val namingConfiguration = PulumiNamingConfiguration.create(
             providerName = "provider",
             moduleFormat = "(.*)(?:\\*{3}[^\\*]*)",
             basePackage = "org.example",
@@ -293,7 +293,7 @@ internal class PulumiNameTest {
     fun `PulumiName correctly resolves name overrides`() {
         // given
         val token = "provider:module:ObjectName"
-        val namingConfiguration = PulumiNamingConfiguration(
+        val namingConfiguration = PulumiNamingConfiguration.create(
             providerName = "provider",
             basePackage = "org.example",
             packageOverrides = mapOf("module" to "overrideModule", "provider" to "overrideProvider"),
@@ -314,7 +314,7 @@ internal class PulumiNameTest {
     fun `PulumiName is correctly created with default naming configuration`() {
         // given
         val token = "provider:module:ObjectName"
-        val namingConfiguration = PulumiNamingConfiguration(providerName = "provider")
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
 
         // when
         val pulumiName = PulumiName.from(token, namingConfiguration)
@@ -331,7 +331,7 @@ internal class PulumiNameTest {
     fun `PulumiName ignores module 'providers'`() {
         // given
         val token = "provider:providers:ObjectName"
-        val namingConfiguration = PulumiNamingConfiguration(providerName = "provider")
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
 
         // when
         val pulumiName = PulumiName.from(token, namingConfiguration)
@@ -348,7 +348,7 @@ internal class PulumiNameTest {
     fun `malformed token causes an exception`() {
         // given
         val token = "provider/module:ObjectName"
-        val namingConfiguration = PulumiNamingConfiguration(providerName = "provider")
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
 
         // when - then
         assertThrows<IllegalStateException>("Malformed token should throw an exception") {

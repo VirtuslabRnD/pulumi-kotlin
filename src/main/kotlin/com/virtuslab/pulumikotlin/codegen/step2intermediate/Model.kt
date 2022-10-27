@@ -76,7 +76,7 @@ data class PulumiNamingConfiguration private constructor(
         private const val DEFAULT_BASE_PACKAGE = "com.pulumi"
         private const val DEFAULT_MODULE_FORMAT_REGEX_LITERAL = "(.*)"
 
-        operator fun invoke(
+        fun create(
             providerName: String,
             moduleFormat: String? = null,
             basePackage: String? = null,
