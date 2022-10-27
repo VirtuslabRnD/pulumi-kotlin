@@ -39,8 +39,7 @@ data class NamingFlags(
 
 /**
  * Bundles variables regarding naming conventions contained in schema:
- * // FIXME lacking description
- *
+ * * [providerName] - Unqualified name of the package (e.g. “aws”, “azure”, “gcp”, “kubernetes”, “random”).
  * * [moduleFormatRegex] - ModuleFormat is a regex that is used by the importer to extract a module name
  *      from the module portion of a type token. Packages that use the module format
  *      “namespace1/namespace2/…/namespaceN” do not need to specify a format. The regex must define one capturing group
@@ -52,6 +51,7 @@ data class NamingFlags(
  *      }
  *      ```
  * * [basePackage] - Prefixes the generated Java package. This setting defaults to “com.pulumi”.
+ * * [packageOverrides] - Overrides for module names to Java package names.
  *      ```json
  *      "language": {
  *          "java": {
@@ -61,7 +61,6 @@ data class NamingFlags(
  *          }
  *      }
  *      ```
- * * [packageOverrides] - Overrides for module names to Java package names. Example: “autoscaling/v1” -> “autoscaling.v1”.
  */
 data class PulumiNamingConfiguration private constructor(
     val providerName: String,

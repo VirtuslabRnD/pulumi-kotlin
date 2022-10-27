@@ -296,7 +296,7 @@ internal class PulumiNameTest {
         val namingConfiguration = PulumiNamingConfiguration(
             providerName = "provider",
             basePackage = "org.example",
-            packageOverrides = mapOf("module" to "overrideModule", "ObjectName" to "OverrideObjectName"),
+            packageOverrides = mapOf("module" to "overrideModule", "provider" to "overrideProvider"),
         )
 
         // when
@@ -304,9 +304,9 @@ internal class PulumiNameTest {
 
         // then
         assertAll(
-            { assertEquals("provider", pulumiName.packageProviderName) },
-            { assertEquals(listOf("org", "example", "provider", "overrideModule"), pulumiName.namespace) },
-            { assertEquals("OverrideObjectName", pulumiName.name) },
+            { assertEquals("overrideProvider", pulumiName.packageProviderName) },
+            { assertEquals(listOf("org", "example", "overrideProvider", "overrideModule"), pulumiName.namespace) },
+            { assertEquals("ObjectName", pulumiName.name) },
         )
     }
 

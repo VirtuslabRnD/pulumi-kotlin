@@ -47,7 +47,12 @@ internal class IntermediateRepresentationGeneratorTest {
         )
         val resources = someResourceWithOutputReferences(typeName1)
 
-        val ir = getIntermediateRepresentation(providerName = "provider", types = types, resources = resources)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+            meta = getMetaWithSlashInModuleFormat(),
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -77,7 +82,12 @@ internal class IntermediateRepresentationGeneratorTest {
         )
         val resources = someResourceWithInputReferences(typeName)
 
-        val ir = getIntermediateRepresentation(providerName = "provider", types = types, resources = resources)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+            meta = getMetaWithSlashInModuleFormat(),
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -103,7 +113,12 @@ internal class IntermediateRepresentationGeneratorTest {
             referencedOutputTypeNames = listOf(typeName),
         )
 
-        val ir = getIntermediateRepresentation(providerName = "provider", types = types, resources = resources)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+            meta = getMetaWithSlashInModuleFormat(),
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -138,7 +153,13 @@ internal class IntermediateRepresentationGeneratorTest {
             referencedInputTypeNames = listOf(typeName),
         )
 
-        val ir = getIntermediateRepresentation(providerName = "provider", types = types, resources = resources, functions = functions)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+            functions = functions,
+            meta = getMetaWithSlashInModuleFormat(),
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -180,7 +201,12 @@ internal class IntermediateRepresentationGeneratorTest {
         )
 
         val namingConfiguration = namingConfigurationWithSlashInModuleFormat("provider")
-        val ir = getIntermediateRepresentation(providerName = "provider", types = types, resources = resources)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+            meta = getMetaWithSlashInModuleFormat(),
+        )
         val irTypes = ir.types
         val irResources = ir.resources
 
@@ -230,7 +256,12 @@ internal class IntermediateRepresentationGeneratorTest {
         )
 
         val namingConfiguration = namingConfigurationWithSlashInModuleFormat("provider")
-        val ir = getIntermediateRepresentation(providerName = "provider", types = types, functions = functions)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            functions = functions,
+            meta = getMetaWithSlashInModuleFormat(),
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -288,7 +319,12 @@ internal class IntermediateRepresentationGeneratorTest {
             ),
         )
 
-        val ir = getIntermediateRepresentation(providerName = "provider", types = types, functions = functions)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            functions = functions,
+            meta = getMetaWithSlashInModuleFormat(),
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -368,14 +404,26 @@ internal class IntermediateRepresentationGeneratorTest {
         assertNotNull(foundType)
     }
 
+    @Suppress("LongParameterList") // these parameters are required to create PulumiNamingConfiguration
     private fun getIntermediateRepresentation(
         providerName: String,
         types: TypesMap = emptyMap(),
         functions: FunctionsMap = emptyMap(),
         resources: ResourcesMap = emptyMap(),
+        meta: SchemaModel.Metadata? = null,
+        language: SchemaModel.PackageLanguage? = null,
     ) = IntermediateRepresentationGenerator.getIntermediateRepresentation(
-        ParsedSchema(providerName = providerName, types = types, resources = resources, functions = functions),
+        ParsedSchema(
+            providerName = providerName,
+            types = types,
+            resources = resources,
+            functions = functions,
+            meta = meta,
+            language = language,
+        ),
     )
+
+    private fun getMetaWithSlashInModuleFormat(): SchemaModel.Metadata = SchemaModel.Metadata("(.*)(?:/[^/]*)")
 
     private fun someResourceWithInputReferences(vararg referencedInputTypeNames: String) =
         someResourceWithReferences(referencedInputTypeNames = referencedInputTypeNames.toList())
