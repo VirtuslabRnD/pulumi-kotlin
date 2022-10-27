@@ -16,6 +16,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeAndOptionality
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UsageKind
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
+import com.virtuslab.pulumikotlin.namingConfigurationWithSlashInModuleFormat
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -26,7 +27,10 @@ internal class CodeGeneratorGenerateFunctionsTest {
     fun `generated kotlin files for some handcrafted functions should compile`() {
         val inputType = ComplexType(
             TypeMetadata(
-                PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
+                PulumiName.from(
+                    "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
+                    namingConfigurationWithSlashInModuleFormat("aws"),
+                ),
                 UsageKind(Root, Function, Input),
                 KDoc(null, null),
             ),
@@ -41,7 +45,10 @@ internal class CodeGeneratorGenerateFunctionsTest {
         )
         val outputType = ComplexType(
             TypeMetadata(
-                PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
+                PulumiName.from(
+                    "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
+                    namingConfigurationWithSlashInModuleFormat("aws"),
+                ),
                 UsageKind(Root, Function, Output),
                 KDoc(null, null),
             ),
@@ -55,7 +62,10 @@ internal class CodeGeneratorGenerateFunctionsTest {
             ),
         )
         val function = FunctionType(
-            PulumiName.from("aws:acmpca/getCertificateAuthority:getCertificateAuthority"),
+            PulumiName.from(
+                "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
+                namingConfigurationWithSlashInModuleFormat("aws"),
+            ),
             inputType,
             outputType.toReference(),
             KDoc(null, null),

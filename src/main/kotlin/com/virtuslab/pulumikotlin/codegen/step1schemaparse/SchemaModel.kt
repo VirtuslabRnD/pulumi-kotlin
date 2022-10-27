@@ -280,12 +280,12 @@ object SchemaModel {
         val packageName: String? = null,
         val packageDescription: String? = null,
         val readme: String? = null,
-        val dependencies: Map<String, String> = emptyMap(),
-        val devDependencies: Map<String, String> = emptyMap(),
-        val peerDependencies: Map<String, String> = emptyMap(),
-        val resolutions: Map<String, String> = emptyMap(),
+        val dependencies: Map<String, String>? = emptyMap(),
+        val devDependencies: Map<String, String>? = emptyMap(),
+        val peerDependencies: Map<String, String>? = emptyMap(),
+        val resolutions: Map<String, String>? = emptyMap(),
         val typescriptVersion: String? = null,
-        val moduleToPackage: Map<String, String> = emptyMap(),
+        val moduleToPackage: Map<String, String>? = emptyMap(),
         val compatibility: String? = null,
         val disableUnionOutputTypes: Boolean? = null,
         val containsEnums: Boolean? = null,
@@ -297,9 +297,9 @@ object SchemaModel {
     @Serializable
     data class PythonPackageLanguage(
         val packageName: String? = null,
-        val requires: Map<String, String> = emptyMap(),
+        val requires: Map<String, String>? = emptyMap(),
         val readme: String? = null,
-        val moduleNameOverrides: Map<String, String> = emptyMap(),
+        val moduleNameOverrides: Map<String, String>? = emptyMap(),
         val compatibility: String? = null,
         val respectSchemaVersion: Boolean? = null,
     )
@@ -308,8 +308,8 @@ object SchemaModel {
     data class GoPackageLanguage(
         val importBasePath: String? = null,
         val rootPackageName: String? = null,
-        val moduleToPackage: Map<String, String> = emptyMap(),
-        val packageImportAliases: Map<String, String> = emptyMap(),
+        val moduleToPackage: Map<String, String>? = emptyMap(),
+        val packageImportAliases: Map<String, String>? = emptyMap(),
         val generateExtraInputTypes: Boolean? = null,
         val generateResourceContainerTypes: Boolean? = null,
         val respectSchemaVersion: Boolean? = null,
@@ -317,8 +317,8 @@ object SchemaModel {
 
     @Serializable
     data class CsharpPackageLanguage(
-        val packageReferences: Map<String, String> = emptyMap(),
-        val namespaces: Map<String, String> = emptyMap(),
+        val packageReferences: Map<String, String>? = emptyMap(),
+        val namespaces: Map<String, String>? = emptyMap(),
         val compatibility: String? = null,
         val dictionaryConstructors: Boolean? = null,
         val rootNamespace: String? = null,
@@ -327,9 +327,9 @@ object SchemaModel {
 
     @Serializable
     data class JavaPackageLanguage(
-        val packages: Map<String, String> = emptyMap(),
+        val packages: Map<String, String>? = emptyMap(),
         val basePackage: String? = null,
         val buildFiles: String? = null,
-        val dependencies: Map<String, String> = emptyMap(),
+        val dependencies: Map<String, String>? = emptyMap(),
     )
 }

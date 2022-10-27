@@ -1,4 +1,8 @@
 {
+  "name": "aws",
+  "meta": {
+    "moduleFormat": "(.*)(?:/[^/]*)"
+  },
   "types": {
   },
   "resources": {

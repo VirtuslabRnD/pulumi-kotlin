@@ -10,7 +10,9 @@ object Decoder {
     fun decode(inputStream: InputStream): ParsedSchema {
         val schema = Json.parseToJsonElement(inputStream.bufferedReader().readText())
 
-        val providerName = schema.decodeObject<String>("name").orEmpty() // FIXME !!?
+        val providerName = requireNotNull(schema.decodeObject<String>("name")) {
+            "Property \"name\" is not present in schema."
+        }
         val types = schema.decodeMap<String, SchemaModel.RootTypeProperty>("types")
         val functions = schema.decodeMap<String, SchemaModel.Function>("functions")
         val resources = schema.decodeMap<String, SchemaModel.Resource>("resources")

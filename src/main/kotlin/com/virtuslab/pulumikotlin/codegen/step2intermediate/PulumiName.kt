@@ -50,31 +50,30 @@ data class PulumiName(
                 listOf("enums"),
                 shouldConstructBuilders = false,
             )
-            // FIXME verify if this part is properly implemented
 
-//            NamingFlags(Nested, Function, Input, Kotlin, EnumClass) -> Modifiers(
-//                "",
-//                listOf("enums"),
-//                shouldConstructBuilders = false,
-//            )
-//
-//            NamingFlags(Nested, Function, Output, Kotlin, EnumClass) -> Modifiers(
-//                "",
-//                listOf("enums"),
-//                shouldConstructBuilders = false,
-//            )
-//
-//            NamingFlags(Nested, Function, Input, Java, EnumClass) -> Modifiers(
-//                "",
-//                listOf("enums"),
-//                shouldConstructBuilders = false,
-//            )
-//
-//            NamingFlags(Nested, Function, Output, Java, EnumClass) -> Modifiers(
-//                "",
-//                listOf("enums"),
-//                shouldConstructBuilders = false,
-//            )
+            NamingFlags(Nested, Function, Input, Kotlin, EnumClass) -> Modifiers(
+                "",
+                listOf("kotlin", "enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Nested, Function, Output, Kotlin, EnumClass) -> Modifiers(
+                "",
+                listOf("kotlin", "enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Nested, Function, Input, Java, EnumClass) -> Modifiers(
+                "",
+                listOf("enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Nested, Function, Output, Java, EnumClass) -> Modifiers(
+                "",
+                listOf("enums"),
+                shouldConstructBuilders = false,
+            )
 
             NamingFlags(Nested, Function, Input, Kotlin) -> Modifiers(
                 "Args",
@@ -233,11 +232,6 @@ data class PulumiName(
         return packageList.joinToString(".")
     }
 
-    // FIXME delete?
-    private fun relativeToProviderPackage(packageList: List<String>): List<String> {
-        return listOf("com", "pulumi", packageProviderName) + packageList
-    }
-
     companion object {
         private const val EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN = 3
 
@@ -246,7 +240,7 @@ data class PulumiName(
 
             val segments = token.split(":")
 
-            if (segments.size != EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN) error("malformed token $token")
+            if (segments.size != EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN) error("Malformed token $token")
 
             fun substituteWithOverride(name: String): String = namingConfiguration.packageOverrides[name] ?: name
 
@@ -268,7 +262,8 @@ data class PulumiName(
             val packageProviderName = substituteWithOverride(namingConfiguration.providerName)
             val moduleName = substituteWithOverride(extractModule())
 
-            val namespace = (namingConfiguration.baseNamespace + packageProviderName + moduleName).filter { it.isNotBlank() }
+            val namespace =
+                (namingConfiguration.baseNamespace + packageProviderName + moduleName).filter { it.isNotBlank() }
 
             return PulumiName(packageProviderName, namespace, segments[2])
         }
