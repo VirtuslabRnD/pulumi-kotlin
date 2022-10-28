@@ -122,10 +122,22 @@ data class ConstructObjectExpression(val typeName: TypeName, val fields: Map<Str
 }
 
 data class CustomCodeBlock(val text: String, val args: List<Any>) {
+    @SuppressWarnings("TooGenericExceptionCaught")
     fun toKotlinPoetCodeBlock(): CodeBlock {
-        return CodeBlock.of(text, *args.toTypedArray())
+        try {
+            return CodeBlock.of(text, *args.toTypedArray())
+        } catch (e: Exception) {
+            throw CodeBlockCreationException(text, args, e)
+        }
     }
 }
+
+class CodeBlockCreationException(text: String, args: List<Any>, cause: java.lang.Exception) : RuntimeException(
+    "Failed to create Kotlin Poet code block.\n" +
+        "Text: $text\n" +
+        "Args: $args",
+    cause,
+)
 
 data class CustomExpressionBuilder(val text: String, val args: List<Any>) {
 
