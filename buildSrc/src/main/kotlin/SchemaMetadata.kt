@@ -13,6 +13,8 @@ data class SchemaMetadata(
     val customDependencies: List<String>,
 )
 
+fun SchemaMetadata.getKotlinGitTag() = "$providerName/v$kotlinVersion"
+
 fun getSchemaMetadata(versionConfigFile: File): List<SchemaMetadata> {
     return Json.decodeFromString(
         versionConfigFile.readText(),

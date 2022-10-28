@@ -43,7 +43,7 @@ class MavenSearchResponse(val response: VersionInfoDetails)
 
 private fun Semver.getGitTag(): String = if (build.isNotEmpty()) build.joinToString(".") else "v$version"
 
-data class KotlinVersion(val javaVersion: Semver, val kotlinMinor: Int = 0, val isSnapshot: Boolean) {
+data class KotlinVersion(val javaVersion: Semver, val kotlinMinor: Int, val isSnapshot: Boolean) {
     companion object {
         fun fromVersionString(versionString: String): KotlinVersion {
             val versionStringSegments = "^(\\d+.\\d+.\\d+).(\\d+)(\\-.*\\+[\\w\\d]+)?(\\-SNAPSHOT)?\$"
@@ -64,13 +64,15 @@ data class KotlinVersion(val javaVersion: Semver, val kotlinMinor: Int = 0, val 
     override fun toString(): String {
         val javaVersionWithoutPostfix = javaVersion.withClearedPreReleaseAndBuild().toString()
 
-        return javaVersion
+        val kotlinVersionWithoutClassifier = javaVersion
             .toString()
             .replace(
                 javaVersionWithoutPostfix,
                 "$javaVersionWithoutPostfix.$kotlinMinor",
-            ) +
-            "${if (isSnapshot) "-SNAPSHOT" else ""}"
+            )
+        val classifier = "-SNAPSHOT".takeIf { isSnapshot }.orEmpty()
+
+        return kotlinVersionWithoutClassifier + classifier
     }
 }
 
@@ -84,7 +86,7 @@ fun updateGeneratorVersion(gitDirectory: File, versionConfigFile: File) {
         val newKotlinVersion = KotlinVersion(
             oldKotlinVersion.javaVersion,
             oldKotlinVersion.kotlinMinor,
-            false,
+            isSnapshot = false,
         )
 
         SchemaMetadata(
@@ -145,7 +147,7 @@ fun fetchUpdatedSchemas(
     )
     versions.map {
         val newJavaVersion = Semver(it.toString())
-        val newKotlinVersion = KotlinVersion(newJavaVersion, 0, false)
+        val newKotlinVersion = KotlinVersion(newJavaVersion, kotlinMinor = 0, isSnapshot = false)
         val newGitTag = newJavaVersion.getGitTag()
         val newUrl = schema.url.replace(schema.javaGitTag, newGitTag)
         SchemaMetadata(
@@ -160,14 +162,14 @@ fun fetchUpdatedSchemas(
         .firstOrNull { newSchema ->
             val schemaExists = verifyUrl(client, newSchema.url)
             if (!schemaExists) {
-                logger.warn("Skipping release ${newSchema.getKotlinTag()} (cannot find url: ${newSchema.url}")
+                logger.warn("Skipping release ${newSchema.getKotlinGitTag()} (cannot find url: ${newSchema.url}")
             }
             val newJavaVersion = Semver(newSchema.javaVersion)
             val sameMajor = newJavaVersion.major == oldJavaVersion.major
             if (!sameMajor) {
                 logger.warn(
-                    "Version with major update available: ${newSchema.getKotlinTag()}. " +
-                        "Current version: ${schema.getKotlinTag()}",
+                    "Version with major update available: ${newSchema.getKotlinGitTag()}. " +
+                        "Current version: ${schema.getKotlinGitTag()}",
                 )
             }
             schemaExists && sameMajor
@@ -186,7 +188,7 @@ fun replaceReleasedVersionsWithSnapshots(gitDirectory: File, versionConfigFile: 
             val newKotlinVersion = KotlinVersion(
                 oldKotlinVersion.javaVersion,
                 oldKotlinVersion.kotlinMinor + 1,
-                true,
+                isSnapshot = true,
             )
             SchemaMetadata(
                 it.providerName,
@@ -207,7 +209,7 @@ fun replaceReleasedVersionsWithSnapshots(gitDirectory: File, versionConfigFile: 
 fun tagRecentReleases(gitDirectory: File, versionConfigFile: File) {
     val tagsToCreate = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
         .filterNot { KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot }
-        .map { it.getKotlinTag() }
+        .map { it.getKotlinGitTag() }
 
     val git = createGitInstance(gitDirectory)
 
@@ -307,13 +309,11 @@ private fun commitChangesInFile(gitDirectory: File, relativePath: File, commitMe
         .call()
 }
 
-private fun SchemaMetadata.getKotlinTag() = "$providerName/v$kotlinVersion"
-
 private fun getTags(updatedSchemas: List<SchemaMetadata>): List<String> {
     val tags = updatedSchemas.filterNot {
         KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot
     }
-        .map { it.getKotlinTag() }
+        .map { it.getKotlinGitTag() }
     return tags
 }
 
