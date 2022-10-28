@@ -490,17 +490,13 @@ class CodegenTest {
     data class AggregateCompilationResult(val exitCode: KotlinCompilation.ExitCode, val messages: String) {
         companion object {
             fun from(perModuleResult: Map<String, KotlinCompilation.Result>): AggregateCompilationResult {
-                require(perModuleResult.isNotEmpty()) { "Should have at least 1 element" }
+                require(perModuleResult.isNotEmpty()) { "Expected perModuleResult to have at least 1 element" }
 
-                val fromWorstToBest = listOf(SCRIPT_EXECUTION_ERROR, INTERNAL_ERROR, COMPILATION_ERROR, OK)
-
-                val worstExitCode = fromWorstToBest
-                    .find { possibleExitCode ->
-                        perModuleResult.values.any { actualResult ->
-                            actualResult.exitCode == possibleExitCode
-                        }
-                    }
-                    ?: error("unexpected")
+                val exitCodesFromWorstToBest = listOf(SCRIPT_EXECUTION_ERROR, INTERNAL_ERROR, COMPILATION_ERROR, OK)
+                val receivedExitCodes = perModuleResult.values.map { it.exitCode }
+                val worstExitCode = exitCodesFromWorstToBest
+                    .find { possibleExitCode -> receivedExitCodes.contains(possibleExitCode) }
+                    ?: error("Unexpected ($receivedExitCodes, $exitCodesFromWorstToBest)")
 
                 val concatenatedMessages = perModuleResult
                     .flatMap { (moduleName, result) ->
@@ -564,10 +560,10 @@ class CodegenTest {
         ArtifactDownloader.download(coordinate).toFile()
 
     private fun loadResource(path: String) =
-        CodegenTest::class.java.getResourceAsStream(path) ?: error("$path does not exist")
+        CodegenTest::class.java.getResourceAsStream(path) ?: error("Resource under path $path does not exist")
 
     private fun readFilesRecursively(directory: File): Map<String, String> {
-        require(directory.isDirectory)
+        require(directory.isDirectory) { "Only directories are allowed" }
 
         return directory.listFiles()?.asSequence().orEmpty()
             .flatMap {
