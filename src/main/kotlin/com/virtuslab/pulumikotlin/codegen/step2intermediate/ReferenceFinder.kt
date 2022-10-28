@@ -1,6 +1,5 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArrayProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.MapProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ObjectProperty
@@ -10,10 +9,8 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Property
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferenceProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferencingOtherTypesProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.RootTypeProperty
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Schema
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringEnumProperty
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isArchive
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isAssetOrArchive
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.referencedTypeName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Nested
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
@@ -21,7 +18,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.utils.valuesToSet
 
-class ReferenceFinder(schema: ParsedSchema) {
+class ReferenceFinder(schema: Schema) {
 
     private val rootTypesByName = schema.types.lowercaseKeys()
     private val usages = findAllUsages(schema)
@@ -34,7 +31,7 @@ class ReferenceFinder(schema: ParsedSchema) {
         return usages[typeName].orEmpty()
     }
 
-    private fun findAllUsages(schema: ParsedSchema): Map<String, Set<UsageKind>> {
+    private fun findAllUsages(schema: Schema): Map<String, Set<UsageKind>> {
         val cases = concat(
             findNestedUsages(schema.resources, UsageKind(Nested, Resource, Output)) {
                 it.properties.values
@@ -85,9 +82,7 @@ class ReferenceFinder(schema: ParsedSchema) {
                 getInnerTypesOf(property).flatMap { findReferencedTypeNamesUsedByProperty(it) }
             }
 
-            is PrimitiveProperty -> emptyList()
-            is StringEnumProperty -> emptyList()
-            null -> emptyList()
+            null, is PrimitiveProperty, is StringEnumProperty -> emptyList()
         }
     }
 

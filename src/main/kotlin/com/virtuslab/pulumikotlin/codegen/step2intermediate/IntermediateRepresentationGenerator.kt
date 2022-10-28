@@ -1,6 +1,5 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArrayProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.BooleanProperty
@@ -14,12 +13,9 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Primitive
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Property
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferenceProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.RootTypeProperty
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Schema
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringEnumProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringProperty
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isAny
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isArchive
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.isAssetOrArchive
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.referencedTypeName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Nested
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
@@ -32,6 +28,8 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
 import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
 import mu.KotlinLogging
 
 /**
@@ -44,7 +42,7 @@ object IntermediateRepresentationGenerator {
 
     private val logger = KotlinLogging.logger {}
 
-    fun getIntermediateRepresentation(schema: ParsedSchema): IntermediateRepresentation {
+    fun getIntermediateRepresentation(schema: Schema): IntermediateRepresentation {
         val referenceFinder = ReferenceFinder(schema)
         val context = Context(schema, referenceFinder)
 
@@ -170,11 +168,18 @@ object IntermediateRepresentationGenerator {
 
                 is StringEnumProperty -> EnumType(
                     TypeMetadata(pulumiName, usage, getKDoc(rootType), EnumClass),
-                    rootType.enum.map { it.name ?: it.value },
+                    rootType.enum.map {
+                        it.name
+                            ?: jsonElementToStringOrNull(it.value)
+                            ?: error("Unexpected, enum must have a name or a value ($rootType)")
+                    },
                 )
             }
         }
     }
+
+    private fun jsonElementToStringOrNull(element: JsonElement?) =
+        (element as? JsonPrimitive)?.takeIf { it.isString }?.content
 
     private fun createComplexTypeFields(property: ObjectProperty, context: Context, usageKind: UsageKind) =
         property.properties
@@ -262,15 +267,15 @@ object IntermediateRepresentationGenerator {
     }
 
     private data class Context(
-        val schema: ParsedSchema,
+        val schema: Schema,
         val referenceFinder: ReferenceFinder,
     ) {
         val namingConfiguration: PulumiNamingConfiguration =
             PulumiNamingConfiguration.create(
                 schema.providerName,
-                schema.meta?.moduleFormat,
-                schema.language?.java?.basePackage,
-                schema.language?.java?.packages,
+                schema.metadata?.moduleFormat,
+                schema.providerLanguage?.java?.basePackage,
+                schema.providerLanguage?.java?.packages,
             )
     }
 

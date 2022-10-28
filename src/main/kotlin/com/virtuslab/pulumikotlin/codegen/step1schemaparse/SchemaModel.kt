@@ -1,7 +1,5 @@
 package com.virtuslab.pulumikotlin.codegen.step1schemaparse
 
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Metadata
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PackageLanguage
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.ArrayType
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.BooleanType
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.IntegerType
@@ -15,57 +13,90 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 typealias TypesMap = Map<String, SchemaModel.RootTypeProperty>
 typealias FunctionsMap = Map<String, SchemaModel.Function>
 typealias ResourcesMap = Map<String, SchemaModel.Resource>
 
-data class ParsedSchema(
-    val providerName: String,
-    val types: TypesMap,
-    val functions: FunctionsMap,
-    val resources: ResourcesMap,
-    val meta: Metadata? = null,
-    val language: PackageLanguage? = null,
+@Suppress(
+    "SERIALIZER_TYPE_INCOMPATIBLE", // https://github.com/VirtuslabRnD/pulumi-kotlin/issues/63
+    "LongParameterList",
 )
-
-@Suppress("SERIALIZER_TYPE_INCOMPATIBLE") // https://github.com/VirtuslabRnD/pulumi-kotlin/issues/63
 object SchemaModel {
-
     object PropertySerializer : JsonContentPolymorphicSerializer<Property>(Property::class) {
-        override fun selectDeserializer(element: JsonElement): KSerializer<out Property> {
-            fun hasTypeEqualTo(type: String) =
-                element is JsonObject &&
-                    "type" in element.jsonObject &&
-                    element.jsonObject.getValue("type").jsonPrimitive.content == type
-
-            fun isMapType() =
-                element is JsonObject &&
-                    "additionalProperties" in element.jsonObject &&
-                    "properties" !in element.jsonObject
-
-            fun mightBeOfTypeObject() = element is JsonObject && "properties" in element.jsonObject
-
-            return when {
-                element is JsonObject && "\$ref" in element.jsonObject -> ReferenceProperty.serializer()
-                element is JsonObject && "oneOf" in element.jsonObject -> OneOfProperty.serializer()
-                isMapType() -> MapProperty.serializer()
-                mightBeOfTypeObject() -> ObjectProperty.serializer()
-                hasTypeEqualTo("array") -> ArrayProperty.serializer()
-                hasTypeEqualTo("string") && "enum" in element.jsonObject -> StringEnumProperty.serializer()
-                hasTypeEqualTo("string") -> StringProperty.serializer()
-                hasTypeEqualTo("object") -> ObjectProperty.serializer()
-                hasTypeEqualTo("boolean") -> BooleanProperty.serializer()
-                hasTypeEqualTo("integer") -> IntegerProperty.serializer()
-                hasTypeEqualTo("number") -> NumberProperty.serializer()
-                else -> {
-                    error("Unknown $element")
+        override fun selectDeserializer(element: JsonElement): KSerializer<out Property> =
+            with(element) {
+                when {
+                    isReference() -> ReferenceProperty.serializer()
+                    isOneOf() -> OneOfProperty.serializer()
+                    isMap() -> MapProperty.serializer()
+                    isObject() -> ObjectProperty.serializer()
+                    isEnum() -> StringEnumProperty.serializer()
+                    hasType("array") -> ArrayProperty.serializer()
+                    hasType("string") -> StringProperty.serializer()
+                    hasType("boolean") -> BooleanProperty.serializer()
+                    hasType("integer") -> IntegerProperty.serializer()
+                    hasType("number") -> NumberProperty.serializer()
+                    else -> {
+                        error("Unknown $element")
+                    }
                 }
             }
-        }
+
+        private fun JsonElement.isReference() = has("\$ref")
+
+        private fun JsonElement.isOneOf() = has("oneOf")
+
+        private fun JsonElement.isMap() = has("additionalProperties") && !has("properties")
+
+        private fun JsonElement.isObject() = has("properties") || hasType("object")
+
+        private fun JsonElement.isEnum() = has("enum")
+
+        private fun JsonElement.hasType(type: String) = has("type", type)
+
+        private fun JsonElement.has(key: String) = (this as? JsonObject)?.contains(key) ?: false
+
+        private fun JsonElement.has(key: String, value: String) =
+            (this as? JsonObject)?.get(key)?.jsonPrimitive?.content == value
     }
+
+    data class Schema(
+        val providerName: String,
+        val providerDisplayName: String?,
+        val description: String?,
+        val config: JsonElement?,
+        val provider: Resource?,
+        val types: TypesMap = emptyMap(),
+        val functions: FunctionsMap = emptyMap(),
+        val resources: ResourcesMap = emptyMap(),
+        val metadata: Metadata?,
+        val providerLanguage: PackageLanguage?,
+    )
+
+    @Serializable
+    data class RawFullProviderSchema(
+        val name: String,
+        val displayName: String? = null,
+        val version: String? = null,
+        val description: String? = null,
+        val keywords: List<String>? = null,
+        val homepage: String? = null,
+        val license: String? = null,
+        val attribution: String? = null,
+        val repository: String? = null,
+        val publisher: String? = null,
+        val logoUrl: String? = null,
+        val pluginDownloadURL: String? = null,
+        val config: JsonElement? = null,
+        val provider: Resource? = null,
+        val types: TypesMap = emptyMap(),
+        val functions: FunctionsMap = emptyMap(),
+        val resources: ResourcesMap = emptyMap(),
+        val meta: Metadata? = null,
+        val language: PackageLanguage? = null,
+    )
 
     @Serializable
     @JvmInline
@@ -101,7 +132,7 @@ object SchemaModel {
     @Serializable
     data class StringSingleEnum(
         val name: String? = null,
-        val value: String,
+        val value: JsonElement? = null,
         val description: String? = null,
         val deprecationMessage: String? = null,
         val default: JsonElement? = null,
@@ -111,62 +142,86 @@ object SchemaModel {
     data class StringEnumProperty(
         val type: PropertyType,
         val enum: List<StringSingleEnum>,
-        override val description: String? = null,
-        val willReplaceOnChanges: Boolean = false,
+        override val default: JsonElement? = null,
+        override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
+        override val description: String? = null,
+        override val language: Language? = null,
+        override val willReplaceOnChanges: Boolean = false,
+        override val replaceOnChanges: Boolean = false,
+        override val secret: Boolean = false,
+        override val const: JsonElement? = null,
     ) : RootTypeProperty
 
     @Serializable
     data class StringProperty(
         val type: PropertyType = StringType,
-        override val description: String? = null,
-        val willReplaceOnChanges: Boolean = false,
+        override val default: JsonElement? = null,
+        override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
+        override val description: String? = null,
+        override val language: Language? = null,
+        override val willReplaceOnChanges: Boolean = false,
+        override val replaceOnChanges: Boolean = false,
+        override val secret: Boolean = false,
+        override val const: JsonElement? = null,
     ) : PrimitiveProperty
 
     @Serializable
     data class BooleanProperty(
         val type: PropertyType = BooleanType,
-        override val description: String? = null,
-        val willReplaceOnChanges: Boolean = false,
+        override val default: JsonElement? = null,
+        override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
+        override val description: String? = null,
+        override val language: Language? = null,
+        override val willReplaceOnChanges: Boolean = false,
+        override val replaceOnChanges: Boolean = false,
+        override val secret: Boolean = false,
+        override val const: JsonElement? = null,
     ) : PrimitiveProperty
 
     @Serializable
     data class IntegerProperty(
         val type: PropertyType = IntegerType,
-        override val description: String? = null,
-        val willReplaceOnChanges: Boolean = false,
+        override val default: JsonElement? = null,
+        override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
+        override val description: String? = null,
+        override val language: Language? = null,
+        override val willReplaceOnChanges: Boolean = false,
+        override val replaceOnChanges: Boolean = false,
+        override val secret: Boolean = false,
+        override val const: JsonElement? = null,
     ) : PrimitiveProperty
 
     @Serializable
     data class NumberProperty(
         val type: PropertyType = NumberType,
-        val willReplaceOnChanges: Boolean = false,
+        override val default: JsonElement? = null,
+        override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
         override val description: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
+        override val language: Language? = null,
+        override val willReplaceOnChanges: Boolean = false,
+        override val replaceOnChanges: Boolean = false,
+        override val secret: Boolean = false,
+        override val const: JsonElement? = null,
     ) : PrimitiveProperty
 
     @Serializable
     class ArrayProperty(
         val type: PropertyType = ArrayType,
         val items: Property,
-        val willReplaceOnChanges: Boolean = false,
+        override val default: JsonElement? = null,
+        override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
         override val description: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
+        override val language: Language? = null,
+        override val willReplaceOnChanges: Boolean = false,
+        override val replaceOnChanges: Boolean = false,
+        override val secret: Boolean = false,
+        override val const: JsonElement? = null,
     ) : GenericTypeProperty
 
     @Serializable
@@ -174,62 +229,98 @@ object SchemaModel {
         val type: String? = null,
         @SerialName("\$ref")
         val ref: SpecificationReference,
-        val willReplaceOnChanges: Boolean = false,
+        override val default: JsonElement? = null,
+        override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
         override val description: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
-    ) : Property
+        override val language: Language? = null,
+        override val willReplaceOnChanges: Boolean = false,
+        override val replaceOnChanges: Boolean = false,
+        override val secret: Boolean = false,
+        override val const: JsonElement? = null,
+    ) : Property {
+        val referencedTypeName: String
+            get() = ref.referencedTypeName
 
-    fun ReferenceProperty.isAssetOrArchive() = referencedTypeName == "pulumi.json#/Asset"
+        fun isAssetOrArchive() = referencedTypeName == "pulumi.json#/Asset"
 
-    fun ReferenceProperty.isArchive() = referencedTypeName == "pulumi.json#/Archive"
+        fun isArchive() = referencedTypeName == "pulumi.json#/Archive"
 
-    fun ReferenceProperty.isAny() = referencedTypeName == "pulumi.json#/Any"
+        fun isAny() = referencedTypeName == "pulumi.json#/Any"
+    }
 
     @Serializable
     @JvmInline
-    value class SpecificationReference(val value: String)
+    value class SpecificationReference(val value: String) {
+        val referencedTypeName: String
+            get() = value.removePrefix("#/types/")
+    }
+
+    @Serializable
+    data class Discriminator(
+        val propertyName: String,
+        val mapping: Map<String, String> = emptyMap(),
+    )
 
     @Serializable
     data class OneOfProperty(
         val type: String? = null,
-        override val description: String? = null,
         val oneOf: List<Property>,
+        val discriminator: Discriminator? = null,
+        override val default: JsonElement? = null,
+        override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
-        val willReplaceOnChanges: Boolean = false,
+        override val description: String? = null,
+        override val language: Language? = null,
+        override val willReplaceOnChanges: Boolean = false,
+        override val replaceOnChanges: Boolean = false,
+        override val secret: Boolean = false,
+        override val const: JsonElement? = null,
     ) : GenericTypeProperty
 
     @Serializable
     data class ObjectProperty(
         val type: PropertyType = ObjectType,
         val properties: Map<PropertyName, Property> = emptyMap(),
-        override val deprecationMessage: String? = null,
-        val willReplaceOnChanges: Boolean = false,
         val additionalProperties: Property? = null,
         val required: Set<PropertyName> = emptySet(),
+        override val default: JsonElement? = null,
+        override val defaultInfo: JsonElement? = null,
+        override val deprecationMessage: String? = null,
         override val description: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
+        override val language: Language? = null,
+        override val willReplaceOnChanges: Boolean = false,
+        override val replaceOnChanges: Boolean = false,
+        override val secret: Boolean = false,
+        override val const: JsonElement? = null,
     ) : RootTypeProperty, ReferencingOtherTypesProperty
 
     @Serializable
     data class MapProperty(
         val type: PropertyType = ObjectType,
-        override val deprecationMessage: String? = null,
-        val willReplaceOnChanges: Boolean = false,
         val additionalProperties: Property,
+        override val default: JsonElement? = null,
+        override val defaultInfo: JsonElement? = null,
+        override val deprecationMessage: String? = null,
         override val description: String? = null,
-        val language: Language? = null,
-        val default: JsonElement? = null,
+        override val language: Language? = null,
+        override val willReplaceOnChanges: Boolean = false,
+        override val replaceOnChanges: Boolean = false,
+        override val secret: Boolean = false,
+        override val const: JsonElement? = null,
     ) : GenericTypeProperty
 
     @Serializable(with = PropertySerializer::class)
     sealed interface Property {
-        val description: String?
+        val default: JsonElement?
+        val defaultInfo: JsonElement?
         val deprecationMessage: String?
+        val description: String?
+        val language: Language?
+        val secret: Boolean
+        val const: JsonElement?
+        val willReplaceOnChanges: Boolean
+        val replaceOnChanges: Boolean
     }
 
     @Serializable(with = PropertySerializer::class)
@@ -254,6 +345,8 @@ object SchemaModel {
         val requiredInputs: List<PropertyName> = emptyList(),
         val stateInputs: JsonObject? = null,
         val aliases: JsonArray? = null,
+        val isComponent: Boolean = false,
+        val methods: Map<String, String> = emptyMap(),
         val deprecationMessage: String? = null,
     )
 
@@ -279,9 +372,10 @@ object SchemaModel {
 
     @Serializable
     data class JavaPackageLanguage(
-        val packages: Map<String, String>? = emptyMap(),
+        val packages: Map<String, String> = emptyMap(),
         val basePackage: String? = null,
         val buildFiles: String? = null,
-        val dependencies: Map<String, String>? = emptyMap(),
+        val dependencies: Map<String, String> = emptyMap(),
+        val liftSingleValueMethodReturns: Boolean = false,
     )
 }

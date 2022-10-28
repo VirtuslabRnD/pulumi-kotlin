@@ -1,13 +1,13 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.FunctionsMap
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ParsedSchema
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ResourcesMap
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.IntegerProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ObjectProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyName
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferenceProperty
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Schema
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.SpecificationReference
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.TypesMap
@@ -406,13 +406,17 @@ internal class IntermediateRepresentationGeneratorTest {
         meta: SchemaModel.Metadata? = getMetaWithSlashInModuleFormat(),
         language: SchemaModel.PackageLanguage? = null,
     ) = IntermediateRepresentationGenerator.getIntermediateRepresentation(
-        ParsedSchema(
+        Schema(
             providerName = providerName,
             types = types,
             resources = resources,
             functions = functions,
-            meta = meta,
-            language = language,
+            metadata = meta,
+            providerLanguage = language,
+            config = null,
+            description = null,
+            providerDisplayName = null,
+            provider = null,
         ),
     )
 

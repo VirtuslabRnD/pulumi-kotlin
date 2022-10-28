@@ -18,7 +18,6 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Property
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferenceProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferencingOtherTypesProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringEnumProperty
-import com.virtuslab.pulumikotlin.codegen.step1schemaparse.referencedTypeName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.transformKeys
 import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
 import com.virtuslab.pulumikotlin.codegen.utils.shorten
