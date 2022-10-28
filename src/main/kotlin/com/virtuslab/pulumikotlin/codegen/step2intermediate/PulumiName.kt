@@ -244,17 +244,18 @@ data class PulumiName(
 
             fun substituteWithOverride(name: String): String = namingConfiguration.packageOverrides[name] ?: name
 
-            fun extractModule(): String {
-                when (val module = segments[1]) {
-                    "providers" -> return ""
-                    else -> {
-                        val moduleMatches = namingConfiguration.moduleFormatRegex.findAll(module)
-                            .flatMap { it.groups }
-                            .map { it?.value.orEmpty() }
-                            .toList()
+            fun extractModule(): String = when (val module = segments[1]) {
+                "providers" -> ""
+                else -> {
+                    val moduleMatches = namingConfiguration.moduleFormatRegex.findAll(module)
+                        .flatMap { it.groups }
+                        .map { it?.value.orEmpty() }
+                        .toList()
 
-                        if (moduleMatches.size < 2 || moduleMatches[1].startsWith("index")) return ""
-                        return moduleMatches[1]
+                    if (moduleMatches.size < 2 || moduleMatches[1].startsWith("index")) {
+                        ""
+                    } else {
+                        moduleMatches[1]
                     }
                 }
             }
