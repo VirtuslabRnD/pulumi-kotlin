@@ -6,6 +6,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.GeneratedClass.EnumClass
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.GeneratedClass.NormalClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
@@ -25,149 +26,211 @@ data class PulumiName(
         val shouldConstructBuilders: Boolean,
     )
 
+    private fun NamingFlags.matches(
+        depth: Depth,
+        subject: Subject,
+        direction: Direction,
+        generatedClass: GeneratedClass,
+    ) =
+        this.depth == depth &&
+            this.subject == subject &&
+            this.direction == direction &&
+            this.generatedClass == generatedClass
+
+    private fun NamingFlags.getModifier(
+        defaultNameSuffix: String,
+        packageSuffix: List<String>,
+        shouldConstructBuilders: Boolean,
+    ) =
+        Modifiers(
+            defaultNameSuffix,
+            if (this.language == Kotlin) listOf("kotlin") + packageSuffix else packageSuffix,
+            shouldConstructBuilders,
+        )
+
     private fun getModifiers(namingFlags: NamingFlags): Modifiers {
-        return when (namingFlags) {
-            NamingFlags(Nested, Resource, Input, Kotlin, EnumClass) -> Modifiers(
-                "",
-                listOf("kotlin", "enums"),
-                shouldConstructBuilders = false,
-            )
-
-            NamingFlags(Nested, Resource, Output, Kotlin, EnumClass) -> Modifiers(
-                "",
-                listOf("kotlin", "enums"),
-                shouldConstructBuilders = false,
-            )
-
-            NamingFlags(Nested, Resource, Input, Java, EnumClass) -> Modifiers(
+        return when {
+//            NamingFlags(Nested, Resource, Input, Kotlin, EnumClass) -> Modifiers(
+//                "",
+//                listOf("kotlin", "enums"),
+//                shouldConstructBuilders = false,
+//            )
+//            NamingFlags(Nested, Resource, Input, Java, EnumClass) -> Modifiers(
+//                "",
+//                listOf("enums"),
+//                shouldConstructBuilders = false,
+//            )
+            namingFlags.matches(Nested, Resource, Input, EnumClass) -> namingFlags.getModifier(
                 "",
                 listOf("enums"),
                 shouldConstructBuilders = false,
             )
-
-            NamingFlags(Nested, Resource, Output, Java, EnumClass) -> Modifiers(
+//            NamingFlags(Nested, Resource, Output, Kotlin, EnumClass) -> Modifiers(
+//                "",
+//                listOf("kotlin", "enums"),
+//                shouldConstructBuilders = false,
+//            )
+//            NamingFlags(Nested, Resource, Output, Java, EnumClass) -> Modifiers(
+//                "",
+//                listOf("enums"),
+//                shouldConstructBuilders = false,
+//            )
+            namingFlags.matches(Nested, Resource, Output, EnumClass) -> namingFlags.getModifier(
                 "",
                 listOf("enums"),
                 shouldConstructBuilders = false,
             )
-
-            NamingFlags(Nested, Function, Input, Kotlin, EnumClass) -> Modifiers(
-                "",
-                listOf("kotlin", "enums"),
-                shouldConstructBuilders = false,
-            )
-
-            NamingFlags(Nested, Function, Output, Kotlin, EnumClass) -> Modifiers(
-                "",
-                listOf("kotlin", "enums"),
-                shouldConstructBuilders = false,
-            )
-
-            NamingFlags(Nested, Function, Input, Java, EnumClass) -> Modifiers(
+//            NamingFlags(Nested, Function, Input, Kotlin, EnumClass) -> Modifiers(
+//                "",
+//                listOf("kotlin", "enums"),
+//                shouldConstructBuilders = false,
+//            )
+//            NamingFlags(Nested, Function, Input, Java, EnumClass) -> Modifiers(
+//                "",
+//                listOf("enums"),
+//                shouldConstructBuilders = false,
+//            )
+            namingFlags.matches(Nested, Function, Input, EnumClass) -> namingFlags.getModifier(
                 "",
                 listOf("enums"),
                 shouldConstructBuilders = false,
             )
-
-            NamingFlags(Nested, Function, Output, Java, EnumClass) -> Modifiers(
+//            NamingFlags(Nested, Function, Output, Kotlin, EnumClass) -> Modifiers(
+//                "",
+//                listOf("kotlin", "enums"),
+//                shouldConstructBuilders = false,
+//            )
+//            NamingFlags(Nested, Function, Output, Java, EnumClass) -> Modifiers(
+//                "",
+//                listOf("enums"),
+//                shouldConstructBuilders = false,
+//            )
+            namingFlags.matches(Nested, Function, Output, EnumClass) -> namingFlags.getModifier(
                 "",
                 listOf("enums"),
                 shouldConstructBuilders = false,
             )
-
-            NamingFlags(Nested, Function, Input, Kotlin) -> Modifiers(
-                "Args",
-                listOf("kotlin", "inputs"),
-                shouldConstructBuilders = true,
-            )
-
-            NamingFlags(Nested, Resource, Input, Kotlin) -> Modifiers(
-                "Args",
-                listOf("kotlin", "inputs"),
-                shouldConstructBuilders = true,
-            )
-
-            NamingFlags(Root, Resource, Input, Kotlin) -> Modifiers(
-                "Args",
-                listOf("kotlin"),
-                shouldConstructBuilders = true,
-            )
-
-            NamingFlags(Root, Function, Input, Kotlin) -> Modifiers(
-                "Args",
-                listOf("kotlin", "inputs"),
-                shouldConstructBuilders = true,
-            )
-
-            NamingFlags(Nested, Function, Output, Kotlin) -> Modifiers(
-                "Result",
-                listOf("kotlin", "outputs"),
-                shouldConstructBuilders = false,
-            )
-
-            NamingFlags(Nested, Resource, Output, Kotlin) -> Modifiers(
-                "",
-                listOf("kotlin", "outputs"),
-                shouldConstructBuilders = false,
-            )
-
-            NamingFlags(Root, Function, Output, Kotlin) -> Modifiers(
-                "Result",
-                listOf("kotlin", "outputs"),
-                shouldConstructBuilders = false,
-            )
-
-            NamingFlags(Nested, Function, Input, Java) -> Modifiers(
-                "",
+//            NamingFlags(Nested, Function, Input, Kotlin) -> Modifiers(
+//                "Args",
+//                listOf("kotlin", "inputs"),
+//                shouldConstructBuilders = true,
+//            )
+//            NamingFlags(Nested, Function, Input, Java) -> Modifiers(
+//                "",
+//                listOf("inputs"),
+//                shouldConstructBuilders = true,
+//            )
+//          example: GetIAMPolicyAuditConfigArgs (in Java: GetIAMPolicyAuditConfig)
+            namingFlags.matches(Nested, Function, Input, NormalClass) -> namingFlags.getModifier(
+                if (namingFlags.language == Kotlin) "Args" else "",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
             )
-
-            NamingFlags(Nested, Resource, Input, Java) -> Modifiers(
+//            NamingFlags(Nested, Resource, Input, Kotlin) -> Modifiers(
+//                "Args",
+//                listOf("kotlin", "inputs"),
+//                shouldConstructBuilders = true,
+//            )
+//            NamingFlags(Nested, Resource, Input, Java) -> Modifiers(
+//                "Args",
+//                listOf("inputs"),
+//                shouldConstructBuilders = true,
+//            )
+            namingFlags.matches(Nested, Resource, Input, NormalClass) -> namingFlags.getModifier(
                 "Args",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
             )
-
-            NamingFlags(Root, Resource, Input, Java) -> Modifiers(
+//            NamingFlags(Root, Resource, Input, Kotlin) -> Modifiers(
+//                "Args",
+//                listOf("kotlin"),
+//                shouldConstructBuilders = true,
+//            )
+//            NamingFlags(Root, Resource, Input, Java) -> Modifiers(
+//                "Args",
+//                listOf(),
+//                shouldConstructBuilders = true,
+//            )
+            namingFlags.matches(Root, Resource, Input, NormalClass) -> namingFlags.getModifier(
                 "Args",
-                listOf(),
+                emptyList(),
                 shouldConstructBuilders = true,
             )
-
-            NamingFlags(Root, Function, Input, Java) -> Modifiers(
-                "PlainArgs",
+//            NamingFlags(Root, Function, Input, Kotlin) -> Modifiers(
+//                "Args",
+//                listOf("kotlin", "inputs"),
+//                shouldConstructBuilders = true,
+//            )
+//            NamingFlags(Root, Function, Input, Java) -> Modifiers(
+//                "PlainArgs",
+//                listOf("inputs"),
+//                shouldConstructBuilders = true,
+//            )
+//          example: GetIAMPolicyArgs (in Java: GetIAMPolicyPlainArgs)
+            namingFlags.matches(Root, Function, Input, NormalClass) -> namingFlags.getModifier(
+                if (namingFlags.language == Kotlin) "Args" else "PlainArgs",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
             )
-
-            NamingFlags(Nested, Function, Output, Java) -> Modifiers(
+//            NamingFlags(Nested, Function, Output, Kotlin) -> Modifiers(
+//                "Result",
+//                listOf("kotlin", "outputs"),
+//                shouldConstructBuilders = false,
+//            )
+//            NamingFlags(Nested, Function, Output, Java) -> Modifiers(
+//                "",
+//                listOf("outputs"),
+//                shouldConstructBuilders = false,
+//            )
+//          example: GetIAMPolicyAuditConfigAuditLogConfigResult (in Java: GetIAMPolicyAuditConfigAuditLogConfig)
+            namingFlags.matches(Nested, Function, Output, NormalClass) -> namingFlags.getModifier(
+                if (namingFlags.language == Kotlin) "Result" else "",
+                listOf("outputs"),
+                shouldConstructBuilders = false,
+            )
+//            NamingFlags(Nested, Resource, Output, Kotlin) -> Modifiers(
+//                "",
+//                listOf("kotlin", "outputs"),
+//                shouldConstructBuilders = false,
+//            )
+//            NamingFlags(Nested, Resource, Output, Java) -> Modifiers(
+//                "",
+//                listOf("outputs"),
+//                shouldConstructBuilders = false,
+//            )
+            namingFlags.matches(Nested, Resource, Output, NormalClass) -> namingFlags.getModifier(
                 "",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
             )
-
-            NamingFlags(Nested, Resource, Output, Java) -> Modifiers(
-                "",
-                listOf("outputs"),
-                shouldConstructBuilders = false,
-            )
-
-            NamingFlags(Root, Function, Output, Java) -> Modifiers(
+//            NamingFlags(Root, Function, Output, Kotlin) -> Modifiers(
+//                "Result",
+//                listOf("kotlin", "outputs"),
+//                shouldConstructBuilders = false,
+//            )
+//            NamingFlags(Root, Function, Output, Java) -> Modifiers(
+//                "Result",
+//                listOf("outputs"),
+//                shouldConstructBuilders = false,
+//            )
+            namingFlags.matches(Root, Function, Output, NormalClass) -> namingFlags.getModifier(
                 "Result",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
             )
-
-            NamingFlags(Root, Resource, Output, Java) -> Modifiers(
+//            NamingFlags(Root, Resource, Output, Java) -> Modifiers(
+//                "",
+//                listOf("outputs"),
+//                shouldConstructBuilders = false,
+//            )
+//            NamingFlags(Root, Resource, Output, Kotlin) -> Modifiers(
+//                "",
+//                listOf("kotlin", "outputs"),
+//                shouldConstructBuilders = false,
+//            )
+            namingFlags.matches(Root, Resource, Output, NormalClass) -> namingFlags.getModifier(
                 "",
                 listOf("outputs"),
-                shouldConstructBuilders = false,
-            )
-
-            NamingFlags(Root, Resource, Output, Kotlin) -> Modifiers(
-                "",
-                listOf("kotlin", "outputs"),
                 shouldConstructBuilders = false,
             )
 
