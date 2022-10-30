@@ -51,7 +51,6 @@ internal class IntermediateRepresentationGeneratorTest {
             providerName = "provider",
             types = types,
             resources = resources,
-            meta = getMetaWithSlashInModuleFormat(),
         )
         val irTypes = ir.types
 
@@ -86,7 +85,6 @@ internal class IntermediateRepresentationGeneratorTest {
             providerName = "provider",
             types = types,
             resources = resources,
-            meta = getMetaWithSlashInModuleFormat(),
         )
         val irTypes = ir.types
 
@@ -117,7 +115,6 @@ internal class IntermediateRepresentationGeneratorTest {
             providerName = "provider",
             types = types,
             resources = resources,
-            meta = getMetaWithSlashInModuleFormat(),
         )
         val irTypes = ir.types
 
@@ -158,7 +155,6 @@ internal class IntermediateRepresentationGeneratorTest {
             types = types,
             resources = resources,
             functions = functions,
-            meta = getMetaWithSlashInModuleFormat(),
         )
         val irTypes = ir.types
 
@@ -205,7 +201,6 @@ internal class IntermediateRepresentationGeneratorTest {
             providerName = "provider",
             types = types,
             resources = resources,
-            meta = getMetaWithSlashInModuleFormat(),
         )
         val irTypes = ir.types
         val irResources = ir.resources
@@ -260,7 +255,6 @@ internal class IntermediateRepresentationGeneratorTest {
             providerName = "provider",
             types = types,
             functions = functions,
-            meta = getMetaWithSlashInModuleFormat(),
         )
         val irTypes = ir.types
 
@@ -323,7 +317,6 @@ internal class IntermediateRepresentationGeneratorTest {
             providerName = "provider",
             types = types,
             functions = functions,
-            meta = getMetaWithSlashInModuleFormat(),
         )
         val irTypes = ir.types
 
@@ -410,7 +403,7 @@ internal class IntermediateRepresentationGeneratorTest {
         types: TypesMap = emptyMap(),
         functions: FunctionsMap = emptyMap(),
         resources: ResourcesMap = emptyMap(),
-        meta: SchemaModel.Metadata? = null,
+        meta: SchemaModel.Metadata? = getMetaWithSlashInModuleFormat(),
         language: SchemaModel.PackageLanguage? = null,
     ) = IntermediateRepresentationGenerator.getIntermediateRepresentation(
         ParsedSchema(
@@ -423,7 +416,7 @@ internal class IntermediateRepresentationGeneratorTest {
         ),
     )
 
-    private fun getMetaWithSlashInModuleFormat(): SchemaModel.Metadata = SchemaModel.Metadata("(.*)(?:/[^/]*)")
+    private fun getMetaWithSlashInModuleFormat() = SchemaModel.Metadata("(.*)(?:/[^/]*)")
 
     private fun someResourceWithInputReferences(vararg referencedInputTypeNames: String) =
         someResourceWithReferences(referencedInputTypeNames = referencedInputTypeNames.toList())

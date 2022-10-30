@@ -18,7 +18,7 @@ import org.junit.jupiter.params.provider.EnumSource
 
 internal class PulumiNameTest {
 
-    @Suppress("unused")
+    @Suppress("unused", "MaxLineLength")
     enum class ValidNameCase(
         val inputName: String,
         val namingConfiguration: PulumiNamingConfiguration,
@@ -40,7 +40,7 @@ internal class PulumiNameTest {
             PulumiName("aws", listOf("com", "pulumi", "aws", "acmpca"), "getCertificateAuthority"),
         ),
         LongFunctionName(
-            @Suppress("MaxLineLength") "aws:acmpca/getCertificateAuthorityRevocationConfigurationCrlConfiguration:getCertificateAuthorityRevocationConfigurationCrlConfiguration",
+            "aws:acmpca/getCertificateAuthorityRevocationConfigurationCrlConfiguration:getCertificateAuthorityRevocationConfigurationCrlConfiguration",
             namingConfigurationWithSlashInModuleFormat("aws"),
             PulumiName(
                 "aws",
@@ -48,6 +48,14 @@ internal class PulumiNameTest {
                 "getCertificateAuthorityRevocationConfigurationCrlConfiguration",
             ),
         ),
+    }
+
+    @ParameterizedTest
+    @EnumSource(ValidNameCase::class)
+    fun `PulumiName#from correctly parses the name`(case: ValidNameCase) {
+        val pulumiName = PulumiName.from(case.inputName, case.namingConfiguration)
+
+        assertEquals(case.expectedPulumiName, pulumiName)
     }
 
     @Suppress("unused")
@@ -97,14 +105,6 @@ internal class PulumiNameTest {
             NamingFlags(Nested, Function, Output, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
-    }
-
-    @ParameterizedTest
-    @EnumSource(ValidNameCase::class)
-    fun `PulumiName#from correctly parses the name`(case: ValidNameCase) {
-        val pulumiName = PulumiName.from(case.inputName, case.namingConfiguration)
-
-        assertEquals(case.expectedPulumiName, pulumiName)
     }
 
     @ParameterizedTest
@@ -271,10 +271,10 @@ internal class PulumiNameTest {
     @Test
     fun `PulumiName is correctly created as per given naming configuration`() {
         // given
-        val token = "provider:module***objectName:ObjectName"
+        val token = "provider:moduleXDobjectName:ObjectName"
         val namingConfiguration = PulumiNamingConfiguration.create(
             providerName = "provider",
-            moduleFormat = "(.*)(?:\\*{3}[^\\*]*)",
+            moduleFormat = "(.*)(?:XD[^\\*]*)",
             basePackage = "org.example",
         )
 
@@ -351,7 +351,7 @@ internal class PulumiNameTest {
         val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
 
         // when - then
-        assertThrows<IllegalStateException>("Malformed token should throw an exception") {
+        assertThrows<IllegalArgumentException>("Malformed token should throw an exception") {
             PulumiName.from(token, namingConfiguration)
         }
     }

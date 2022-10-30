@@ -258,17 +258,18 @@ object IntermediateRepresentationGenerator {
         }
     }
 
-    private data class Context(
+    private class Context(
         val schema: ParsedSchema,
         val referenceFinder: ReferenceFinder,
+    ) {
         val namingConfiguration: PulumiNamingConfiguration =
             PulumiNamingConfiguration.create(
                 schema.providerName,
                 schema.meta?.moduleFormat,
                 schema.language?.java?.basePackage,
                 schema.language?.java?.packages,
-            ),
-    )
+            )
+    }
 
     private data class TypeKey(val name: PulumiName, val usageKind: UsageKind) {
 

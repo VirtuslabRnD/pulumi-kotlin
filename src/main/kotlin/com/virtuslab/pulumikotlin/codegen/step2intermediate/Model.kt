@@ -38,7 +38,7 @@ data class NamingFlags(
 )
 
 /**
- * Bundles variables regarding naming conventions contained in schema:
+ * Bundles variables related to naming conventions contained in schema:
  * * [providerName] - Unqualified name of the package (e.g. “aws”, “azure”, “gcp”, “kubernetes”, “random”).
  * * [moduleFormatRegex] - ModuleFormat is a regex that is used by the importer to extract a module name
  *      from the module portion of a type token. Packages that use the module format

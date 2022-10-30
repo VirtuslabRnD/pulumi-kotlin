@@ -240,17 +240,16 @@ data class PulumiName(
 
             val segments = token.split(":")
 
-            if (segments.size != EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN) error("Malformed token $token")
+            require(segments.size == EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN) { "Malformed token $token" }
 
-            fun substituteWithOverride(name: String): String = namingConfiguration.packageOverrides[name] ?: name
+            fun substituteWithOverride(name: String) = namingConfiguration.packageOverrides[name] ?: name
 
-            fun extractModule(): String = when (val module = segments[1]) {
+            val module = when (segments[1]) {
                 "providers" -> ""
                 else -> {
-                    val moduleMatches = namingConfiguration.moduleFormatRegex.findAll(module)
-                        .flatMap { it.groups }
-                        .map { it?.value.orEmpty() }
-                        .toList()
+                    val moduleMatches = namingConfiguration.moduleFormatRegex.matchEntire(segments[1])
+                        ?.groupValues
+                        .orEmpty()
 
                     if (moduleMatches.size < 2 || moduleMatches[1].startsWith("index")) {
                         ""
@@ -261,7 +260,7 @@ data class PulumiName(
             }
 
             val packageProviderName = substituteWithOverride(namingConfiguration.providerName)
-            val moduleName = substituteWithOverride(extractModule())
+            val moduleName = substituteWithOverride(module)
 
             val namespace =
                 (namingConfiguration.baseNamespace + packageProviderName + moduleName).filter { it.isNotBlank() }
