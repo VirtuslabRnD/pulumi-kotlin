@@ -63,11 +63,11 @@ class ReferenceFinder(schema: ParsedSchema) {
     ): List<TypeNameAndUsageKind> {
         return resourcesOrFunctions.values
             .flatMap { mapper(it) }
-            .flatMap { property -> findReferencedTypeNamesUsedByProperty(property) }
+            .flatMap { property -> findReferencedTypeNamesUsedByProperty(property, emptySet()) }
             .map { TypeNameAndUsageKind(it, usageKind) }
     }
 
-    private fun findReferencedTypeNamesUsedByProperty(property: Property?): List<String> {
+    private fun findReferencedTypeNamesUsedByProperty(property: Property?, visited: Set<String>): List<String> {
         return when (property) {
             is ReferenceProperty -> {
                 if (property.isArchive() || property.isAssetOrArchive()) {
@@ -75,14 +75,18 @@ class ReferenceFinder(schema: ParsedSchema) {
                 } else {
                     val typeName = property.referencedTypeName
                     val referencedProperty = resolve(typeName)
-                    val nestedUsages = findReferencedTypeNamesUsedByProperty(referencedProperty)
+
+                    var nestedUsages = listOf<String>()
+                    if (!visited.contains(typeName)) {
+                        nestedUsages = findReferencedTypeNamesUsedByProperty(referencedProperty, visited + typeName)
+                    }
 
                     nestedUsages + typeName
                 }
             }
 
             is ReferencingOtherTypesProperty -> {
-                getInnerTypesOf(property).flatMap { findReferencedTypeNamesUsedByProperty(it) }
+                getInnerTypesOf(property).flatMap { findReferencedTypeNamesUsedByProperty(it, visited) }
             }
 
             is PrimitiveProperty -> emptyList()

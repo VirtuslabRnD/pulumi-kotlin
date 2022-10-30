@@ -18,6 +18,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.namingConfigurationWithSlashInModuleFormat
+import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.util.Random
@@ -325,6 +326,221 @@ internal class IntermediateRepresentationGeneratorTest {
             nameIs = "type",
             fieldsAre = setOf("someInt"),
             usageKindIs = UsageKind(Nested, Function, Output),
+        )
+    }
+
+    @Test
+    fun `self referenced types used in resource inputs are properly recognized and converted to ComplexType`() {
+        // given
+        val typeName = "provider:namespace/type:type"
+
+        val types = mapOf(
+            typeName to ObjectProperty(
+                properties = mapOf(
+                    PropertyName("referencedType") to SchemaModel.ArrayProperty(
+                        items = ReferenceProperty(
+                            ref = SpecificationReference(
+                                ref(typeName),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
+        val resources = someResourceWithInputReferences(typeName)
+
+        // when
+        val ir = getIntermediateRepresentation(providerName = "provider", types = types, resources = resources)
+
+        // then
+        val irTypes = ir.types
+
+        assertContainsComplexTypeThat(
+            irTypes,
+            nameIs = "type",
+            fieldsAre = setOf("referencedType"),
+            usageKindIs = UsageKind(Nested, Resource, Input),
+        )
+    }
+
+    @Test
+    fun `indirect referenced types used in resource inputs are properly recognized and converted to ComplexType`() {
+        // given
+        val typeName1 = "provider:namespace/type:type1"
+        val typeName2 = "provider:namespace/type:type2"
+
+        val types = mapOf(
+            typeName1 to ObjectProperty(
+                properties = mapOf(
+                    PropertyName("referencedType2") to ReferenceProperty(ref = SpecificationReference(ref(typeName2))),
+                ),
+            ),
+            typeName2 to ObjectProperty(
+                properties = mapOf(
+                    PropertyName("referencedType1") to ReferenceProperty(ref = SpecificationReference(ref(typeName1))),
+                ),
+            ),
+        )
+
+        val resources = someResourceWithInputReferences(typeName1)
+
+        // when
+        val ir = getIntermediateRepresentation(providerName = "provider", types = types, resources = resources)
+
+        // then
+        val irTypes = ir.types
+
+        assertAll(
+            {
+                assertContainsComplexTypeThat(
+                    irTypes,
+                    nameIs = "type1",
+                    fieldsAre = setOf("referencedType2"),
+                    usageKindIs = UsageKind(Nested, Resource, Input),
+                )
+            },
+            {
+                assertContainsComplexTypeThat(
+                    irTypes,
+                    nameIs = "type2",
+                    fieldsAre = setOf("referencedType1"),
+                    usageKindIs = UsageKind(Nested, Resource, Input),
+                )
+            },
+        )
+    }
+
+    @Test
+    @SuppressWarnings("LongMethod")
+    fun `diamond referenced types used in resource inputs are properly recognized and converted to ComplexType`() {
+        // given
+        val typeName1 = "provider:namespace/type:type1"
+        val typeName2 = "provider:namespace/type:type2"
+        val typeName3 = "provider:namespace/type:type3"
+        val typeName4 = "provider:namespace/type:type4"
+
+        val types = mapOf(
+            typeName1 to ObjectProperty(
+                properties = mapOf(
+                    PropertyName("referencedType2") to ReferenceProperty(ref = SpecificationReference(ref(typeName2))),
+                    PropertyName("referencedType3") to ReferenceProperty(ref = SpecificationReference(ref(typeName3))),
+                ),
+            ),
+            typeName2 to ObjectProperty(
+                properties = mapOf(
+                    PropertyName("referencedType4") to ReferenceProperty(ref = SpecificationReference(ref(typeName4))),
+                ),
+            ),
+            typeName3 to ObjectProperty(
+                properties = mapOf(
+                    PropertyName("referencedType4") to ReferenceProperty(ref = SpecificationReference(ref(typeName4))),
+                ),
+            ),
+            typeName4 to ObjectProperty(),
+        )
+
+        val resources = someResourceWithInputReferences(typeName1)
+
+        // when
+        val ir = getIntermediateRepresentation(providerName = "provider", types = types, resources = resources)
+
+        // then
+        val irTypes = ir.types
+
+        assertAll(
+            {
+                assertContainsComplexTypeThat(
+                    irTypes,
+                    nameIs = "type1",
+                    fieldsAre = setOf("referencedType2", "referencedType3"),
+                    usageKindIs = UsageKind(Nested, Resource, Input),
+                )
+            },
+            {
+                assertContainsComplexTypeThat(
+                    irTypes,
+                    nameIs = "type2",
+                    fieldsAre = setOf("referencedType4"),
+                    usageKindIs = UsageKind(Nested, Resource, Input),
+                )
+            },
+            {
+                assertContainsComplexTypeThat(
+                    irTypes,
+                    nameIs = "type3",
+                    fieldsAre = setOf("referencedType4"),
+                    usageKindIs = UsageKind(Nested, Resource, Input),
+                )
+            },
+            {
+                assertContainsComplexTypeThat(
+                    irTypes,
+                    nameIs = "type4",
+                    fieldsAre = emptySet(),
+                    usageKindIs = UsageKind(Nested, Resource, Input),
+                )
+            },
+        )
+    }
+
+    @Test
+    fun `transitive referenced types used in resource inputs are properly recognized and converted to ComplexType`() {
+        // given
+        val typeName1 = "provider:namespace/type:type1"
+        val typeName2 = "provider:namespace/type:type2"
+        val typeName3 = "provider:namespace/type:type3"
+
+        val types = mapOf(
+            typeName1 to ObjectProperty(
+                properties = mapOf(
+                    PropertyName("referencedType2") to ReferenceProperty(ref = SpecificationReference(ref(typeName2))),
+                ),
+            ),
+            typeName2 to ObjectProperty(
+                properties = mapOf(
+                    PropertyName("referencedType3") to ReferenceProperty(ref = SpecificationReference(ref(typeName3))),
+                ),
+            ),
+            typeName3 to ObjectProperty(
+                properties = mapOf(
+                    PropertyName("referencedType1") to ReferenceProperty(ref = SpecificationReference(ref(typeName1))),
+                ),
+            ),
+        )
+
+        val resources = someResourceWithInputReferences(typeName1)
+
+        // when
+        val ir = getIntermediateRepresentation(providerName = "provider", types = types, resources = resources)
+
+        // then
+        val irTypes = ir.types
+
+        assertAll(
+            {
+                assertContainsComplexTypeThat(
+                    irTypes,
+                    nameIs = "type1",
+                    fieldsAre = setOf("referencedType2"),
+                    usageKindIs = UsageKind(Nested, Resource, Input),
+                )
+            },
+            {
+                assertContainsComplexTypeThat(
+                    irTypes,
+                    nameIs = "type2",
+                    fieldsAre = setOf("referencedType3"),
+                    usageKindIs = UsageKind(Nested, Resource, Input),
+                )
+            },
+            {
+                assertContainsComplexTypeThat(
+                    irTypes,
+                    nameIs = "type3",
+                    fieldsAre = setOf("referencedType1"),
+                    usageKindIs = UsageKind(Nested, Resource, Input),
+                )
+            },
         )
     }
 
