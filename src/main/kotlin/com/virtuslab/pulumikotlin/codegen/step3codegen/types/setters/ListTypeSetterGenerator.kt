@@ -3,6 +3,7 @@ package com.virtuslab.pulumikotlin.codegen.step3codegen.types.setters
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier.SUSPEND
 import com.squareup.kotlinpoet.KModifier.VARARG
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.BuilderSettingCodeBlock
@@ -12,9 +13,10 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builde
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.listOfLambdas
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.mappingCodeBlock
 import com.virtuslab.pulumikotlin.codegen.step3codegen.NormalField
+import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 
 object ListTypeSetterGenerator : SetterGenerator {
-    override fun generate(setter: Setter): Iterable<FunSpec> {
+    override fun generate(setter: Setter, typeNameClashResolver: TypeNameClashResolver): Iterable<FunSpec> {
         val normalField = setter.fieldType as? NormalField<*> ?: return emptyList()
         val type = normalField.type as? ListType ?: return emptyList()
 
@@ -51,7 +53,7 @@ object ListTypeSetterGenerator : SetterGenerator {
             FunSpec
                 .builder(name)
                 .addModifiers(SUSPEND)
-                .addParameter("values", innerType.toTypeName(), VARARG)
+                .addParameter("values", typeNameClashResolver.toTypeName(innerType, LanguageType.Kotlin), VARARG)
                 .addCode(mappingCodeBlock(normalField, required = false, name, "values.toList()"))
                 .addDocsToBuilderMethod(kDoc, "values")
                 .build(),

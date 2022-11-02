@@ -12,6 +12,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.NameGeneration
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedEnumType
@@ -22,7 +23,7 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.KeywordsEscaper
 private const val FUNCTION_NAME = "toJava"
 
 object ToJava {
-    fun toJavaFunction(typeMetadata: TypeMetadata, fields: List<Field<*>>): FunSpec {
+    fun toJavaFunction(fields: List<Field<*>>, names: NameGeneration): FunSpec {
         val codeBlocks = fields.map { field ->
             val block = CodeBlock.of(
                 ".%N(%N)",
@@ -43,7 +44,6 @@ object ToJava {
             }
         }
 
-        val names = typeMetadata.names(LanguageType.Java)
         val javaArgsClass = ClassName(names.packageName, names.className)
 
         return FunSpec.builder(FUNCTION_NAME)
@@ -60,8 +60,7 @@ object ToJava {
     }
 
     fun toJavaEnumFunction(typeMetadata: TypeMetadata): FunSpec {
-        val javaNames = typeMetadata.names(LanguageType.Java)
-        val javaClass = ClassName(javaNames.packageName, javaNames.className)
+        val javaClass = typeMetadata.names(LanguageType.Java).kotlinPoetClassName
 
         return FunSpec.builder(FUNCTION_NAME)
             .addModifiers(KModifier.OVERRIDE)

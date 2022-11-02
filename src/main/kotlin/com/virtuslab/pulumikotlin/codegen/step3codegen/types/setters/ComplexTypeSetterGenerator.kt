@@ -6,9 +6,10 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.Builde
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderPattern
 import com.virtuslab.pulumikotlin.codegen.step3codegen.NormalField
+import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 
 object ComplexTypeSetterGenerator : SetterGenerator {
-    override fun generate(setter: Setter): Iterable<FunSpec> {
+    override fun generate(setter: Setter, typeNameClashResolver: TypeNameClashResolver): Iterable<FunSpec> {
         val typedField = setter.fieldType as? NormalField<*> ?: return emptyList()
         val type = typedField.type as? ReferencedComplexType ?: return emptyList()
 

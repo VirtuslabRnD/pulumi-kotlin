@@ -26,6 +26,7 @@ class CodegenTest {
         "com.pulumi:aws:5.16.2",
         "com.pulumi:gcp:6.38.0",
         "com.pulumi:slack:0.3.0",
+        "com.pulumi:github:4.17.0",
         "com.google.code.findbugs:jsr305:3.0.2",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4",
         "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
@@ -471,6 +472,24 @@ class CodegenTest {
         assertGeneratedCodeCompiles(SCHEMA_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION)
     }
 
+    @Test
+    fun `GitHub code with colliding names gets generated correctly`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.github.kotlin.GithubFunctions
+
+            suspend fun main() {
+                val getRepositoryPullRequestsInvokeResult = GithubFunctions.getRepositoryPullRequests {
+                    baseRepository("whatever")
+                }
+        
+                println(getRepositoryPullRequestsInvokeResult.results)
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_GITHUB_SUBSET_WITH_NAME_COLLISION, code)
+    }
+
     private fun assertGeneratedCodeCompiles(schemaPath: String) {
         assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
     }
@@ -629,3 +648,4 @@ private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_INDEX = "schema-aws-classic-5.1
 private const val SCHEMA_SLACK_SUBSET_WITH_INDEX = "schema-slack-0.3.0-subset-with-index.json"
 private const val SCHEMA_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION =
     "schema-azure-native-3.44.2-subset-with-ip-allocation.json"
+private const val SCHEMA_GITHUB_SUBSET_WITH_NAME_COLLISION = "schema-github-4.17.0-subset-with-name-collision.json"

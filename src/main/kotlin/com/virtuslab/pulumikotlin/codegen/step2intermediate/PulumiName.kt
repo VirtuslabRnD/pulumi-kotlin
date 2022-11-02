@@ -24,6 +24,7 @@ data class PulumiName(
         val nameSuffix: String,
         val packageSuffix: List<String>,
         val shouldConstructBuilders: Boolean,
+        val alternativeNameSuffix: String?,
     )
 
     private fun NamingFlags.matches(
@@ -31,21 +32,22 @@ data class PulumiName(
         subject: Subject,
         direction: Direction,
         generatedClass: GeneratedClass,
-    ) =
-        this.depth == depth &&
-            this.subject == subject &&
-            this.direction == direction &&
-            this.generatedClass == generatedClass
+    ) = this.depth == depth &&
+        this.subject == subject &&
+        this.direction == direction &&
+        this.generatedClass == generatedClass
 
     private fun NamingFlags.getModifier(
         defaultNameSuffix: String,
         packageSuffix: List<String>,
         shouldConstructBuilders: Boolean,
+        alternativeNameSuffix: String? = null,
     ) =
         Modifiers(
             defaultNameSuffix,
             if (this.language == Kotlin) listOf("kotlin") + packageSuffix else packageSuffix,
             shouldConstructBuilders,
+            alternativeNameSuffix,
         )
 
     private fun getModifiers(namingFlags: NamingFlags): Modifiers {
@@ -120,9 +122,9 @@ data class PulumiName(
 //                listOf("inputs"),
 //                shouldConstructBuilders = true,
 //            )
-//          example: GetIAMPolicyAuditConfigArgs (in Java: GetIAMPolicyAuditConfig)
+//          example: GetIAMPolicyAuditConfigArgs (in Java: GetIAMPolicyAuditConfig) FIXED
             namingFlags.matches(Nested, Function, Input, NormalClass) -> namingFlags.getModifier(
-                if (namingFlags.language == Kotlin) "Args" else "",
+                "",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
             )
@@ -166,9 +168,9 @@ data class PulumiName(
 //                listOf("inputs"),
 //                shouldConstructBuilders = true,
 //            )
-//          example: GetIAMPolicyArgs (in Java: GetIAMPolicyPlainArgs)
+//          example: GetIAMPolicyArgs (in Java: GetIAMPolicyPlainArgs) FIXED
             namingFlags.matches(Root, Function, Input, NormalClass) -> namingFlags.getModifier(
-                if (namingFlags.language == Kotlin) "Args" else "PlainArgs",
+                "PlainArgs",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
             )
@@ -182,9 +184,9 @@ data class PulumiName(
 //                listOf("outputs"),
 //                shouldConstructBuilders = false,
 //            )
-//          example: GetIAMPolicyAuditConfigAuditLogConfigResult (in Java: GetIAMPolicyAuditConfigAuditLogConfig)
+//          example: GetIAMPolicyAuditConfigAuditLogConfigResult (in Java: GetIAMPolicyAuditConfigAuditLogConfig) FIXED
             namingFlags.matches(Nested, Function, Output, NormalClass) -> namingFlags.getModifier(
-                if (namingFlags.language == Kotlin) "Result" else "",
+                "",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
             )
@@ -217,6 +219,7 @@ data class PulumiName(
                 "Result",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
+                alternativeNameSuffix = "InvokeResult",
             )
 //            NamingFlags(Root, Resource, Output, Java) -> Modifiers(
 //                "",
@@ -270,13 +273,13 @@ data class PulumiName(
     }
 
     fun toClassName(namingFlags: NamingFlags): String {
-        val modifiers = getModifiers(namingFlags)
-        return name.capitalize() + modifiers.nameSuffix
+        val suffix = getSuffix(namingFlags)
+        return name.capitalize() + suffix
     }
 
     fun toBuilderClassName(namingFlags: NamingFlags): String {
-        val modifiers = getModifiers(namingFlags)
-        return name.capitalize() + modifiers.nameSuffix + "Builder"
+        val suffix = getSuffix(namingFlags)
+        return name.capitalize() + suffix + "Builder"
     }
 
     fun toPackage(namingFlags: NamingFlags): String {
@@ -293,6 +296,20 @@ data class PulumiName(
 
     private fun packageToString(packageList: List<String>): String {
         return packageList.joinToString(".")
+    }
+
+    private fun getSuffix(namingFlags: NamingFlags): String {
+        val modifiers = getModifiers(namingFlags)
+
+        return if (namingFlags.useAlternativeName) {
+            modifiers.alternativeNameSuffix ?: error(
+                "No name suffix configured to deal with naming conflict. " +
+                    "Name: $name. " +
+                    "Naming flags: $namingFlags",
+            )
+        } else {
+            modifiers.nameSuffix
+        }
     }
 
     companion object {

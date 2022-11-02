@@ -23,6 +23,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pul
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
+import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocsIfAvailable
@@ -33,14 +34,14 @@ object ResourceGenerator {
 
     private const val JAVA_RESOURCE_PARAMETER_NAME = "javaResource"
 
-    fun generateResources(resources: List<ResourceType>): List<FileSpec> {
+    fun generateResources(resources: List<ResourceType>, typeNameClashResolver: TypeNameClashResolver): List<FileSpec> {
         val files = resources.map { type ->
             val file = FileSpec.builder(
                 type.name.toResourcePackage(NamingFlags(Root, Resource, Output, Kotlin)),
                 type.name.toResourceName(NamingFlags(Root, Resource, Output, Kotlin)),
             )
 
-            buildArgsClass(file, type)
+            buildArgsClass(file, type, typeNameClashResolver)
 
             file.build()
         }
@@ -48,7 +49,11 @@ object ResourceGenerator {
         return files
     }
 
-    private fun buildArgsClass(fileSpecBuilder: FileSpec.Builder, resourceType: ResourceType) {
+    private fun buildArgsClass(
+        fileSpecBuilder: FileSpec.Builder,
+        resourceType: ResourceType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ) {
         val javaFlags = NamingFlags(Root, Resource, Output, Java)
         val kotlinFlags = NamingFlags(Root, Resource, Output, Kotlin)
 
@@ -58,10 +63,17 @@ object ResourceGenerator {
 
         val fields = resourceType.outputFields.map { field ->
             PropertySpec
-                .builder(field.name, field.toTypeName())
+                .builder(field.name, field.toTypeName(typeNameClashResolver))
                 .getter(
                     FunSpec.getterBuilder()
-                        .addCode(toKotlinFunctionResource(field.name, field.fieldType.type, !field.required))
+                        .addCode(
+                            toKotlinFunctionResource(
+                                field.name,
+                                field.fieldType.type,
+                                typeNameClashResolver,
+                                !field.required,
+                            ),
+                        )
                         .build(),
                 )
                 .addDocsIfAvailable(field.kDoc)
@@ -98,7 +110,7 @@ object ResourceGenerator {
             names.toResourceName(kotlinFlags) + "ResourceBuilder",
         )
 
-        val argsClassName = resourceType.argsType.toTypeName()
+        val argsClassName = typeNameClashResolver.toTypeName(resourceType.argsType, Kotlin)
         val argsBuilderClassName = resourceType.argsType.toBuilderTypeName()
 
         val argsFunction = FunSpec

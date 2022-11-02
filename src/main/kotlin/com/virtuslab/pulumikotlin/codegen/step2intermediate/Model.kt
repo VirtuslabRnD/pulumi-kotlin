@@ -35,6 +35,7 @@ data class NamingFlags(
     val direction: Direction,
     val language: LanguageType,
     val generatedClass: GeneratedClass = NormalClass,
+    val useAlternativeName: Boolean = false,
 )
 
 /**

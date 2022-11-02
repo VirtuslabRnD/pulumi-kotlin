@@ -1,0 +1,272 @@
+{
+  "name": "github",
+  "meta": {
+    "moduleFormat": "(.*)(?:/[^/]*)"
+  },
+  "types": {
+    "github:index/getRepositoryPullRequestsResult:getRepositoryPullRequestsResult": {
+      "properties": {
+        "baseRef": {
+          "type": "string",
+          "description": "If set, filters Pull Requests by base branch name.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "baseSha": {
+          "type": "string",
+          "description": "Head commit SHA of the Pull Request base.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "body": {
+          "type": "string",
+          "description": "Body of the Pull Request.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "draft": {
+          "type": "boolean",
+          "description": "Indicates Whether this Pull Request is a draft.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "headOwner": {
+          "type": "string",
+          "description": "Owner of the Pull Request head repository.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "headRef": {
+          "type": "string",
+          "description": "If set, filters Pull Requests by head user or head organization and branch name in the format of \"user:ref-name\" or \"organization:ref-name\". For example: \"github:new-script-format\" or \"octocat:test-branch\".\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "headRepository": {
+          "type": "string",
+          "description": "Name of the Pull Request head repository.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "headSha": {
+          "type": "string",
+          "description": "Head commit SHA of the Pull Request head.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of label names set on the Pull Request.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "maintainerCanModify": {
+          "type": "boolean",
+          "description": "Indicates whether the base repository maintainers can modify the Pull Request.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "number": {
+          "type": "integer",
+          "description": "The number of the Pull Request within the repository.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "openedAt": {
+          "type": "integer",
+          "description": "Unix timestamp indicating the Pull Request creation time.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "openedBy": {
+          "type": "string",
+          "description": "GitHub login of the user who opened the Pull Request.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "state": {
+          "type": "string",
+          "description": "If set, filters Pull Requests by state. Can be \"open\", \"closed\", or \"all\". Default: \"open\".\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the Pull Request.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "The timestamp of the last Pull Request update.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "type": "object",
+      "required": [
+        "baseRef",
+        "baseSha",
+        "body",
+        "draft",
+        "headOwner",
+        "headRef",
+        "headRepository",
+        "headSha",
+        "labels",
+        "maintainerCanModify",
+        "number",
+        "openedAt",
+        "openedBy",
+        "state",
+        "title",
+        "updatedAt"
+      ],
+      "language": {
+        "nodejs": {
+          "requiredInputs": [
+          ]
+        }
+      }
+    }
+  },
+  "functions": {
+    "github:index/getRepositoryPullRequests:getRepositoryPullRequests": {
+      "description": "Use this data source to retrieve information about multiple GitHub Pull Requests in a repository.\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as github from \"@pulumi/github\";\n\nconst example = pulumi.output(github.getRepositoryPullRequests({\n    baseRef: \"main\",\n    baseRepository: \"example-repository\",\n    sortBy: \"updated\",\n    sortDirection: \"desc\",\n    state: \"open\",\n}));\n```\n```python\nimport pulumi\nimport pulumi_github as github\n\nexample = github.get_repository_pull_requests(base_ref=\"main\",\n    base_repository=\"example-repository\",\n    sort_by=\"updated\",\n    sort_direction=\"desc\",\n    state=\"open\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Github = Pulumi.Github;\n\nreturn await Deployment.RunAsync(() => \n{\n    var example = Github.GetRepositoryPullRequests.Invoke(new()\n    {\n        BaseRef = \"main\",\n        BaseRepository = \"example-repository\",\n        SortBy = \"updated\",\n        SortDirection = \"desc\",\n        State = \"open\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-github/sdk/v4/go/github\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := github.LookupRepositoryPullRequests(ctx, &GetRepositoryPullRequestsArgs{\n\t\t\tBaseRef:        pulumi.StringRef(\"main\"),\n\t\t\tBaseRepository: \"example-repository\",\n\t\t\tSortBy:         pulumi.StringRef(\"updated\"),\n\t\t\tSortDirection:  pulumi.StringRef(\"desc\"),\n\t\t\tState:          pulumi.StringRef(\"open\"),\n\t\t}, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.github.GithubFunctions;\nimport com.pulumi.github.inputs.GetRepositoryPullRequestsArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        final var example = GithubFunctions.getRepositoryPullRequests(GetRepositoryPullRequestsArgs.builder()\n            .baseRef(\"main\")\n            .baseRepository(\"example-repository\")\n            .sortBy(\"updated\")\n            .sortDirection(\"desc\")\n            .state(\"open\")\n            .build());\n\n    }\n}\n```\n```yaml\nvariables:\n  example:\n    Fn::Invoke:\n      Function: github:getRepositoryPullRequests\n      Arguments:\n        baseRef: main\n        baseRepository: example-repository\n        sortBy: updated\n        sortDirection: desc\n        state: open\n```\n{{% /example %}}\n{{% /examples %}}",
+      "inputs": {
+        "description": "A collection of arguments for invoking getRepositoryPullRequests.\n",
+        "properties": {
+          "baseRef": {
+            "type": "string",
+            "description": "If set, filters Pull Requests by base branch name.\n"
+          },
+          "baseRepository": {
+            "type": "string",
+            "description": "Name of the base repository to retrieve the Pull Requests from.\n"
+          },
+          "headRef": {
+            "type": "string",
+            "description": "If set, filters Pull Requests by head user or head organization and branch name in the format of \"user:ref-name\" or \"organization:ref-name\". For example: \"github:new-script-format\" or \"octocat:test-branch\".\n"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Owner of the repository. If not provided, the provider's default owner is used.\n"
+          },
+          "sortBy": {
+            "type": "string",
+            "description": "If set, indicates what to sort results by. Can be either \"created\", \"updated\", \"popularity\" (comment count) or \"long-running\" (age, filtering by pulls updated in the last month). Default: \"created\".\n"
+          },
+          "sortDirection": {
+            "type": "string",
+            "description": "If set, controls the direction of the sort. Can be either \"asc\" or \"desc\". Default: \"asc\".\n"
+          },
+          "state": {
+            "type": "string",
+            "description": "If set, filters Pull Requests by state. Can be \"open\", \"closed\", or \"all\". Default: \"open\".\n"
+          }
+        },
+        "type": "object",
+        "required": [
+          "baseRepository"
+        ]
+      },
+      "outputs": {
+        "description": "A collection of values returned by getRepositoryPullRequests.\n",
+        "properties": {
+          "baseRef": {
+            "type": "string",
+            "description": "Name of the ref (branch) of the Pull Request base.\n"
+          },
+          "baseRepository": {
+            "type": "string"
+          },
+          "headRef": {
+            "type": "string",
+            "description": "Value of the Pull Request `HEAD` reference.\n"
+          },
+          "id": {
+            "type": "string",
+            "description": "The provider-assigned unique ID for this managed resource.\n"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/github:index/getRepositoryPullRequestsResult:getRepositoryPullRequestsResult"
+            },
+            "description": "Collection of Pull Requests matching the filters. Each of the results conforms to the following scheme:\n"
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "sortDirection": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "description": "the current Pull Request state - can be \"open\", \"closed\" or \"merged\".\n"
+          }
+        },
+        "type": "object",
+        "required": [
+          "baseRepository",
+          "results",
+          "id"
+        ]
+      }
+    }
+  }
+}
