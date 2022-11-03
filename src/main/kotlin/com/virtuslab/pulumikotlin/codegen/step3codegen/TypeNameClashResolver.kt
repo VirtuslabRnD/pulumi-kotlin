@@ -7,7 +7,6 @@ import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.LIST
 import com.squareup.kotlinpoet.MAP
-import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
@@ -38,7 +37,7 @@ class TypeNameClashResolver(input: GeneratorArguments) {
 
     private val syntheticKotlinTypeNames: List<TypeName> = input.types
         .filter { it.metadata.usageKind.depth == Depth.Nested }
-        .map { it.toClassName(Kotlin) }
+        .map { it.toTypeName(Kotlin) }
 
     private fun shouldUseAlternativeName(usageKind: UsageKind, className: ClassName) =
         usageKind.depth == Depth.Root && className in syntheticKotlinTypeNames
@@ -99,7 +98,7 @@ class TypeNameClashResolver(input: GeneratorArguments) {
         }
     }
 
-    private fun RootType.toClassName(languageType: LanguageType): ClassName {
+    private fun RootType.toTypeName(languageType: LanguageType): TypeName {
         return when (this) {
             is ComplexType -> metadata.names(languageType).kotlinPoetClassName
             is EnumType -> metadata.names(languageType).kotlinPoetClassName
@@ -122,29 +121,32 @@ class TypeNameClashResolver(input: GeneratorArguments) {
     }
 
     @Suppress("UnusedReceiverParameter")
-    private fun AnyType.toTypeName(): ClassName {
+    private fun AnyType.toTypeName(): TypeName {
         return ANY
     }
 
     @Suppress("UnusedReceiverParameter")
-    private fun AssetOrArchiveType.toTypeName(): ClassName {
+    private fun AssetOrArchiveType.toTypeName(): TypeName {
         return AssetOrArchive::class.asTypeName()
     }
 
     @Suppress("UnusedReceiverParameter")
-    private fun ArchiveType.toTypeName(): ClassName {
+    private fun ArchiveType.toTypeName(): TypeName {
         return Archive::class.asTypeName()
     }
 
-    private fun toTypeName(type: ListType, languageType: LanguageType): ParameterizedTypeName {
+    private fun toTypeName(type: ListType, languageType: LanguageType): TypeName {
         return LIST.parameterizedBy(toTypeName(type.innerType, languageType))
     }
 
-    private fun toTypeName(type: MapType, languageType: LanguageType): ParameterizedTypeName {
-        return MAP.parameterizedBy(toTypeName(type.keyType, languageType), toTypeName(type.valueType, languageType))
+    private fun toTypeName(type: MapType, languageType: LanguageType): TypeName {
+        return MAP.parameterizedBy(
+            toTypeName(type.keyType, languageType),
+            toTypeName(type.valueType, languageType),
+        )
     }
 
-    private fun toTypeName(type: EitherType, languageType: LanguageType): ParameterizedTypeName {
+    private fun toTypeName(type: EitherType, languageType: LanguageType): TypeName {
         return Either::class.asTypeName()
             .parameterizedBy(
                 toTypeName(type.firstType, languageType),
@@ -152,7 +154,7 @@ class TypeNameClashResolver(input: GeneratorArguments) {
             )
     }
 
-    private fun PrimitiveType.toTypeName(languageType: LanguageType): ClassName {
+    private fun PrimitiveType.toTypeName(languageType: LanguageType): TypeName {
         require(languageType == Kotlin) { "Types other than $Kotlin not expected" }
         return ClassName("kotlin", name)
     }
