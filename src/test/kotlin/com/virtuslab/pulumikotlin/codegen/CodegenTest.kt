@@ -7,25 +7,36 @@ import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.OK
 import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.SCRIPT_EXECUTION_ERROR
 import com.tschuchort.compiletesting.SourceFile
 import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
+import com.virtuslab.pulumikotlin.ejectToMavenProject
 import mu.KotlinLogging
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInfo
 import java.io.File
 import java.lang.System.lineSeparator
+import kotlin.io.path.createTempDirectory
 import kotlin.test.assertEquals
 
 class CodegenTest {
 
     private val logger = KotlinLogging.logger {}
 
-    private val classPath = listOf(
-        artifact("com.pulumi:pulumi:0.6.0"),
-        artifact("com.pulumi:aws:5.16.2"),
-        artifact("com.pulumi:gcp:6.38.0"),
-        artifact("com.pulumi:slack:0.3.0"),
-        artifact("com.google.code.findbugs:jsr305:3.0.2"),
-        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4"),
-        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4"),
+    private val dependencies = listOf(
+        "com.pulumi:pulumi:0.6.0",
+        "com.pulumi:aws:5.16.2",
+        "com.pulumi:gcp:6.38.0",
+        "com.pulumi:slack:0.3.0",
+        "com.google.code.findbugs:jsr305:3.0.2",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
     )
+
+    private lateinit var testInfo: TestInfo
+
+    @BeforeEach
+    fun setup(testInfo: TestInfo) {
+        this.testInfo = testInfo
+    }
 
     @Test
     fun `aws resource can be created`() {
@@ -473,7 +484,8 @@ class CodegenTest {
     }
 
     private fun assertGeneratedCodeAndSourceFilesDoNotCompile(schemaPath: String, sourceFiles: Map<String, String>) {
-        val compilationResult = generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles)
+        val compilationResult =
+            generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles, ejectIfStatusIsNot = COMPILATION_ERROR)
 
         if (compilationResult.exitCode == COMPILATION_ERROR) {
             logger.info("Code did not compile (as expected). Encountered problems:\n${compilationResult.messages}")
@@ -486,7 +498,8 @@ class CodegenTest {
     }
 
     private fun assertGeneratedCodeAndSourceFilesCompile(schemaPath: String, sourceFiles: Map<String, String>) {
-        val compilationResult = generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles)
+        val compilationResult =
+            generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles, ejectIfStatusIsNot = OK)
 
         assertEquals(
             OK,
@@ -535,6 +548,7 @@ class CodegenTest {
     private fun generateCodeAndCompileAsSeparateModules(
         schemaPath: String,
         sourceFiles: Map<String, String>,
+        ejectIfStatusIsNot: KotlinCompilation.ExitCode = COMPILATION_ERROR,
     ): AggregateCompilationResult {
         val outputDirectory = Codegen.codegen(loadResource("/$schemaPath"))
         val generatedSourceFiles = readFilesRecursively(outputDirectory)
@@ -543,18 +557,37 @@ class CodegenTest {
         val additionalSourceFiles = sourceFiles
             .map { (fileName, source) -> SourceFile.new(fileName, source.trimIndent()) }
 
+        val classPathWithDependencies = dependencies.map { downloadedDependency(it) }
+
         val compilationForGeneratedCode = KotlinCompilation().apply {
             sources = generatedSourceFiles
-            classpaths = classPath
+            classpaths = classPathWithDependencies
         }
 
         val compilationForAdditionalCode = KotlinCompilation().apply {
             sources = additionalSourceFiles
-            classpaths = classPath + compilationForGeneratedCode.classesDir
+            classpaths = classPathWithDependencies + compilationForGeneratedCode.classesDir
         }
 
         val compiledGeneratedCode = compilationForGeneratedCode.compile()
         val compiledAdditionalCode = compilationForAdditionalCode.compile()
+
+        val shouldEject = compiledGeneratedCode.exitCode != ejectIfStatusIsNot ||
+            compiledAdditionalCode.exitCode != ejectIfStatusIsNot
+
+        if (shouldEject) {
+            val tempDirectory = createTempDirectory().toFile()
+            sourceFiles.forEach { (fileName, source) ->
+                val file = tempDirectory.resolve(fileName)
+                file.writeText(source)
+            }
+
+            ejectToMavenProject(
+                dependencies,
+                listOf(outputDirectory, tempDirectory),
+                testInfo.displayName,
+            )
+        }
 
         return AggregateCompilationResult.from(
             mapOf(
@@ -564,7 +597,7 @@ class CodegenTest {
         )
     }
 
-    private fun artifact(coordinate: String) =
+    private fun downloadedDependency(coordinate: String) =
         ArtifactDownloader.download(coordinate).toFile()
 
     private fun loadResource(path: String) =

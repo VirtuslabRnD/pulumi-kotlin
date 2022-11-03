@@ -16,13 +16,21 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Compile and test code
+        id: run-tests
         run: ./gradlew build test -x check
       - name: Upload test report
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: e2e-test-report
+          name: test-report
           path: ./build/reports/tests/test/*
+          retention-days: 3
+      - name: Upload ejected-tests
+        if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ejected-tests
+          path: ./ejected-tests/
           retention-days: 3
   analyze:
     name: Analyze pulumi-kotlin

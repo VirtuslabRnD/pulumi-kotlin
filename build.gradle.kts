@@ -34,6 +34,7 @@ dependencies {
     testImplementation("com.google.cloud:google-cloud-compute:1.12.1")
     testImplementation("org.apache.commons:commons-lang3:3.12.0")
     testImplementation("io.mockk:mockk:1.13.2")
+    testImplementation("io.github.cdklabs:projen:0.63.25")
 }
 
 tasks.test {
