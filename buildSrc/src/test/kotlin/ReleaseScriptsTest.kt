@@ -1,5 +1,4 @@
 import org.apache.commons.lang3.RandomStringUtils
-import org.apache.maven.artifact.versioning.ComparableVersion
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.junit.jupiter.api.Test
@@ -10,37 +9,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class ReleaseScriptsTest {
-
-    @Test
-    fun `produces valid versioning model`() {
-        assert(ComparableVersion("0.9.10.5") < ComparableVersion("1.0.0.0-SNAPSHOT"))
-        assert(ComparableVersion("1.0.0.0-SNAPSHOT") < ComparableVersion("1.0.0.0"))
-        assert(ComparableVersion("1.0.0.0") < ComparableVersion("1.0.0.1"))
-        assert(ComparableVersion("1.0.0.2") < ComparableVersion("1.0.0.10"))
-
-        assert(
-            ComparableVersion("4.10.1.0-alpha.1665590627+9c01b95f") <
-                ComparableVersion("5.17.0.10-alpha.1665590627+9c01b95f"),
-        )
-        assert(
-            ComparableVersion("5.17.0.0-alpha.1665590627+9c01b95f-SNAPSHOT") <
-                ComparableVersion("5.17.0.0-alpha.1665590627+9c01b95f"),
-        )
-        assert(
-            ComparableVersion("5.17.0.0-alpha.1665590627+9c01b95f") <
-                ComparableVersion("5.17.0.1-alpha.1665590627+9c01b95f"),
-        )
-        assert(
-            ComparableVersion("5.17.0.2-alpha.1665590627+9c01b95f") <
-                ComparableVersion("5.17.0.10-alpha.1665590627+9c01b95f"),
-        )
-        assert(
-            ComparableVersion("5.14.0-alpha.1663282832+a2389a26") <
-                ComparableVersion("5.14.0-alpha.1663343686+d0e52280"),
-        )
-
-        assert(ComparableVersion("0.9.10.5-alpha.1665590627+9c01b95f") < ComparableVersion("0.9.10.5"))
-    }
 
     @Test
     fun `correctly parses Kotlin library version (Java release, Kotlin release)`() {
@@ -117,52 +85,6 @@ class ReleaseScriptsTest {
         assertFailsWith<IllegalStateException>("Invalid version string") {
             KotlinVersion.fromVersionString(versionString)
         }
-    }
-
-    @Test
-    fun `correctly parses Java library version (release)`() {
-        val versionString = "5.16.0"
-        val parsedVersion = Semver(versionString)
-
-        assertEquals(
-            versionString,
-            parsedVersion.toString(),
-        )
-        assertEquals(
-            true,
-            parsedVersion.isStable,
-        )
-        assertEquals(
-            emptyList(),
-            parsedVersion.preRelease,
-        )
-        assertEquals(
-            emptyList(),
-            parsedVersion.build,
-        )
-    }
-
-    @Test
-    fun `correctly parses Java library version (alpha)`() {
-        val versionString = "4.7.0-alpha.1657304919+1d411918"
-        val parsedVersion = Semver(versionString)
-
-        assertEquals(
-            versionString,
-            parsedVersion.toString(),
-        )
-        assertEquals(
-            false,
-            parsedVersion.isStable,
-        )
-        assertEquals(
-            listOf("alpha", "1657304919"),
-            parsedVersion.preRelease,
-        )
-        assertEquals(
-            listOf("1d411918"),
-            parsedVersion.build,
-        )
     }
 
     @Test
