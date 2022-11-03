@@ -36,15 +36,9 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.UsageKind
 
 class TypeNameClashResolver(input: GeneratorArguments) {
 
-    private val syntheticKotlinTypeNames: List<TypeName>
-    private val syntheticJavaTypeNames: List<TypeName>
-
-    init {
-        this.syntheticKotlinTypeNames = input.types.filter { it.metadata.usageKind.depth == Depth.Nested }
-            .map { it.toClassName(Kotlin) }
-        this.syntheticJavaTypeNames = input.types.filter { it.metadata.usageKind.depth == Depth.Nested }
-            .map { it.toClassName(Java) }
-    }
+    private val syntheticKotlinTypeNames: List<TypeName> = input.types
+        .filter { it.metadata.usageKind.depth == Depth.Nested }
+        .map { it.toClassName(Kotlin) }
 
     private fun shouldUseAlternativeName(usageKind: UsageKind, className: ClassName) =
         usageKind.depth == Depth.Root && className in syntheticKotlinTypeNames
