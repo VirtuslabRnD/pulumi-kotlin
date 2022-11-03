@@ -86,7 +86,7 @@ data class PulumiNamingConfiguration private constructor(
             providerName,
             moduleFormat?.toRegex() ?: DEFAULT_MODULE_FORMAT_REGEX_LITERAL.toRegex(),
             basePackage ?: DEFAULT_BASE_PACKAGE,
-            packageOverrides ?: emptyMap(),
+            packageOverrides.orEmpty(),
         )
     }
 }

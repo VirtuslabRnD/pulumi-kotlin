@@ -72,7 +72,8 @@ object FunctionGenerator {
         val javaNamingFlags = NamingFlags(Root, Function, Input, Java)
 
         val toKotlin = typeNameClashResolver.kotlinNames(functionType.outputType.metadata)
-            .kotlinPoetClassName.nestedClass("Companion")
+            .kotlinPoetClassName
+            .nestedClass("Companion")
             .member("toKotlin")
         val javaMethodGetName = ClassName(
             functionType.name.toFunctionGroupObjectPackage(javaNamingFlags),
