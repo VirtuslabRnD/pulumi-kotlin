@@ -76,9 +76,10 @@ class ReferenceFinder(schema: ParsedSchema) {
                     val typeName = property.referencedTypeName
                     val referencedProperty = resolve(typeName)
 
-                    var nestedUsages = listOf<String>()
-                    if (!visited.contains(typeName)) {
-                        nestedUsages = findReferencedTypeNamesUsedByProperty(referencedProperty, visited + typeName)
+                    val nestedUsages = if (visited.contains(typeName)) {
+                        emptyList()
+                    } else {
+                        findReferencedTypeNamesUsedByProperty(referencedProperty, visited + typeName)
                     }
 
                     nestedUsages + typeName
