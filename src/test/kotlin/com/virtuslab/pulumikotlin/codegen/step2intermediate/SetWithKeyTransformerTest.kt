@@ -1,10 +1,9 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.SetWithKeyTransformer.ConflictsNotAllowed
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import com.virtuslab.pulumikotlin.assertDoesNotContain
+import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertContains
 
 internal class SetWithKeyTransformerTest {
     @Test
@@ -13,29 +12,36 @@ internal class SetWithKeyTransformerTest {
 
         val transformedSet = baseSet.transformKeys { it.lowercase() }
 
-        assertTrue(transformedSet.contains("A"))
-        assertTrue(transformedSet.contains("a"))
+        assertAll(
+            { assertContains(transformedSet, "a") },
+            { assertContains(transformedSet, "A") },
+        )
     }
 
     @Test
-    fun `lowercaseKeys works for Pair key`() {
+    fun `transformKeys works for Pair key`() {
         val baseSet = setOf(Pair("a", "B")) + anyPairSet()
 
         val transformedSet = baseSet.transformKeys { it.copy(first = it.first.lowercase()) }
 
-        assertTrue(transformedSet.contains(Pair("a", "B")))
-        assertTrue(transformedSet.contains(Pair("A", "B")))
-        assertFalse(transformedSet.contains(Pair("A", "b")))
-        assertFalse(transformedSet.contains(Pair("a", "b")))
+        assertAll(
+            { assertContains(transformedSet, Pair("a", "B")) },
+            { assertContains(transformedSet, Pair("A", "B")) },
+            { assertDoesNotContain(transformedSet, Pair("A", "b")) },
+            { assertDoesNotContain(transformedSet, Pair("a", "b")) },
+        )
     }
 
     @Test
-    fun `lowercaseKeys should not allow mapping to identical keys (conflicts)`() {
-        val baseSet = setOf("a", "A") + anyStringSet()
+    fun `transformKeys should allow mapping to identical keys`() {
+        val baseSet = setOf("a", "A", "a") + anyStringSet()
 
-        assertThrows<ConflictsNotAllowed> {
-            baseSet.transformKeys { it.lowercase() }
-        }
+        val transformedSet = baseSet.transformKeys { it.lowercase() }
+
+        assertAll(
+            { assertContains(transformedSet, "a") },
+            { assertContains(transformedSet, "A") },
+        )
     }
 
     private fun anyPairSet() =

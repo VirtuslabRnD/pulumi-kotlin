@@ -1,5 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step1schemaparse
 
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Metadata
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PackageLanguage
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -7,19 +9,28 @@ import kotlinx.serialization.json.jsonObject
 import java.io.InputStream
 
 object Decoder {
+    private val KNOWN_TYPE_DUPLICATES = setOf("azure-native:network:IpAllocationMethod")
+
     fun decode(inputStream: InputStream): ParsedSchema {
         val schema = Json.parseToJsonElement(inputStream.bufferedReader().readText())
 
         val providerName = requireNotNull(schema.decodeObject<String>("name")) {
             "Property \"name\" is not present in schema."
         }
-        val types = schema.decodeMap<String, SchemaModel.RootTypeProperty>("types")
-        val functions = schema.decodeMap<String, SchemaModel.Function>("functions")
-        val resources = schema.decodeMap<String, SchemaModel.Resource>("resources")
-        val metadata = schema.decodeObject<SchemaModel.Metadata>("meta")
-        val packageLanguage = schema.decodeObject<SchemaModel.PackageLanguage>("language")
+        val types: TypesMap = schema.decodeMap("types")
+        val functions: FunctionsMap = schema.decodeMap("functions")
+        val resources: ResourcesMap = schema.decodeMap("resources")
+        val metadata: Metadata? = schema.decodeObject("meta")
+        val packageLanguage: PackageLanguage? = schema.decodeObject("language")
 
-        return ParsedSchema(providerName, types, functions, resources, metadata, packageLanguage)
+        return ParsedSchema(
+            providerName,
+            withoutKnownTypeDuplicates(types),
+            functions,
+            resources,
+            metadata,
+            packageLanguage,
+        )
     }
 
     private inline fun <reified K, reified V> JsonElement.decodeMap(key: String): Map<K, V> =
@@ -29,4 +40,6 @@ object Decoder {
 
     private inline fun <reified T> JsonElement.decodeObject(propertyName: String): T? =
         jsonObject[propertyName]?.let { Json.decodeFromJsonElement<T>(it) }
+
+    private fun withoutKnownTypeDuplicates(types: TypesMap) = types.filterKeys { !KNOWN_TYPE_DUPLICATES.contains(it) }
 }

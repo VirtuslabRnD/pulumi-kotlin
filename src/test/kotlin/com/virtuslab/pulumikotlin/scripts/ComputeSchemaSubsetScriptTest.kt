@@ -4,31 +4,29 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.nio.file.Paths
 import kotlin.io.path.absolutePathString
+import kotlin.test.assertContains
 
 internal class ComputeSchemaSubsetScriptTest {
-
     @Test
-    fun `should find subset when using type (that is referenced by some resource)`() {
+    fun `should find the type itself`() {
         val outputSchema = runComputeSchemaSubsetScript(
             schemaPath = resolvedAwsClassicSchemaPath(),
-            name = "aws:accessanalyzer/ArchiveRuleFilter:ArchiveRuleFilter",
+            name = "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
             context = "type",
         )
 
-        val decodedOutputSchema = Json.decodeFromString<Schema>(outputSchema)
+        val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
 
         assertContainsOnly(
             decodedOutputSchema,
             types = setOf(
-                "aws:accessanalyzer/ArchiveRuleFilter:ArchiveRuleFilter",
-            ),
-            resources = setOf(
-                "aws:accessanalyzer/archiveRule:ArchiveRule",
+                "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
             ),
         )
     }
@@ -41,7 +39,7 @@ internal class ComputeSchemaSubsetScriptTest {
             context = "resource",
         )
 
-        val decodedOutputSchema = Json.decodeFromString<Schema>(outputSchema)
+        val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
 
         assertContainsOnly(
             decodedOutputSchema,
@@ -67,7 +65,7 @@ internal class ComputeSchemaSubsetScriptTest {
             context = "function",
         )
 
-        val decodedOutputSchema = Json.decodeFromString<Schema>(outputSchema)
+        val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
 
         assertContainsOnly(
             decodedOutputSchema,
@@ -82,9 +80,10 @@ internal class ComputeSchemaSubsetScriptTest {
             schemaPath = resolvedAwsClassicSchemaPath(),
             name = "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
             context = "type",
+            loadFullParents = "true",
         )
 
-        val decodedOutputSchema = Json.decodeFromString<Schema>(outputSchema)
+        val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
 
         assertContainsOnly(
             decodedOutputSchema,
@@ -93,8 +92,88 @@ internal class ComputeSchemaSubsetScriptTest {
         )
     }
 
+    @Test
+    fun `should work even when there are key conflicts`() {
+        val outputSchema = runComputeSchemaSubsetScript(
+            schemaPath = resolve(SCHEMA_PATH_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION),
+            name = "azure-native:network:IPAllocationMethod",
+            context = "type",
+        )
+
+        val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
+
+        assertContainsOnly(
+            decodedOutputSchema,
+            types = setOf("azure-native:network:IPAllocationMethod"),
+        )
+    }
+
+    @Test
+    fun `should work even when there are recursive references (regression)`() {
+        val outputSchema = runComputeSchemaSubsetScript(
+            schemaPath = resolve(SCHEMA_PATH_AZURE_NATIVE_SUBSET_WITH_RECURSION),
+            name = "azure-native:batch:AutoScaleRunResponse",
+            context = "type",
+        )
+
+        val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
+
+        assertContainsOnly(
+            decodedOutputSchema,
+            types = setOf(
+                "azure-native:batch:AutoScaleRunResponse",
+                "azure-native:batch:AutoScaleRunErrorResponse",
+            ),
+        )
+    }
+
+    @Test
+    fun `should load full parents when --load-full-parents=true`() {
+        val outputSchema = runComputeSchemaSubsetScript(
+            schemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE),
+            name = "aws:lambda/FunctionTracingConfig:FunctionTracingConfig",
+            context = "type",
+            loadFullParents = "true",
+        )
+
+        val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
+
+        assertContainsOnly(
+            decodedOutputSchema,
+            resources = setOf("aws:lambda/function:Function"),
+            types = setOf(
+                "aws:lambda/FunctionDeadLetterConfig:FunctionDeadLetterConfig",
+                "aws:lambda/FunctionEnvironment:FunctionEnvironment",
+                "aws:lambda/FunctionEphemeralStorage:FunctionEphemeralStorage",
+                "aws:lambda/FunctionFileSystemConfig:FunctionFileSystemConfig",
+                "aws:lambda/FunctionImageConfig:FunctionImageConfig",
+                "aws:lambda/FunctionTracingConfig:FunctionTracingConfig",
+                "aws:lambda/FunctionVpcConfig:FunctionVpcConfig",
+                "aws:lambda/Runtime:Runtime",
+            ),
+        )
+    }
+
+    @Test
+    fun `should shorten descriptions when --shorten-descriptions=true`() {
+        val outputSchema = runComputeSchemaSubsetScript(
+            schemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE),
+            name = "aws:lambda/function:Function",
+            context = "resource",
+            shortenDescriptions = "true",
+        )
+
+        assertContains(
+            outputSchema,
+            "S3 key of an object containing the function<<shortened>> Conflicts with `filename` and `image_uri`.",
+        )
+    }
+
+    private fun resolve(relativePath: String) =
+        Paths.get(relativePath).absolutePathString()
+
     private fun resolvedAwsClassicSchemaPath() =
-        Paths.get(SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE).absolutePathString()
+        resolve(SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE)
 
     private fun assertContainsOnly(
         schema: Schema,
@@ -102,28 +181,49 @@ internal class ComputeSchemaSubsetScriptTest {
         resources: Set<String> = emptySet(),
         types: Set<String> = emptySet(),
     ) {
-        assertEquals(types, schema.types.keys)
-        assertEquals(resources, schema.resources.keys)
-        assertEquals(functions, schema.functions.keys)
+        assertAll(
+            { assertEquals(types, schema.types.keys) },
+            { assertEquals(resources, schema.resources.keys) },
+            { assertEquals(functions, schema.functions.keys) },
+        )
     }
 
-    private fun runComputeSchemaSubsetScript(schemaPath: String, name: String, context: String): String {
+    private fun runComputeSchemaSubsetScript(
+        schemaPath: String,
+        name: String,
+        context: String,
+        shortenDescriptions: String? = null,
+        loadFullParents: String? = null,
+    ): String {
         val outputStream = ByteArrayOutputStream()
 
         outputStream.use {
+            val regularArguments = listOfNotNull(
+                "--schema-path",
+                schemaPath,
+                "--name",
+                name,
+                "--context",
+                context,
+            )
+            val optionalArgumentsToBeFlattened = listOfNotNull(
+                toListOrNull("--shorten-descriptions", shortenDescriptions),
+                toListOrNull("--load-full-parents", loadFullParents),
+            )
+
             ComputeSchemaSubsetScript(it).main(
-                listOf(
-                    "--schema-path",
-                    schemaPath,
-                    "--name",
-                    name,
-                    "--context",
-                    context,
-                ),
+                regularArguments + optionalArgumentsToBeFlattened.flatten(),
             )
         }
 
         return outputStream.toByteArray().decodeToString()
+    }
+
+    private fun toListOrNull(vararg strings: String?): List<String>? {
+        if (strings.any { it == null }) {
+            return null
+        }
+        return strings.map { requireNotNull(it) }.toList()
     }
 
     @Serializable
@@ -132,7 +232,17 @@ internal class ComputeSchemaSubsetScriptTest {
         val resources: Map<String, JsonElement>,
         val functions: Map<String, JsonElement>,
     )
+
+    companion object {
+        private val json = Json {
+            ignoreUnknownKeys = true
+        }
+    }
 }
 
+private const val SCHEMA_PATH_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION =
+    "src/test/resources/schema-azure-native-3.44.2-subset-with-ip-allocation.json"
+private const val SCHEMA_PATH_AZURE_NATIVE_SUBSET_WITH_RECURSION =
+    "src/test/resources/schema-azure-native-3.44.2-subset-with-recursion.json"
 private const val SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE =
     "src/test/resources/schema-aws-classic-5.16.2-subset-for-compute-schema-subset-script-test.json"
