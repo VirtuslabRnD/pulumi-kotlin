@@ -25,13 +25,13 @@ dependencies {
 
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
 
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.2")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.3")
     implementation("ch.qos.logback:logback-classic:1.4.4")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
     testImplementation(kotlin("test"))
-    testImplementation("com.google.cloud:google-cloud-compute:1.14.0")
+    testImplementation("com.google.cloud:google-cloud-compute:1.15.0")
     testImplementation("org.apache.commons:commons-lang3:3.12.0")
     testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("io.github.cdklabs:projen:0.63.25")
