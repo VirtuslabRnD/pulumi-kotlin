@@ -49,10 +49,13 @@ data class KotlinVersion(val javaVersion: Semver, val kotlinMinor: Int, val isSn
             val versionStringSegments = "^(\\d+.\\d+.\\d+).(\\d+)(\\-.*\\+[\\w\\d]+)?(\\-SNAPSHOT)?\$"
                 .toRegex()
                 .find(versionString)
-            val javaVersion = versionStringSegments?.groupValues?.get(1) ?: error("Invalid version string")
-            val kotlinMinor = versionStringSegments.groupValues[2]
-            val postfix = versionStringSegments.groupValues[3]
-            val isSnapshot = versionStringSegments.groupValues[4].isNotEmpty()
+                ?.groupValues
+                ?: error("Invalid version string")
+
+            val javaVersion = versionStringSegments[1]
+            val kotlinMinor = versionStringSegments[2]
+            val postfix = versionStringSegments[3]
+            val isSnapshot = versionStringSegments[4].isNotEmpty()
             return KotlinVersion(
                 Semver("$javaVersion$postfix"),
                 kotlinMinor.toInt(),
@@ -89,13 +92,9 @@ fun updateGeneratorVersion(gitDirectory: File, versionConfigFile: File) {
             isSnapshot = false,
         )
 
-        SchemaMetadata(
-            it.providerName,
-            it.url,
-            newKotlinVersion.toString(),
-            newKotlinVersion.javaVersion.toString(),
-            it.javaGitTag,
-            it.customDependencies,
+        it.copy(
+            kotlinVersion = newKotlinVersion.toString(),
+            javaVersion = newKotlinVersion.javaVersion.toString(),
         )
     }
 
@@ -133,48 +132,47 @@ fun updateProviderSchemas(gitDirectory: File, versionConfigFile: File) {
     client.close()
 }
 
-fun fetchUpdatedSchemas(
-    schemas: List<SchemaMetadata>,
-    client: HttpClient,
-) = schemas.map { schema ->
-    val providerName = schema.providerName
-    val oldJavaVersion = Semver(schema.javaVersion)
-    val versions = fetchVersions(
-        client,
-        providerName,
-        ComparableVersion(schema.javaVersion),
-        KotlinVersion.fromVersionString(schema.kotlinVersion),
-    )
-    versions.map {
-        val newJavaVersion = Semver(it.toString())
-        val newKotlinVersion = KotlinVersion(newJavaVersion, kotlinMinor = 0, isSnapshot = false)
-        val newGitTag = newJavaVersion.getGitTag()
-        val newUrl = schema.url.replace(schema.javaGitTag, newGitTag)
-        SchemaMetadata(
+private fun fetchUpdatedSchemas(schemas: List<SchemaMetadata>, client: HttpClient): List<SchemaMetadata> {
+    return schemas.map { schema ->
+        val providerName = schema.providerName
+        val oldJavaVersion = Semver(schema.javaVersion)
+        val versions = fetchVersions(
+            client,
             providerName,
-            newUrl,
-            newKotlinVersion.toString(),
-            newJavaVersion.toString(),
-            newGitTag,
-            listOf("com.pulumi:$providerName:$newJavaVersion"),
+            ComparableVersion(schema.javaVersion),
+            KotlinVersion.fromVersionString(schema.kotlinVersion),
         )
-    }
-        .firstOrNull { newSchema ->
-            val schemaExists = verifyUrl(client, newSchema.url)
-            if (!schemaExists) {
-                logger.warn("Skipping release ${newSchema.getKotlinGitTag()} (cannot find url: ${newSchema.url}")
-            }
-            val newJavaVersion = Semver(newSchema.javaVersion)
-            val sameMajor = newJavaVersion.major == oldJavaVersion.major
-            if (!sameMajor) {
-                logger.warn(
-                    "Version with major update available: ${newSchema.getKotlinGitTag()}. " +
-                        "Current version: ${schema.getKotlinGitTag()}",
-                )
-            }
-            schemaExists && sameMajor
+        versions.map {
+            val newJavaVersion = Semver(it.toString())
+            val newKotlinVersion = KotlinVersion(newJavaVersion, kotlinMinor = 0, isSnapshot = false)
+            val newGitTag = newJavaVersion.getGitTag()
+            val newUrl = schema.url.replace(schema.javaGitTag, newGitTag)
+            SchemaMetadata(
+                providerName,
+                newUrl,
+                newKotlinVersion.toString(),
+                newJavaVersion.toString(),
+                newGitTag,
+                listOf("com.pulumi:$providerName:$newJavaVersion"),
+            )
         }
-        ?: schema
+            .firstOrNull { newSchema ->
+                val schemaExists = verifyUrl(client, newSchema.url)
+                if (!schemaExists) {
+                    logger.warn("Skipping release ${newSchema.getKotlinGitTag()} (cannot find url: ${newSchema.url}")
+                }
+                val newJavaVersion = Semver(newSchema.javaVersion)
+                val sameMajor = newJavaVersion.major == oldJavaVersion.major
+                if (!sameMajor) {
+                    logger.warn(
+                        "Version with major update available: ${newSchema.getKotlinGitTag()}. " +
+                            "Current version: ${schema.getKotlinGitTag()}",
+                    )
+                }
+                schemaExists && sameMajor
+            }
+            ?: schema
+    }
 }
 
 fun replaceReleasedVersionsWithSnapshots(gitDirectory: File, versionConfigFile: File) {
@@ -190,14 +188,7 @@ fun replaceReleasedVersionsWithSnapshots(gitDirectory: File, versionConfigFile: 
                 oldKotlinVersion.kotlinMinor + 1,
                 isSnapshot = true,
             )
-            SchemaMetadata(
-                it.providerName,
-                it.url,
-                newKotlinVersion.toString(),
-                it.javaVersion,
-                it.javaGitTag,
-                it.customDependencies,
-            )
+            it.copy(kotlinVersion = newKotlinVersion.toString())
         }
     }
 
@@ -227,12 +218,12 @@ private fun fetchVersions(
     since: ComparableVersion,
     kotlinVersion: KotlinVersion,
 ): List<ComparableVersion> = runBlocking {
-    return@runBlocking fetchAllPagesSince(client, provider, since)
+    fetchAllPagesSince(client, provider, since)
         .filter { it > since || (kotlinVersion.isSnapshot && kotlinVersion.kotlinMinor == 0 && it == since) }
         .sorted()
 }
 
-private suspend fun fetchAllPagesSince(
+private fun fetchAllPagesSince(
     client: HttpClient,
     provider: String,
     since: ComparableVersion,
@@ -245,85 +236,63 @@ private suspend fun fetchAllPagesSince(
     return fetchPage + fetchAllPagesSince(client, provider, since, pageNumber + 1)
 }
 
-private suspend fun fetchPage(
+private fun fetchPage(
     client: HttpClient,
     provider: String,
     pageNumber: Int,
     pageSize: Int = 20,
-) = client.get {
-    url {
-        host = "search.maven.org"
-        appendPathSegments("solrsearch", "select")
-        encodedParameters.append(
-            "q",
-            "g:com.pulumi+AND+a:$provider",
-        )
-        encodedParameters.append(
-            "wt",
-            "json",
-        )
-        encodedParameters.append(
-            "core",
-            "gav",
-        )
-        encodedParameters.append(
-            "rows",
-            pageSize.toString(),
-        )
-        encodedParameters.append(
-            "start",
-            (pageSize * pageNumber).toString(),
-        )
+) = runBlocking {
+    client.get {
+        url {
+            host = "search.maven.org"
+            appendPathSegments("solrsearch", "select")
+            with(encodedParameters) {
+                append("q", "g:com.pulumi+AND+a:$provider")
+                append("wt", "json")
+                append("core", "gav")
+                append("rows", pageSize.toString())
+                append("start", (pageSize * pageNumber).toString())
+            }
+        }
     }
+        .body<MavenSearchResponse>()
+        .response
+        .docs
+        .map { ComparableVersion(it.version) }
 }
-    .body<MavenSearchResponse>()
-    .response
-    .docs
-    .map { ComparableVersion(it.version) }
 
 private fun verifyUrl(
     client: HttpClient,
     schemaUrl: String,
 ): Boolean = runBlocking {
-    val schemaUrlObject = Url(schemaUrl)
-    return@runBlocking client.head {
-        url {
-            protocol = schemaUrlObject.protocol
-            host = schemaUrlObject.host
-            pathSegments = schemaUrlObject.pathSegments
-        }
-    }
+    client.head(Url(schemaUrl))
         .status
         .equals(HttpStatusCode.OK)
 }
 
-private fun commitChangesInFile(gitDirectory: File, relativePath: File, commitMessage: String) {
+private fun commitChangesInFile(gitDirectory: File, absoluteFilePath: File, commitMessage: String) {
     val git = createGitInstance(gitDirectory)
-    git.add()
-        .addFilepattern(relativePath.path)
-        .call()
+    val relativePath = gitDirectory.toPath().relativize(absoluteFilePath.toPath()).toString()
+
     git.commit()
+        .setOnly(relativePath)
         .setMessage(commitMessage)
         .setSign(false)
         .setAllowEmpty(false)
         .call()
 }
 
-private fun getTags(updatedSchemas: List<SchemaMetadata>): List<String> {
-    val tags = updatedSchemas.filterNot {
+private fun getTags(updatedSchemas: List<SchemaMetadata>): List<String> =
+    updatedSchemas.filterNot {
         KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot
     }
         .map { it.getKotlinGitTag() }
-    return tags
-}
 
 private fun validateIfReleaseIsPossible(schemas: List<SchemaMetadata>) {
-    if (
-        schemas.map { it.kotlinVersion }
-            .map { KotlinVersion.fromVersionString(it) }
-            .filterNot { it.isSnapshot }
-            .isNotEmpty()
-    ) {
+    val nonSnapshotVersions = schemas.map { it.kotlinVersion }
+        .map { KotlinVersion.fromVersionString(it) }
+        .filterNot { it.isSnapshot }
+    if (nonSnapshotVersions.isNotEmpty()) {
         error("Trying to create a release, but configuration already contains non-SNAPSHOT versions")
     }
 }
