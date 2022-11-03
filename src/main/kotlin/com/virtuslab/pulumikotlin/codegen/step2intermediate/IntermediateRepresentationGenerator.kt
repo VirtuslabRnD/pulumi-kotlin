@@ -261,7 +261,7 @@ object IntermediateRepresentationGenerator {
         }
     }
 
-    private class Context(
+    private data class Context(
         val schema: ParsedSchema,
         val referenceFinder: ReferenceFinder,
     ) {
