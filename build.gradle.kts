@@ -49,7 +49,7 @@ tasks.withType<Jar> {
     archiveBaseName.set("${project.rootProject.name}-generator")
 }
 
-val versionConfigFile = File("src/main/resources/version-config.json")
+val versionConfigFile = File(projectDir, "src/main/resources/version-config.json")
 var schemaMetadata: List<SchemaMetadata> = getSchemaMetadata(versionConfigFile)
 
 val createTasksForProvider: (SchemaMetadata) -> Unit by extra
