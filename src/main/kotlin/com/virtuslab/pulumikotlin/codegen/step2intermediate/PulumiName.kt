@@ -14,7 +14,7 @@ import com.virtuslab.pulumikotlin.codegen.utils.capitalize
 import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 
 data class PulumiName(
-    val packageProviderName: String,
+    val providerName: String,
     val namespace: List<String>,
     val name: String,
 ) {
@@ -194,7 +194,7 @@ data class PulumiName(
         return when (namingFlags.language) {
             Kotlin, Java -> {
                 if (namespace.isEmpty()) {
-                    packageProviderName.capitalize() + "Functions"
+                    providerName.capitalize() + "Functions"
                 } else {
                     namespace.last().capitalize() + "Functions"
                 }
@@ -259,13 +259,13 @@ data class PulumiName(
                 }
             }
 
-            val packageProviderName = substituteWithOverride(namingConfiguration.providerName)
+            val providerName = substituteWithOverride(namingConfiguration.providerName)
             val moduleName = substituteWithOverride(module)
 
             val namespace =
-                (namingConfiguration.baseNamespace + packageProviderName + moduleName).filter { it.isNotBlank() }
+                (namingConfiguration.baseNamespace + providerName + moduleName).filter { it.isNotBlank() }
 
-            return PulumiName(packageProviderName, namespace, segments[2])
+            return PulumiName(providerName, namespace, segments[2])
         }
     }
 }

@@ -283,7 +283,7 @@ internal class PulumiNameTest {
 
         // then
         assertAll(
-            { assertEquals("provider", pulumiName.packageProviderName) },
+            { assertEquals("provider", pulumiName.providerName) },
             { assertEquals(listOf("org", "example", "provider", "module"), pulumiName.namespace) },
             { assertEquals("ObjectName", pulumiName.name) },
         )
@@ -304,7 +304,7 @@ internal class PulumiNameTest {
 
         // then
         assertAll(
-            { assertEquals("overrideProvider", pulumiName.packageProviderName) },
+            { assertEquals("overrideProvider", pulumiName.providerName) },
             { assertEquals(listOf("org", "example", "overrideProvider", "overrideModule"), pulumiName.namespace) },
             { assertEquals("ObjectName", pulumiName.name) },
         )
@@ -321,7 +321,7 @@ internal class PulumiNameTest {
 
         // then
         assertAll(
-            { assertEquals("provider", pulumiName.packageProviderName) },
+            { assertEquals("provider", pulumiName.providerName) },
             { assertEquals(listOf("com", "pulumi", "provider", "module"), pulumiName.namespace) },
             { assertEquals("ObjectName", pulumiName.name) },
         )
@@ -338,7 +338,7 @@ internal class PulumiNameTest {
 
         // then
         assertAll(
-            { assertEquals("provider", pulumiName.packageProviderName) },
+            { assertEquals("provider", pulumiName.providerName) },
             { assertEquals(listOf("com", "pulumi", "provider"), pulumiName.namespace) },
             { assertEquals("ObjectName", pulumiName.name) },
         )

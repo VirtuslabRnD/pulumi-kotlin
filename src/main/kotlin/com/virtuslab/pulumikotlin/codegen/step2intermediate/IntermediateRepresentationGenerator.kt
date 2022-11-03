@@ -277,7 +277,7 @@ object IntermediateRepresentationGenerator {
             copy(
                 name = with(name) {
                     PulumiName(
-                        packageProviderName.lowercase(),
+                        providerName.lowercase(),
                         namespace.map { it.lowercase() },
                         name.lowercase(),
                     )

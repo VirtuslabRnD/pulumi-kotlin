@@ -1,5 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step1schemaparse
 
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Metadata
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PackageLanguage
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.ArrayType
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.BooleanType
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.IntegerType
@@ -25,8 +27,8 @@ data class ParsedSchema(
     val types: TypesMap,
     val functions: FunctionsMap,
     val resources: ResourcesMap,
-    val meta: SchemaModel.Metadata? = null,
-    val language: SchemaModel.PackageLanguage? = null,
+    val meta: Metadata? = null,
+    val language: PackageLanguage? = null,
 )
 
 @Suppress("SERIALIZER_TYPE_INCOMPATIBLE") // https://github.com/VirtuslabRnD/pulumi-kotlin/issues/63
