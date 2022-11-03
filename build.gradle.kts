@@ -25,6 +25,9 @@ dependencies {
 
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
 
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.2")
+    implementation("ch.qos.logback:logback-classic:1.4.4")
+
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
     testImplementation(kotlin("test"))

@@ -90,12 +90,7 @@ internal class CodeGeneratorGenerateFunctionsTest {
         }
 
         val sourceFiles = files.map { (name, contents) ->
-            try {
-                SourceFile.kotlin(name, contents)
-            } catch (e: Exception) {
-                println("Failure for $name: $contents")
-                throw e
-            }
+            SourceFile.kotlin(name, contents)
         }
 
         val compileResult =

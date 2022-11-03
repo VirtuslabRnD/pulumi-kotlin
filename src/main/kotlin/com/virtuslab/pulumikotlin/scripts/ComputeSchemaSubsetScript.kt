@@ -25,6 +25,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import mu.KotlinLogging
 import java.io.File
 import java.io.OutputStream
 import java.io.PrintStream
@@ -44,6 +45,9 @@ fun main(args: Array<String>) {
  * ```
  */
 class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : CliktCommand() {
+
+    private val logger = KotlinLogging.logger {}
+
     private val printStream = PrintStream(outputStream)
 
     private val schemaPath: String by option().required()
@@ -80,7 +84,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         val chosenKey = NameWithContext(name, context)
         val requiredChildren = childrenByNameWithContext[chosenKey] ?: error("Could not find $name children ($context)")
         val requiredParents = parentsByNameWithContext[chosenKey] ?: run {
-            println("Could not find $name parents ($context)")
+            logger.info("Could not find $name parents ($context)")
             References.empty()
         }
 
@@ -174,7 +178,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
 
         val foundProperties = allProperties[key]
         if (foundProperties == null) {
-            println("Could not find $typeName")
+            logger.info("Could not find $typeName")
             return References.from(key)
         }
 
