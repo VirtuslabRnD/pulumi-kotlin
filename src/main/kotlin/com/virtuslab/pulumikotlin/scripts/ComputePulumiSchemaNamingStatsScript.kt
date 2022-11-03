@@ -57,9 +57,9 @@ class ComputePulumiSchemaNamingStatsScript : CliktCommand() {
         schemaFiles.forEach { file ->
             val decoded = json.parseToJsonElement(file.readText())
 
-            val types = decoded.decodeSection<TypesMap>("types")
-            val functions = decoded.decodeSection<FunctionsMap>("functions")
-            val resources = decoded.decodeSection<ResourcesMap>("resources")
+            val types: TypesMap = decoded.decodeMap("types")
+            val functions: FunctionsMap = decoded.decodeMap("functions")
+            val resources: ResourcesMap = decoded.decodeMap("resources")
 
             fun extractPattern(string: String): String {
                 return string.replace(Regex("[a-zA-Z0-9]|-"), "")
@@ -85,9 +85,9 @@ class ComputePulumiSchemaNamingStatsScript : CliktCommand() {
         schemaFiles.forEach { file ->
             val decoded = json.parseToJsonElement(file.readText())
 
-            val types = decoded.decodeSection<TypesMap>("types")
-            val functions = decoded.decodeSection<FunctionsMap>("functions")
-            val resources = decoded.decodeSection<ResourcesMap>("resources")
+            val types: TypesMap = decoded.decodeMap("types")
+            val functions: FunctionsMap = decoded.decodeMap("functions")
+            val resources: ResourcesMap = decoded.decodeMap("resources")
 
             fun extractPattern(string: String): String {
                 return regexAndRuleToTest
@@ -127,5 +127,7 @@ data class CountWithExamples(val count: Int = 0, val examples: List<Example> = e
     }
 }
 
-inline fun <reified T> JsonElement.decodeSection(section: String) =
-    Json.decodeFromJsonElement<T>(this.jsonObject[section]!!)
+private inline fun <reified K, reified V> JsonElement.decodeMap(key: String): Map<K, V> =
+    jsonObject[key]
+        ?.let { Json.decodeFromJsonElement<Map<K, V>>(it) }
+        .orEmpty()
