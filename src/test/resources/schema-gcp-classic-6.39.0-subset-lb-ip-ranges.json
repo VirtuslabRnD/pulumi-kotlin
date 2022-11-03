@@ -1,4 +1,8 @@
 {
+    "name": "gcp",
+    "meta": {
+        "moduleFormat": "(.*)(?:/[^/]*)"
+    },
     "resources": {
     },
     "functions": {

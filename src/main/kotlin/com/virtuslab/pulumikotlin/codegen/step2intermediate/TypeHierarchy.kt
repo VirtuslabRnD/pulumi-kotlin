@@ -19,19 +19,6 @@ data class TypeMetadata(
     val generatedClass: GeneratedClass = GeneratedClass.NormalClass,
 ) {
 
-    constructor(
-        name: String,
-        usageKind: UsageKind,
-        kDoc: KDoc,
-        generatedClass: GeneratedClass,
-    ) : this(PulumiName.from(name), usageKind, kDoc, generatedClass)
-
-    constructor(
-        name: String,
-        usageKind: UsageKind,
-        kDoc: KDoc,
-    ) : this(PulumiName.from(name), usageKind, kDoc)
-
     private fun namingFlags(language: LanguageType) =
         NamingFlags(
             usageKind.depth,

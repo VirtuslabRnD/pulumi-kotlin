@@ -1,4 +1,8 @@
 {
+  "name": "aws",
+  "meta": {
+    "moduleFormat": "(.*)(?:/[^/]*)"
+  },
   "types": {
     "aws:lambda/FunctionDeadLetterConfig:FunctionDeadLetterConfig": {
       "properties": {

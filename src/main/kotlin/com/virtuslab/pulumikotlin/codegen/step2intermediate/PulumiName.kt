@@ -51,6 +51,30 @@ data class PulumiName(
                 shouldConstructBuilders = false,
             )
 
+            NamingFlags(Nested, Function, Input, Kotlin, EnumClass) -> Modifiers(
+                "",
+                listOf("kotlin", "enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Nested, Function, Output, Kotlin, EnumClass) -> Modifiers(
+                "",
+                listOf("kotlin", "enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Nested, Function, Input, Java, EnumClass) -> Modifiers(
+                "",
+                listOf("enums"),
+                shouldConstructBuilders = false,
+            )
+
+            NamingFlags(Nested, Function, Output, Java, EnumClass) -> Modifiers(
+                "",
+                listOf("enums"),
+                shouldConstructBuilders = false,
+            )
+
             NamingFlags(Nested, Function, Input, Kotlin) -> Modifiers(
                 "Args",
                 listOf("kotlin", "inputs"),
@@ -154,15 +178,15 @@ data class PulumiName(
     fun toResourcePackage(namingFlags: NamingFlags): String {
         // TODO: todo
         return when (namingFlags.language) {
-            Kotlin -> packageToString(relativeToProviderPackage(namespace) + listOf("kotlin"))
-            Java -> packageToString(relativeToProviderPackage(namespace))
+            Kotlin -> packageToString(namespace + listOf("kotlin"))
+            Java -> packageToString(namespace)
         }
     }
 
     fun toFunctionGroupObjectPackage(namingFlags: NamingFlags): String {
         return when (namingFlags.language) {
-            Kotlin -> packageToString(relativeToProviderPackage(namespace) + listOf("kotlin"))
-            Java -> packageToString(relativeToProviderPackage(namespace))
+            Kotlin -> packageToString(namespace + listOf("kotlin"))
+            Java -> packageToString(namespace)
         }
     }
 
@@ -194,7 +218,7 @@ data class PulumiName(
 
     fun toPackage(namingFlags: NamingFlags): String {
         val modifiers = getModifiers(namingFlags)
-        return packageToString(relativeToProviderPackage(namespace) + modifiers.packageSuffix)
+        return packageToString(namespace + modifiers.packageSuffix)
     }
 
     fun toFunctionName(namingFlags: NamingFlags): String {
@@ -208,18 +232,40 @@ data class PulumiName(
         return packageList.joinToString(".")
     }
 
-    private fun relativeToProviderPackage(packageList: List<String>): List<String> {
-        return listOf("com", "pulumi", providerName) + packageList
-    }
-
     companion object {
-        fun from(string: String): PulumiName {
-            val segments = string.split("/").first().split(":")
-            val providerName = segments.first()
-            val namespace = if (segments.getOrNull(1) == "index") segments.drop(2) else segments.drop(1)
-            val name = string.split("/").last().split(":").last()
+        private const val EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN = 3
 
-            return PulumiName(providerName, namespace, name)
+        fun from(token: String, namingConfiguration: PulumiNamingConfiguration): PulumiName {
+            // token = pkg ":" module ":" member
+
+            val segments = token.split(":")
+
+            require(segments.size == EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN) { "Malformed token $token" }
+
+            fun substituteWithOverride(name: String) = namingConfiguration.packageOverrides[name] ?: name
+
+            val module = when (segments[1]) {
+                "providers" -> ""
+                else -> {
+                    val moduleMatches = namingConfiguration.moduleFormatRegex.matchEntire(segments[1])
+                        ?.groupValues
+                        .orEmpty()
+
+                    if (moduleMatches.size < 2 || moduleMatches[1].startsWith("index")) {
+                        ""
+                    } else {
+                        moduleMatches[1]
+                    }
+                }
+            }
+
+            val providerName = substituteWithOverride(namingConfiguration.providerName)
+            val moduleName = substituteWithOverride(module)
+
+            val namespace =
+                (namingConfiguration.baseNamespace + providerName + moduleName).filter { it.isNotBlank() }
+
+            return PulumiName(providerName, namespace, segments[2])
         }
     }
 }

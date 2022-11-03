@@ -17,6 +17,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
+import com.virtuslab.pulumikotlin.namingConfigurationWithSlashInModuleFormat
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.util.Random
@@ -46,7 +47,11 @@ internal class IntermediateRepresentationGeneratorTest {
         )
         val resources = someResourceWithOutputReferences(typeName1)
 
-        val ir = getIntermediateRepresentation(types = types, resources = resources)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -76,7 +81,11 @@ internal class IntermediateRepresentationGeneratorTest {
         )
         val resources = someResourceWithInputReferences(typeName)
 
-        val ir = getIntermediateRepresentation(types = types, resources = resources)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -102,7 +111,11 @@ internal class IntermediateRepresentationGeneratorTest {
             referencedOutputTypeNames = listOf(typeName),
         )
 
-        val ir = getIntermediateRepresentation(types = types, resources = resources)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -137,7 +150,12 @@ internal class IntermediateRepresentationGeneratorTest {
             referencedInputTypeNames = listOf(typeName),
         )
 
-        val ir = getIntermediateRepresentation(types = types, resources = resources, functions = functions)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+            functions = functions,
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -178,7 +196,12 @@ internal class IntermediateRepresentationGeneratorTest {
             ),
         )
 
-        val ir = getIntermediateRepresentation(types = types, resources = resources)
+        val namingConfiguration = namingConfigurationWithSlashInModuleFormat("provider")
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+        )
         val irTypes = ir.types
         val irResources = ir.resources
 
@@ -190,7 +213,7 @@ internal class IntermediateRepresentationGeneratorTest {
         )
 
         assertEquals(1, irResources.size)
-        assertEquals(PulumiName.from(resourceName), irResources.first().name)
+        assertEquals(PulumiName.from(resourceName, namingConfiguration), irResources.first().name)
         assertEquals(irTypes.findComplexTypeThat(isNamed = "resource")!!.toReference(), irResources.first().argsType)
     }
 
@@ -227,7 +250,12 @@ internal class IntermediateRepresentationGeneratorTest {
             ),
         )
 
-        val ir = getIntermediateRepresentation(types = types, functions = functions)
+        val namingConfiguration = namingConfigurationWithSlashInModuleFormat("provider")
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            functions = functions,
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -247,7 +275,7 @@ internal class IntermediateRepresentationGeneratorTest {
         val irFunctions = ir.functions
 
         assertEquals(1, irFunctions.size)
-        assertEquals(PulumiName.from(functionName), irFunctions.first().name)
+        assertEquals(PulumiName.from(functionName, namingConfiguration), irFunctions.first().name)
         assertEquals(
             irTypes.findComplexTypeThat(isNamed = "function", hasUsageOfKind = UsageKind(Root, Function, Input))!!,
             irFunctions.first().argsType,
@@ -285,7 +313,11 @@ internal class IntermediateRepresentationGeneratorTest {
             ),
         )
 
-        val ir = getIntermediateRepresentation(types = types, functions = functions)
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            functions = functions,
+        )
         val irTypes = ir.types
 
         assertContainsComplexTypeThat(
@@ -365,13 +397,26 @@ internal class IntermediateRepresentationGeneratorTest {
         assertNotNull(foundType)
     }
 
+    @Suppress("LongParameterList") // these parameters are required to create PulumiNamingConfiguration
     private fun getIntermediateRepresentation(
+        providerName: String,
         types: TypesMap = emptyMap(),
         functions: FunctionsMap = emptyMap(),
         resources: ResourcesMap = emptyMap(),
+        meta: SchemaModel.Metadata? = getMetaWithSlashInModuleFormat(),
+        language: SchemaModel.PackageLanguage? = null,
     ) = IntermediateRepresentationGenerator.getIntermediateRepresentation(
-        ParsedSchema(types = types, resources = resources, functions = functions),
+        ParsedSchema(
+            providerName = providerName,
+            types = types,
+            resources = resources,
+            functions = functions,
+            meta = meta,
+            language = language,
+        ),
     )
+
+    private fun getMetaWithSlashInModuleFormat() = SchemaModel.Metadata("(.*)(?:/[^/]*)")
 
     private fun someResourceWithInputReferences(vararg referencedInputTypeNames: String) =
         someResourceWithReferences(referencedInputTypeNames = referencedInputTypeNames.toList())

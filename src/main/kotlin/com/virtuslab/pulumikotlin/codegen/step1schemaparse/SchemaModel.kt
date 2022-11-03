@@ -1,5 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step1schemaparse
 
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Metadata
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PackageLanguage
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.ArrayType
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.BooleanType
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyType.IntegerType
@@ -21,9 +23,12 @@ typealias FunctionsMap = Map<String, SchemaModel.Function>
 typealias ResourcesMap = Map<String, SchemaModel.Resource>
 
 data class ParsedSchema(
+    val providerName: String,
     val types: TypesMap,
     val functions: FunctionsMap,
     val resources: ResourcesMap,
+    val meta: Metadata? = null,
+    val language: PackageLanguage? = null,
 )
 
 @Suppress("SERIALIZER_TYPE_INCOMPATIBLE") // https://github.com/VirtuslabRnD/pulumi-kotlin/issues/63
@@ -258,5 +263,25 @@ object SchemaModel {
         val outputs: ObjectProperty,
         val deprecationMessage: String? = null,
         val description: String? = null,
+    )
+
+    @Serializable
+    data class Metadata(val moduleFormat: String? = null)
+
+    @Serializable
+    data class PackageLanguage(
+        val nodejs: JsonElement? = null,
+        val python: JsonElement? = null,
+        val go: JsonElement? = null,
+        val csharp: JsonElement? = null,
+        val java: JavaPackageLanguage? = null,
+    )
+
+    @Serializable
+    data class JavaPackageLanguage(
+        val packages: Map<String, String>? = emptyMap(),
+        val basePackage: String? = null,
+        val buildFiles: String? = null,
+        val dependencies: Map<String, String>? = emptyMap(),
     )
 }
