@@ -8,6 +8,8 @@ import java.nio.file.Files
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+private const val RESOURCES = "src/test/resources"
+
 class ReleaseScriptsTest {
 
     @Test
@@ -89,21 +91,18 @@ class ReleaseScriptsTest {
 
     @Test
     fun `updates provider schema versions`() {
-        val temporaryGitRepository = "build/tmp/provider-update-test-${RandomStringUtils.randomAlphanumeric(10)}"
+        val temporaryGitRepository = File("build/tmp/provider-update-test-${RandomStringUtils.randomAlphanumeric(10)}")
         val beforeUpdateFileName = "before-schema-update.json"
         val afterUpdateFileName = "after-schema-update.json"
-
-        FileRepositoryBuilder.create(File(temporaryGitRepository, ".git")).create()
-
         val temporaryBeforeUpdateFile = File("$temporaryGitRepository/$beforeUpdateFileName")
-        val expectedAfterUpdateFile = File("src/test/resources/$afterUpdateFileName")
+        val expectedAfterUpdateFile = File("$RESOURCES/$afterUpdateFileName")
 
-        Files.copy(
-            File("src/test/resources/$beforeUpdateFileName").toPath(),
-            temporaryBeforeUpdateFile.toPath(),
+        createRepoWithSingleFile(
+            temporaryGitRepository,
+            beforeUpdateFileName,
         )
 
-        updateProviderSchemas(File(temporaryGitRepository), temporaryBeforeUpdateFile)
+        updateProviderSchemas(temporaryGitRepository, temporaryBeforeUpdateFile)
 
         assertEquals(
             expectedAfterUpdateFile.readText(),
@@ -113,21 +112,18 @@ class ReleaseScriptsTest {
 
     @Test
     fun `updates versions after generator update`() {
-        val temporaryGitRepository = "build/tmp/generator-update-test-${RandomStringUtils.randomAlphanumeric(10)}"
+        val temporaryGitRepository = File("build/tmp/generator-update-test-${RandomStringUtils.randomAlphanumeric(10)}")
         val beforeUpdateFileName = "before-generator-update.json"
         val afterUpdateFileName = "after-generator-update.json"
-
-        FileRepositoryBuilder.create(File(temporaryGitRepository, ".git")).create()
-
         val temporaryBeforeUpdateFile = File("$temporaryGitRepository/$beforeUpdateFileName")
-        val expectedAfterUpdateFile = File("src/test/resources/$afterUpdateFileName")
+        val expectedAfterUpdateFile = File("$RESOURCES/$afterUpdateFileName")
 
-        Files.copy(
-            File("src/test/resources/$beforeUpdateFileName").toPath(),
-            temporaryBeforeUpdateFile.toPath(),
+        createRepoWithSingleFile(
+            temporaryGitRepository,
+            beforeUpdateFileName,
         )
 
-        updateGeneratorVersion(File(temporaryGitRepository), temporaryBeforeUpdateFile)
+        updateGeneratorVersion(temporaryGitRepository, temporaryBeforeUpdateFile)
 
         assertEquals(
             expectedAfterUpdateFile.readText(),
@@ -137,21 +133,20 @@ class ReleaseScriptsTest {
 
     @Test
     fun `cleans up after release (moves to SNAPSHOT versions)`() {
-        val temporaryGitRepository = "build/tmp/release-clean-up-test-${RandomStringUtils.randomAlphanumeric(10)}"
+        val temporaryGitRepository = File(
+            "build/tmp/release-clean-up-test-${RandomStringUtils.randomAlphanumeric(10)}",
+        )
         val beforeUpdateFileName = "before-cleanup.json"
         val afterUpdateFileName = "after-cleanup.json"
-
-        FileRepositoryBuilder.create(File(temporaryGitRepository, ".git")).create()
-
         val temporaryBeforeUpdateFile = File("$temporaryGitRepository/$beforeUpdateFileName")
-        val expectedAfterUpdateFile = File("src/test/resources/$afterUpdateFileName")
+        val expectedAfterUpdateFile = File("$RESOURCES/$afterUpdateFileName")
 
-        Files.copy(
-            File("src/test/resources/$beforeUpdateFileName").toPath(),
-            temporaryBeforeUpdateFile.toPath(),
+        createRepoWithSingleFile(
+            temporaryGitRepository,
+            beforeUpdateFileName,
         )
 
-        replaceReleasedVersionsWithSnapshots(File(temporaryGitRepository), temporaryBeforeUpdateFile)
+        replaceReleasedVersionsWithSnapshots(temporaryGitRepository, temporaryBeforeUpdateFile)
 
         assertEquals(
             expectedAfterUpdateFile.readText(),
@@ -161,34 +156,21 @@ class ReleaseScriptsTest {
 
     @Test
     fun `tags released versions`() {
-        val temporaryGitRepository = "build/tmp/tag-release-test-${RandomStringUtils.randomAlphanumeric(10)}"
-        val beforeUpdateFileName = "after-schema-update.json"
+        val temporaryGitRepository = File("build/tmp/tag-release-test-${RandomStringUtils.randomAlphanumeric(10)}")
+        val versionConfigFileName = "after-schema-update.json"
+        val versionConfigFile = File("$RESOURCES/$versionConfigFileName")
+        val temporaryVersionConfigFile = File("$temporaryGitRepository/$versionConfigFileName")
 
-        val repository = FileRepositoryBuilder.create(File(temporaryGitRepository, ".git"))
-        repository.create()
-        val git = Git(repository)
-
-        val beforeUpdateFile = File("src/test/resources/$beforeUpdateFileName")
-        val temporaryBeforeUpdateFile = File("$temporaryGitRepository/$beforeUpdateFileName")
-
-        Files.copy(
-            beforeUpdateFile.toPath(),
-            temporaryBeforeUpdateFile.toPath(),
+        val git = createRepoWithSingleFile(
+            temporaryGitRepository,
+            versionConfigFileName,
         )
 
-        git.add().addFilepattern(beforeUpdateFileName).call()
-        git.commit()
-            .setMessage("Prepare release")
-            .setSign(false)
-            .setAllowEmpty(false)
-            .call()
-        git.branchRename().setOldName("master").setNewName("main").call()
-
-        tagRecentReleases(File(temporaryGitRepository), temporaryBeforeUpdateFile)
+        tagRecentReleases(temporaryGitRepository, temporaryVersionConfigFile)
 
         assertEquals(
-            beforeUpdateFile.readText(),
-            temporaryBeforeUpdateFile.readText(),
+            versionConfigFile.readText(),
+            temporaryVersionConfigFile.readText(),
         )
 
         val tagList = git.tagList()
@@ -202,5 +184,29 @@ class ReleaseScriptsTest {
                 tagList.contains("aws/v5.17.0.0-alpha.1665590627+9c01b95f") &&
                 tagList.contains("gcp/v6.39.0.0"),
         )
+    }
+
+    private fun createRepoWithSingleFile(
+        temporaryGitRepository: File,
+        beforeUpdateFileName: String,
+        commitMessage: String = "Add version config",
+    ): Git {
+        val repository = FileRepositoryBuilder.create(File(temporaryGitRepository, ".git"))
+        repository.create()
+
+        Files.copy(
+            File("$RESOURCES/$beforeUpdateFileName").toPath(),
+            File("$temporaryGitRepository/$beforeUpdateFileName").toPath(),
+        )
+
+        val git = Git(repository)
+        git.add().addFilepattern(beforeUpdateFileName).call()
+        git.commit()
+            .setMessage(commitMessage)
+            .setSign(false)
+            .setAllowEmpty(false)
+            .call()
+
+        return git
     }
 }
