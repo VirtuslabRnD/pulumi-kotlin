@@ -61,7 +61,8 @@ internal fun ejectToMavenProject(dependencies: List<String>, directoriesOrFiles:
     val preparedTestName = testName?.let {
         val withEscapedChars = it.replace(Regex(" +"), "-").replace(Regex("[^a-zA-Z0-9-]"), "")
         "$withEscapedChars-"
-    } ?: ""
+    }
+        .orEmpty()
 
     val ejectedProjectName = "test-$preparedTestName$formattedTime"
     val outputDirectoryBase = "ejected-tests/$ejectedProjectName"

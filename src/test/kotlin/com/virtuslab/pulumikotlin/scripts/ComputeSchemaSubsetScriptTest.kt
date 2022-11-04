@@ -198,7 +198,7 @@ internal class ComputeSchemaSubsetScriptTest {
         val outputStream = ByteArrayOutputStream()
 
         outputStream.use {
-            val regularArguments = listOfNotNull(
+            val regularArguments = listOf(
                 "--schema-path",
                 schemaPath,
                 "--name",

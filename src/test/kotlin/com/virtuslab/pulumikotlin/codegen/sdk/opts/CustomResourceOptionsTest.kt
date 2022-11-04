@@ -533,7 +533,7 @@ internal class CustomResourceOptionsTest {
         // then
         assertResourceTransformationResultEquals(
             expectedResourceTransformationResult,
-            opts.resourceTransformations,
+            opts.resourceTransformations.orEmpty(),
             javaArgs,
         )
     }
@@ -568,7 +568,7 @@ internal class CustomResourceOptionsTest {
         // then
         assertResourceTransformationResultEquals(
             expectedResourceTransformationResult,
-            opts.resourceTransformations,
+            opts.resourceTransformations.orEmpty(),
             javaArgs,
         )
     }
@@ -690,14 +690,14 @@ internal class CustomResourceOptionsTest {
 
     private fun assertResourceTransformationResultEquals(
         expectedResult: JavaResourceTransformationResult,
-        actualTransformations: List<ResourceTransformation>?,
+        actualTransformations: List<ResourceTransformation>,
         transformationArgs: JavaResourceTransformationArgs,
     ) {
-        if (actualTransformations.isNullOrEmpty()) {
+        if (actualTransformations.isEmpty()) {
             fail<JavaResourceTransformationResult>("Resource transformation results are empty!")
         }
 
-        val actualToExpectedResult = actualTransformations!!
+        val actualToExpectedResult = actualTransformations
             .map { it.apply(transformationArgs) }
             // assert that after invocation of transformation the invocation results would be the same as expected,
             .map { { assertTrue { it!!.args() == expectedResult.args() && it.options() == expectedResult.options() } } }
