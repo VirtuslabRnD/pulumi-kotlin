@@ -13,24 +13,26 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+val ktorVersion by extra { "2.1.3" }
+
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20")
+    implementation(kotlin("gradle-plugin", version = "1.7.20"))
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.7.20")
     implementation("de.undercouch.download:de.undercouch.download.gradle.plugin:5.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.20")
+    implementation(kotlin("stdlib"))
 
-    implementation("io.ktor:ktor-client-core:2.1.2")
-    implementation("io.ktor:ktor-client-cio:2.1.2")
-    implementation("io.ktor:ktor-client-logging:2.1.2")
-    implementation("io.ktor:ktor-client-content-negotiation:2.1.2")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.2")
-    implementation("org.jetbrains.kotlin:kotlin-maven-serialization:1.7.20")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation(kotlin("maven-serialization"))
     implementation("org.apache.maven:maven-artifact:3.8.6")
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r")
     implementation("org.semver4j:semver4j:2.2.0")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.20")
+    testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
 }
 
