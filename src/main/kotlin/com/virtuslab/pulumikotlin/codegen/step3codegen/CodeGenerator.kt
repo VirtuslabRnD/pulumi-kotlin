@@ -20,7 +20,7 @@ data class GeneratorArguments(
 
 object CodeGenerator {
     fun run(input: GeneratorArguments): List<WriteableFile> {
-        val typeNameClashResolver = TypeNameClashResolver(input)
+        val typeNameClashResolver = TypeNameClashResolver(input.types)
         val generatedTypes = TypeGenerator.generateTypes(input.types, input.options, typeNameClashResolver)
         val generatedResources = ResourceGenerator.generateResources(input.resources, typeNameClashResolver)
         val generatedFunctions = FunctionGenerator.generateFunctions(input.functions, typeNameClashResolver)

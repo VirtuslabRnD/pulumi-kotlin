@@ -13,10 +13,8 @@ import com.squareup.kotlinpoet.asTypeName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
@@ -33,9 +31,9 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.RootType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UsageKind
 
-class TypeNameClashResolver(input: GeneratorArguments) {
+class TypeNameClashResolver(types: List<RootType>) {
 
-    private val syntheticKotlinTypeNames: List<TypeName> = input.types
+    private val syntheticKotlinTypeNames: List<TypeName> = types
         .filter { it.metadata.usageKind.depth == Depth.Nested }
         .map { it.toTypeName(Kotlin) }
 
@@ -99,24 +97,17 @@ class TypeNameClashResolver(input: GeneratorArguments) {
     }
 
     private fun RootType.toTypeName(languageType: LanguageType): TypeName {
-        return when (this) {
-            is ComplexType -> metadata.names(languageType).kotlinPoetClassName
-            is EnumType -> metadata.names(languageType).kotlinPoetClassName
-        }
+        return metadata.names(languageType).kotlinPoetClassName
     }
 
-    fun <T : ReferencedType> toTypeName(field: OutputWrappedField<T>, languageType: LanguageType): TypeName {
-        return outputClass().parameterizedBy(toTypeName(field.type, languageType))
-    }
-
-    fun <T : ReferencedType> toTypeName(field: NormalField<T>, languageType: LanguageType): TypeName {
-        return toTypeName(field.type, languageType)
+    fun toTypeName(type: ReferencedRootType, languageType: LanguageType): ClassName {
+        return type.metadata.names(languageType).kotlinPoetClassName
     }
 
     fun <T : ReferencedType> toTypeName(type: FieldType<T>, languageType: LanguageType): TypeName {
         return when (type) {
-            is NormalField -> toTypeName(type, languageType)
-            is OutputWrappedField -> toTypeName(type, languageType)
+            is NormalField -> toTypeName(type.type, languageType)
+            is OutputWrappedField -> outputClass().parameterizedBy(toTypeName(type.type, languageType))
         }
     }
 
@@ -157,9 +148,5 @@ class TypeNameClashResolver(input: GeneratorArguments) {
     private fun PrimitiveType.toTypeName(languageType: LanguageType): TypeName {
         require(languageType == Kotlin) { "Types other than $Kotlin not expected" }
         return ClassName("kotlin", name)
-    }
-
-    fun toTypeName(type: ReferencedRootType, languageType: LanguageType): ClassName {
-        return type.metadata.names(languageType).kotlinPoetClassName
     }
 }

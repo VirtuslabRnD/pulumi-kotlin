@@ -76,26 +76,20 @@ data class PulumiName(
                 shouldConstructBuilders = false,
             )
 
-            namingFlags.matches(Nested, Function, Input, NormalClass) -> namingFlags.getModifier(
-                "",
-                listOf("inputs"),
-                shouldConstructBuilders = true,
-            )
-
             namingFlags.matches(Nested, Resource, Input, NormalClass) -> namingFlags.getModifier(
                 "Args",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
             )
 
-            namingFlags.matches(Root, Resource, Input, NormalClass) -> namingFlags.getModifier(
-                "Args",
-                emptyList(),
-                shouldConstructBuilders = true,
+            namingFlags.matches(Nested, Resource, Output, NormalClass) -> namingFlags.getModifier(
+                "",
+                listOf("outputs"),
+                shouldConstructBuilders = false,
             )
 
-            namingFlags.matches(Root, Function, Input, NormalClass) -> namingFlags.getModifier(
-                "PlainArgs",
+            namingFlags.matches(Nested, Function, Input, NormalClass) -> namingFlags.getModifier(
+                "",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
             )
@@ -106,10 +100,22 @@ data class PulumiName(
                 shouldConstructBuilders = false,
             )
 
-            namingFlags.matches(Nested, Resource, Output, NormalClass) -> namingFlags.getModifier(
+            namingFlags.matches(Root, Resource, Input, NormalClass) -> namingFlags.getModifier(
+                "Args",
+                emptyList(),
+                shouldConstructBuilders = true,
+            )
+
+            namingFlags.matches(Root, Resource, Output, NormalClass) -> namingFlags.getModifier(
                 "",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
+            )
+
+            namingFlags.matches(Root, Function, Input, NormalClass) -> namingFlags.getModifier(
+                "PlainArgs",
+                listOf("inputs"),
+                shouldConstructBuilders = true,
             )
 
             namingFlags.matches(Root, Function, Output, NormalClass) -> namingFlags.getModifier(
@@ -117,12 +123,6 @@ data class PulumiName(
                 listOf("outputs"),
                 shouldConstructBuilders = false,
                 alternativeNameSuffix = "InvokeResult",
-            )
-
-            namingFlags.matches(Root, Resource, Output, NormalClass) -> namingFlags.getModifier(
-                "",
-                listOf("outputs"),
-                shouldConstructBuilders = false,
             )
 
             else -> error("There is no mapping for $namingFlags (happened in $this)")
@@ -161,12 +161,12 @@ data class PulumiName(
     }
 
     fun toClassName(namingFlags: NamingFlags): String {
-        val suffix = getSuffix(namingFlags)
+        val suffix = getNameSuffix(namingFlags)
         return name.capitalize() + suffix
     }
 
     fun toBuilderClassName(namingFlags: NamingFlags): String {
-        val suffix = getSuffix(namingFlags)
+        val suffix = getNameSuffix(namingFlags)
         return name.capitalize() + suffix + "Builder"
     }
 
@@ -186,7 +186,7 @@ data class PulumiName(
         return packageList.joinToString(".")
     }
 
-    private fun getSuffix(namingFlags: NamingFlags): String {
+    private fun getNameSuffix(namingFlags: NamingFlags): String {
         val modifiers = getModifiers(namingFlags)
 
         return if (namingFlags.useAlternativeName) {
