@@ -1,7 +1,7 @@
 plugins {
     application
     kotlin("jvm")
-    kotlin("plugin.serialization") version "1.7.0"
+    kotlin("plugin.serialization") version "1.7.20"
     id("org.jmailen.kotlinter") version "3.12.0"
     id("io.gitlab.arturbosch.detekt") version "1.21.0"
     id("code-generation")
@@ -18,23 +18,22 @@ dependencies {
     implementation("com.pulumi:pulumi:0.6.0")
 
     implementation("com.squareup:kotlinpoet:1.12.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
 
     implementation("com.github.ajalt.clikt:clikt:3.5.0")
 
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
 
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.2")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
     implementation("ch.qos.logback:logback-classic:1.4.4")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
     testImplementation(kotlin("test"))
-    testImplementation("com.google.cloud:google-cloud-compute:1.12.1")
-    testImplementation("org.apache.commons:commons-lang3:3.12.0")
+    testImplementation("com.google.cloud:google-cloud-compute:1.15.0")
     testImplementation("io.mockk:mockk:1.13.2")
-    testImplementation("io.github.cdklabs:projen:0.63.25")
+    testImplementation("io.github.cdklabs:projen:0.65.7")
 }
 
 tasks.test {
@@ -49,24 +48,14 @@ tasks.withType<Jar> {
     archiveBaseName.set("${project.rootProject.name}-generator")
 }
 
-data class Schema(val providerName: String, val path: String, val customDependencies: List<String>)
+val versionConfigFile = File(projectDir, "src/main/resources/version-config.json")
+var schemaMetadata: List<SchemaMetadata> = getSchemaMetadata(versionConfigFile)
 
-val schemas = listOf(
-    Schema("aws", "src/main/resources/schema-aws-classic-subset-for-build.json", listOf("com.pulumi:aws:5.16.2")),
-    Schema("gcp", "src/main/resources/schema-gcp-classic-subset-for-build.json", listOf("com.pulumi:gcp:6.38.0")),
-    Schema("slack", "src/main/resources/schema-slack-subset-for-build.json", listOf("com.pulumi:slack:0.3.0")),
-    Schema("github", "src/main/resources/schema-github-subset-for-build.json", listOf("com.pulumi:github:4.17.0")),
-)
-
-val createTasksForProvider: (String, String, String, List<String>) -> Unit by extra
-
-schemas.forEach { schema ->
-    createTasksForProvider("build/generated-src", schema.providerName, schema.path, schema.customDependencies)
-}
-
+val createTasksForProvider: (SchemaMetadata) -> Unit by extra
 val createGlobalProviderTasks: (List<String>) -> Unit by extra
 
-createGlobalProviderTasks(schemas.map { it.providerName })
+schemaMetadata.forEach { createTasksForProvider(it) }
+createGlobalProviderTasks(schemaMetadata.map { it.providerName })
 
 sourceSets {
     create("e2eTest") {
@@ -104,3 +93,31 @@ detekt {
 tasks["detekt"].dependsOn(tasks["detektMain"])
 tasks["detekt"].dependsOn(tasks["detektTest"])
 tasks["detekt"].dependsOn(tasks["detektE2eTest"])
+
+tasks.register<Task>("prepareReleaseOfUpdatedSchemas") {
+    group = "releaseManagement"
+    doLast {
+        updateProviderSchemas(projectDir, versionConfigFile)
+    }
+}
+
+tasks.register<Task>("prepareReleaseAfterGeneratorUpdate") {
+    group = "releaseManagement"
+    doLast {
+        updateGeneratorVersion(projectDir, versionConfigFile)
+    }
+}
+
+tasks.register<Task>("tagRecentRelease") {
+    group = "releaseManagement"
+    doLast {
+        tagRecentReleases(projectDir, versionConfigFile)
+    }
+}
+
+tasks.register<Task>("postRelease") {
+    group = "releaseManagement"
+    doLast {
+        replaceReleasedVersionsWithSnapshots(projectDir, versionConfigFile)
+    }
+}

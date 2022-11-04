@@ -1,0 +1,73 @@
+name: Prepare release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tag:
+    name: Tag release
+    runs-on: ubuntu-latest
+    outputs:
+      is_release: ${{ steps.check_number_of_commits.outputs.is_release }}
+    steps:
+      - name: Check out project sources
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: Set up Git user
+        uses: fregante/setup-git-user@v1
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Tag new versions of Pulumi Kotlin (if available)
+        run: ./gradlew tagRecentRelease
+      - name: Check number of commits
+        id: check_number_of_commits
+        run: |
+          number_of_commits=$(git tag --points-at HEAD | wc -l | awk '{print $1}')
+          if [[ "$number_of_commits" == "0" ]]; then is_release=false; else is_release=true; fi
+          echo "is_release=$is_release" >> $GITHUB_OUTPUT
+      - name: Push tags
+        run: git push --tags
+  publish:
+    name: Publish packages
+    needs: tag
+    runs-on: ubuntu-latest
+    if: ${{ needs.tag.outputs.is_release == 'true' }}
+    steps:
+      - name: Check out project sources
+        uses: actions/checkout@v2
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Publish packages
+        run: ./gradlew publishAllPublicationsToGitHubPackagesRepository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  cleanup:
+    name: Clean up after release
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out project sources
+        uses: actions/checkout@v2
+      - name: Prepare for next development phase
+        run: ./gradlew postRelease
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          title: Prepare for next development phase
+          body: |
+            ## Task
+
+            Resolves: None
+
+            ## Description
+
+            This PR was triggered automatically after a release. It replaces the released versions with SNAPSHOT versions.
+          base: main
+          branch: prepare-for-next-development-phase
+          branch-suffix: short-commit-hash
