@@ -17,8 +17,6 @@ import com.virtuslab.pulumikotlin.codegen.expressions.addCode
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Java.Pulumi.outputOfMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.applySuspendExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.applyValueExtensionMethod
@@ -98,7 +96,6 @@ object TypeGenerator {
 
     private fun generateFile(context: Context, typeNameClashResolver: TypeNameClashResolver): FileSpec {
         val typeMetadata = context.typeMetadata
-        val useAlternativeName = typeNameClashResolver.shouldUseAlternativeName(typeMetadata)
         val names = typeNameClashResolver.kotlinNames(typeMetadata)
 
         return FileSpec
@@ -110,7 +107,7 @@ object TypeGenerator {
                 toKotlinExtensionMethod(),
             )
             .addTypes(
-                generateArgsClass(context, useAlternativeName, names, typeNameClashResolver),
+                generateArgsClass(context, names, typeNameClashResolver),
                 generateArgsBuilderClass(context, names, typeNameClashResolver),
             )
             .build()
@@ -118,7 +115,6 @@ object TypeGenerator {
 
     private fun generateArgsClass(
         context: Context,
-        useAlternativeName: Boolean,
         kotlinNames: NameGeneration,
         typeNameClashResolver: TypeNameClashResolver,
     ): TypeSpec {
@@ -137,7 +133,7 @@ object TypeGenerator {
             .addProperties(properties)
             .addDocs("$classDocs\n$propertyDocs")
             .letIf(options.implementToJava) {
-                val javaNames = javaNames(context, useAlternativeName)
+                val javaNames = typeNameClashResolver.javaNames(context.typeMetadata)
                 val innerType = javaNames.kotlinPoetClassName
                 val convertibleToJava = convertibleToJavaClass().parameterizedBy(innerType)
                 it
@@ -150,7 +146,6 @@ object TypeGenerator {
                         .addFunction(
                             toKotlinFunction(
                                 typeMetadata,
-                                useAlternativeName,
                                 kotlinNames,
                                 fields,
                                 typeNameClashResolver,
@@ -283,12 +278,6 @@ object TypeGenerator {
     private fun argsClassName(names: NameGeneration): ClassName {
         return ClassName(names.packageName, names.className)
     }
-
-    private fun kotlinNames(context: Context, useAlternativeName: Boolean) =
-        context.typeMetadata.names(Kotlin, useAlternativeName)
-
-    private fun javaNames(context: Context, useAlternativeName: Boolean) =
-        context.typeMetadata.names(Java, useAlternativeName)
 
     private fun withoutJvmPlatformNameClashRisk(funSpec: FunSpec): FunSpec {
         val randomJvmNameAnnotation = AnnotationSpec

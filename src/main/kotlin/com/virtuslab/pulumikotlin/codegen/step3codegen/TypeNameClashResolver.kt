@@ -37,24 +37,22 @@ class TypeNameClashResolver(types: List<RootType>) {
         .filter { it.metadata.usageKind.depth == Depth.Nested }
         .map { it.toTypeName(Kotlin) }
 
-    private fun shouldUseAlternativeName(usageKind: UsageKind, className: ClassName) =
+    private val syntheticJavaTypeNames: List<TypeName> = types
+        .filter { it.metadata.usageKind.depth == Depth.Nested }
+        .map { it.toTypeName(Java) }
+
+    private fun shouldUseAlternativeNameInKotlin(usageKind: UsageKind, className: ClassName) =
         usageKind.depth == Depth.Root && className in syntheticKotlinTypeNames
 
-    fun shouldUseAlternativeName(typeMetadata: TypeMetadata): Boolean {
-        val defaultNames = kotlinNames(typeMetadata, false)
-        return shouldUseAlternativeName(
-            typeMetadata.usageKind,
-            defaultNames.kotlinPoetClassName,
-        )
-    }
+    private fun shouldUseAlternativeNameInJava(usageKind: UsageKind, className: ClassName) =
+        usageKind.depth == Depth.Root && className in syntheticJavaTypeNames
 
     private fun kotlinNames(typeMetadata: TypeMetadata, useAlternativeName: Boolean): NameGeneration {
         return typeMetadata.names(Kotlin, useAlternativeName)
     }
-
     fun kotlinNames(typeMetadata: TypeMetadata): NameGeneration {
         val defaultNames = kotlinNames(typeMetadata, false)
-        val useAlternativeName = shouldUseAlternativeName(
+        val useAlternativeName = shouldUseAlternativeNameInKotlin(
             typeMetadata.usageKind,
             defaultNames.kotlinPoetClassName,
         )
@@ -71,7 +69,7 @@ class TypeNameClashResolver(types: List<RootType>) {
 
     fun javaNames(typeMetadata: TypeMetadata): NameGeneration {
         val defaultNames = javaNames(typeMetadata, false)
-        val useAlternativeName = shouldUseAlternativeName(
+        val useAlternativeName = shouldUseAlternativeNameInJava(
             typeMetadata.usageKind,
             defaultNames.kotlinPoetClassName,
         )

@@ -31,7 +31,7 @@ object EnumTypeGenerator {
             .addFunction(toJavaEnumFunction(enumType.metadata))
             .addType(
                 TypeSpec.companionObjectBuilder()
-                    .addFunction(toKotlinEnumFunction(enumType.metadata, useAlternativeName = false))
+                    .addFunction(toKotlinEnumFunction(enumType.metadata, typeNameClashResolver))
                     .build(),
             )
 

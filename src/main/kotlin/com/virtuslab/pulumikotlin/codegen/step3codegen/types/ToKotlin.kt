@@ -20,7 +20,6 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
@@ -41,7 +40,6 @@ private const val JAVA_TYPE_PARAMETER_NAME = "javaType"
 object ToKotlin {
     fun toKotlinFunction(
         typeMetadata: TypeMetadata,
-        useAlternativeName: Boolean,
         kotlinNames: NameGeneration,
         fields: List<Field<*>>,
         typeNameClashResolver: TypeNameClashResolver,
@@ -72,16 +70,16 @@ object ToKotlin {
 
         return FunSpec.builder(TO_KOTLIN_FUNCTION_NAME)
             .returns(kotlinArgsClass)
-            .addParameter(prepareToJavaParameterSpec(typeMetadata, useAlternativeName))
+            .addParameter(prepareToJavaParameterSpec(typeMetadata, typeNameClashResolver))
             .addCode(objectCreation)
             .build()
     }
 
-    fun toKotlinEnumFunction(typeMetadata: TypeMetadata, useAlternativeName: Boolean): FunSpec {
+    fun toKotlinEnumFunction(typeMetadata: TypeMetadata, typeNameClashResolver: TypeNameClashResolver): FunSpec {
         val kotlinClass = typeMetadata.names(Kotlin).kotlinPoetClassName
 
         return FunSpec.builder(TO_KOTLIN_FUNCTION_NAME)
-            .addParameter(prepareToJavaParameterSpec(typeMetadata, useAlternativeName))
+            .addParameter(prepareToJavaParameterSpec(typeMetadata, typeNameClashResolver))
             .returns(kotlinClass)
             .addStatement("return %T.valueOf(%L.name)", kotlinClass, JAVA_TYPE_PARAMETER_NAME)
             .build()
@@ -137,8 +135,11 @@ object ToKotlin {
         )
     }
 
-    private fun prepareToJavaParameterSpec(typeMetadata: TypeMetadata, useAlternativeName: Boolean): ParameterSpec {
-        val javaClass = typeMetadata.names(Java, useAlternativeName).kotlinPoetClassName
+    private fun prepareToJavaParameterSpec(
+        typeMetadata: TypeMetadata,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): ParameterSpec {
+        val javaClass = typeNameClashResolver.javaNames(typeMetadata).kotlinPoetClassName
         return ParameterSpec.builder(JAVA_TYPE_PARAMETER_NAME, javaClass).build()
     }
 }
