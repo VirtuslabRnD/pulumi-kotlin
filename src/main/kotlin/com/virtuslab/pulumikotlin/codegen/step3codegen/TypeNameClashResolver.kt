@@ -50,6 +50,7 @@ class TypeNameClashResolver(types: List<RootType>) {
     private fun kotlinNames(typeMetadata: TypeMetadata, useAlternativeName: Boolean): NameGeneration {
         return typeMetadata.names(Kotlin, useAlternativeName)
     }
+
     fun kotlinNames(typeMetadata: TypeMetadata): NameGeneration {
         val defaultNames = kotlinNames(typeMetadata, false)
         val useAlternativeName = shouldUseAlternativeNameInKotlin(
