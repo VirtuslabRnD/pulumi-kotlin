@@ -11,7 +11,7 @@
   },
   {
     "providerName": "github",
-    "url": "https://github.com/pulumi/pulumi-github/blob/v4.17.0/provider/cmd/pulumi-resource-github/schema.json",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v4.17.0/provider/cmd/pulumi-resource-github/schema.json",
     "kotlinVersion": "4.17.0.0-SNAPSHOT",
     "javaVersion": "4.17.0",
     "javaGitTag": "v4.17.0",
