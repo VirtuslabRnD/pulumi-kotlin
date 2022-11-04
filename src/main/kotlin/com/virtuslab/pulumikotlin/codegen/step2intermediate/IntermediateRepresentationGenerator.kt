@@ -202,7 +202,8 @@ object IntermediateRepresentationGenerator {
             is ReferenceProperty -> resolveSingleTypeReference(context, property, usageKind)
             is GenericTypeProperty -> mapGenericTypes(property) { resolveNestedTypeReference(context, it, usageKind) }
             is PrimitiveProperty -> mapPrimitiveTypes(property)
-            is ObjectProperty, is StringEnumProperty -> error("Nesting not supported for ${property.javaClass}")
+            is ObjectProperty -> MapType(StringType, StringType)
+            is StringEnumProperty -> error("Nesting not supported for ${property.javaClass}")
         }
     }
 

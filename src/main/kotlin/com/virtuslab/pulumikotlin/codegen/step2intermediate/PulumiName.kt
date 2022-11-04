@@ -231,7 +231,9 @@ data class PulumiName(
             val moduleName = substituteWithOverride(module)
 
             val namespace =
-                (namingConfiguration.baseNamespace + providerName + moduleName).filter { it.isNotBlank() }
+                (namingConfiguration.baseNamespace + providerName + moduleName)
+                    .filter { it.isNotBlank() }
+                    .map { it.replace("-", "") }
 
             return PulumiName(providerName, namespace, segments[2])
         }
