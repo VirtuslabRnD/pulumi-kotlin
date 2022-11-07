@@ -18,8 +18,12 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.namingConfigurationWithSlashInModuleFormat
+import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.function.Executable
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import java.util.Random
 import kotlin.streams.asSequence
 import kotlin.test.assertEquals
@@ -326,6 +330,131 @@ internal class IntermediateRepresentationGeneratorTest {
             fieldsAre = setOf("someInt"),
             usageKindIs = UsageKind(Nested, Function, Output),
         )
+    }
+
+    enum class CircularReferenceCase(
+        val types: Map<String, ObjectProperty>,
+        val complexTypeNameToFields: Map<String, Set<String>>,
+    ) {
+        SelfReferencedTypes(
+            types = mapOf(
+                "provider:namespace/type:type" to ObjectProperty(
+                    properties = mapOf(
+                        PropertyName("referencedType")
+                            to ReferenceProperty(ref = SpecificationReference("#/types/provider:namespace/type:type")),
+                    ),
+                ),
+            ),
+            complexTypeNameToFields = mapOf(
+                "type" to setOf("referencedType"),
+            ),
+        ),
+        IndirectReferencedTypes(
+            types = mapOf(
+                "provider:namespace/type:type1" to ObjectProperty(
+                    properties = mapOf(
+                        PropertyName("referencedType2")
+                            to ReferenceProperty(ref = SpecificationReference("#/types/provider:namespace/type:type2")),
+                    ),
+                ),
+                "provider:namespace/type:type2" to ObjectProperty(
+                    properties = mapOf(
+                        PropertyName("referencedType1")
+                            to ReferenceProperty(ref = SpecificationReference("#/types/provider:namespace/type:type1")),
+                    ),
+                ),
+            ),
+            complexTypeNameToFields = mapOf(
+                "type1" to setOf("referencedType2"),
+                "type2" to setOf("referencedType1"),
+            ),
+        ),
+        TransitiveReferencedTypes(
+            types = mapOf(
+                "provider:namespace/type:type1" to ObjectProperty(
+                    properties = mapOf(
+                        PropertyName("referencedType2")
+                            to ReferenceProperty(ref = SpecificationReference("#/types/provider:namespace/type:type2")),
+                    ),
+                ),
+                "provider:namespace/type:type2" to ObjectProperty(
+                    properties = mapOf(
+                        PropertyName("referencedType3")
+                            to ReferenceProperty(ref = SpecificationReference("#/types/provider:namespace/type:type3")),
+                    ),
+                ),
+                "provider:namespace/type:type3" to ObjectProperty(
+                    properties = mapOf(
+                        PropertyName("referencedType1")
+                            to ReferenceProperty(ref = SpecificationReference("#/types/provider:namespace/type:type1")),
+                    ),
+                ),
+            ),
+            complexTypeNameToFields = mapOf(
+                "type1" to setOf("referencedType2"),
+                "type2" to setOf("referencedType3"),
+                "type3" to setOf("referencedType1"),
+            ),
+        ),
+        DiamondReferencedTypes(
+            types = mapOf(
+                "provider:namespace/type:type1" to ObjectProperty(
+                    properties = mapOf(
+                        PropertyName("referencedType2")
+                            to ReferenceProperty(ref = SpecificationReference("#/types/provider:namespace/type:type2")),
+                        PropertyName("referencedType3")
+                            to ReferenceProperty(ref = SpecificationReference("#/types/provider:namespace/type:type3")),
+                    ),
+                ),
+                "provider:namespace/type:type2" to ObjectProperty(
+                    properties = mapOf(
+                        PropertyName("referencedType4")
+                            to ReferenceProperty(ref = SpecificationReference("#/types/provider:namespace/type:type4")),
+                    ),
+                ),
+                "provider:namespace/type:type3" to ObjectProperty(
+                    properties = mapOf(
+                        PropertyName("referencedType4")
+                            to ReferenceProperty(ref = SpecificationReference("#/types/provider:namespace/type:type4")),
+                    ),
+                ),
+                "provider:namespace/type:type4" to ObjectProperty(),
+            ),
+            complexTypeNameToFields = mapOf(
+                "type1" to setOf("referencedType2", "referencedType3"),
+                "type2" to setOf("referencedType4"),
+                "type3" to setOf("referencedType4"),
+                "type4" to setOf(),
+            ),
+        ),
+    }
+
+    @ParameterizedTest
+    @EnumSource(CircularReferenceCase::class)
+    fun `circular referenced types in resource inputs are properly recognized and converted to ComplexType`(
+        case: CircularReferenceCase,
+    ) {
+        // given
+        // token = provider : module : name
+        val providerName = case.types.keys.first().split(":").first()
+        val resources = someResourceWithInputReferences(case.types.keys.first())
+
+        // when
+        val ir = getIntermediateRepresentation(providerName = providerName, types = case.types, resources = resources)
+
+        // then
+        val assertions = case.complexTypeNameToFields.map { (name, fields) ->
+            Executable {
+                assertContainsComplexTypeThat(
+                    ir.types,
+                    nameIs = name,
+                    fieldsAre = fields,
+                    usageKindIs = UsageKind(Nested, Resource, Input),
+                )
+            }
+        }
+
+        assertAll(assertions)
     }
 
     private fun someResourceWithReferences(
