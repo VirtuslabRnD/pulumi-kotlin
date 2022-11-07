@@ -8,7 +8,7 @@ import java.io.File
 @Serializable
 data class PulumiStackOutput(val instanceName: String)
 
-class Pulumi(val fullStackName: String, val rootDirectory: File) {
+class Pulumi(private val fullStackName: String, private val rootDirectory: File) {
 
     fun initStack() {
         runProcess(rootDirectory, "pulumi", "stack", "init", fullStackName)
@@ -19,7 +19,7 @@ class Pulumi(val fullStackName: String, val rootDirectory: File) {
         runProcess(rootDirectory, "pulumi", "up", "-y", "-s", fullStackName, *config.toTypedArray())
     }
 
-    fun stackOutput(): PulumiStackOutput {
+    fun getStackOutput(): PulumiStackOutput {
         val stackOutput = runProcess(rootDirectory, "pulumi", "stack", "output", "-s", fullStackName, "--json")
         return Json.decodeFromString(stackOutput)
     }
