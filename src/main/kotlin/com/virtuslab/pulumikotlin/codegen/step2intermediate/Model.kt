@@ -96,6 +96,7 @@ data class ResourceType(
     val argsType: ReferencedComplexType,
     val outputFields: List<Field<*>>,
     val kDoc: KDoc,
+    val isProvider: Boolean = false,
 )
 
 data class FunctionType(

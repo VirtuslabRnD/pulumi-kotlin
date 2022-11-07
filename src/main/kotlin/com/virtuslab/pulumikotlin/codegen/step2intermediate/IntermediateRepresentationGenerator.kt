@@ -11,6 +11,7 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ObjectPro
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.OneOfProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PrimitiveProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Property
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyName
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferenceProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.RootTypeProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Schema
@@ -27,7 +28,9 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
+import com.virtuslab.pulumikotlin.codegen.utils.DEFAULT_PROVIDER_TOKEN
 import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
+import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import mu.KotlinLogging
@@ -51,9 +54,16 @@ object IntermediateRepresentationGenerator {
             .associateBy { TypeKey.from(it.metadata) }
             .transformKeys { it.withLowercaseName() }
 
+        val resources = if (schema.provider != null) {
+            createResources(typeMap, context) +
+                createResource(DEFAULT_PROVIDER_TOKEN, schema.provider, context, typeMap, isProvider = true)
+        } else {
+            createResources(typeMap, context)
+        }.filterNotNull()
+
         return IntermediateRepresentation(
             types = types,
-            resources = createResources(typeMap, context),
+            resources = resources,
             functions = createFunctions(typeMap, context),
         )
     }
@@ -82,6 +92,15 @@ object IntermediateRepresentationGenerator {
                     deprecationMessage = it.deprecationMessage,
                 )
             },
+            schema.provider?.let {
+                createTypes(mapOf(DEFAULT_PROVIDER_TOKEN to schema.provider), UsageKind(Root, Resource, Input)) {
+                    ObjectProperty(
+                        properties = it.inputProperties,
+                        description = it.description,
+                        deprecationMessage = it.deprecationMessage,
+                    )
+                }
+            }.orEmpty(),
         )
 
         val regularTypes = listOf(
@@ -92,27 +111,39 @@ object IntermediateRepresentationGenerator {
     }
 
     private fun createResources(types: Map<TypeKey, RootType>, context: Context): List<ResourceType> {
-        return context.schema.resources.mapNotNull { (typeName, resource) ->
-            val resultFields = resource.properties.map { (propertyName, property) ->
+        return context.schema.resources.mapNotNull { (typeToken, resource) ->
+            createResource(typeToken, resource, context, types)
+        }
+    }
+
+    private fun createResource(
+        typeToken: String,
+        resource: SchemaModel.Resource,
+        context: Context,
+        types: Map<TypeKey, RootType>,
+        isProvider: Boolean = false,
+    ): ResourceType? {
+        val resultFields = resource.properties
+            .letIf(isProvider, filterStringProperties())
+            .map { (propertyName, property) ->
                 val outputFieldsUsageKind = UsageKind(Nested, Resource, Output)
                 val isRequired = resource.required.contains(propertyName)
                 val reference = resolveNestedTypeReference(context, property, outputFieldsUsageKind)
                 Field(propertyName.value, OutputWrappedField(reference), isRequired, kDoc = getKDoc(property))
             }
 
-            try {
-                val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
-                val inputUsageKind = UsageKind(Root, Resource, Input)
-                val argumentType =
-                    findTypeAsReference<ReferencedComplexType>(
-                        types,
-                        TypeKey.from(pulumiName, inputUsageKind),
-                    )
-                ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource))
-            } catch (e: InvalidPulumiName) {
-                logger.warn("Invalid name", e)
-                null
-            }
+        return try {
+            val pulumiName = PulumiName.from(typeToken, context.namingConfiguration)
+            val inputUsageKind = UsageKind(Root, Resource, Input)
+            val argumentType =
+                findTypeAsReference<ReferencedComplexType>(
+                    types,
+                    TypeKey.from(pulumiName, inputUsageKind),
+                )
+            ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource), isProvider)
+        } catch (e: InvalidPulumiName) {
+            logger.warn("Invalid name", e)
+            null
         }
     }
 
@@ -290,6 +321,19 @@ object IntermediateRepresentationGenerator {
             is StringProperty -> StringType
         }
     }
+
+    /**
+     * Since non-primitive provider configuration is currently JSON serialized, we can't handle it without
+     * modifying the path by which it's looked up. As a temporary workaround to enable access to config which
+     * values are primitives, we'll simply remove any properties for the provider resource which are not
+     * strings, or types with an underlying type of string, before we generate the provider code.
+     */
+    private fun filterStringProperties(): (Map<PropertyName, Property>) -> Map<PropertyName, Property> =
+        { propertiesMap ->
+            propertiesMap.filter { (_, property) ->
+                property is StringProperty || (property is ReferenceProperty && property.type == SchemaModel.PropertyType.StringType)
+            }
+        }
 
     private data class Context(
         val schema: Schema,
