@@ -30,7 +30,6 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexTyp
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedEnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
-import com.virtuslab.pulumikotlin.codegen.step3codegen.BuilderMethodNameEscaper
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 
@@ -48,7 +47,7 @@ object ToKotlin {
         val arguments = fields.associate { field ->
             val type = field.fieldType.type
 
-            val baseE = toKotlinExpressionBase(field.name)
+            val baseE = toKotlinExpressionBase(field.toJavaName(escape = true))
 
             val secondPart =
                 baseE.call1(
@@ -62,7 +61,7 @@ object ToKotlin {
                     },
                 )
 
-            field.name to secondPart
+            field.toKotlinName() to secondPart
         }
 
         val kotlinArgsClass = ClassName(kotlinNames.packageName, kotlinNames.className)
@@ -131,7 +130,7 @@ object ToKotlin {
         return CustomExpression(
             "%L.%N().%L()!!",
             JAVA_TYPE_PARAMETER_NAME,
-            BuilderMethodNameEscaper.escape(name),
+            name,
             TO_KOTLIN_FUNCTION_NAME,
         )
     }

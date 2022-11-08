@@ -28,13 +28,13 @@ object ToJava {
         val codeBlocks = fields.map { field ->
             val block = CodeBlock.of(
                 "\n.%N(%N)",
-                BuilderMethodNameEscaper.escape(field.name),
-                field.name,
+                field.toJavaName(escape = true),
+                field.toKotlinName(),
             )
             val toJavaBlock = CodeBlock.of(
                 ".%N(%N?.%N())",
-                BuilderMethodNameEscaper.escape(field.name),
-                field.name,
+                field.toJavaName(escape = true),
+                field.toKotlinName(),
                 FUNCTION_NAME,
             )
             when (field.fieldType.type) {

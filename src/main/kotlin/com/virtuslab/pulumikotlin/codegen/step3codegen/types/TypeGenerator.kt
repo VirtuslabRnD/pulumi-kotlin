@@ -124,7 +124,7 @@ object TypeGenerator {
 
         val classDocs = typeMetadata.kDoc.description.orEmpty()
         val propertyDocs = fields.joinToString("\n") {
-            "@property ${it.name} ${it.kDoc.description.orEmpty()}"
+            "@property ${it.toKotlinName()} ${it.kDoc.description.orEmpty()}"
         }
 
         return TypeSpec.classBuilder(argsClassName(kotlinNames))
@@ -188,7 +188,7 @@ object TypeGenerator {
     ): List<PropertySpec> {
         return context.fields.map {
             PropertySpec
-                .builder(it.name, it.toNullableTypeName(typeNameClashResolver))
+                .builder(it.toKotlinName(), it.toNullableTypeName(typeNameClashResolver))
                 .initializer("null")
                 .mutable(true)
                 .addModifiers(KModifier.PRIVATE)
@@ -202,14 +202,14 @@ object TypeGenerator {
     ): Pair<FunSpec, List<PropertySpec>> {
         val properties = context.fields.map { field ->
             PropertySpec
-                .builder(field.name, field.toTypeName(typeNameClashResolver))
-                .initializer(field.name)
+                .builder(field.toKotlinName(), field.toTypeName(typeNameClashResolver))
+                .initializer(field.toKotlinName())
                 .addDeprecationWarningIfAvailable(field.kDoc)
                 .build()
         }
 
         val constructorParameters = context.fields.map { field ->
-            ParameterSpec.builder(field.name, field.toTypeName(typeNameClashResolver))
+            ParameterSpec.builder(field.toKotlinName(), field.toTypeName(typeNameClashResolver))
                 .letIf(!field.required) {
                     it.defaultValue("%L", null)
                 }
@@ -240,7 +240,7 @@ object TypeGenerator {
     private fun generateBuildMethod(context: Context, names: NameGeneration): FunSpec {
         val arguments = context.fields.associate {
             val requiredPart = if (it.required) "!!" else ""
-            it.name to CustomExpressionBuilder.start("%N$requiredPart", it.name).build()
+            it.toKotlinName() to CustomExpressionBuilder.start("%N$requiredPart", it.toKotlinName()).build()
         }
 
         return FunSpec.builder("build")

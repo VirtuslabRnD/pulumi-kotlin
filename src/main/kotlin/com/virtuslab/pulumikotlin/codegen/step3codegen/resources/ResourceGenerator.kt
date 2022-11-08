@@ -63,12 +63,12 @@ object ResourceGenerator {
 
         val fields = resourceType.outputFields.map { field ->
             PropertySpec
-                .builder(field.name, field.toTypeName(typeNameClashResolver))
+                .builder(field.toKotlinName(), field.toTypeName(typeNameClashResolver))
                 .getter(
                     FunSpec.getterBuilder()
                         .addCode(
                             toKotlinFunctionResource(
-                                field.name,
+                                field.toKotlinName(),
                                 field.fieldType.type,
                                 typeNameClashResolver,
                                 !field.required,
