@@ -68,5 +68,15 @@
     "customDependencies": [
       "com.pulumi:aws:5.16.2"
     ]
+  },
+  {
+    "providerName": "kubernetes",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v3.22.1/provider/cmd/pulumi-resource-kubernetes/schema.json",
+    "kotlinVersion": "3.22.1.0-SNAPSHOT",
+    "javaVersion": "3.22.1",
+    "javaGitTag": "v3.22.1",
+    "customDependencies": [
+      "com.pulumi:kubernetes:3.22.1"
+    ]
   }
 ]
