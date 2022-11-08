@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterSpec
 import com.virtuslab.pulumikotlin.codegen.expressions.ConstructObjectExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpressionBuilder
 import com.virtuslab.pulumikotlin.codegen.expressions.Expression
 import com.virtuslab.pulumikotlin.codegen.expressions.FunctionExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.Return
@@ -19,6 +20,7 @@ import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.JsonType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
@@ -29,6 +31,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedEnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.StringType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
@@ -54,6 +57,7 @@ object ToKotlin {
                     "applyValue",
                     FunctionExpression.create(1) { args ->
                         toKotlinExpression(
+                            typeMetadata,
                             args.first(),
                             type,
                             typeNameClashResolver,
@@ -86,6 +90,7 @@ object ToKotlin {
     }
 
     private fun toKotlinExpression(
+        typeMetadata: TypeMetadata,
         expression: Expression,
         type: ReferencedType,
         typeNameClashResolver: TypeNameClashResolver,
@@ -100,13 +105,39 @@ object ToKotlin {
                 .kotlinPoetClassName
                 .member(TO_KOTLIN_FUNCTION_NAME)(expression)
 
-            is EitherType -> expression.callTransform(
-                expressionMapperLeft = { args -> toKotlinExpression(args, type.firstType, typeNameClashResolver) },
-                expressionMapperRight = { args -> toKotlinExpression(args, type.secondType, typeNameClashResolver) },
-            )
+            is EitherType -> {
+                val direction = typeMetadata.usageKind.direction
+                val firstType = type.firstType
+                val secondType = type.secondType
+                if (direction == Output && firstType is ReferencedEnumType && secondType is StringType) {
+                    (CustomExpressionBuilder.start() + "Either.ofRight(" + expression + ")").build()
+                } else if (direction == Output && firstType is StringType && secondType is ReferencedEnumType) {
+                    (CustomExpressionBuilder.start() + "Either.ofLeft(" + expression + ")").build()
+                } else {
+                    expression.callTransform(
+                        expressionMapperLeft = { args ->
+                            toKotlinExpression(
+                                typeMetadata,
+                                args,
+                                firstType,
+                                typeNameClashResolver,
+                            )
+                        },
+                        expressionMapperRight = { args ->
+                            toKotlinExpression(
+                                typeMetadata,
+                                args,
+                                secondType,
+                                typeNameClashResolver,
+                            )
+                        },
+                    )
+                }
+            }
 
             is ListType -> expression.callMap { args ->
                 toKotlinExpression(
+                    typeMetadata,
                     args,
                     type.innerType,
                     typeNameClashResolver,
@@ -117,7 +148,15 @@ object ToKotlin {
                 expression
                     .callMap { args ->
                         args.field("key")
-                            .call1("to", toKotlinExpression(args.field("value"), type.valueType, typeNameClashResolver))
+                            .call1(
+                                "to",
+                                toKotlinExpression(
+                                    typeMetadata,
+                                    args.field("value"),
+                                    type.valueType,
+                                    typeNameClashResolver,
+                                ),
+                            )
                     }
                     .call0("toMap")
 

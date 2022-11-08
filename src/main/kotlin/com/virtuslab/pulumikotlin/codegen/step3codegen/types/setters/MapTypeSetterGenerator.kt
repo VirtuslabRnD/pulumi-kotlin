@@ -30,7 +30,9 @@ object MapTypeSetterGenerator : SetterGenerator {
             is ReferencedComplexType -> {
                 val commonCodeBlock = BuilderSettingCodeBlock
                     .create(
-                        "argument.toList().map { (left, right) -> left to %T().applySuspend{ right() }.build() }.toMap()",
+                        "argument.toList()" +
+                            ".map { (left, right) -> left to %T().applySuspend{ right() }.build() }" +
+                            ".toMap()",
                         rightInnerType.toBuilderTypeName(),
                     )
                     .withMappingCode(normalField.mappingCode)

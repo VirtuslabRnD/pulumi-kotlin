@@ -103,13 +103,21 @@ object TypeGenerator {
             .addImports(
                 applySuspendExtensionMethod(),
                 applyValueExtensionMethod(),
-                toJavaExtensionMethod(),
-                toKotlinExtensionMethod(),
             )
+            .letIf(context.options.implementToJava && names.shouldImplementToJava) {
+                it.addImports(toJavaExtensionMethod())
+                it
+            }
+            .letIf(context.options.implementToKotlin && names.shouldImplementToKotlin) {
+                it.addImports(toKotlinExtensionMethod())
+                it
+            }
             .addTypes(
                 generateArgsClass(context, names, typeNameClashResolver),
-                generateArgsBuilderClass(context, names, typeNameClashResolver),
             )
+            .letIf(names.shouldConstructBuilders) {
+                it.addType(generateArgsBuilderClass(context, names, typeNameClashResolver))
+            }
             .build()
     }
 
@@ -126,6 +134,7 @@ object TypeGenerator {
         val propertyDocs = fields.joinToString("\n") {
             "@property ${it.toKotlinName()} ${it.kDoc.description.orEmpty()}"
         }
+        val names = kotlinNames(context)
 
         return TypeSpec.classBuilder(argsClassName(kotlinNames))
             .letIf(fields.isNotEmpty()) {
@@ -134,7 +143,7 @@ object TypeGenerator {
             .primaryConstructor(constructor)
             .addProperties(properties)
             .addDocs("$classDocs\n$propertyDocs")
-            .letIf(options.implementToJava) {
+            .letIf(options.implementToJava && names.shouldImplementToJava) {
                 val javaNames = typeNameClashResolver.javaNames(context.typeMetadata)
                 val innerType = javaNames.kotlinPoetClassName
                 val convertibleToJava = convertibleToJavaClass().parameterizedBy(innerType)
@@ -142,7 +151,7 @@ object TypeGenerator {
                     .addSuperinterface(convertibleToJava)
                     .addFunction(toJavaFunction(fields, javaNames))
             }
-            .letIf(options.implementToKotlin) {
+            .letIf(options.implementToKotlin && names.shouldImplementToKotlin) {
                 it.addType(
                     TypeSpec.companionObjectBuilder()
                         .addFunction(
@@ -304,7 +313,6 @@ object TypeGenerator {
             .joinToString("")
 
     data class GenerationOptions(
-        val shouldGenerateBuilders: Boolean = true,
         val implementToJava: Boolean = true,
         val implementToKotlin: Boolean = true,
     )
