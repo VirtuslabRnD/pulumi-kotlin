@@ -24,7 +24,6 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedRootType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
-import com.virtuslab.pulumikotlin.codegen.step3codegen.BuilderMethodNameEscaper
 import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 
 object ToKotlin {
@@ -93,6 +92,6 @@ object ToKotlin {
     private fun ClassName.toKotlinMethod() = nestedClass("Companion").member("toKotlin")
 
     private fun toKotlinExpressionBaseResource(name: String): Expression {
-        return CustomExpression("javaResource.%N()", BuilderMethodNameEscaper.escape(name))
+        return CustomExpression("javaResource.%N()", name)
     }
 }
