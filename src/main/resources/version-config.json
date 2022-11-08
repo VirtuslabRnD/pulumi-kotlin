@@ -1,5 +1,15 @@
 [
   {
+    "providerName": "cloudflare",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v4.12.1/provider/cmd/pulumi-resource-cloudflare/schema.json",
+    "kotlinVersion": "4.12.1.0-SNAPSHOT",
+    "javaVersion": "4.12.1",
+    "javaGitTag": "v4.12.1",
+    "customDependencies": [
+      "com.pulumi:cloudflare:4.12.1"
+    ]
+  },
+  {
     "providerName": "slack",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-slack/v0.3.0/provider/cmd/pulumi-resource-slack/schema.json",
     "kotlinVersion": "0.3.0.0-SNAPSHOT",
