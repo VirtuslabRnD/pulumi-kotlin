@@ -45,7 +45,7 @@ val createTasksForProvider by extra {
         createGenerationTask(generationTaskName, downloadTaskName, schemaDownloadPath, outputDirectory, providerName)
         createSourceSet(sourceSetName, outputDirectory, providerName)
 
-//        tasks[generationTaskName].finalizedBy(tasks[formatTaskName])
+        tasks[generationTaskName].finalizedBy(tasks[formatTaskName])
         tasks[generationTaskName].finalizedBy(tasks[compilationTaskName])
 
         createJarTask(jarTaskName, generationTaskName, sourceSetName, archiveName)
