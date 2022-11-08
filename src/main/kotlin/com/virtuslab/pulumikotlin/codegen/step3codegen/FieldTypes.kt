@@ -24,4 +24,8 @@ data class Field<T : ReferencedType>(
 
     fun toNullableTypeName(typeNameClashResolver: TypeNameClashResolver): TypeName =
         typeNameClashResolver.toTypeName(fieldType, languageType = LanguageType.Kotlin).copy(nullable = true)
+
+//    fun toKotlinName() = name.replace("$", "")
+//
+//    fun toJavaName(escape: Boolean = false) = if (escape) KeywordsEscaper.escape(name) else name
 }

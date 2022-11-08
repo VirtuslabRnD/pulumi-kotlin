@@ -9,6 +9,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.JsonType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
@@ -30,8 +31,12 @@ object ToJava {
                 BuilderMethodNameEscaper.escape(field.name),
                 field.name,
             )
-            val toJavaBlock =
-                CodeBlock.of(".%N(%N?.%N())", BuilderMethodNameEscaper.escape(field.name), field.name, FUNCTION_NAME)
+            val toJavaBlock = CodeBlock.of(
+                ".%N(%N?.%N())",
+                BuilderMethodNameEscaper.escape(field.name),
+                field.name,
+                FUNCTION_NAME,
+            )
             when (field.fieldType.type) {
                 is AnyType -> block
                 is PrimitiveType -> block
@@ -41,6 +46,7 @@ object ToJava {
                 is ReferencedComplexType -> toJavaBlock
                 is ReferencedEnumType -> toJavaBlock
                 is AssetOrArchiveType, is ArchiveType -> block
+                is JsonType -> toJavaBlock
             }
         }
 

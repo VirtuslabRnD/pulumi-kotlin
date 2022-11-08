@@ -20,6 +20,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.JsonType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
@@ -122,7 +123,7 @@ object ToKotlin {
                     .call0("toMap")
 
             is PrimitiveType -> expression
-            is AssetOrArchiveType, is ArchiveType -> expression
+            is AssetOrArchiveType, is ArchiveType, is JsonType -> expression
         }
     }
 

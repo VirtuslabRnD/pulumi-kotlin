@@ -17,7 +17,8 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.JsonType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
@@ -57,7 +58,7 @@ object ToKotlin {
             is AnyType -> expression
             is ReferencedRootType ->
                 expression.callLet(optional) { argument ->
-                    typeNameClashResolver.toTypeName(type, languageType = LanguageType.Kotlin)
+                    typeNameClashResolver.toTypeName(type, languageType = Kotlin)
                         .toKotlinMethod()(argument)
                 }
 
@@ -85,7 +86,7 @@ object ToKotlin {
                     .call0("toMap", optional)
 
             is PrimitiveType -> expression
-            is AssetOrArchiveType, is ArchiveType -> expression
+            is AssetOrArchiveType, is ArchiveType, is JsonType -> expression
         }
     }
 

@@ -31,6 +31,9 @@ class CodegenTest {
         "com.google.code.findbugs:jsr305:3.0.2",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4",
         "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
+        "com.google.code.gson:gson:2.10",
+        "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1",
+        "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.4.1",
     )
 
     private lateinit var testInfo: TestInfo

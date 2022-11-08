@@ -151,6 +151,7 @@ object SchemaModel {
         override val replaceOnChanges: Boolean = false,
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
+        override val isOverlay: Boolean = false,
     ) : RootTypeProperty
 
     @Serializable
@@ -247,6 +248,8 @@ object SchemaModel {
         fun isArchive() = referencedTypeName == "pulumi.json#/Archive"
 
         fun isAny() = referencedTypeName == "pulumi.json#/Any"
+
+        fun isJson() = referencedTypeName == "pulumi.json#/Json"
     }
 
     @Serializable
@@ -293,6 +296,7 @@ object SchemaModel {
         override val replaceOnChanges: Boolean = false,
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
+        override val isOverlay: Boolean = false,
     ) : RootTypeProperty, ReferencingOtherTypesProperty
 
     @Serializable
@@ -333,7 +337,9 @@ object SchemaModel {
     sealed interface GenericTypeProperty : ReferencingOtherTypesProperty
 
     @Serializable(with = PropertySerializer::class)
-    sealed interface RootTypeProperty : Property
+    sealed interface RootTypeProperty : Property {
+        val isOverlay: Boolean
+    }
 
     @Serializable
     data class Resource(
@@ -348,6 +354,8 @@ object SchemaModel {
         val isComponent: Boolean = false,
         val methods: Map<String, String> = emptyMap(),
         val deprecationMessage: String? = null,
+        val isOverlay: Boolean = false,
+        val language: JsonObject? = null,
     )
 
     @Serializable

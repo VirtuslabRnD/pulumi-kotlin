@@ -20,9 +20,9 @@ object Decoder {
                 description = description,
                 config = config,
                 provider = provider,
-                types = withoutKnownTypeDuplicates(types),
+                types = withoutKnownTypeDuplicates(types).filterValues { !it.isOverlay },
                 functions = functions,
-                resources = resources,
+                resources = resources.filterValues { !it.isOverlay },
                 metadata = meta,
                 providerLanguage = language,
             )

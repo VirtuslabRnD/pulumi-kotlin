@@ -28,6 +28,8 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
     implementation("ch.qos.logback:logback-classic:1.4.4")
 
+    implementation("com.google.code.gson:gson:2.10")
+
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
     testImplementation(kotlin("test"))
