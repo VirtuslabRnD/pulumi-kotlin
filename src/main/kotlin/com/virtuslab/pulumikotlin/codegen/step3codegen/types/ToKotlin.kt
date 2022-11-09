@@ -50,7 +50,7 @@ object ToKotlin {
         val arguments = fields.associate { field ->
             val type = field.fieldType.type
 
-            val baseE = toKotlinExpressionBase(field.toJavaName(escape = true))
+            val baseE = toKotlinExpressionBase(field.toJavaName(escape = true), required = field.required)
 
             val secondPart =
                 baseE.call1(
@@ -61,8 +61,10 @@ object ToKotlin {
                             args.first(),
                             type,
                             typeNameClashResolver,
+                            required = field.required,
                         )
                     },
+                    optional = !field.required,
                 )
 
             field.toKotlinName() to secondPart
@@ -94,6 +96,7 @@ object ToKotlin {
         expression: Expression,
         type: ReferencedType,
         typeNameClashResolver: TypeNameClashResolver,
+        required: Boolean,
     ): Expression {
         return when (type) {
             AnyType -> expression
@@ -115,12 +118,14 @@ object ToKotlin {
                     (CustomExpressionBuilder.start() + "Either.ofLeft(" + expression + ")").build()
                 } else {
                     expression.callTransform(
+                        optional = !required,
                         expressionMapperLeft = { args ->
                             toKotlinExpression(
                                 typeMetadata,
                                 args,
                                 firstType,
                                 typeNameClashResolver,
+                                required = true,
                             )
                         },
                         expressionMapperRight = { args ->
@@ -129,6 +134,7 @@ object ToKotlin {
                                 args,
                                 secondType,
                                 typeNameClashResolver,
+                                required = true,
                             )
                         },
                     )
@@ -141,6 +147,7 @@ object ToKotlin {
                     args,
                     type.innerType,
                     typeNameClashResolver,
+                    required = true,
                 )
             }
 
@@ -155,7 +162,9 @@ object ToKotlin {
                                     args.field("value"),
                                     type.valueType,
                                     typeNameClashResolver,
+                                    required = true,
                                 ),
+                                optional = false,
                             )
                     }
                     .call0("toMap")
@@ -165,9 +174,9 @@ object ToKotlin {
         }
     }
 
-    private fun toKotlinExpressionBase(name: String): Expression {
+    private fun toKotlinExpressionBase(name: String, required: Boolean): Expression {
         return CustomExpression(
-            "%L.%N().%L()!!",
+            "%L.%N().%L()" + (if (required) "!!" else ""),
             JAVA_TYPE_PARAMETER_NAME,
             name,
             TO_KOTLIN_FUNCTION_NAME,
