@@ -1,0 +1,3 @@
+config:
+  gcp:project: jvm-lab
+  kubernetes:context: minikube

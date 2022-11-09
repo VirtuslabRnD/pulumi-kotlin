@@ -1,3 +1,3 @@
 name: gcp-sample-project
-description: A sample Google Cloud Kotlin Pulumi program
+description: A sample Pulumi Kotlin Google Cloud program
 runtime: java
