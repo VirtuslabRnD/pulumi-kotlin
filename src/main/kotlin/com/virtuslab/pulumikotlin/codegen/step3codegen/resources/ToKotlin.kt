@@ -17,18 +17,32 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedRootType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KeywordsEscaper
+import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 
 object ToKotlin {
-    fun toKotlinFunctionResource(name: String, type: ReferencedType, optional: Boolean): Code {
+    fun toKotlinFunctionResource(
+        name: String,
+        type: ReferencedType,
+        typeNameClashResolver: TypeNameClashResolver,
+        optional: Boolean,
+    ): Code {
         val baseE = toKotlinExpressionBaseResource(name)
         val secondPart =
-            baseE.callApplyValue { arg -> toKotlinExpressionResource(arg.call0("toKotlin", optional), type, optional) }
+            baseE.callApplyValue { arg ->
+                toKotlinExpressionResource(
+                    arg.call0("toKotlin", optional),
+                    type,
+                    typeNameClashResolver,
+                    optional,
+                )
+            }
 
         return Return(secondPart)
     }
@@ -36,13 +50,15 @@ object ToKotlin {
     private fun toKotlinExpressionResource(
         expression: Expression,
         type: ReferencedType,
+        typeNameClashResolver: TypeNameClashResolver,
         optional: Boolean = false,
     ): Expression {
         return when (type) {
             is AnyType -> expression
             is ReferencedRootType ->
                 expression.callLet(optional) { argument ->
-                    type.toTypeName().toKotlinMethod()(argument)
+                    typeNameClashResolver.toTypeName(type, languageType = LanguageType.Kotlin)
+                        .toKotlinMethod()(argument)
                 }
 
             is EitherType -> expression
@@ -50,6 +66,7 @@ object ToKotlin {
                 toKotlinExpressionResource(
                     argument,
                     type.innerType,
+                    typeNameClashResolver,
                 )
             }
 
@@ -57,7 +74,13 @@ object ToKotlin {
                 expression
                     .callMap(optional) { argument ->
                         argument.field("key")
-                            .pairWith(toKotlinExpressionResource(argument.field("value"), type.secondType))
+                            .pairWith(
+                                toKotlinExpressionResource(
+                                    argument.field("value"),
+                                    type.valueType,
+                                    typeNameClashResolver,
+                                ),
+                            )
                     }
                     .call0("toMap", optional)
 

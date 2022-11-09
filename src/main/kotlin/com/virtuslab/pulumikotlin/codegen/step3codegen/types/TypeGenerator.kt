@@ -17,8 +17,6 @@ import com.virtuslab.pulumikotlin.codegen.expressions.addCode
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Java.Pulumi.outputOfMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.applySuspendExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.applyValueExtensionMethod
@@ -26,6 +24,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pul
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.pulumiDslMarkerAnnotation
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.toJavaExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.toKotlinExtensionMethod
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.NameGeneration
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.RootType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
@@ -35,6 +34,7 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetExtensions.addI
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetExtensions.addTypes
 import com.virtuslab.pulumikotlin.codegen.step3codegen.NormalField
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
+import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.ToJava.toJavaFunction
@@ -50,6 +50,7 @@ object TypeGenerator {
     fun generateTypes(
         types: List<RootType>,
         generationOptions: GenerationOptions = GenerationOptions(),
+        typeNameClashResolver: TypeNameClashResolver,
     ): List<FileSpec> {
         val generatedTypes = types.filterIsInstance<ComplexType>().map { type ->
             val usageKind = type.metadata.usageKind
@@ -61,10 +62,10 @@ object TypeGenerator {
                 prepareFields(type)
             }
 
-            generateFile(Context(type.metadata, fields, generationOptions))
+            generateFile(Context(type.metadata, fields, generationOptions), typeNameClashResolver)
         }
 
-        return generatedTypes.plus(EnumTypeGenerator.generateEnums(types))
+        return generatedTypes.plus(EnumTypeGenerator.generateEnums(types, typeNameClashResolver))
     }
 
     private fun prepareFields(type: ComplexType) =
@@ -93,8 +94,9 @@ object TypeGenerator {
             )
         }
 
-    private fun generateFile(context: Context): FileSpec {
-        val names = kotlinNames(context)
+    private fun generateFile(context: Context, typeNameClashResolver: TypeNameClashResolver): FileSpec {
+        val typeMetadata = context.typeMetadata
+        val names = typeNameClashResolver.kotlinNames(typeMetadata)
 
         return FileSpec
             .builder(names.packageName, names.className)
@@ -105,47 +107,63 @@ object TypeGenerator {
                 toKotlinExtensionMethod(),
             )
             .addTypes(
-                generateArgsClass(context),
-                generateArgsBuilderClass(context),
+                generateArgsClass(context, names, typeNameClashResolver),
+                generateArgsBuilderClass(context, names, typeNameClashResolver),
             )
             .build()
     }
 
-    private fun generateArgsClass(context: Context): TypeSpec {
+    private fun generateArgsClass(
+        context: Context,
+        kotlinNames: NameGeneration,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): TypeSpec {
         val (typeMetadata, fields, options) = context
 
-        val (constructor, properties) = generatePropertiesPerFieldWithConstructor(context)
+        val (constructor, properties) = generatePropertiesPerFieldWithConstructor(context, typeNameClashResolver)
 
         val classDocs = typeMetadata.kDoc.description.orEmpty()
         val propertyDocs = fields.joinToString("\n") {
             "@property ${it.name} ${it.kDoc.description.orEmpty()}"
         }
 
-        return TypeSpec.classBuilder(argsClassName(context))
+        return TypeSpec.classBuilder(argsClassName(kotlinNames))
             .addModifiers(KModifier.DATA)
             .primaryConstructor(constructor)
             .addProperties(properties)
             .addDocs("$classDocs\n$propertyDocs")
             .letIf(options.implementToJava) {
-                val innerType = typeMetadata.names(LanguageType.Java).kotlinPoetClassName
+                val javaNames = typeNameClashResolver.javaNames(context.typeMetadata)
+                val innerType = javaNames.kotlinPoetClassName
                 val convertibleToJava = convertibleToJavaClass().parameterizedBy(innerType)
                 it
                     .addSuperinterface(convertibleToJava)
-                    .addFunction(toJavaFunction(typeMetadata, fields))
+                    .addFunction(toJavaFunction(fields, javaNames))
             }
             .letIf(options.implementToKotlin) {
                 it.addType(
                     TypeSpec.companionObjectBuilder()
-                        .addFunction(toKotlinFunction(typeMetadata, fields))
+                        .addFunction(
+                            toKotlinFunction(
+                                typeMetadata,
+                                kotlinNames,
+                                fields,
+                                typeNameClashResolver,
+                            ),
+                        )
                         .build(),
                 )
             }
             .build()
     }
 
-    private fun generateArgsBuilderClass(context: Context): TypeSpec {
+    private fun generateArgsBuilderClass(
+        context: Context,
+        names: NameGeneration,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): TypeSpec {
         return TypeSpec
-            .classBuilder(argsBuilderClassName(context))
+            .classBuilder(argsBuilderClassName(names))
             .primaryConstructor(
                 FunSpec
                     .constructorBuilder()
@@ -153,17 +171,22 @@ object TypeGenerator {
                     .build(),
             )
             .addAnnotation(pulumiDslMarkerAnnotation())
-            .addProperties(generatePropertiesPerField(context))
-            .addFunctions(generateMethodsPerField(context) + generateBuildMethod(context))
+            .addProperties(generatePropertiesPerField(context, typeNameClashResolver))
+            .addFunctions(
+                generateMethodsPerField(context, typeNameClashResolver) + generateBuildMethod(context, names),
+            )
             .addDeprecationWarningIfAvailable(context.typeMetadata.kDoc)
-            .addDocs("Builder for [${argsClassName(context).simpleName}].")
+            .addDocs("Builder for [${argsClassName(names).simpleName}].")
             .build()
     }
 
-    private fun generatePropertiesPerField(context: Context): List<PropertySpec> {
+    private fun generatePropertiesPerField(
+        context: Context,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): List<PropertySpec> {
         return context.fields.map {
             PropertySpec
-                .builder(it.name, it.toNullableTypeName())
+                .builder(it.name, it.toNullableTypeName(typeNameClashResolver))
                 .initializer("null")
                 .mutable(true)
                 .addModifiers(KModifier.PRIVATE)
@@ -171,17 +194,20 @@ object TypeGenerator {
         }
     }
 
-    private fun generatePropertiesPerFieldWithConstructor(context: Context): Pair<FunSpec, List<PropertySpec>> {
+    private fun generatePropertiesPerFieldWithConstructor(
+        context: Context,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): Pair<FunSpec, List<PropertySpec>> {
         val properties = context.fields.map { field ->
             PropertySpec
-                .builder(field.name, field.toTypeName())
+                .builder(field.name, field.toTypeName(typeNameClashResolver))
                 .initializer(field.name)
                 .addDeprecationWarningIfAvailable(field.kDoc)
                 .build()
         }
 
         val constructorParameters = context.fields.map { field ->
-            ParameterSpec.builder(field.name, field.toTypeName())
+            ParameterSpec.builder(field.name, field.toTypeName(typeNameClashResolver))
                 .letIf(!field.required) {
                     it.defaultValue("%L", null)
                 }
@@ -209,7 +235,7 @@ object TypeGenerator {
      * }
      * ```
      */
-    private fun generateBuildMethod(context: Context): FunSpec {
+    private fun generateBuildMethod(context: Context, names: NameGeneration): FunSpec {
         val arguments = context.fields.associate {
             val requiredPart = if (it.required) "!!" else ""
             it.name to CustomExpressionBuilder.start("%N$requiredPart", it.name).build()
@@ -217,12 +243,12 @@ object TypeGenerator {
 
         return FunSpec.builder("build")
             .addModifiers(INTERNAL)
-            .returns(argsClassName(context))
-            .addCode(Return(ConstructObjectExpression(argsClassName(context), fields = arguments)))
+            .returns(argsClassName(names))
+            .addCode(Return(ConstructObjectExpression(argsClassName(names), fields = arguments)))
             .build()
     }
 
-    private fun generateMethodsPerField(context: Context): List<FunSpec> {
+    private fun generateMethodsPerField(context: Context, typeNameClashResolver: TypeNameClashResolver): List<FunSpec> {
         val fields = context.fields
 
         val normalFunctions = fields.map { field -> Setter.from(field) }
@@ -234,25 +260,24 @@ object TypeGenerator {
         val allRecipes = normalFunctions + overloadFunctions
 
         return allRecipes
-            .flatMap { generateMethodsForField(it) }
+            .flatMap { generateMethodsForField(it, typeNameClashResolver) }
             .map { withoutJvmPlatformNameClashRisk(it) }
     }
 
-    private fun generateMethodsForField(field: Setter): Iterable<FunSpec> {
-        return AllSetterGenerators.generate(field)
+    private fun generateMethodsForField(
+        field: Setter,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): Iterable<FunSpec> {
+        return AllSetterGenerators.generate(field, typeNameClashResolver)
     }
 
-    private fun argsBuilderClassName(context: Context): ClassName {
-        val names = kotlinNames(context)
+    private fun argsBuilderClassName(names: NameGeneration): ClassName {
         return ClassName(names.packageName, names.builderClassName)
     }
 
-    private fun argsClassName(context: Context): ClassName {
-        val names = kotlinNames(context)
+    private fun argsClassName(names: NameGeneration): ClassName {
         return ClassName(names.packageName, names.className)
     }
-
-    private fun kotlinNames(context: Context) = context.typeMetadata.names(Kotlin)
 
     private fun withoutJvmPlatformNameClashRisk(funSpec: FunSpec): FunSpec {
         val randomJvmNameAnnotation = AnnotationSpec

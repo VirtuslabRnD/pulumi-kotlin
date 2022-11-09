@@ -1,14 +1,14 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen.types.setters
 
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.TypeName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.FieldType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
+import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 
 interface SetterGenerator {
-    fun generate(setter: Setter): Iterable<FunSpec>
+    fun generate(setter: Setter, typeNameClashResolver: TypeNameClashResolver): Iterable<FunSpec>
 }
 
 data class Setter(
@@ -17,10 +17,6 @@ data class Setter(
     val fieldRequired: Boolean,
     val kDoc: KDoc,
 ) {
-
-    fun toTypeName(): TypeName =
-        fieldType.toTypeName().copy(nullable = !fieldRequired)
-
     companion object {
         fun from(originalField: Field<ReferencedType>, overload: FieldType<ReferencedType>) =
             Setter(originalField.name, overload, originalField.required, originalField.kDoc)
@@ -39,7 +35,7 @@ object AllSetterGenerators : SetterGenerator {
         MapTypeSetterGenerator,
     )
 
-    override fun generate(setter: Setter): Iterable<FunSpec> {
-        return generators.flatMap { generator -> generator.generate(setter) }
+    override fun generate(setter: Setter, typeNameClashResolver: TypeNameClashResolver): Iterable<FunSpec> {
+        return generators.flatMap { generator -> generator.generate(setter, typeNameClashResolver) }
     }
 }

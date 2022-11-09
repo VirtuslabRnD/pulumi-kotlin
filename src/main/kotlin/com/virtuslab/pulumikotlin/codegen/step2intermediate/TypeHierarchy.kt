@@ -1,15 +1,6 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
-import com.pulumi.asset.Archive
-import com.pulumi.asset.AssetOrArchive
-import com.pulumi.core.Either
-import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.LIST
-import com.squareup.kotlinpoet.MAP
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.asTypeName
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 
 data class TypeMetadata(
@@ -19,74 +10,49 @@ data class TypeMetadata(
     val generatedClass: GeneratedClass = GeneratedClass.NormalClass,
 ) {
 
-    private fun namingFlags(language: LanguageType) =
+    private fun namingFlags(language: LanguageType, useAlternativeName: Boolean) =
         NamingFlags(
             usageKind.depth,
             usageKind.subject,
             usageKind.direction,
             language,
             generatedClass,
+            useAlternativeName,
         )
 
-    fun names(language: LanguageType): NameGeneration {
-        return NameGeneration(pulumiName, namingFlags(language))
+    fun names(language: LanguageType, useAlternativeName: Boolean = false): NameGeneration {
+        return NameGeneration(pulumiName, namingFlags(language, useAlternativeName))
     }
 }
 
 data class TypeAndOptionality(val type: ReferencedType, val required: Boolean, val kDoc: KDoc)
 
-sealed class Type {
-    abstract fun toTypeName(languageType: LanguageType = LanguageType.Kotlin): TypeName
-}
+sealed class Type
 
 sealed class RootType : Type() {
     abstract val metadata: TypeMetadata
 
-    abstract override fun toTypeName(languageType: LanguageType): ClassName
     abstract fun toReference(): ReferencedRootType
 }
 
 sealed class ReferencedRootType : ReferencedType() {
     abstract val metadata: TypeMetadata
-
-    abstract override fun toTypeName(languageType: LanguageType): ClassName
 }
 
-sealed class ReferencedType : Type() {
-    abstract override fun toTypeName(languageType: LanguageType): TypeName
-}
+sealed class ReferencedType : Type()
 
-object AnyType : ReferencedType() {
-    override fun toTypeName(languageType: LanguageType): TypeName {
-        return ANY
-    }
-}
+object AnyType : ReferencedType()
 
 data class ReferencedComplexType(override val metadata: TypeMetadata) : ReferencedRootType() {
-    override fun toTypeName(languageType: LanguageType): ClassName {
-        val names = metadata.names(languageType)
-        return ClassName(names.packageName, names.className)
-    }
-
     fun toBuilderTypeName(): ClassName {
         val names = metadata.names(LanguageType.Kotlin)
         return ClassName(names.packageName, names.builderClassName)
     }
 }
 
-data class ReferencedEnumType(override val metadata: TypeMetadata) : ReferencedRootType() {
-    override fun toTypeName(languageType: LanguageType): ClassName {
-        val names = metadata.names(languageType)
-        return ClassName(names.packageName, names.className)
-    }
-}
+data class ReferencedEnumType(override val metadata: TypeMetadata) : ReferencedRootType()
 
 data class ComplexType(override val metadata: TypeMetadata, val fields: Map<String, TypeAndOptionality>) : RootType() {
-    override fun toTypeName(languageType: LanguageType): ClassName {
-        val names = metadata.names(languageType)
-        return ClassName(names.packageName, names.className)
-    }
-
     fun toBuilderTypeName(): ClassName {
         val names = metadata.names(LanguageType.Kotlin)
         return ClassName(names.packageName, names.builderClassName)
@@ -98,61 +64,23 @@ data class ComplexType(override val metadata: TypeMetadata, val fields: Map<Stri
 }
 
 data class EnumType(override val metadata: TypeMetadata, val possibleValues: List<String>) : RootType() {
-    override fun toTypeName(languageType: LanguageType): ClassName {
-        val names = metadata.names(languageType)
-        return ClassName(names.packageName, names.className)
-    }
 
     override fun toReference(): ReferencedEnumType {
         return ReferencedEnumType(metadata)
     }
 }
 
-data class ListType(val innerType: ReferencedType) : ReferencedType() {
-    override fun toTypeName(languageType: LanguageType): TypeName {
-        return LIST.parameterizedBy(innerType.toTypeName(languageType))
-    }
-}
+data class ListType(val innerType: ReferencedType) : ReferencedType()
 
-data class MapType(val firstType: ReferencedType, val secondType: ReferencedType) : ReferencedType() {
-    override fun toTypeName(languageType: LanguageType): TypeName {
-        return MAP.parameterizedBy(
-            firstType.toTypeName(languageType),
-            secondType.toTypeName(languageType),
-        )
-    }
-}
+data class MapType(val keyType: ReferencedType, val valueType: ReferencedType) : ReferencedType()
 
-data class EitherType(val firstType: ReferencedType, val secondType: ReferencedType) : ReferencedType() {
-    override fun toTypeName(languageType: LanguageType): TypeName {
-        return Either::class.asTypeName()
-            .parameterizedBy(
-                firstType.toTypeName(languageType),
-                secondType.toTypeName(languageType),
-            )
-    }
-}
+data class EitherType(val firstType: ReferencedType, val secondType: ReferencedType) : ReferencedType()
 
-object AssetOrArchiveType : ReferencedType() {
+object AssetOrArchiveType : ReferencedType()
 
-    override fun toTypeName(languageType: LanguageType): ClassName {
-        return AssetOrArchive::class.asTypeName()
-    }
-}
+object ArchiveType : ReferencedType()
 
-object ArchiveType : ReferencedType() {
-
-    override fun toTypeName(languageType: LanguageType): ClassName {
-        return Archive::class.asTypeName()
-    }
-}
-
-sealed class PrimitiveType(val name: String) : ReferencedType() {
-    override fun toTypeName(languageType: LanguageType): TypeName {
-        require(languageType == LanguageType.Kotlin) { "Types other than ${LanguageType.Kotlin} not expected" }
-        return ClassName("kotlin", name)
-    }
-}
+sealed class PrimitiveType(val name: String) : ReferencedType()
 
 object StringType : PrimitiveType("String")
 object DoubleType : PrimitiveType("Double")

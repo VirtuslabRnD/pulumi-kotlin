@@ -20,9 +20,10 @@ data class GeneratorArguments(
 
 object CodeGenerator {
     fun run(input: GeneratorArguments): List<WriteableFile> {
-        val generatedTypes = TypeGenerator.generateTypes(input.types, input.options)
-        val generatedResources = ResourceGenerator.generateResources(input.resources)
-        val generatedFunctions = FunctionGenerator.generateFunctions(input.functions)
+        val typeNameClashResolver = TypeNameClashResolver(input.types)
+        val generatedTypes = TypeGenerator.generateTypes(input.types, input.options, typeNameClashResolver)
+        val generatedResources = ResourceGenerator.generateResources(input.resources, typeNameClashResolver)
+        val generatedFunctions = FunctionGenerator.generateFunctions(input.functions, typeNameClashResolver)
 
         val allGeneratedFileSpecs = generatedTypes + generatedResources + generatedFunctions
         val allGeneratedFiles = allGeneratedFileSpecs.map { InMemoryGeneratedFile(it) }

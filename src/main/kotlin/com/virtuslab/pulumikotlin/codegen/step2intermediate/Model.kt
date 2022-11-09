@@ -35,6 +35,7 @@ data class NamingFlags(
     val direction: Direction,
     val language: LanguageType,
     val generatedClass: GeneratedClass = NormalClass,
+    val useAlternativeName: Boolean = false,
 )
 
 /**
@@ -85,7 +86,7 @@ data class PulumiNamingConfiguration private constructor(
             providerName,
             moduleFormat?.toRegex() ?: DEFAULT_MODULE_FORMAT_REGEX_LITERAL.toRegex(),
             basePackage ?: DEFAULT_BASE_PACKAGE,
-            packageOverrides ?: emptyMap(),
+            packageOverrides.orEmpty(),
         )
     }
 }

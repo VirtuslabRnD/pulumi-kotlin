@@ -26,25 +26,25 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.coroutinesFutureAwaitExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetExtensions.addImport
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
+import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 
 object FunctionGenerator {
-    fun generateFunctions(functions: List<FunctionType>): List<FileSpec> {
-        val namingFlags = NamingFlags(Root, Resource, Output, Kotlin)
+    fun generateFunctions(functions: List<FunctionType>, typeNameClashResolver: TypeNameClashResolver): List<FileSpec> {
+        val namingFlags = NamingFlags(Root, Function, Output, Kotlin)
         val files = functions
             .groupBy { it.name.namespace }
-            .flatMap { (_, types) ->
+            .map { (_, types) ->
                 val firstType = types.first()
                 val name = firstType.name
 
                 val objectSpecBuilder = TypeSpec.objectBuilder(name.toFunctionGroupObjectName(namingFlags))
 
-                val functionSpecs = types.flatMap { generateFunctionSpec(it) }
+                val functionSpecs = types.flatMap { generateFunctionSpec(it, typeNameClashResolver) }
                 functionSpecs.forEach {
                     objectSpecBuilder.addFunction(it)
                 }
@@ -58,20 +58,28 @@ object FunctionGenerator {
                     .addImport(coroutinesFutureAwaitExtensionMethod())
                     .build()
 
-                listOf(fileSpec)
+                fileSpec
             }
 
         return files
     }
 
-    private fun callAwaitAndDoTheMapping(functionType: FunctionType, argument: Expression?): Return {
+    private fun callAwaitAndDoTheMapping(
+        functionType: FunctionType,
+        argument: Expression?,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): Return {
         val javaNamingFlags = NamingFlags(Root, Function, Input, Java)
 
-        val toKotlin = functionType.outputType.toTypeName().nestedClass("Companion").member("toKotlin")
+        val toKotlin = typeNameClashResolver.kotlinNames(functionType.outputType.metadata)
+            .kotlinPoetClassName
+            .nestedClass("Companion")
+            .member("toKotlin")
         val javaMethodGetName = ClassName(
             functionType.name.toFunctionGroupObjectPackage(javaNamingFlags),
             functionType.name.toFunctionGroupObjectName(javaNamingFlags),
-        ).member(functionType.name.toFunctionName(javaNamingFlags))
+        )
+            .member(functionType.name.toFunctionName(javaNamingFlags))
 
         val calledJavaMethod = if (argument == null) {
             javaMethodGetName()
@@ -81,7 +89,10 @@ object FunctionGenerator {
         return Return(toKotlin(calledJavaMethod.call0("await")))
     }
 
-    private fun generateFunctionSpec(functionType: FunctionType): List<FunSpec> {
+    private fun generateFunctionSpec(
+        functionType: FunctionType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): List<FunSpec> {
         val hasAnyArguments = (functionType.argsType as? ComplexType)?.fields?.isNotEmpty() ?: true
 
         val functionDocs = functionType.kDoc.description.orEmpty()
@@ -89,17 +100,20 @@ object FunctionGenerator {
 
         val basicFunSpec = FunSpec.builder(functionType.name.name)
             .letIf(hasAnyArguments) {
-                it.addParameter("argument", functionType.argsType.toTypeName())
+                it.addParameter(
+                    "argument",
+                    typeNameClashResolver.kotlinNames(functionType.argsType.metadata).kotlinPoetClassName,
+                )
             }
             .addModifiers(KModifier.SUSPEND)
-            .returns(functionType.outputType.toTypeName())
+            .returns(typeNameClashResolver.kotlinNames(functionType.outputType.metadata).kotlinPoetClassName)
             .let {
                 val argumentExpression = if (hasAnyArguments) {
                     CustomExpression("argument")
                 } else {
                     null
                 }
-                it.addCode(callAwaitAndDoTheMapping(functionType, argumentExpression))
+                it.addCode(callAwaitAndDoTheMapping(functionType, argumentExpression, typeNameClashResolver))
             }
             .addDocs(functionDocs, "@param argument ${functionType.argsType.metadata.kDoc.description}", returnDoc)
             .addDeprecationWarningIfAvailable(functionType.kDoc)
@@ -120,7 +134,10 @@ object FunctionGenerator {
                 FunSpec.builder(functionType.name.name)
                     .addParameters(
                         parameters.map { (name, type) ->
-                            ParameterSpec.builder(name, type.type.toTypeName().copy(nullable = !type.required))
+                            ParameterSpec.builder(
+                                name,
+                                typeNameClashResolver.toTypeName(type.type, Kotlin).copy(nullable = !type.required),
+                            )
                                 .letIf(!type.required) {
                                     it.defaultValue("null")
                                 }
@@ -128,16 +145,19 @@ object FunctionGenerator {
                         },
                     )
                     .addModifiers(KModifier.SUSPEND)
-                    .returns(functionType.outputType.toTypeName())
+                    .returns(
+                        typeNameClashResolver.kotlinNames(functionType.outputType.metadata).kotlinPoetClassName,
+                    )
                     .let {
                         val assignment = Assignment(
                             "argument",
                             ConstructObjectExpression(
-                                functionType.argsType.toTypeName(),
+                                typeNameClashResolver.kotlinNames(functionType.argsType.metadata).kotlinPoetClassName,
                                 parameters.map { (name, _) -> name to CustomExpression(name) }.toMap(),
                             ),
                         )
-                        val returnCode = callAwaitAndDoTheMapping(functionType, assignment.reference())
+                        val returnCode =
+                            callAwaitAndDoTheMapping(functionType, assignment.reference(), typeNameClashResolver)
 
                         it.addCode(
                             GroupedCode(
@@ -154,17 +174,28 @@ object FunctionGenerator {
             ?.build()
 
         val typeSafeBuilderOverloadFunSpec = (functionType.argsType as? ComplexType)?.let { args ->
+            val argsTypeName = typeNameClashResolver.kotlinNames(args.metadata)
             FunSpec.builder(functionType.name.name)
                 .addParameter("argument", builderLambda(args.toBuilderTypeName()))
                 .addModifiers(KModifier.SUSPEND)
-                .returns(functionType.outputType.toTypeName())
+                .returns(
+                    typeNameClashResolver.kotlinNames(functionType.outputType.metadata).kotlinPoetClassName,
+                )
                 .let { builder ->
-                    val builderAssignment =
-                        Assignment("builder", ConstructObjectExpression(args.toBuilderTypeName(), emptyMap()))
+                    val builderAssignment = Assignment(
+                        "builder",
+                        ConstructObjectExpression(args.toBuilderTypeName(), emptyMap()),
+                    )
                     val callArgument = builderAssignment.reference().call0("argument")
-                    val builtArgumentAssignment =
-                        Assignment("builtArgument", CustomExpression("builder").call0("build"))
-                    val returnArgument = callAwaitAndDoTheMapping(functionType, builtArgumentAssignment.reference())
+                    val builtArgumentAssignment = Assignment(
+                        "builtArgument",
+                        CustomExpression("builder").call0("build"),
+                    )
+                    val returnArgument = callAwaitAndDoTheMapping(
+                        functionType,
+                        builtArgumentAssignment.reference(),
+                        typeNameClashResolver,
+                    )
 
                     val allCode = GroupedCode(
                         listOf(
@@ -178,7 +209,7 @@ object FunctionGenerator {
                 }
                 .addDocs(
                     "@see [${functionType.name.name}].",
-                    "@param argument Builder for [${args.toTypeName().simpleName}].",
+                    "@param argument Builder for [${argsTypeName.kotlinPoetClassName}].",
                     returnDoc,
                 )
                 .addDeprecationWarningIfAvailable(functionType.kDoc)
