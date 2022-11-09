@@ -68,7 +68,7 @@ object ResourceGenerator {
                     FunSpec.getterBuilder()
                         .addCode(
                             toKotlinFunctionResource(
-                                field.toKotlinName(),
+                                field.toJavaName(escape = true),
                                 field.fieldType.type,
                                 typeNameClashResolver,
                                 !field.required,
