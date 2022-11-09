@@ -129,7 +129,7 @@ class TypeNameClashResolver(types: List<RootType>) {
 
     @Suppress("UnusedReceiverParameter")
     private fun JsonType.toTypeName(): TypeName {
-        return com.google.gson.JsonElement::class.asTypeName()
+        return kotlinx.serialization.json.JsonElement::class.asTypeName()
     }
 
     private fun toTypeName(type: ListType, languageType: LanguageType): TypeName {
