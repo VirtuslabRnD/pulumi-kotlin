@@ -241,6 +241,7 @@ private constructor(internal open val javaResource: JavaResource) {
 /**
  * Parent class for provider resources within Kotlin SDK - equivalent to [JavaProviderResource].
  */
+@Suppress("UnnecessaryAbstractClass")
 abstract class KotlinProviderResource protected constructor(
     override val javaResource: JavaProviderResource,
     mapper: ResourceMapper<KotlinResource>,

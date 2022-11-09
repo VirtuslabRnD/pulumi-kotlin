@@ -134,7 +134,6 @@ object TypeGenerator {
         val propertyDocs = fields.joinToString("\n") {
             "@property ${it.toKotlinName()} ${it.kDoc.description.orEmpty()}"
         }
-        val names = kotlinNames(context)
 
         return TypeSpec.classBuilder(argsClassName(kotlinNames))
             .letIf(fields.isNotEmpty()) {
@@ -143,7 +142,7 @@ object TypeGenerator {
             .primaryConstructor(constructor)
             .addProperties(properties)
             .addDocs("$classDocs\n$propertyDocs")
-            .letIf(options.implementToJava && names.shouldImplementToJava) {
+            .letIf(options.implementToJava && kotlinNames.shouldImplementToJava) {
                 val javaNames = typeNameClashResolver.javaNames(context.typeMetadata)
                 val innerType = javaNames.kotlinPoetClassName
                 val convertibleToJava = convertibleToJavaClass().parameterizedBy(innerType)
@@ -151,7 +150,7 @@ object TypeGenerator {
                     .addSuperinterface(convertibleToJava)
                     .addFunction(toJavaFunction(fields, javaNames))
             }
-            .letIf(options.implementToKotlin && names.shouldImplementToKotlin) {
+            .letIf(options.implementToKotlin && kotlinNames.shouldImplementToKotlin) {
                 it.addType(
                     TypeSpec.companionObjectBuilder()
                         .addFunction(

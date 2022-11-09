@@ -15,6 +15,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.JsonType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
@@ -86,6 +87,7 @@ class TypeNameClashResolver(types: List<RootType>) {
             is AnyType -> type.toTypeName()
             is ArchiveType -> type.toTypeName()
             is AssetOrArchiveType -> type.toTypeName()
+            is JsonType -> type.toTypeName()
             is EitherType -> toTypeName(type, languageType)
             is ListType -> toTypeName(type, languageType)
             is MapType -> toTypeName(type, languageType)
@@ -123,6 +125,11 @@ class TypeNameClashResolver(types: List<RootType>) {
     @Suppress("UnusedReceiverParameter")
     private fun ArchiveType.toTypeName(): TypeName {
         return Archive::class.asTypeName()
+    }
+
+    @Suppress("UnusedReceiverParameter")
+    private fun JsonType.toTypeName(): TypeName {
+        return com.google.gson.JsonElement::class.asTypeName()
     }
 
     private fun toTypeName(type: ListType, languageType: LanguageType): TypeName {
