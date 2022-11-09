@@ -16,7 +16,8 @@
     "javaVersion": "0.3.0",
     "javaGitTag": "v0.3.0",
     "customDependencies": [
-      "com.pulumi:slack:0.3.0"
+      "com.pulumi:slack:0.3.0",
+      "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1"
     ]
   },
   {
@@ -26,7 +27,8 @@
     "javaVersion": "4.17.0",
     "javaGitTag": "v4.17.0",
     "customDependencies": [
-      "com.pulumi:github:4.17.0"
+      "com.pulumi:github:4.17.0",
+      "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1"
     ]
   },
   {
@@ -36,7 +38,8 @@
     "javaVersion": "4.6.0",
     "javaGitTag": "v4.6.0",
     "customDependencies": [
-      "com.pulumi:random:4.6.0"
+      "com.pulumi:random:4.6.0",
+      "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1"
     ]
   },
   {
@@ -46,7 +49,8 @@
     "javaVersion": "6.39.0",
     "javaGitTag": "v6.39.0",
     "customDependencies": [
-      "com.pulumi:gcp:6.39.0"
+      "com.pulumi:gcp:6.39.0",
+      "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1"
     ]
   },
   {
@@ -66,7 +70,8 @@
     "javaVersion": "5.16.2",
     "javaGitTag": "v5.16.2",
     "customDependencies": [
-      "com.pulumi:aws:5.16.2"
+      "com.pulumi:aws:5.16.2",
+      "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1"
     ]
   },
   {
@@ -76,7 +81,8 @@
     "javaVersion": "3.22.1",
     "javaGitTag": "v3.22.1",
     "customDependencies": [
-      "com.pulumi:kubernetes:3.22.1"
+      "com.pulumi:kubernetes:3.22.1",
+      "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1"
     ]
   }
 ]
