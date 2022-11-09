@@ -2,6 +2,7 @@
 
 package com.virtuslab.pulumikotlin.gcp
 
+import com.virtuslab.pulumikotlin.PROJECT_NAME
 import com.virtuslab.pulumikotlin.Pulumi
 import org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Test

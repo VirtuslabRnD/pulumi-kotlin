@@ -89,10 +89,14 @@ jobs:
           # https://github.com/VirtuslabRnD/jvm-lab/blob/main/scripts/setup-github-actions-google-cloud-authentication.sh
           workload_identity_provider: 'projects/954450653667/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
           service_account: 'github-actions@jvm-lab.iam.gserviceaccount.com'
+      - name: Set up Minikube
+        uses: medyagh/setup-minikube@master
       - name: Publish Pulumi Kotlin GCP to Maven Local
         run: ./gradlew publishPulumiGcpPublicationToMavenLocal -x formatKotlinPulumiGcp
       - name: Publish Pulumi Kotlin Google Native to Maven Local
         run: ./gradlew publishPulumiGoogle-nativePublicationToMavenLocal -x formatKotlinPulumiGoogle-native
+      - name: Publish Pulumi Kotlin Kubernetes to Maven Local
+        run: ./gradlew publishPulumiKubernetesPublicationToMavenLocal -x formatKotlinPulumiKubernetes
       - name: Run E2E tests
         run: ./gradlew e2eTest
         env:
