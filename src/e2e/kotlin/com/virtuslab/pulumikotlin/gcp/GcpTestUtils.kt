@@ -8,9 +8,6 @@ import kotlinx.serialization.Serializable
 import kotlin.test.assertContains
 import kotlin.test.assertTrue
 
-@Serializable
-private data class PulumiStackOutput(val instanceName: String)
-
 fun getInstance(instanceId: String): Instance {
     val instancesClient = InstancesClient.create()
     val aggregatedListInstancesRequest = AggregatedListInstancesRequest
@@ -43,3 +40,6 @@ fun assertVmExists(instance: Instance) {
     assertContains(metadata, "foo" to "bar")
     assertContains(metadata, "startup-script" to "echo hi > /test.txt")
 }
+
+@Serializable
+data class PulumiStackOutput(val instanceName: String)

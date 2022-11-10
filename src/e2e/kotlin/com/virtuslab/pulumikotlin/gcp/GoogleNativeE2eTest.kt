@@ -23,7 +23,7 @@ class GoogleNativeE2eTest {
         pulumi.initStack()
         pulumi.up("google-native:project=$PROJECT_NAME")
 
-        val instance = getInstance(pulumi.getStackOutput().instanceName)
+        val instance = getInstance(pulumi.getStackOutput<PulumiStackOutput>().instanceName)
 
         assertVmExists(instance)
     }

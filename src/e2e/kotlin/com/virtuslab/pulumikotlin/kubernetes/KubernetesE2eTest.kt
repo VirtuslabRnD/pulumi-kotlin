@@ -14,30 +14,24 @@ import org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
-private const val EXAMPLE_NAME = "kubernetes-sample-project"
-
 class KubernetesE2eTest {
 
-    private val rootDirectory = File("examples/$EXAMPLE_NAME")
-    private var pulumi: Pulumi? = null
-
-    @BeforeTest
-    fun setupTest() {
-        val fullStackName = "$PROJECT_NAME/$EXAMPLE_NAME/test${RandomStringUtils.randomNumeric(10)}"
-        pulumi = Pulumi(fullStackName, rootDirectory)
-        pulumi!!.initStack()
-        pulumi!!.up("gcp:project=$PROJECT_NAME", "kubernetes:context=minikube")
-    }
+    private lateinit var pulumi: Pulumi
 
     @Test
     fun `Kubernetes deployment can be created`() {
-        val parsedStackOutput = pulumi?.getStackOutput<PulumiStackOutput>()!!
+        val exampleName = "kubernetes-sample-project"
+        val rootDirectory = File("examples/$exampleName")
+        val fullStackName = "$PROJECT_NAME/$exampleName/test${RandomStringUtils.randomNumeric(10)}"
 
-        val pod = getCreatedPod(parsedStackOutput)
+        pulumi = Pulumi(fullStackName, rootDirectory)
+        pulumi.initStack()
+        pulumi.up("gcp:project=$PROJECT_NAME", "kubernetes:context=minikube")
+
+        val pod = getCreatedPod(pulumi.getStackOutput<PulumiStackOutput>().name)
 
         assertContains(
             pod?.metadata?.labels?.entries!!.map { it.toPair() },
@@ -55,18 +49,18 @@ class KubernetesE2eTest {
 
     @AfterTest
     fun cleanupTest() {
-        pulumi!!.destroy()
-        pulumi!!.rmStack()
+        pulumi.destroy()
+        pulumi.rmStack()
     }
 
-    private fun getCreatedPod(parsedStackOutput: PulumiStackOutput): V1Pod? {
+    private fun getCreatedPod(podName: String): V1Pod? {
         val client: ApiClient = Config.defaultClient()
         Configuration.setDefaultApiClient(client)
         val api = CoreV1Api()
 
         return api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null, null)
             .items
-            .first { it.metadata?.name?.startsWith(parsedStackOutput.name) ?: false }
+            .first { it.metadata?.name?.startsWith(podName) ?: false }
     }
 
     @Serializable
