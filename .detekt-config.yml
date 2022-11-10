@@ -6,7 +6,7 @@ output-reports:
     - 'XmlOutputReport'
 
 build:
-  maxIssues: 26 # TODO: Remove this setting after adjusting the codebase to Detekt
+  maxIssues: 23 # TODO: Remove this setting after adjusting the codebase to Detekt
 
 style:
   CanBeNonNullable:
@@ -31,3 +31,6 @@ naming:
   FunctionNaming:
     active: true
     excludes: [ "**/test/**" , "**/e2e/**" ]
+performance:
+  SpreadOperator:
+    active: false
