@@ -26,7 +26,7 @@ object ToJava {
     fun toJavaFunction(fields: List<Field<*>>, names: NameGeneration): FunSpec {
         val codeBlocks = fields.map { field ->
             val block = CodeBlock.of(
-                ".%N(%N)",
+                "\n.%N(%N)",
                 KeywordsEscaper.escape(field.name),
                 field.name,
             )
