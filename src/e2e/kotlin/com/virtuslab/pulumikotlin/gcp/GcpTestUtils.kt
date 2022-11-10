@@ -3,9 +3,8 @@ package com.virtuslab.pulumikotlin.gcp
 import com.google.cloud.compute.v1.AggregatedListInstancesRequest
 import com.google.cloud.compute.v1.Instance
 import com.google.cloud.compute.v1.InstancesClient
-import com.virtuslab.pulumikotlin.Pulumi
-import kotlin.test.DefaultAsserter
 import kotlin.test.assertContains
+import kotlin.test.assertTrue
 
 const val PROJECT_NAME = "jvm-lab"
 
@@ -25,11 +24,7 @@ fun getInstance(instanceId: String): Instance {
         .first()
 }
 
-fun createVmAndVerifyItsExistence(pulumi: Pulumi) {
-    val parsedStackOutput = pulumi.getStackOutput()
-
-    val instance = getInstance(parsedStackOutput.instanceName)
-
+fun assertVmExists(instance: Instance) {
     assertContains(instance.machineType, "e2-micro")
 
     val tags: Iterable<String> = instance.tags?.itemsList.orEmpty()
@@ -37,7 +32,7 @@ fun createVmAndVerifyItsExistence(pulumi: Pulumi) {
     assertContains(tags, "bar")
 
     val attachedDisk = instance.disksList.first()
-    DefaultAsserter.assertTrue("", attachedDisk.boot)
+    assertTrue(attachedDisk.boot)
 
     assertContains(instance.networkInterfacesList.first().network, "default")
 

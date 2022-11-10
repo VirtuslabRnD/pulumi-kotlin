@@ -7,31 +7,29 @@ import org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-
-private const val EXAMPLE_NAME = "gcp-sample-project"
 
 class GcpE2eTest {
 
-    private val rootDirectory = File("examples/$EXAMPLE_NAME")
-    private var pulumi: Pulumi? = null
-
-    @BeforeTest
-    fun setupTest() {
-        val fullStackName = "$PROJECT_NAME/$EXAMPLE_NAME/test${RandomStringUtils.randomNumeric(10)}"
-        pulumi = Pulumi(fullStackName, rootDirectory)
-        pulumi!!.initStack()
-        pulumi!!.up("gcp:project=$PROJECT_NAME")
-    }
+    private lateinit var pulumi: Pulumi
 
     @Test
     fun `GCP VM instance can be created`() {
-        createVmAndVerifyItsExistence(pulumi!!)
+        val exampleName = "gcp-sample-project"
+        val rootDirectory = File("examples/$exampleName")
+        val fullStackName = "$PROJECT_NAME/$exampleName/test${RandomStringUtils.randomNumeric(10)}"
+
+        pulumi = Pulumi(fullStackName, rootDirectory)
+        pulumi.initStack()
+        pulumi.up("gcp:project=$PROJECT_NAME")
+
+        val instance = getInstance(pulumi.getStackOutput().instanceName)
+
+        assertVmExists(instance)
     }
 
     @AfterTest
     fun cleanupTest() {
-        pulumi!!.destroy()
-        pulumi!!.rmStack()
+        pulumi.destroy()
+        pulumi.rmStack()
     }
 }
