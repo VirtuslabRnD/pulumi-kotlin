@@ -152,10 +152,13 @@ object IntermediateRepresentationGenerator {
     ): List<RootType> {
         val usages = forcedUsageKinds.ifEmpty {
             val allUsagesForTypeName = context.referenceFinder.getUsages(typeName)
-            if (allUsagesForTypeName.isEmpty()) {
-                logger.info("$typeName references were empty for $typeName (${rootType.javaClass})")
-            }
             allUsagesForTypeName
+        }
+
+        if (usages.isEmpty()) {
+            logger.info(
+                "$typeName is not used anywhere, no RootTypes will be created for it (${rootType.javaClass})"
+            )
         }
 
         val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
