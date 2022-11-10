@@ -67,7 +67,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Publish to Maven Local
-        run: ./gradlew publishToMavenLocal
+        run: ./gradlew publishToMavenLocal -x dokkaPulumiCloudflareJavadoc
   e2eTest:
     name: Run end-to-end tests of pulumi-kotlin
     runs-on: ubuntu-latest
