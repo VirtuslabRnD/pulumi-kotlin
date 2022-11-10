@@ -18,6 +18,7 @@ data class PulumiName(
     val providerName: String,
     val namespace: List<String>,
     val name: String,
+    val hasValidClassName: Boolean = true,
 ) {
 
     private data class Modifiers(
@@ -150,7 +151,7 @@ data class PulumiName(
                 if (namespace.isEmpty()) {
                     providerName.capitalize() + "Functions"
                 } else {
-                    namespace.last().capitalize() + "Functions"
+                    namespace.last().replace(".", "_").capitalize() + "Functions"
                 }
             }
         }
@@ -230,19 +231,18 @@ data class PulumiName(
             val providerName = substituteWithOverride(namingConfiguration.providerName)
             val moduleName = substituteWithOverride(module)
 
-            val namespace =
-                (namingConfiguration.baseNamespace + providerName + moduleName)
-                    .filter { it.isNotBlank() }
-                    .map { it.replace("-", "") }
+            val namespace = (namingConfiguration.baseNamespace + providerName + moduleName)
+                .filter { it.isNotBlank() }
+                .map { it.replace("-", "") }
 
-            return PulumiName(providerName, namespace, segments[2])
+            return PulumiName(providerName, namespace, segments[2], !segments[2].contains("/"))
         }
     }
 }
 
 data class NameGeneration(private val pulumiName: PulumiName, private val namingFlags: NamingFlags) {
 
-    val kotlinPoetClassName get() = ClassName(pulumiName.toPackage(namingFlags), pulumiName.toClassName(namingFlags))
+    val kotlinPoetClassName get() = ClassName(packageName, className)
 
     val className get() = pulumiName.toClassName(namingFlags)
 

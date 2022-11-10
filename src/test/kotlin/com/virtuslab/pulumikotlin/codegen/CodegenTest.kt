@@ -27,6 +27,7 @@ class CodegenTest {
         "com.pulumi:gcp:6.38.0",
         "com.pulumi:slack:0.3.0",
         "com.pulumi:github:4.17.0",
+        "com.pulumi:google-native:0.27.0",
         "com.google.code.findbugs:jsr305:3.0.2",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4",
         "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
@@ -490,6 +491,58 @@ class CodegenTest {
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_GITHUB_SUBSET_WITH_NAME_COLLISION, code)
     }
 
+    @Test
+    fun `code generated from schema with invalid token can be compiled`() {
+        // The function `google-native:container/v1:Cluster/getKubeconfig` is skipped from code generation
+        assertGeneratedCodeCompiles(SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_INVALID_NAME)
+    }
+
+    @Test
+    fun `code generated from snippet that contains a type property with keyword name (object) can be compiled`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.googlenative.cloudbuild.v1.inputs.StorageSourceArgs
+            
+            suspend fun main() { 
+                StorageSourceArgs.builder()
+                    .`object`("object")
+                    .build()
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_KEYWORD_TYPE_PROPERTY, code)
+    }
+
+    @Test
+    fun `functions with namespaces that contain a slash get mapped correctly`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.googlenative.accesscontextmanager.v1.kotlin.Accesscontextmanager_v1Functions
+            
+            suspend fun main() {
+                Accesscontextmanager_v1Functions.getAccessLevel { 
+                    accessLevelFormat("format")
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_GOOGLE_NATIVE_SUBSET_NAMESPACE_WITH_SLASH, code)
+    }
+
+    @Test
+    fun `types with no properties are generated correctly (not as data classes)`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.googlenative.cloudchannel.v1.kotlin.inputs.GoogleCloudChannelV1RepricingConfigChannelPartnerGranularityArgs
+
+            suspend fun main() {
+                GoogleCloudChannelV1RepricingConfigChannelPartnerGranularityArgs()
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_GOOGLE_NATIVE_SUBSET_TYPE_WITH_NO_PROPERTIES, code)
+    }
+
     private fun assertGeneratedCodeCompiles(schemaPath: String) {
         assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
     }
@@ -649,3 +702,11 @@ private const val SCHEMA_SLACK_SUBSET_WITH_INDEX = "schema-slack-0.3.0-subset-wi
 private const val SCHEMA_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION =
     "schema-azure-native-3.44.2-subset-with-ip-allocation.json"
 private const val SCHEMA_GITHUB_SUBSET_WITH_NAME_COLLISION = "schema-github-4.17.0-subset-with-name-collision.json"
+private const val SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_INVALID_NAME =
+    "schema-google-native-0.27.0-subset-with-invalid-name.json"
+private const val SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_KEYWORD_TYPE_PROPERTY =
+    "schema-google-native-0.27.0-subset-with-keyword-type-property.json"
+private const val SCHEMA_GOOGLE_NATIVE_SUBSET_NAMESPACE_WITH_SLASH =
+    "schema-google-native-0.27.0-subset-namespace-with-slash.json"
+private const val SCHEMA_GOOGLE_NATIVE_SUBSET_TYPE_WITH_NO_PROPERTIES =
+    "schema-google-native-0.27.0-subset-type-with-no-properties.json"

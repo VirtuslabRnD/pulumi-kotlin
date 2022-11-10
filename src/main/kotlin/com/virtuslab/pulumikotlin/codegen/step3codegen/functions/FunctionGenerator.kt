@@ -153,7 +153,7 @@ object FunctionGenerator {
                             "argument",
                             ConstructObjectExpression(
                                 typeNameClashResolver.kotlinNames(functionType.argsType.metadata).kotlinPoetClassName,
-                                parameters.map { (name, _) -> name to CustomExpression(name) }.toMap(),
+                                parameters.map { (name, _) -> name to CustomExpression("%N", name) }.toMap(),
                             ),
                         )
                         val returnCode =

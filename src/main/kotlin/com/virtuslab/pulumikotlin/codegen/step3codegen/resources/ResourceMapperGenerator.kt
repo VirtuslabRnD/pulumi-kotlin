@@ -48,7 +48,7 @@ object ResourceMapperGenerator {
             .addModifiers(KModifier.OVERRIDE)
             .addParameter(LITERAL_JAVA_RESOURCE, com.pulumi.resources.Resource::class)
             .returns(Boolean::class)
-            .addStatement("return %T::class == %L::class", javaResourceClassName, LITERAL_JAVA_RESOURCE)
+            .addStatement("return %T::class·==·%L::class", javaResourceClassName, LITERAL_JAVA_RESOURCE)
             .build()
     }
 

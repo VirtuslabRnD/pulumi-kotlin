@@ -128,7 +128,9 @@ object TypeGenerator {
         }
 
         return TypeSpec.classBuilder(argsClassName(kotlinNames))
-            .addModifiers(KModifier.DATA)
+            .letIf(fields.isNotEmpty()) {
+                it.addModifiers(KModifier.DATA)
+            }
             .primaryConstructor(constructor)
             .addProperties(properties)
             .addDocs("$classDocs\n$propertyDocs")

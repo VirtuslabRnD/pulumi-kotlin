@@ -78,11 +78,11 @@ object KotlinPoetPatterns {
                     .addStatement("val toBeMapped = $code", *args.toTypedArray())
                     .add(Assignment("mapped", mappingCode.invoke(CustomExpression("toBeMapped"))))
                     .addStatement("")
-                    .addStatement("this.$fieldToSetName = mapped")
+                    .addStatement("this.%N = mapped", fieldToSetName)
                     .build()
             } else {
                 CodeBlock.builder()
-                    .addStatement("this.$fieldToSetName = $code", *args.toTypedArray())
+                    .addStatement("this.%N = $code", fieldToSetName, *args.toTypedArray())
                     .build()
             }
         }
