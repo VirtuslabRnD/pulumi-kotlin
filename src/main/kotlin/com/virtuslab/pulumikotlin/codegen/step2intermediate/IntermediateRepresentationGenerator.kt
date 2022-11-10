@@ -157,7 +157,7 @@ object IntermediateRepresentationGenerator {
 
         if (usages.isEmpty()) {
             logger.info(
-                "$typeName is not used anywhere, no RootTypes will be created for it (${rootType.javaClass})"
+                "$typeName is not used anywhere, no RootTypes will be created for it (${rootType.javaClass})",
             )
         }
 
