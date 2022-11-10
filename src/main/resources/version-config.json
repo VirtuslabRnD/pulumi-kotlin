@@ -76,7 +76,7 @@
   },
   {
     "providerName": "kubernetes",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v3.22.1/provider/cmd/pulumi-resource-kubernetes/schema.json",
+    "url": "https://gist.githubusercontent.com/jplewa/deddde072fd7b018aac1609772eda28a/raw/7e92997aa7fc2e972cf81662b65b749aaf5b8358/schema-kubernetes-v.3.22.1-subset-for-build.json",
     "kotlinVersion": "3.22.1.0-SNAPSHOT",
     "javaVersion": "3.22.1",
     "javaGitTag": "v3.22.1",
