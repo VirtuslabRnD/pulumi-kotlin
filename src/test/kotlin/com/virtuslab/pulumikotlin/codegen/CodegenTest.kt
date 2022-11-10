@@ -28,6 +28,7 @@ class CodegenTest {
         "com.pulumi:slack:0.3.0",
         "com.pulumi:github:4.17.0",
         "com.pulumi:google-native:0.27.0",
+        "com.pulumi:kubernetes:3.22.1",
         "com.google.code.findbugs:jsr305:3.0.2",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4",
         "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
@@ -546,6 +547,36 @@ class CodegenTest {
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_GOOGLE_NATIVE_SUBSET_TYPE_WITH_NO_PROPERTIES, code)
     }
 
+    @Test
+    fun `kubernetes function with with pulumi(dot)json#(slash)Json argument can be invoked`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.kubernetes.apiextensions.v1.kotlin.outputs.CustomResourceSubresources
+            import kotlinx.serialization.json.JsonObject
+            import kotlinx.serialization.json.JsonPrimitive
+
+
+            suspend fun main() {
+                CustomResourceSubresources(
+                    status = JsonObject(
+                        mapOf(
+                            "field1" to JsonPrimitive("value1"),
+                            "field2" to JsonPrimitive(2),
+                            "field3" to JsonObject(
+                                mapOf(
+                                    "nestedField1" to JsonPrimitive("value3"),
+                                    "nestedField2" to JsonPrimitive(4),
+                                ),
+                            ),
+                        ),
+                    )
+                )
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_KUBERNETES_SUBSET_WITH_JSON, code)
+    }
+
     private fun assertGeneratedCodeCompiles(schemaPath: String) {
         assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
     }
@@ -713,3 +744,4 @@ private const val SCHEMA_GOOGLE_NATIVE_SUBSET_NAMESPACE_WITH_SLASH =
     "schema-google-native-0.27.0-subset-namespace-with-slash.json"
 private const val SCHEMA_GOOGLE_NATIVE_SUBSET_TYPE_WITH_NO_PROPERTIES =
     "schema-google-native-0.27.0-subset-type-with-no-properties.json"
+private const val SCHEMA_KUBERNETES_SUBSET_WITH_JSON = "schema-kubernetes-3.22.1-subset-with-json.json"
