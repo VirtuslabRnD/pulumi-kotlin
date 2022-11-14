@@ -58,14 +58,14 @@ internal class IntermediateRepresentationGeneratorTest {
         )
         val irTypes = ir.types
 
-        assertContainsComplexTypeThat(
+        assertContainsComplexTypeWhere(
             irTypes,
             nameIs = "type",
             fieldsAre = setOf("int", "referencedType2"),
             usageKindIs = UsageKind(Nested, Resource, Output),
         )
 
-        assertContainsComplexTypeThat(
+        assertContainsComplexTypeWhere(
             irTypes,
             nameIs = "type2",
             fieldsAre = setOf("int"),
@@ -92,7 +92,7 @@ internal class IntermediateRepresentationGeneratorTest {
         )
         val irTypes = ir.types
 
-        assertContainsComplexTypeThat(
+        assertContainsComplexTypeWhere(
             irTypes,
             nameIs = "type",
             fieldsAre = setOf("int"),
@@ -122,14 +122,14 @@ internal class IntermediateRepresentationGeneratorTest {
         )
         val irTypes = ir.types
 
-        assertContainsComplexTypeThat(
+        assertContainsComplexTypeWhere(
             irTypes,
             nameIs = "type",
             fieldsAre = setOf("someInt"),
             usageKindIs = UsageKind(Nested, Resource, Input),
         )
 
-        assertContainsComplexTypeThat(
+        assertContainsComplexTypeWhere(
             irTypes,
             nameIs = "type",
             fieldsAre = setOf("someInt"),
@@ -162,14 +162,14 @@ internal class IntermediateRepresentationGeneratorTest {
         )
         val irTypes = ir.types
 
-        assertContainsComplexTypeThat(
+        assertContainsComplexTypeWhere(
             irTypes,
             nameIs = "type",
             fieldsAre = setOf("someInt"),
             usageKindIs = UsageKind(Nested, Resource, Input),
         )
 
-        assertContainsComplexTypeThat(
+        assertContainsComplexTypeWhere(
             irTypes,
             nameIs = "type",
             fieldsAre = setOf("someInt"),
@@ -209,7 +209,7 @@ internal class IntermediateRepresentationGeneratorTest {
         val irTypes = ir.types
         val irResources = ir.resources
 
-        assertContainsComplexTypeThat(
+        assertContainsComplexTypeWhere(
             irTypes,
             nameIs = "resource",
             fieldsAre = setOf("someInt", "referencedType"),
@@ -262,14 +262,14 @@ internal class IntermediateRepresentationGeneratorTest {
         )
         val irTypes = ir.types
 
-        assertContainsComplexTypeThat(
+        assertContainsComplexTypeWhere(
             irTypes,
             nameIs = "function",
             fieldsAre = setOf("someInt", "referencedType"),
             usageKindIs = UsageKind(Root, Function, Input),
         )
 
-        assertContainsComplexTypeThat(
+        assertContainsComplexTypeWhere(
             irTypes,
             nameIs = "function",
             fieldsAre = setOf("someInt2", "referencedType2"),
@@ -293,7 +293,7 @@ internal class IntermediateRepresentationGeneratorTest {
     }
 
     @Test
-    fun `types reference resolution is case insensitive`() {
+    fun `references to types can have different letter casing`() {
         val typeName = "provider:namespace/type:type"
         val types = mapOf(
             typeName to ObjectProperty(
@@ -308,7 +308,6 @@ internal class IntermediateRepresentationGeneratorTest {
                 description = "any",
                 outputs = ObjectProperty(
                     properties = mapOf(
-                        PropertyName("someInt") to IntegerProperty(),
                         PropertyName("referencedType") to ReferenceProperty(
                             ref = SpecificationReference(ref("provider:Namespace/Type:Type")),
                         ),
@@ -316,19 +315,43 @@ internal class IntermediateRepresentationGeneratorTest {
                 ),
             ),
         )
+        val resourceName = "provider:namespace/resource:resource"
+        val resources = mapOf(
+            resourceName to SchemaModel.Resource(
+                description = "any",
+                inputProperties = mapOf(
+                    PropertyName("referencedType") to ReferenceProperty(
+                        ref = SpecificationReference(ref("provider:Namespace/type:type")),
+                    ),
+                ),
+            ),
+        )
 
         val ir = getIntermediateRepresentation(
             providerName = "provider",
+            resources = resources,
             types = types,
             functions = functions,
         )
         val irTypes = ir.types
 
-        assertContainsComplexTypeThat(
-            irTypes,
-            nameIs = "type",
-            fieldsAre = setOf("someInt"),
-            usageKindIs = UsageKind(Nested, Function, Output),
+        assertAll(
+            {
+                assertContainsComplexTypeWhere(
+                    irTypes,
+                    nameIs = "type",
+                    fieldsAre = setOf("someInt"),
+                    usageKindIs = UsageKind(Nested, Function, Output),
+                )
+            },
+            {
+                assertContainsComplexTypeWhere(
+                    irTypes,
+                    nameIs = "type",
+                    fieldsAre = setOf("someInt"),
+                    usageKindIs = UsageKind(Nested, Resource, Input),
+                )
+            },
         )
     }
 
@@ -445,7 +468,7 @@ internal class IntermediateRepresentationGeneratorTest {
         // then
         val assertions = case.complexTypeNameToFields.map { (name, fields) ->
             Executable {
-                assertContainsComplexTypeThat(
+                assertContainsComplexTypeWhere(
                     ir.types,
                     nameIs = name,
                     fieldsAre = fields,
@@ -515,7 +538,7 @@ internal class IntermediateRepresentationGeneratorTest {
             }
     }
 
-    private fun assertContainsComplexTypeThat(
+    private fun assertContainsComplexTypeWhere(
         types: List<RootType>,
         nameIs: String? = null,
         fieldsAre: Set<String>? = null,
