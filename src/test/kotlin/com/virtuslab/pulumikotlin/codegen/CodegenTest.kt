@@ -649,4 +649,3 @@ private const val SCHEMA_SLACK_SUBSET_WITH_INDEX = "schema-slack-0.3.0-subset-wi
 private const val SCHEMA_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION =
     "schema-azure-native-3.44.2-subset-with-ip-allocation.json"
 private const val SCHEMA_GITHUB_SUBSET_WITH_NAME_COLLISION = "schema-github-4.17.0-subset-with-name-collision.json"
-private const val SCHEMA_NEW = "schema-aws-classic-5.4.0-references-with-different-case.json"

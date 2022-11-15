@@ -2,6 +2,7 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapWithKeyTransformer.ConflictStrategy
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapWithKeyTransformer.ConflictStrategy.Companion.failOnConflicts
+import mu.KotlinLogging
 
 internal class MapWithKeyTransformer<K, V> private constructor(
     private val baseMap: Map<K, V>,
@@ -52,13 +53,14 @@ internal class MapWithKeyTransformer<K, V> private constructor(
         fun resolveConflict(newKey: K, newValue: V, oldKey: K, oldValue: V): V
 
         companion object {
+            private val logger = KotlinLogging.logger {}
+
             fun <K, V> failOnConflicts() = ConflictStrategy { newKey: K, newValue: V, oldKey: K, oldValue: V ->
                 if (oldValue === newValue) {
                     newValue
                 } else if (oldValue == newValue) {
-                    println(
-                        "WARN: Found conflicting keys ($oldKey, $newKey), " +
-                            "but values are the same ($oldValue, $newValue).",
+                    logger.warn(
+                        "Found conflicting keys ($oldKey, $newKey), but values are the same ($oldValue, $newValue).",
                     )
                     newValue
                 } else {
