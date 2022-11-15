@@ -50,7 +50,7 @@ object ToKotlin {
         val arguments = fields.associate { field ->
             val type = field.fieldType.type
 
-            val baseE = toKotlinExpressionBase(field.toJavaName(escape = true), required = field.required)
+            val baseE = toKotlinExpressionBase(field.toJavaName(), required = field.required)
 
             val secondPart =
                 baseE.call1(
