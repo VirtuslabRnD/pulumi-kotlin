@@ -17,8 +17,8 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedEnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
+import com.virtuslab.pulumikotlin.codegen.step3codegen.BuilderMethodNameEscaper
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
-import com.virtuslab.pulumikotlin.codegen.step3codegen.KeywordsEscaper
 
 private const val FUNCTION_NAME = "toJava"
 
@@ -27,11 +27,11 @@ object ToJava {
         val codeBlocks = fields.map { field ->
             val block = CodeBlock.of(
                 "\n.%N(%N)",
-                KeywordsEscaper.escape(field.name),
+                BuilderMethodNameEscaper.escape(field.name),
                 field.name,
             )
             val toJavaBlock =
-                CodeBlock.of(".%N(%N?.%N())", KeywordsEscaper.escape(field.name), field.name, FUNCTION_NAME)
+                CodeBlock.of(".%N(%N?.%N())", BuilderMethodNameEscaper.escape(field.name), field.name, FUNCTION_NAME)
             when (field.fieldType.type) {
                 is AnyType -> block
                 is PrimitiveType -> block

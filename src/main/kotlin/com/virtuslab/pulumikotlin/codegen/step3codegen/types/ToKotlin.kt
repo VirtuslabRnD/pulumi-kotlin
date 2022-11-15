@@ -29,8 +29,8 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexTyp
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedEnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
+import com.virtuslab.pulumikotlin.codegen.step3codegen.BuilderMethodNameEscaper
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
-import com.virtuslab.pulumikotlin.codegen.step3codegen.KeywordsEscaper
 import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 
 private const val TO_KOTLIN_FUNCTION_NAME = "toKotlin"
@@ -130,7 +130,7 @@ object ToKotlin {
         return CustomExpression(
             "%L.%N().%L()!!",
             JAVA_TYPE_PARAMETER_NAME,
-            KeywordsEscaper.escape(name),
+            BuilderMethodNameEscaper.escape(name),
             TO_KOTLIN_FUNCTION_NAME,
         )
     }
