@@ -75,13 +75,9 @@ fun Expression.callWithNArgumentExpressions(
         ).build()
 }
 
-data class NullsafeApply(val expression: Expression, val mapper: (Expression) -> Expression) : Expression() {
-    override fun toCodeBlock(): CustomCodeBlock {
-        return (CustomExpressionBuilder.start() + expression + ".let {" + mapper(CustomExpression("it")) + "}")
-            .build()
-            .toCodeBlock()
-    }
-}
+fun Expression.ofLeft() = (CustomExpressionBuilder.start() + "Either.ofLeft(" + this + ")").build()
+
+fun Expression.ofRight() = (CustomExpressionBuilder.start() + "Either.ofRight(" + this + ")").build()
 
 data class FunctionExpression(val argumentNames: List<String>, val expression: Expression) : Expression() {
     override fun toCodeBlock(): CustomCodeBlock {

@@ -6,7 +6,6 @@ import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.ParameterSpec
 import com.virtuslab.pulumikotlin.codegen.expressions.ConstructObjectExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
-import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpressionBuilder
 import com.virtuslab.pulumikotlin.codegen.expressions.Expression
 import com.virtuslab.pulumikotlin.codegen.expressions.FunctionExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.Return
@@ -17,6 +16,8 @@ import com.virtuslab.pulumikotlin.codegen.expressions.callMap
 import com.virtuslab.pulumikotlin.codegen.expressions.callTransform
 import com.virtuslab.pulumikotlin.codegen.expressions.field
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
+import com.virtuslab.pulumikotlin.codegen.expressions.ofLeft
+import com.virtuslab.pulumikotlin.codegen.expressions.ofRight
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
@@ -113,9 +114,9 @@ object ToKotlin {
                 val firstType = type.firstType
                 val secondType = type.secondType
                 if (direction == Output && firstType is ReferencedEnumType && secondType is StringType) {
-                    (CustomExpressionBuilder.start() + "Either.ofRight(" + expression + ")").build()
+                    expression.ofRight()
                 } else if (direction == Output && firstType is StringType && secondType is ReferencedEnumType) {
-                    (CustomExpressionBuilder.start() + "Either.ofLeft(" + expression + ")").build()
+                    expression.ofLeft()
                 } else {
                     expression.callTransform(
                         optional = !required,
