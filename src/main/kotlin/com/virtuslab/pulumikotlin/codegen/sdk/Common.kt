@@ -73,6 +73,11 @@ fun <T, R> Output<out Either<out ConvertibleToJava<T>, R>>.toJava(): Output<Eith
     return applyValue { either -> either.transform({ it.toJava() }, { it }) }
 }
 
+@JvmName("K9D35N5P0")
+fun Either<String, List<String>>.toJava(): Either<String, List<String>> {
+    return this
+}
+
 fun <T> Optional<T>.toKotlin(): T? {
     return this.orElseGet { null }
 }
