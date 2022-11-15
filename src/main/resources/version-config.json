@@ -50,6 +50,16 @@
     ]
   },
   {
+    "providerName": "google-native",
+    "url": "https://gist.githubusercontent.com/jplewa/73836b04be29884b0b02872843f9136a/raw/ee064931b6cae0bdb3c7ac0adf83e1c019c5fa79/schema-google-native-v0.27.0-subset-for-build.json",
+    "kotlinVersion": "0.27.0.0-SNAPSHOT",
+    "javaVersion": "0.27.0",
+    "javaGitTag": "v0.27.0",
+    "customDependencies": [
+      "com.pulumi:google-native:0.27.0"
+    ]
+  },
+  {
     "providerName": "aws",
     "url": "https://gist.githubusercontent.com/jplewa/ab012d882e1facf10c196e85920878bc/raw/9c6bf001603c27907276f9b8d11190cc0646063e/schema-aws-classic-v5.16.2-subset-for-build.json",
     "kotlinVersion": "5.16.2.0-SNAPSHOT",

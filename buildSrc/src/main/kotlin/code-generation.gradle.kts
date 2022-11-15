@@ -159,6 +159,10 @@ fun createJarTask(
         group = "build"
         from(project.the<SourceSetContainer>()[sourceSetName].output)
         archiveBaseName.set(archiveName)
+        // This setting is needed to enable building JAR archives with more than 65535 files, e.g. the compiled
+        // Google Native schema. See:
+        // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html#org.gradle.api.tasks.bundling.Jar:zip64
+        isZip64 = true
     }
 }
 
@@ -174,6 +178,9 @@ fun createSourcesJarTask(
         from(project.the<SourceSetContainer>()[sourceSetName].allSource)
         archiveBaseName.set(archiveName)
         archiveClassifier.set("sources")
+        // This setting is needed to enable building JAR archives with more than 65535 files. See:
+        // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html#org.gradle.api.tasks.bundling.Jar:zip64
+        isZip64 = true
     }
 }
 

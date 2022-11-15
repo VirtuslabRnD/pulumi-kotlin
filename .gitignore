@@ -1,8 +1,8 @@
 ### Custom ###
 .pulumi-kotlin-artifact-cache
 output-dir
-examples/gcp-sample-project/Pulumi.*.yaml
-!examples/gcp-sample-project/Pulumi.test.yaml
+examples/**/Pulumi.*.yaml
+!examples/**/Pulumi.test.yaml
 ejected-tests
 
 ### IntelliJ ###

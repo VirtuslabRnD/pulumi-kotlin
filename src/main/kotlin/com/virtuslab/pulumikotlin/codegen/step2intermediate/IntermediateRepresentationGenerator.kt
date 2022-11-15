@@ -92,7 +92,7 @@ object IntermediateRepresentationGenerator {
     }
 
     private fun createResources(types: Map<TypeKey, RootType>, context: Context): List<ResourceType> {
-        return context.schema.resources.map { (typeName, resource) ->
+        return context.schema.resources.mapNotNull { (typeName, resource) ->
             val resultFields = resource.properties.map { (propertyName, property) ->
                 val outputFieldsUsageKind = UsageKind(Nested, Resource, Output)
                 val isRequired = resource.required.contains(propertyName)
@@ -100,32 +100,43 @@ object IntermediateRepresentationGenerator {
                 Field(propertyName.value, OutputWrappedField(reference), isRequired, kDoc = getKDoc(property))
             }
 
-            val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
-            val inputUsageKind = UsageKind(Root, Resource, Input)
-            val argumentType =
-                findTypeAsReference<ReferencedComplexType>(
-                    types,
-                    TypeKey.from(pulumiName, inputUsageKind),
-                )
-            ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource))
+            try {
+                val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
+                val inputUsageKind = UsageKind(Root, Resource, Input)
+                val argumentType =
+                    findTypeAsReference<ReferencedComplexType>(
+                        types,
+                        TypeKey.from(pulumiName, inputUsageKind),
+                    )
+                ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource))
+            } catch (e: InvalidPulumiName) {
+                logger.warn("Invalid name", e)
+                null
+            }
         }
     }
 
     private fun createFunctions(types: Map<TypeKey, RootType>, context: Context): List<FunctionType> {
-        return context.schema.functions.map { (typeName, function) ->
-            val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
+        return context.schema.functions.mapNotNull { (typeName, function) ->
+            try {
+                val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
 
-            val inputUsageKind = UsageKind(Root, Function, Input)
-            val argumentType = findTypeOrEmptyComplexType(
-                types,
-                TypeKey.from(pulumiName, inputUsageKind),
-                getKDoc(function),
-            )
+                val inputUsageKind = UsageKind(Root, Function, Input)
+                val argumentType = findTypeOrEmptyComplexType(
+                    types,
+                    TypeKey.from(pulumiName, inputUsageKind),
+                    getKDoc(function),
+                )
 
-            val outputUsageKind = UsageKind(Root, Function, Output)
-            val resultType = findTypeAsReference<ReferencedRootType>(types, TypeKey.from(pulumiName, outputUsageKind))
+                val outputUsageKind = UsageKind(Root, Function, Output)
+                val resultType =
+                    findTypeAsReference<ReferencedRootType>(types, TypeKey.from(pulumiName, outputUsageKind))
 
-            FunctionType(pulumiName, argumentType, resultType, getKDoc(function))
+                FunctionType(pulumiName, argumentType, resultType, getKDoc(function))
+            } catch (e: InvalidPulumiName) {
+                logger.warn("Invalid name", e)
+                null
+            }
         }
     }
 
@@ -161,23 +172,28 @@ object IntermediateRepresentationGenerator {
             )
         }
 
-        val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
-        return usages.map { usage ->
-            when (rootType) {
-                is ObjectProperty -> ComplexType(
-                    TypeMetadata(pulumiName, usage, getKDoc(rootType), NormalClass),
-                    createComplexTypeFields(rootType, context, usage),
-                )
+        try {
+            val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
+            return usages.map { usage ->
+                when (rootType) {
+                    is ObjectProperty -> ComplexType(
+                        TypeMetadata(pulumiName, usage, getKDoc(rootType), NormalClass),
+                        createComplexTypeFields(rootType, context, usage),
+                    )
 
-                is StringEnumProperty -> EnumType(
-                    TypeMetadata(pulumiName, usage, getKDoc(rootType), EnumClass),
-                    rootType.enum.map {
-                        it.name
-                            ?: jsonElementToStringOrNull(it.value)
-                            ?: error("Unexpected, enum must have a name or a value ($rootType)")
-                    },
-                )
+                    is StringEnumProperty -> EnumType(
+                        TypeMetadata(pulumiName, usage, getKDoc(rootType), EnumClass),
+                        rootType.enum.map {
+                            it.name
+                                ?: jsonElementToStringOrNull(it.value)
+                                ?: error("Unexpected, enum must have a name or a value ($rootType)")
+                        },
+                    )
+                }
             }
+        } catch (e: InvalidPulumiName) {
+            logger.warn("Invalid name", e)
+            return emptyList()
         }
     }
 
@@ -202,7 +218,8 @@ object IntermediateRepresentationGenerator {
             is ReferenceProperty -> resolveSingleTypeReference(context, property, usageKind)
             is GenericTypeProperty -> mapGenericTypes(property) { resolveNestedTypeReference(context, it, usageKind) }
             is PrimitiveProperty -> mapPrimitiveTypes(property)
-            is ObjectProperty, is StringEnumProperty -> error("Nesting not supported for ${property.javaClass}")
+            is ObjectProperty -> MapType(StringType, StringType)
+            is StringEnumProperty -> error("Nesting not supported for ${property.javaClass}")
         }
     }
 

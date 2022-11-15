@@ -1,0 +1,3 @@
+name: google-native-sample-project
+description: A sample Google Cloud Native Kotlin Pulumi program
+runtime: java

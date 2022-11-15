@@ -150,7 +150,7 @@ data class PulumiName(
                 if (namespace.isEmpty()) {
                     providerName.capitalize() + "Functions"
                 } else {
-                    namespace.last().capitalize() + "Functions"
+                    namespace.last().replace(".", "_").capitalize() + "Functions"
                 }
             }
         }
@@ -230,17 +230,28 @@ data class PulumiName(
             val providerName = substituteWithOverride(namingConfiguration.providerName)
             val moduleName = substituteWithOverride(module)
 
-            val namespace =
-                (namingConfiguration.baseNamespace + providerName + moduleName).filter { it.isNotBlank() }
+            val namespace = (namingConfiguration.baseNamespace + providerName + moduleName)
+                .filter { it.isNotBlank() }
+                .map { it.replace("-", "") }
 
-            return PulumiName(providerName, namespace, segments[2])
+            val name = segments[2]
+
+            if (name.contains("/")) {
+                throw InvalidPulumiName(name, namespace)
+            }
+
+            return PulumiName(providerName, namespace, name)
         }
     }
 }
 
+class InvalidPulumiName(name: String, namespace: List<String>) : RuntimeException(
+    "Skipping generation of $name from namespace $namespace",
+)
+
 data class NameGeneration(private val pulumiName: PulumiName, private val namingFlags: NamingFlags) {
 
-    val kotlinPoetClassName get() = ClassName(pulumiName.toPackage(namingFlags), pulumiName.toClassName(namingFlags))
+    val kotlinPoetClassName get() = ClassName(packageName, className)
 
     val className get() = pulumiName.toClassName(namingFlags)
 
