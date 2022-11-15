@@ -18,7 +18,6 @@ data class PulumiName(
     val providerName: String,
     val namespace: List<String>,
     val name: String,
-    val hasValidClassName: Boolean = true,
 ) {
 
     private data class Modifiers(
@@ -235,10 +234,20 @@ data class PulumiName(
                 .filter { it.isNotBlank() }
                 .map { it.replace("-", "") }
 
-            return PulumiName(providerName, namespace, segments[2], !segments[2].contains("/"))
+            val name = segments[2]
+
+            if (name.contains("/")) {
+                throw InvalidPulumiName(name, namespace)
+            }
+
+            return PulumiName(providerName, namespace, name)
         }
     }
 }
+
+class InvalidPulumiName(name: String, namespace: List<String>) : RuntimeException(
+    "Skipping generation of $name from namespace $namespace",
+)
 
 data class NameGeneration(private val pulumiName: PulumiName, private val namingFlags: NamingFlags) {
 

@@ -100,11 +100,8 @@ object IntermediateRepresentationGenerator {
                 Field(propertyName.value, OutputWrappedField(reference), isRequired, kDoc = getKDoc(property))
             }
 
-            val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
-            if (!pulumiName.hasValidClassName) {
-                logger.info("Skipping generation of ${pulumiName.name} from namespace ${pulumiName.namespace}")
-                null
-            } else {
+            try {
+                val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
                 val inputUsageKind = UsageKind(Root, Resource, Input)
                 val argumentType =
                     findTypeAsReference<ReferencedComplexType>(
@@ -112,17 +109,18 @@ object IntermediateRepresentationGenerator {
                         TypeKey.from(pulumiName, inputUsageKind),
                     )
                 ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource))
+            } catch (e: InvalidPulumiName) {
+                logger.warn("Invalid name", e)
+                null
             }
         }
     }
 
     private fun createFunctions(types: Map<TypeKey, RootType>, context: Context): List<FunctionType> {
         return context.schema.functions.mapNotNull { (typeName, function) ->
-            val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
-            if (!pulumiName.hasValidClassName) {
-                logger.info("Skipping generation of ${pulumiName.name} from namespace ${pulumiName.namespace}")
-                null
-            } else {
+            try {
+                val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
+
                 val inputUsageKind = UsageKind(Root, Function, Input)
                 val argumentType = findTypeOrEmptyComplexType(
                     types,
@@ -135,6 +133,9 @@ object IntermediateRepresentationGenerator {
                     findTypeAsReference<ReferencedRootType>(types, TypeKey.from(pulumiName, outputUsageKind))
 
                 FunctionType(pulumiName, argumentType, resultType, getKDoc(function))
+            } catch (e: InvalidPulumiName) {
+                logger.warn("Invalid name", e)
+                null
             }
         }
     }
@@ -171,27 +172,28 @@ object IntermediateRepresentationGenerator {
             )
         }
 
-        val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
-        if (!pulumiName.hasValidClassName) {
-            logger.info("Cannot generate class ${pulumiName.name} from namespace ${pulumiName.namespace}")
-            return emptyList()
-        }
-        return usages.map { usage ->
-            when (rootType) {
-                is ObjectProperty -> ComplexType(
-                    TypeMetadata(pulumiName, usage, getKDoc(rootType), NormalClass),
-                    createComplexTypeFields(rootType, context, usage),
-                )
+        try {
+            val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
+            return usages.map { usage ->
+                when (rootType) {
+                    is ObjectProperty -> ComplexType(
+                        TypeMetadata(pulumiName, usage, getKDoc(rootType), NormalClass),
+                        createComplexTypeFields(rootType, context, usage),
+                    )
 
-                is StringEnumProperty -> EnumType(
-                    TypeMetadata(pulumiName, usage, getKDoc(rootType), EnumClass),
-                    rootType.enum.map {
-                        it.name
-                            ?: jsonElementToStringOrNull(it.value)
-                            ?: error("Unexpected, enum must have a name or a value ($rootType)")
-                    },
-                )
+                    is StringEnumProperty -> EnumType(
+                        TypeMetadata(pulumiName, usage, getKDoc(rootType), EnumClass),
+                        rootType.enum.map {
+                            it.name
+                                ?: jsonElementToStringOrNull(it.value)
+                                ?: error("Unexpected, enum must have a name or a value ($rootType)")
+                        },
+                    )
+                }
             }
+        } catch (e: InvalidPulumiName) {
+            logger.warn("Invalid name", e)
+            return emptyList()
         }
     }
 
@@ -236,9 +238,6 @@ object IntermediateRepresentationGenerator {
 
         val referencedTypeName = property.referencedTypeName
         val pulumiName = PulumiName.from(referencedTypeName, context.namingConfiguration)
-        if (!pulumiName.hasValidClassName) {
-            error("Cannot generate class ${pulumiName.name} from namespace ${pulumiName.namespace}")
-        }
         return when (context.referenceFinder.resolve(referencedTypeName)) {
             is ObjectProperty -> ReferencedComplexType(
                 TypeMetadata(pulumiName, usageKind, getKDoc(property)),
@@ -309,7 +308,6 @@ object IntermediateRepresentationGenerator {
                         providerName.lowercase(),
                         namespace.map { it.lowercase() },
                         name.lowercase(),
-                        hasValidClassName,
                     )
                 },
             )
