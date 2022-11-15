@@ -3,7 +3,7 @@
 
 package com.pulumi.kotlin
 
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.pulumi.Context
 import com.pulumi.core.Either
@@ -146,7 +146,7 @@ fun <T> Output<out Either<out ConvertibleToJava<T>, List<kotlinx.serialization.j
 }
 
 fun com.google.gson.JsonElement.toKotlin(): kotlinx.serialization.json.JsonElement {
-    return Json.parseToJsonElement(Gson().toJson(this))
+    return Json.parseToJsonElement(GsonBuilder().serializeNulls().create().toJson(this))
 }
 
 fun List<com.google.gson.JsonElement>.toKotlin(): List<kotlinx.serialization.json.JsonElement> {

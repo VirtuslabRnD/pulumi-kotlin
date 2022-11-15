@@ -39,6 +39,22 @@ internal class CommonTest {
     }
 
     @Test
+    fun `converts GSON JsonElement with null field to Kotlin JsonElement`() {
+        val gsonJsonElement = com.google.gson.JsonObject()
+
+        gsonJsonElement.addProperty("field", null as String?)
+
+        val expectedKotlinJsonElement = kotlinx.serialization.json.JsonObject(
+            mapOf(
+                "field" to JsonPrimitive(null as String?),
+            ),
+        )
+        val kotlinJsonElement = gsonJsonElement.toKotlin()
+
+        assertEquals(expectedKotlinJsonElement, kotlinJsonElement)
+    }
+
+    @Test
     fun `converts Kotlin JsonElement to GSON JsonElement`() {
         val kotlinJsonElement = kotlinx.serialization.json.JsonObject(
             mapOf(
@@ -62,6 +78,22 @@ internal class CommonTest {
         expectedGsonJsonElement.addProperty("field1", "value1")
         expectedGsonJsonElement.addProperty("field2", 2)
         expectedGsonJsonElement.add("field3", nestedField)
+
+        val gsonJsonElement = kotlinJsonElement.toJava()
+
+        assertEquals(expectedGsonJsonElement, gsonJsonElement)
+    }
+
+    @Test
+    fun `converts Kotlin JsonElement with null field to GSON JsonElement`() {
+        val kotlinJsonElement = kotlinx.serialization.json.JsonObject(
+            mapOf(
+                "field" to JsonPrimitive(null as String?),
+            ),
+        )
+        val expectedGsonJsonElement = com.google.gson.JsonObject()
+
+        expectedGsonJsonElement.addProperty("field", null as String?)
 
         val gsonJsonElement = kotlinJsonElement.toJava()
 
