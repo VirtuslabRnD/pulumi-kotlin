@@ -14,6 +14,7 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringEnu
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Nested
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapWithKeyTransformer.ConflictStrategy.Companion.mergeSetsOnConflicts
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.utils.valuesToSet
@@ -50,7 +51,7 @@ class ReferenceFinder(schema: Schema) {
         return cases
             .groupingBy { it.typeName }
             .valuesToSet { it.usageKind }
-            .lowercaseKeys()
+            .lowercaseKeys(conflictStrategy = mergeSetsOnConflicts())
     }
 
     private fun <V> findNestedUsages(

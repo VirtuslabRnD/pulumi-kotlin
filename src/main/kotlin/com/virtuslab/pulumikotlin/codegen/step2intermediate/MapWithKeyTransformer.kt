@@ -1,5 +1,9 @@
 package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapWithKeyTransformer.ConflictStrategy
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapWithKeyTransformer.ConflictStrategy.Companion.failOnConflicts
+import mu.KotlinLogging
+
 internal class MapWithKeyTransformer<K, V> private constructor(
     private val baseMap: Map<K, V>,
     private val keyTransformer: (K) -> K,
@@ -14,22 +18,21 @@ internal class MapWithKeyTransformer<K, V> private constructor(
     }
 
     companion object {
-        fun <K, V : Any> from(baseMap: Map<K, V>, keyTransformer: (K) -> K): MapWithKeyTransformer<K, V> {
+        fun <K, V : Any> from(
+            baseMap: Map<K, V>,
+            keyTransformer: (K) -> K,
+            conflictStrategy: ConflictStrategy<K, V> = failOnConflicts(),
+        ): MapWithKeyTransformer<K, V> {
             val transformedMap = mutableMapOf<K, V>()
             baseMap.forEach { (key, value) ->
                 val transformedKey = keyTransformer(key)
                 transformedMap.merge(transformedKey, value) { oldValue, newValue ->
-                    if (oldValue === newValue) {
-                        newValue
-                    } else if (oldValue == newValue) {
-                        println(
-                            "WARN: Found conflicting keys ($key, $transformedKey), " +
-                                "but values are the same ($oldValue, $newValue).",
-                        )
-                        newValue
-                    } else {
-                        throw ConflictsNotAllowed.from(key, transformedKey)
-                    }
+                    conflictStrategy.resolveConflict(
+                        newKey = transformedKey,
+                        newValue = newValue,
+                        oldKey = key,
+                        oldValue = oldValue,
+                    )
                 }
             }
             return MapWithKeyTransformer(transformedMap, keyTransformer)
@@ -45,10 +48,38 @@ internal class MapWithKeyTransformer<K, V> private constructor(
                 ConflictsNotAllowed(keyBefore.toString(), keyAfter.toString())
         }
     }
+
+    fun interface ConflictStrategy<K, V> {
+        fun resolveConflict(newKey: K, newValue: V, oldKey: K, oldValue: V): V
+
+        companion object {
+            private val logger = KotlinLogging.logger {}
+
+            fun <K, V> failOnConflicts() = ConflictStrategy { newKey: K, newValue: V, oldKey: K, oldValue: V ->
+                if (oldValue === newValue) {
+                    newValue
+                } else if (oldValue == newValue) {
+                    logger.warn(
+                        "Found conflicting keys ($oldKey, $newKey), but values are the same ($oldValue, $newValue).",
+                    )
+                    newValue
+                } else {
+                    throw ConflictsNotAllowed.from(oldKey, newKey)
+                }
+            }
+
+            fun <K, V> mergeSetsOnConflicts() = ConflictStrategy<K, Set<V>> { _, newValue, _, oldValue ->
+                oldValue + newValue
+            }
+        }
+    }
 }
 
-internal fun <V : Any> Map<String, V>.lowercaseKeys() =
-    transformKeys { it.lowercase() }
+internal fun <V : Any> Map<String, V>.lowercaseKeys(conflictStrategy: ConflictStrategy<String, V> = failOnConflicts()) =
+    transformKeys(conflictStrategy) { it.lowercase() }
 
-internal fun <K, V : Any> Map<K, V>.transformKeys(keyTransformer: (K) -> K) =
-    MapWithKeyTransformer.from(this, keyTransformer)
+internal fun <K, V : Any> Map<K, V>.transformKeys(
+    conflictStrategy: ConflictStrategy<K, V> = failOnConflicts(),
+    keyTransformer: (K) -> K,
+) =
+    MapWithKeyTransformer.from(this, keyTransformer, conflictStrategy)
