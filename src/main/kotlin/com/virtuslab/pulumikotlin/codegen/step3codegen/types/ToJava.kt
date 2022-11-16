@@ -18,7 +18,6 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedEnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
-import com.virtuslab.pulumikotlin.codegen.step3codegen.BuilderMethodNameEscaper
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 
 private const val FUNCTION_NAME = "toJava"
