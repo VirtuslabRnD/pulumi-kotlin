@@ -31,7 +31,7 @@ object ToJava {
                 field.toKotlinName(),
             )
             val toJavaBlock = CodeBlock.of(
-                ".%N(%N?.%N())",
+                ".%N(%N${if (field.required) "" else "?"}.%N())",
                 field.toJavaName(),
                 field.toKotlinName(),
                 FUNCTION_NAME,

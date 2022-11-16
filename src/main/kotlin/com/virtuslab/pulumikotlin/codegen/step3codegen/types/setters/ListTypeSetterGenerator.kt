@@ -54,7 +54,7 @@ object ListTypeSetterGenerator : SetterGenerator {
                 .builder(name)
                 .addModifiers(SUSPEND)
                 .addParameter("values", typeNameClashResolver.toTypeName(innerType, LanguageType.Kotlin), VARARG)
-                .addCode(mappingCodeBlock(normalField, required = false, name, "values.toList()"))
+                .addCode(mappingCodeBlock(normalField, required = true, name, "values.toList()"))
                 .addDocsToBuilderMethod(kDoc, "values")
                 .build(),
         )

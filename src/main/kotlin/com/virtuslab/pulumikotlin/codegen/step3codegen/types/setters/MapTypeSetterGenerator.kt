@@ -65,7 +65,7 @@ object MapTypeSetterGenerator : SetterGenerator {
                     ),
                     VARARG,
                 )
-                .addCode(mappingCodeBlock(normalField, required = false, name, "values.toMap()"))
+                .addCode(mappingCodeBlock(normalField, required = true, name, "values.toMap()"))
                 .addDocsToBuilderMethod(kDoc, "values")
                 .build(),
         )
