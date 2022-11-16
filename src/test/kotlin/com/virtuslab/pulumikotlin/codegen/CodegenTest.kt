@@ -1,3 +1,5 @@
+@file:Suppress("MoveLambdaOutsideParentheses")
+
 package com.virtuslab.pulumikotlin.codegen
 
 import com.tschuchort.compiletesting.KotlinCompilation
@@ -577,6 +579,100 @@ class CodegenTest {
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_KUBERNETES_SUBSET_WITH_JSON, code)
     }
 
+    @Test
+    fun `code generated from schema with isOverlay resource can be compiled`() {
+        assertGeneratedCodeCompiles(SCHEMA_KUBERNETES_SUBSET_WITH_IS_OVERLAY)
+    }
+
+    @Test
+    fun `type with dollar sign in parameter name is generated`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.kubernetes.apiextensions.v1.kotlin.customResourceDefinitionPatchResource
+
+
+            suspend fun main() {
+                customResourceDefinitionPatchResource("name") {
+                    args {
+                        spec {
+                            versions(
+                                {
+                                    schema {
+                                        openAPIV3Schema {
+                                            ref("ref")
+                                            schema("schema")
+                                        }
+                                    }
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_KUBERNETES_SUBSET_WITH_DOLLAR_IN_PROPERTY_NAME, code)
+    }
+
+    @Test
+    fun `type with java keyword in parameter name is generated`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.kubernetes.core.v1.kotlin.limitRangeResource
+
+
+            suspend fun main() {
+                limitRangeResource("name") {
+                    args {
+                        spec {
+                            limits(
+                                {
+                                    default("key" to "value")
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_KUBERNETES_SUBSET_WITH_JAVA_KEYWORD_IN_PROPERTY_NAME, code)
+    }
+
+    @Test
+    fun `type with kotlin keyword in parameter name is generated`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.kubernetes.autoscaling.v2.kotlin.horizontalPodAutoscalerResource
+
+
+            suspend fun main() {
+                horizontalPodAutoscalerResource("name") {
+                    args {
+                        spec {
+                            metrics(
+                                {
+                                    `object` {
+                                        metric {
+                                            name("object")
+                                        }
+                                    }
+                                    `external` {
+                                        metric {
+                                            name("exterbal")
+                                        }
+                                    }
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_KUBERNETES_SUBSET_WITH_KOTLIN_KEYWORD_IN_PROPERTY_NAME, code)
+    }
+
     private fun assertGeneratedCodeCompiles(schemaPath: String) {
         assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
     }
@@ -745,3 +841,10 @@ private const val SCHEMA_GOOGLE_NATIVE_SUBSET_NAMESPACE_WITH_SLASH =
 private const val SCHEMA_GOOGLE_NATIVE_SUBSET_TYPE_WITH_NO_PROPERTIES =
     "schema-google-native-0.27.0-subset-type-with-no-properties.json"
 private const val SCHEMA_KUBERNETES_SUBSET_WITH_JSON = "schema-kubernetes-3.22.1-subset-with-json.json"
+private const val SCHEMA_KUBERNETES_SUBSET_WITH_IS_OVERLAY = "schema-kubernetes-3.22.1-subset-with-is-overlay.json"
+private const val SCHEMA_KUBERNETES_SUBSET_WITH_DOLLAR_IN_PROPERTY_NAME =
+    "schema-kubernetes-3.22.1-subset-with-dollar-in-property-name.json"
+private const val SCHEMA_KUBERNETES_SUBSET_WITH_JAVA_KEYWORD_IN_PROPERTY_NAME =
+    "schema-kubernetes-3.22.1-subset-with-java-keyword-in-property-name.json"
+private const val SCHEMA_KUBERNETES_SUBSET_WITH_KOTLIN_KEYWORD_IN_PROPERTY_NAME =
+    "schema-kubernetes-3.22.1-subset-with-kotlin-keyword-in-property-name.json"
