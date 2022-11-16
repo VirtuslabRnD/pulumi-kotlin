@@ -226,7 +226,7 @@ object SchemaModel {
 
     @Serializable
     data class ReferenceProperty(
-        val type: String? = null,
+        val type: PropertyType? = null,
         @SerialName("\$ref")
         val ref: SpecificationReference,
         override val default: JsonElement? = null,

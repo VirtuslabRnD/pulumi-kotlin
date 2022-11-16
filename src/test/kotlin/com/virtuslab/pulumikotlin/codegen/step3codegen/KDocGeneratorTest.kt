@@ -38,15 +38,15 @@ internal class KDocGeneratorTest {
 
     @Test
     fun `adds extra comment closings`() {
-        val description = "/*This description /*opens three new comments: /*"
+        val description = "/*This description /*/*/*opens five new comments: /*"
         val className = "CommentClosing"
 
         assertKDocContentEquals(
             className,
             description,
             """/**
-              | * /*This description /*opens three new comments: /*
-              | * */*/*/
+              | * /*This description /*/*/*opens five new comments: /*
+              | * */*/*/*/*/
               | */"""
                 .trimMargin(),
         )
@@ -56,15 +56,15 @@ internal class KDocGeneratorTest {
 
     @Test
     fun `adds extra comment openings`() {
-        val description = "*/This description */closes three new comments: */"
+        val description = "*/This description */*/*/closes five new comments: */"
         val className = "CommentOpening"
 
         assertKDocContentEquals(
             className,
             description,
             """/**
-              | *  /* /* /*
-              | * */This description */closes three new comments: */
+              | *  /* /* /* /* /*
+              | * */This description */*/*/closes five new comments: */
               | */"""
                 .trimMargin(),
         )
@@ -74,7 +74,7 @@ internal class KDocGeneratorTest {
 
     @Test
     fun `adds extra comment openings and closings`() {
-        val description = "*/This /*description */closes three new comments/* and opens two: */"
+        val description = "*/This /*description */closes three /*/*/ new comments/* and opens four: */"
         val className = "CommentClosingAndOpening"
 
         assertKDocContentEquals(
@@ -82,8 +82,8 @@ internal class KDocGeneratorTest {
             description,
             """/**
               | *  /* /* /*
-              | * */This /*description */closes three new comments/* and opens two: */
-              | * */*/
+              | * */This /*description */closes three /*/*/ new comments/* and opens four: */
+              | * */*/*/*/
               | */"""
                 .trimMargin(),
         )

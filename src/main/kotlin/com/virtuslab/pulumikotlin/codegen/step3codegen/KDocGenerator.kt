@@ -90,8 +90,8 @@ private fun getTrimmedExamplesBlock(kDoc: String) = CODE_SNIPPET_REGEX.toRegex(D
     .joinToString("")
 
 private fun addCommentClosingsAndOpenings(trimmedDocs: String): String {
-    val howManyCommentsToOpen = trimmedDocs.countOccurrences("(?<!/)\\*/")
-    val howManyCommentsToClose = trimmedDocs.countOccurrences("(?<!\\*)/\\*")
+    val howManyCommentsToOpen = trimmedDocs.countOccurrences("\\*/", "/")
+    val howManyCommentsToClose = trimmedDocs.countOccurrences("/\\*", "\\*")
 
     return " /*".repeat(howManyCommentsToOpen) +
         (if (howManyCommentsToOpen > 0) "\n" else "") +
@@ -100,7 +100,12 @@ private fun addCommentClosingsAndOpenings(trimmedDocs: String): String {
         "*/".repeat(howManyCommentsToClose)
 }
 
-private fun String.countOccurrences(substring: String) = substring.toRegex().findAll(this).count()
+private fun String.countOccurrences(substring: String, notPrecededBy: String) =
+    "(?<!$notPrecededBy)($substring)+".toRegex()
+        .findAll(this)
+        .map { it.groupValues[0] }
+        .map { substring.toRegex().findAll(it).count() }
+        .sum()
 
 fun FunSpec.Builder.addDeprecationWarningIfAvailable(kDoc: KDoc) = apply {
     addDeprecationWarningIfAvailable(

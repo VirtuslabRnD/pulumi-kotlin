@@ -33,7 +33,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("com.google.cloud:google-cloud-compute:1.15.0")
     testImplementation("io.mockk:mockk:1.13.2")
-    testImplementation("io.github.cdklabs:projen:0.65.7")
+    testImplementation("io.github.cdklabs:projen:0.65.17")
 }
 
 tasks.test {
