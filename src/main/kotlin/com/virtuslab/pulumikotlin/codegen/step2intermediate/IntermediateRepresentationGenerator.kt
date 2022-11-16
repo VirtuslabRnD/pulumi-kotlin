@@ -47,7 +47,8 @@ object IntermediateRepresentationGenerator {
 
     fun getIntermediateRepresentation(schema: Schema): IntermediateRepresentation {
         val referenceFinder = ReferenceFinder(schema)
-        val context = Context(schema, referenceFinder)
+        val referencedStringTypesResolver = ReferencedStringTypesResolver(schema.types)
+        val context = Context(schema, referenceFinder, referencedStringTypesResolver)
 
         val types = createTypes(context)
         val typeMap = types
@@ -274,6 +275,11 @@ object IntermediateRepresentationGenerator {
 
         val referencedTypeName = property.referencedTypeName
         val pulumiName = PulumiName.from(referencedTypeName, context.namingConfiguration)
+
+        if (context.referencedStringTypesResolver.shouldGenerateStringType(referencedTypeName)) {
+            return StringType
+        }
+
         return when (context.referenceFinder.resolve(referencedTypeName)) {
             is ObjectProperty -> ReferencedComplexType(
                 TypeMetadata(pulumiName, usageKind, getKDoc(property)),
@@ -331,13 +337,15 @@ object IntermediateRepresentationGenerator {
     private fun filterStringProperties(): (Map<PropertyName, Property>) -> Map<PropertyName, Property> =
         { propertiesMap ->
             propertiesMap.filter { (_, property) ->
-                property is StringProperty || (property is ReferenceProperty && property.type == SchemaModel.PropertyType.StringType)
+                property is StringProperty ||
+                    (property is ReferenceProperty && property.type == SchemaModel.PropertyType.StringType)
             }
         }
 
     private data class Context(
         val schema: Schema,
         val referenceFinder: ReferenceFinder,
+        val referencedStringTypesResolver: ReferencedStringTypesResolver,
     ) {
         val namingConfiguration: PulumiNamingConfiguration =
             PulumiNamingConfiguration.create(
