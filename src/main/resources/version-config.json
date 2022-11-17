@@ -62,5 +62,37 @@
     "javaVersion": "3.22.1",
     "javaGitTag": "v3.22.1",
     "customDependencies": []
+  },
+  {
+    "providerName": "nomad",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-nomad/v0.3.0/provider/cmd/pulumi-resource-nomad/schema.json",
+    "kotlinVersion": "0.3.0.0-SNAPSHOT",
+    "javaVersion": "0.3.0",
+    "javaGitTag": "v0.3.0",
+    "customDependencies": []
+  },
+  {
+    "providerName": "docker",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-docker/v3.5.0/provider/cmd/pulumi-resource-docker/schema.json",
+    "kotlinVersion": "3.5.0.0-SNAPSHOT",
+    "javaVersion": "3.5.0",
+    "javaGitTag": "v3.5.0",
+    "customDependencies": []
+  },
+  {
+    "providerName": "gitlab",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v4.9.0/provider/cmd/pulumi-resource-gitlab/schema.json",
+    "kotlinVersion": "4.9.0.0-SNAPSHOT",
+    "javaVersion": "4.9.0",
+    "javaGitTag": "v4.9.0",
+    "customDependencies": []
+  },
+  {
+    "providerName": "digitalocean",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.16.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
+    "kotlinVersion": "4.16.0.0-SNAPSHOT",
+    "javaVersion": "4.16.0",
+    "javaGitTag": "v4.16.0",
+    "customDependencies": []
   }
 ]
