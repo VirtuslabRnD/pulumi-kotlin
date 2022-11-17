@@ -6,7 +6,7 @@ object BuilderMethodNameEscaper {
 
     private val javaObjectFunctionNames = java.lang.Object::class
         .java
-        .methods
+        .declaredMethods
         .map { it.name }
         .toSet()
 

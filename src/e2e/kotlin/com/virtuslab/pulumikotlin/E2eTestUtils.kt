@@ -5,6 +5,8 @@ import java.lang.ProcessBuilder.Redirect.INHERIT
 import java.lang.ProcessBuilder.Redirect.PIPE
 import kotlin.test.fail
 
+const val PROJECT_NAME = "jvm-lab"
+
 fun runProcess(rootDirectory: File, vararg command: String): String {
     val process = ProcessBuilder(command.asList())
         .directory(rootDirectory)

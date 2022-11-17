@@ -3,10 +3,10 @@ package com.virtuslab.pulumikotlin.gcp
 import com.google.cloud.compute.v1.AggregatedListInstancesRequest
 import com.google.cloud.compute.v1.Instance
 import com.google.cloud.compute.v1.InstancesClient
+import com.virtuslab.pulumikotlin.PROJECT_NAME
+import kotlinx.serialization.Serializable
 import kotlin.test.assertContains
 import kotlin.test.assertTrue
-
-const val PROJECT_NAME = "jvm-lab"
 
 fun getInstance(instanceId: String): Instance {
     val instancesClient = InstancesClient.create()
@@ -40,3 +40,6 @@ fun assertVmExists(instance: Instance) {
     assertContains(metadata, "foo" to "bar")
     assertContains(metadata, "startup-script" to "echo hi > /test.txt")
 }
+
+@Serializable
+data class PulumiStackOutput(val instanceName: String)

@@ -28,10 +28,13 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
     implementation("ch.qos.logback:logback-classic:1.4.4")
 
+    implementation("com.google.code.gson:gson:2.10")
+
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
     testImplementation(kotlin("test"))
     testImplementation("com.google.cloud:google-cloud-compute:1.15.0")
+    testImplementation("io.kubernetes:client-java:16.0.2")
     testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("io.github.cdklabs:projen:0.65.17")
 }

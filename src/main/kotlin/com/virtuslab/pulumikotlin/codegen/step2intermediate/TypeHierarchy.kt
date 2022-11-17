@@ -80,6 +80,8 @@ object AssetOrArchiveType : ReferencedType()
 
 object ArchiveType : ReferencedType()
 
+object JsonType : ReferencedType()
+
 sealed class PrimitiveType(val name: String) : ReferencedType()
 
 object StringType : PrimitiveType("String")

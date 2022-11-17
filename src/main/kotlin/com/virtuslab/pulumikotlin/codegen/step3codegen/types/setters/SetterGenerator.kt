@@ -19,10 +19,10 @@ data class Setter(
 ) {
     companion object {
         fun from(originalField: Field<ReferencedType>, overload: FieldType<ReferencedType>) =
-            Setter(originalField.name, overload, originalField.required, originalField.kDoc)
+            Setter(originalField.toKotlinName(), overload, originalField.required, originalField.kDoc)
 
         fun from(field: Field<ReferencedType>) =
-            Setter(field.name, field.fieldType, field.required, field.kDoc)
+            Setter(field.toKotlinName(), field.fieldType, field.required, field.kDoc)
     }
 }
 

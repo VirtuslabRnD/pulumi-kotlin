@@ -234,6 +234,8 @@ object IntermediateRepresentationGenerator {
             return ArchiveType
         } else if (property.isAny()) {
             return AnyType
+        } else if (property.isJson()) {
+            return JsonType
         }
 
         val referencedTypeName = property.referencedTypeName

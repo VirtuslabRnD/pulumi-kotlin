@@ -68,7 +68,7 @@ class ReferenceFinder(schema: Schema) {
     private fun findReferencedTypeNamesUsedByProperty(property: Property?, visited: Set<String>): List<String> {
         return when (property) {
             is ReferenceProperty -> {
-                if (property.isArchive() || property.isAssetOrArchive()) {
+                if (property.isArchive() || property.isAssetOrArchive() || property.isJson()) {
                     emptyList()
                 } else {
                     val typeName = property.referencedTypeName

@@ -83,6 +83,9 @@ internal class CodeGeneratorGenerateTypesTest {
                         artifact("com.google.code.findbugs:jsr305:3.0.2"),
                         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4"),
                         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4"),
+                        artifact("com.google.code.gson:gson:2.10"),
+                        artifact("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1"),
+                        artifact("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.4.1"),
                     )
 
                     messageOutputStream = System.out

@@ -103,13 +103,21 @@ object TypeGenerator {
             .addImports(
                 applySuspendExtensionMethod(),
                 applyValueExtensionMethod(),
-                toJavaExtensionMethod(),
-                toKotlinExtensionMethod(),
             )
+            .letIf(context.options.implementToJava && names.shouldImplementToJava) {
+                it.addImports(toJavaExtensionMethod())
+                it
+            }
+            .letIf(context.options.implementToKotlin && names.shouldImplementToKotlin) {
+                it.addImports(toKotlinExtensionMethod())
+                it
+            }
             .addTypes(
                 generateArgsClass(context, names, typeNameClashResolver),
-                generateArgsBuilderClass(context, names, typeNameClashResolver),
             )
+            .letIf(names.shouldConstructBuilders) {
+                it.addType(generateArgsBuilderClass(context, names, typeNameClashResolver))
+            }
             .build()
     }
 
@@ -124,7 +132,7 @@ object TypeGenerator {
 
         val classDocs = typeMetadata.kDoc.description.orEmpty()
         val propertyDocs = fields.joinToString("\n") {
-            "@property ${it.name} ${it.kDoc.description.orEmpty()}"
+            "@property ${it.toKotlinName()} ${it.kDoc.description.orEmpty()}"
         }
 
         return TypeSpec.classBuilder(argsClassName(kotlinNames))
@@ -134,7 +142,7 @@ object TypeGenerator {
             .primaryConstructor(constructor)
             .addProperties(properties)
             .addDocs("$classDocs\n$propertyDocs")
-            .letIf(options.implementToJava) {
+            .letIf(options.implementToJava && kotlinNames.shouldImplementToJava) {
                 val javaNames = typeNameClashResolver.javaNames(context.typeMetadata)
                 val innerType = javaNames.kotlinPoetClassName
                 val convertibleToJava = convertibleToJavaClass().parameterizedBy(innerType)
@@ -142,7 +150,7 @@ object TypeGenerator {
                     .addSuperinterface(convertibleToJava)
                     .addFunction(toJavaFunction(fields, javaNames))
             }
-            .letIf(options.implementToKotlin) {
+            .letIf(options.implementToKotlin && kotlinNames.shouldImplementToKotlin) {
                 it.addType(
                     TypeSpec.companionObjectBuilder()
                         .addFunction(
@@ -188,7 +196,7 @@ object TypeGenerator {
     ): List<PropertySpec> {
         return context.fields.map {
             PropertySpec
-                .builder(it.name, it.toNullableTypeName(typeNameClashResolver))
+                .builder(it.toKotlinName(), it.toNullableTypeName(typeNameClashResolver))
                 .initializer("null")
                 .mutable(true)
                 .addModifiers(KModifier.PRIVATE)
@@ -202,14 +210,14 @@ object TypeGenerator {
     ): Pair<FunSpec, List<PropertySpec>> {
         val properties = context.fields.map { field ->
             PropertySpec
-                .builder(field.name, field.toTypeName(typeNameClashResolver))
-                .initializer(field.name)
+                .builder(field.toKotlinName(), field.toTypeName(typeNameClashResolver))
+                .initializer(field.toKotlinName())
                 .addDeprecationWarningIfAvailable(field.kDoc)
                 .build()
         }
 
         val constructorParameters = context.fields.map { field ->
-            ParameterSpec.builder(field.name, field.toTypeName(typeNameClashResolver))
+            ParameterSpec.builder(field.toKotlinName(), field.toTypeName(typeNameClashResolver))
                 .letIf(!field.required) {
                     it.defaultValue("%L", null)
                 }
@@ -240,7 +248,7 @@ object TypeGenerator {
     private fun generateBuildMethod(context: Context, names: NameGeneration): FunSpec {
         val arguments = context.fields.associate {
             val requiredPart = if (it.required) "!!" else ""
-            it.name to CustomExpressionBuilder.start("%N$requiredPart", it.name).build()
+            it.toKotlinName() to CustomExpressionBuilder.start("%N$requiredPart", it.toKotlinName()).build()
         }
 
         return FunSpec.builder("build")
@@ -304,7 +312,6 @@ object TypeGenerator {
             .joinToString("")
 
     data class GenerationOptions(
-        val shouldGenerateBuilders: Boolean = true,
         val implementToJava: Boolean = true,
         val implementToKotlin: Boolean = true,
     )

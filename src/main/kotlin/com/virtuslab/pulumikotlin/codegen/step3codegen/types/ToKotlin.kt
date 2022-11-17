@@ -16,10 +16,14 @@ import com.virtuslab.pulumikotlin.codegen.expressions.callMap
 import com.virtuslab.pulumikotlin.codegen.expressions.callTransform
 import com.virtuslab.pulumikotlin.codegen.expressions.field
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
+import com.virtuslab.pulumikotlin.codegen.expressions.ofLeft
+import com.virtuslab.pulumikotlin.codegen.expressions.ofRight
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.JsonType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
@@ -28,8 +32,8 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedEnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.StringType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
-import com.virtuslab.pulumikotlin.codegen.step3codegen.BuilderMethodNameEscaper
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 
@@ -47,21 +51,24 @@ object ToKotlin {
         val arguments = fields.associate { field ->
             val type = field.fieldType.type
 
-            val baseE = toKotlinExpressionBase(field.name)
+            val baseE = toKotlinExpressionBase(field.toJavaName(), required = field.required)
 
             val secondPart =
                 baseE.call1(
                     "applyValue",
                     FunctionExpression.create(1) { args ->
                         toKotlinExpression(
+                            typeMetadata,
                             args.first(),
                             type,
                             typeNameClashResolver,
+                            required = field.required,
                         )
                     },
+                    optional = !field.required,
                 )
 
-            field.name to secondPart
+            field.toKotlinName() to secondPart
         }
 
         val kotlinArgsClass = ClassName(kotlinNames.packageName, kotlinNames.className)
@@ -86,9 +93,11 @@ object ToKotlin {
     }
 
     private fun toKotlinExpression(
+        typeMetadata: TypeMetadata,
         expression: Expression,
         type: ReferencedType,
         typeNameClashResolver: TypeNameClashResolver,
+        required: Boolean,
     ): Expression {
         return when (type) {
             AnyType -> expression
@@ -100,16 +109,46 @@ object ToKotlin {
                 .kotlinPoetClassName
                 .member(TO_KOTLIN_FUNCTION_NAME)(expression)
 
-            is EitherType -> expression.callTransform(
-                expressionMapperLeft = { args -> toKotlinExpression(args, type.firstType, typeNameClashResolver) },
-                expressionMapperRight = { args -> toKotlinExpression(args, type.secondType, typeNameClashResolver) },
-            )
+            is EitherType -> {
+                val direction = typeMetadata.usageKind.direction
+                val firstType = type.firstType
+                val secondType = type.secondType
+                if (direction == Output && firstType is ReferencedEnumType && secondType is StringType) {
+                    expression.ofRight()
+                } else if (direction == Output && firstType is StringType && secondType is ReferencedEnumType) {
+                    expression.ofLeft()
+                } else {
+                    expression.callTransform(
+                        optional = !required,
+                        expressionMapperLeft = { args ->
+                            toKotlinExpression(
+                                typeMetadata,
+                                args,
+                                firstType,
+                                typeNameClashResolver,
+                                required = true,
+                            )
+                        },
+                        expressionMapperRight = { args ->
+                            toKotlinExpression(
+                                typeMetadata,
+                                args,
+                                secondType,
+                                typeNameClashResolver,
+                                required = true,
+                            )
+                        },
+                    )
+                }
+            }
 
             is ListType -> expression.callMap { args ->
                 toKotlinExpression(
+                    typeMetadata,
                     args,
                     type.innerType,
                     typeNameClashResolver,
+                    required = true,
                 )
             }
 
@@ -117,20 +156,30 @@ object ToKotlin {
                 expression
                     .callMap { args ->
                         args.field("key")
-                            .call1("to", toKotlinExpression(args.field("value"), type.valueType, typeNameClashResolver))
+                            .call1(
+                                "to",
+                                toKotlinExpression(
+                                    typeMetadata,
+                                    args.field("value"),
+                                    type.valueType,
+                                    typeNameClashResolver,
+                                    required = true,
+                                ),
+                                optional = false,
+                            )
                     }
                     .call0("toMap")
 
             is PrimitiveType -> expression
-            is AssetOrArchiveType, is ArchiveType -> expression
+            is AssetOrArchiveType, is ArchiveType, is JsonType -> expression
         }
     }
 
-    private fun toKotlinExpressionBase(name: String): Expression {
+    private fun toKotlinExpressionBase(name: String, required: Boolean): Expression {
         return CustomExpression(
-            "%L.%N().%L()!!",
+            "%L.%N().%L()" + (if (required) "!!" else ""),
             JAVA_TYPE_PARAMETER_NAME,
-            BuilderMethodNameEscaper.escape(name),
+            name,
             TO_KOTLIN_FUNCTION_NAME,
         )
     }

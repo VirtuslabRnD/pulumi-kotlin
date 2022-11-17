@@ -24,6 +24,8 @@ data class PulumiName(
         val nameSuffix: String,
         val packageSuffix: List<String>,
         val shouldConstructBuilders: Boolean,
+        val shouldImplementToJava: Boolean,
+        val shouldImplementToKotlin: Boolean,
         val alternativeNameSuffix: String?,
     )
 
@@ -41,12 +43,16 @@ data class PulumiName(
         defaultNameSuffix: String,
         packageSuffix: List<String>,
         shouldConstructBuilders: Boolean,
+        shouldImplementToJava: Boolean,
+        shouldImplementToKotlin: Boolean,
         alternativeNameSuffix: String? = null,
     ) =
         Modifiers(
             defaultNameSuffix,
             if (this.language == Kotlin) listOf("kotlin") + packageSuffix else packageSuffix,
             shouldConstructBuilders,
+            shouldImplementToJava,
+            shouldImplementToKotlin,
             alternativeNameSuffix,
         )
 
@@ -56,72 +62,96 @@ data class PulumiName(
                 "",
                 listOf("enums"),
                 shouldConstructBuilders = false,
+                shouldImplementToJava = true,
+                shouldImplementToKotlin = false,
             )
 
             namingFlags.matches(Nested, Resource, Output, EnumClass) -> namingFlags.getModifier(
                 "",
                 listOf("enums"),
                 shouldConstructBuilders = false,
+                shouldImplementToJava = false,
+                shouldImplementToKotlin = true,
             )
 
             namingFlags.matches(Nested, Function, Input, EnumClass) -> namingFlags.getModifier(
                 "",
                 listOf("enums"),
                 shouldConstructBuilders = false,
+                shouldImplementToJava = true,
+                shouldImplementToKotlin = false,
             )
 
             namingFlags.matches(Nested, Function, Output, EnumClass) -> namingFlags.getModifier(
                 "",
                 listOf("enums"),
                 shouldConstructBuilders = false,
+                shouldImplementToJava = false,
+                shouldImplementToKotlin = true,
             )
 
             namingFlags.matches(Nested, Resource, Input, NormalClass) -> namingFlags.getModifier(
                 "Args",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
+                shouldImplementToJava = true,
+                shouldImplementToKotlin = false,
             )
 
             namingFlags.matches(Nested, Resource, Output, NormalClass) -> namingFlags.getModifier(
                 "",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
+                shouldImplementToJava = false,
+                shouldImplementToKotlin = true,
             )
 
             namingFlags.matches(Nested, Function, Input, NormalClass) -> namingFlags.getModifier(
                 "",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
+                shouldImplementToJava = true,
+                shouldImplementToKotlin = false,
             )
 
             namingFlags.matches(Nested, Function, Output, NormalClass) -> namingFlags.getModifier(
                 "",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
+                shouldImplementToJava = false,
+                shouldImplementToKotlin = true,
             )
 
             namingFlags.matches(Root, Resource, Input, NormalClass) -> namingFlags.getModifier(
                 "Args",
                 emptyList(),
                 shouldConstructBuilders = true,
+                shouldImplementToJava = true,
+                shouldImplementToKotlin = false,
             )
 
             namingFlags.matches(Root, Resource, Output, NormalClass) -> namingFlags.getModifier(
                 "",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
+                shouldImplementToJava = false,
+                shouldImplementToKotlin = true,
             )
 
             namingFlags.matches(Root, Function, Input, NormalClass) -> namingFlags.getModifier(
                 "PlainArgs",
                 listOf("inputs"),
                 shouldConstructBuilders = true,
+                shouldImplementToJava = true,
+                shouldImplementToKotlin = false,
             )
 
             namingFlags.matches(Root, Function, Output, NormalClass) -> namingFlags.getModifier(
                 "Result",
                 listOf("outputs"),
                 shouldConstructBuilders = false,
+                shouldImplementToJava = false,
+                shouldImplementToKotlin = true,
                 alternativeNameSuffix = "InvokeResult",
             )
 
@@ -200,6 +230,21 @@ data class PulumiName(
         }
     }
 
+    fun shouldConstructBuilder(namingFlags: NamingFlags): Boolean {
+        val modifiers = getModifiers(namingFlags)
+        return modifiers.shouldConstructBuilders
+    }
+
+    fun shouldImplementToJava(namingFlags: NamingFlags): Boolean {
+        val modifiers = getModifiers(namingFlags)
+        return modifiers.shouldImplementToJava
+    }
+
+    fun shouldImplementToKotlin(namingFlags: NamingFlags): Boolean {
+        val modifiers = getModifiers(namingFlags)
+        return modifiers.shouldImplementToKotlin
+    }
+
     companion object {
         private const val EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN = 3
 
@@ -260,4 +305,10 @@ data class NameGeneration(private val pulumiName: PulumiName, private val naming
     val packageName get() = pulumiName.toPackage(namingFlags)
 
     val functionName get() = pulumiName.toFunctionName(namingFlags)
+
+    val shouldConstructBuilders get() = pulumiName.shouldConstructBuilder(namingFlags)
+
+    val shouldImplementToJava get() = pulumiName.shouldImplementToJava(namingFlags)
+
+    val shouldImplementToKotlin get() = pulumiName.shouldImplementToKotlin(namingFlags)
 }

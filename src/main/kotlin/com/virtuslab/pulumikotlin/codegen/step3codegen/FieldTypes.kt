@@ -13,7 +13,7 @@ data class NormalField<T : ReferencedType>(override val type: T, val mappingCode
 data class OutputWrappedField<T : ReferencedType>(override val type: T) : FieldType<T>()
 
 data class Field<T : ReferencedType>(
-    val name: String,
+    private val name: String,
     val fieldType: FieldType<T>,
     val required: Boolean,
     val overloads: List<FieldType<ReferencedType>> = emptyList(),
@@ -24,4 +24,8 @@ data class Field<T : ReferencedType>(
 
     fun toNullableTypeName(typeNameClashResolver: TypeNameClashResolver): TypeName =
         typeNameClashResolver.toTypeName(fieldType, languageType = LanguageType.Kotlin).copy(nullable = true)
+
+    fun toKotlinName() = name.replace("$", "")
+
+    fun toJavaName() = BuilderMethodNameEscaper.escape(name)
 }

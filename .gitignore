@@ -2,7 +2,7 @@
 .pulumi-kotlin-artifact-cache
 output-dir
 examples/**/Pulumi.*.yaml
-!examples/**/Pulumi.test.yaml
+!examples/**/Pulumi.example.yaml
 ejected-tests
 
 ### IntelliJ ###

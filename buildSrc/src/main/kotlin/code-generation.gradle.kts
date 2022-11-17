@@ -14,6 +14,10 @@ val tasksToDisable: List<(String) -> String> = listOf(
     { sourceSetName: String -> "lintKotlin${sourceSetName.capitalized()}" },
 )
 
+val commonDependencies = listOf(
+    "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1",
+)
+
 val createTasksForProvider by extra {
     fun(schema: SchemaMetadata) {
         val kotlinVersion = KotlinVersion.fromVersionString(schema.kotlinVersion)
@@ -23,7 +27,7 @@ val createTasksForProvider by extra {
         val providerName = schema.providerName
         val schemaUrl = schema.url
         val version = schema.kotlinVersion
-        val customDependencies = schema.customDependencies
+        val javaLibraryDependency = "com.pulumi:$providerName:${schema.javaVersion}"
 
         val sourceSetName = "pulumi${providerName.capitalized()}"
         val generationTaskName = "generate${sourceSetName.capitalized()}Sources"
@@ -90,6 +94,7 @@ val createTasksForProvider by extra {
             tasks[it(sourceSetName)].enabled = false
         }
 
+        val customDependencies = schema.customDependencies + listOf(javaLibraryDependency) + commonDependencies
         customDependencies.forEach {
             dependencies {
                 implementationDependency(it)

@@ -5,9 +5,7 @@
     "kotlinVersion": "4.12.1.0-SNAPSHOT",
     "javaVersion": "4.12.1",
     "javaGitTag": "v4.12.1",
-    "customDependencies": [
-      "com.pulumi:cloudflare:4.12.1"
-    ]
+    "customDependencies": []
   },
   {
     "providerName": "slack",
@@ -15,9 +13,7 @@
     "kotlinVersion": "0.3.0.0-SNAPSHOT",
     "javaVersion": "0.3.0",
     "javaGitTag": "v0.3.0",
-    "customDependencies": [
-      "com.pulumi:slack:0.3.0"
-    ]
+    "customDependencies": []
   },
   {
     "providerName": "github",
@@ -25,9 +21,7 @@
     "kotlinVersion": "4.17.0.0-SNAPSHOT",
     "javaVersion": "4.17.0",
     "javaGitTag": "v4.17.0",
-    "customDependencies": [
-      "com.pulumi:github:4.17.0"
-    ]
+    "customDependencies": []
   },
   {
     "providerName": "random",
@@ -35,9 +29,7 @@
     "kotlinVersion": "4.6.0.0-SNAPSHOT",
     "javaVersion": "4.6.0",
     "javaGitTag": "v4.6.0",
-    "customDependencies": [
-      "com.pulumi:random:4.6.0"
-    ]
+    "customDependencies": []
   },
   {
     "providerName": "gcp",
@@ -45,9 +37,7 @@
     "kotlinVersion": "6.39.0.0-SNAPSHOT",
     "javaVersion": "6.39.0",
     "javaGitTag": "v6.39.0",
-    "customDependencies": [
-      "com.pulumi:gcp:6.39.0"
-    ]
+    "customDependencies": []
   },
   {
     "providerName": "google-native",
@@ -55,9 +45,7 @@
     "kotlinVersion": "0.27.0.0-SNAPSHOT",
     "javaVersion": "0.27.0",
     "javaGitTag": "v0.27.0",
-    "customDependencies": [
-      "com.pulumi:google-native:0.27.0"
-    ]
+    "customDependencies": []
   },
   {
     "providerName": "aws",
@@ -65,8 +53,14 @@
     "kotlinVersion": "5.16.2.0-SNAPSHOT",
     "javaVersion": "5.16.2",
     "javaGitTag": "v5.16.2",
-    "customDependencies": [
-      "com.pulumi:aws:5.16.2"
-    ]
+    "customDependencies": []
+  },
+  {
+    "providerName": "kubernetes",
+    "url": "https://gist.githubusercontent.com/jplewa/deddde072fd7b018aac1609772eda28a/raw/7e92997aa7fc2e972cf81662b65b749aaf5b8358/schema-kubernetes-v.3.22.1-subset-for-build.json",
+    "kotlinVersion": "3.22.1.0-SNAPSHOT",
+    "javaVersion": "3.22.1",
+    "javaGitTag": "v3.22.1",
+    "customDependencies": []
   }
 ]
