@@ -36,7 +36,7 @@ dependencies {
     testImplementation("com.google.cloud:google-cloud-compute:1.15.0")
     testImplementation("io.kubernetes:client-java:16.0.2")
     testImplementation("io.mockk:mockk:1.13.2")
-    testImplementation("io.github.cdklabs:projen:0.65.17")
+    testImplementation("io.github.cdklabs:projen:0.65.23")
 }
 
 tasks.test {
