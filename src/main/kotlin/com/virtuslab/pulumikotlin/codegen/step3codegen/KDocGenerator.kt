@@ -52,11 +52,13 @@ private fun addDocsIfAvailable(kDocBuilder: KDocBuilder, kDoc: KDoc) {
 private fun addDocs(kDocBuilder: KDocBuilder, kDoc: String) {
     val examples = getTrimmedExamplesBlock(kDoc)
 
-    val trimmedDocs = kDoc.replace(
-        EXAMPLES_HEADER_REGEX.toRegex(DOT_MATCHES_ALL),
-    ) {
-        it.groupValues[EXAMPLES_HEADER_REGEX_GROUP_NUMBER] + "\n$examples"
-    }
+    val trimmedDocs = kDoc
+        .replace(".", "&#46;")
+        .replace(
+            EXAMPLES_HEADER_REGEX.toRegex(DOT_MATCHES_ALL),
+        ) {
+            it.groupValues[EXAMPLES_HEADER_REGEX_GROUP_NUMBER] + "\n$examples"
+        }
 
     kDocBuilder.apply(
         addCommentClosingsAndOpenings(trimmedDocs)
