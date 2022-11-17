@@ -84,21 +84,24 @@ object IntermediateRepresentationGenerator {
             }
 
         val syntheticTypes = listOf(
-            createTypes(schema.functions, UsageKind(Root, Function, Input)) { it.inputs },
-            createTypes(schema.functions, UsageKind(Root, Function, Output)) { it.outputs },
-            createTypes(schema.resources, UsageKind(Root, Resource, Input)) {
+            createTypes(schema.functions, UsageKind(Root, Function, Input)) { function -> function.inputs },
+            createTypes(schema.functions, UsageKind(Root, Function, Output)) { function -> function.outputs },
+            createTypes(schema.resources, UsageKind(Root, Resource, Input)) { resource ->
                 ObjectProperty(
-                    properties = it.inputProperties,
-                    description = it.description,
-                    deprecationMessage = it.deprecationMessage,
+                    properties = resource.inputProperties,
+                    description = resource.description,
+                    deprecationMessage = resource.deprecationMessage,
                 )
             },
             schema.provider?.let {
-                createTypes(mapOf(DEFAULT_PROVIDER_TOKEN to schema.provider), UsageKind(Root, Resource, Input)) {
+                createTypes(
+                    mapOf(DEFAULT_PROVIDER_TOKEN to schema.provider),
+                    UsageKind(Root, Resource, Input),
+                ) { resource ->
                     ObjectProperty(
-                        properties = it.inputProperties,
-                        description = it.description,
-                        deprecationMessage = it.deprecationMessage,
+                        properties = resource.inputProperties,
+                        description = resource.description,
+                        deprecationMessage = resource.deprecationMessage,
                     )
                 }
             }.orEmpty(),
@@ -263,35 +266,37 @@ object IntermediateRepresentationGenerator {
         property: ReferenceProperty,
         usageKind: UsageKind,
     ): ReferencedType {
-        if (property.isAssetOrArchive()) {
-            return AssetOrArchiveType
-        } else if (property.isArchive()) {
-            return ArchiveType
-        } else if (property.isAny()) {
-            return AnyType
-        } else if (property.isJson()) {
-            return JsonType
-        }
-
         val referencedTypeName = property.referencedTypeName
-        val pulumiName = PulumiName.from(referencedTypeName, context.namingConfiguration)
 
-        if (context.referencedStringTypesResolver.shouldGenerateStringType(referencedTypeName)) {
-            return StringType
-        }
+        return if (property.isAssetOrArchive()) {
+            AssetOrArchiveType
+        } else if (property.isArchive()) {
+            ArchiveType
+        } else if (property.isAny()) {
+            AnyType
+        } else if (property.isJson()) {
+            JsonType
+        } else if (context.referencedStringTypesResolver.shouldGenerateStringType(referencedTypeName)) {
+            // FIXME this if statement introduces a bug present in golang implementation,
+            //  it should be removed when the bug in golang is fixed and types are properly generated
+            //  despite the case insensitive type tokens
+            //  @see https://github.com/VirtuslabRnD/pulumi-kotlin/pull/123#intentionally-generating-fields-with-incorrect-type-string
+            StringType
+        } else {
+            val pulumiName = PulumiName.from(referencedTypeName, context.namingConfiguration)
+            when (context.referenceFinder.resolve(referencedTypeName)) {
+                is ObjectProperty -> ReferencedComplexType(
+                    TypeMetadata(pulumiName, usageKind, getKDoc(property)),
+                )
 
-        return when (context.referenceFinder.resolve(referencedTypeName)) {
-            is ObjectProperty -> ReferencedComplexType(
-                TypeMetadata(pulumiName, usageKind, getKDoc(property)),
-            )
+                is StringEnumProperty -> ReferencedEnumType(
+                    TypeMetadata(pulumiName, usageKind, getKDoc(property), EnumClass),
+                )
 
-            is StringEnumProperty -> ReferencedEnumType(
-                TypeMetadata(pulumiName, usageKind, getKDoc(property), EnumClass),
-            )
-
-            null -> {
-                logger.info("Not found type for $referencedTypeName, defaulting to Any")
-                return AnyType
+                null -> {
+                    logger.info("Not found type for $referencedTypeName, defaulting to Any")
+                    AnyType
+                }
             }
         }
     }
@@ -315,7 +320,18 @@ object IntermediateRepresentationGenerator {
         return when (property) {
             is ArrayProperty -> ListType(innerTypeMapper(property.items))
             is MapProperty -> MapType(StringType, innerTypeMapper(property.additionalProperties))
-            is OneOfProperty -> EitherType(innerTypeMapper(property.oneOf[0]), innerTypeMapper(property.oneOf[1]))
+            is OneOfProperty -> {
+                val innerTypes = property.oneOf.map { innerTypeMapper(it) }
+                val isFilledWithStringsOnly = !innerTypes.any { it !is StringType }
+
+                if (isFilledWithStringsOnly) {
+                    StringType
+                } else if (innerTypes.size == 2) {
+                    EitherType(innerTypes[0], innerTypes[1])
+                } else {
+                    AnyType
+                }
+            }
         }
     }
 
