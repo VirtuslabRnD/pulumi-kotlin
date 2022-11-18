@@ -5,6 +5,7 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.ResourcesMap
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.IntegerProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ObjectProperty
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.OneOfProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyName
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferenceProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Schema
@@ -17,6 +18,9 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
+import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
+import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
+import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import com.virtuslab.pulumikotlin.namingConfigurationWithSlashInModuleFormat
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -25,6 +29,7 @@ import org.junit.jupiter.api.function.Executable
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import java.util.Random
+import kotlin.reflect.KClass
 import kotlin.streams.asSequence
 import kotlin.test.assertEquals
 
@@ -480,12 +485,135 @@ internal class IntermediateRepresentationGeneratorTest {
         assertAll(assertions)
     }
 
+    // FIXME this test class verifies incorrect behaviour introduced intentionally to keep consistency with Pulumi-java,
+    //  it should be removed, when the issue in Pulumi-java is solved
+    //  @see https://github.com/VirtuslabRnD/pulumi-kotlin/pull/123#intentionally-generating-fields-with-incorrect-type-string
+    @Test
+    fun `properties with inconsistent referenced type tokens should be generated with string type`() {
+        // given
+        val types = mapOf(
+            "provider:namespace/type:type" to ObjectProperty(
+                properties = mapOf(
+                    PropertyName("enumProperty") to ObjectProperty(),
+                ),
+            ),
+        )
+
+        val resources = someResourceWithOutputReferences("provider:namespace/Type:type", withReferencedPrefix = false)
+
+        // when
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+        )
+
+        // then
+        val irResources = ir.resources
+
+        irResources.forEach {
+            assertContainsPropertyWhere(
+                resources = it,
+                expectedFieldName = "type",
+                expectedFieldType = StringType::class,
+                shouldBeOutputWrapped = true,
+            )
+        }
+    }
+
+    @Test
+    fun `oneOf property with string elements should be flattened to type string`() {
+        // given
+        val oneOfProperty =
+            mapOf(PropertyName("oneOfProperty") to OneOfProperty(oneOf = listOf(StringProperty(), StringProperty())))
+
+        val resources = mapOf(
+            randomResourceName() to SchemaModel.Resource(
+                properties = mapOf(PropertyName("someString") to StringProperty()) + oneOfProperty,
+            ),
+        )
+
+        // when
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            resources = resources,
+        )
+
+        // then
+        val irResources = ir.resources
+
+        irResources.forEach {
+            assertContainsPropertyWhere(
+                resources = it,
+                expectedFieldName = "oneOfProperty",
+                expectedFieldType = StringType::class,
+                shouldBeOutputWrapped = true,
+            )
+        }
+    }
+
+    @Test
+    fun `oneOf property with more than two elements should be flattened to type any`() {
+        // given
+        val types = mapOf(
+            "provider:module/type:Type1" to ObjectProperty(properties = emptyMap()),
+            "provider:module/type:Type2" to ObjectProperty(properties = emptyMap()),
+        )
+
+        val oneOfProperty =
+            mapOf(
+                PropertyName("oneOfProperty") to OneOfProperty(
+                    oneOf = listOf(
+                        StringProperty(),
+                        StringProperty(),
+                        ReferenceProperty(ref = SpecificationReference(ref("provider:module/type:Type1"))),
+                        ReferenceProperty(ref = SpecificationReference(ref("provider:module/type:Type2"))),
+                    ),
+                ),
+            )
+
+        val resources = mapOf(
+            randomResourceName() to SchemaModel.Resource(
+                properties = mapOf(PropertyName("someString") to StringProperty()) + oneOfProperty,
+            ),
+        )
+
+        // when
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            types = types,
+            resources = resources,
+        )
+
+        // then
+        val irResources = ir.resources
+
+        irResources.forEach {
+            assertContainsPropertyWhere(
+                resources = it,
+                expectedFieldName = "oneOfProperty",
+                expectedFieldType = AnyType::class,
+                shouldBeOutputWrapped = true,
+            )
+        }
+    }
+
     private fun someResourceWithReferences(
         referencedInputTypeNames: List<String> = emptyList(),
         referencedOutputTypeNames: List<String> = emptyList(),
+        withReferencedPrefix: Boolean = true,
     ): Map<String, SchemaModel.Resource> {
-        fun generateField(name: String) =
-            PropertyName("referenced$name") to ReferenceProperty(ref = SpecificationReference(ref(name)))
+        fun generateField(referencedToken: String): Pair<PropertyName, ReferenceProperty> {
+            val referencedPrefix = if (withReferencedPrefix) "referenced" else ""
+            val fieldName = referencedToken.split(":").last()
+            return PropertyName("$referencedPrefix$fieldName") to ReferenceProperty(
+                ref = SpecificationReference(
+                    ref(
+                        referencedToken,
+                    ),
+                ),
+            )
+        }
 
         val referencedInputTypes = referencedInputTypeNames.associate { generateField(it) }
         val referencedOutputTypes = referencedOutputTypeNames.associate { generateField(it) }
@@ -549,6 +677,20 @@ internal class IntermediateRepresentationGeneratorTest {
         assertNotNull(foundType)
     }
 
+    private fun <T : ReferencedType> assertContainsPropertyWhere(
+        resources: ResourceType,
+        expectedFieldName: String,
+        expectedFieldType: KClass<T>,
+        shouldBeOutputWrapped: Boolean,
+    ) {
+        val actualField: Field<*>? =
+            resources.outputFields.filter { field -> field.toKotlinName() == expectedFieldName }
+                .letIf(shouldBeOutputWrapped) { fields -> fields.filter { field -> field.fieldType::class == OutputWrappedField::class } }
+                .firstOrNull { field -> field.fieldType.type::class == expectedFieldType }
+
+        assertNotNull(actualField)
+    }
+
     @Suppress("LongParameterList") // these parameters are required to create PulumiNamingConfiguration
     private fun getIntermediateRepresentation(
         providerName: String,
@@ -574,11 +716,23 @@ internal class IntermediateRepresentationGeneratorTest {
 
     private fun getMetaWithSlashInModuleFormat() = SchemaModel.Metadata("(.*)(?:/[^/]*)")
 
-    private fun someResourceWithInputReferences(vararg referencedInputTypeNames: String) =
-        someResourceWithReferences(referencedInputTypeNames = referencedInputTypeNames.toList())
+    private fun someResourceWithInputReferences(
+        vararg referencedInputTypeNames: String,
+        withReferencedPrefix: Boolean = true,
+    ) =
+        someResourceWithReferences(
+            referencedInputTypeNames = referencedInputTypeNames.toList(),
+            withReferencedPrefix = withReferencedPrefix,
+        )
 
-    private fun someResourceWithOutputReferences(vararg referencedOutputTypeNames: String) =
-        someResourceWithReferences(referencedOutputTypeNames = referencedOutputTypeNames.toList())
+    private fun someResourceWithOutputReferences(
+        vararg referencedOutputTypeNames: String,
+        withReferencedPrefix: Boolean = true,
+    ) =
+        someResourceWithReferences(
+            referencedOutputTypeNames = referencedOutputTypeNames.toList(),
+            withReferencedPrefix = withReferencedPrefix,
+        )
 
     private fun ref(typeName: String): String {
         return "#/types/$typeName"
