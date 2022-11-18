@@ -367,6 +367,41 @@ internal class KDocGeneratorTest {
     }
 
     @Test
+    fun `escapes periods in non-code parts of the documentation`() {
+        val description =
+            """This would cause compilation issues: [ITU.X690.1994].
+              |{{% examples %}}
+              |## Examples
+              |{{% example %}}
+              |### Specific example 1
+              |```java
+              |// The period at the end of this sentence should stay the same.
+              |val x = 2 + 2;
+              |```
+              |{{% /example %}}
+              |{{% /examples %}}"""
+                .trimMargin()
+        val className = "EscapesPeriodsInDescription"
+
+        assertKDocContentEquals(
+            className,
+            description,
+            """/**
+              | * This would cause compilation issues: [ITU&#46;X690&#46;1994]&#46;
+              | * ## Examples
+              | * ### Specific example 1
+              | * ```java
+              | * // The period at the end of this sentence should stay the same.
+              | * val x = 2 + 2;
+              | * ```
+              | */"""
+                .trimMargin(),
+        )
+
+        assertExportedFileCompiles(className)
+    }
+
+    @Test
     fun `adds deprecation warning with message`() {
         val message = "This is deprecated"
         val className = "DeprecationWarning"
