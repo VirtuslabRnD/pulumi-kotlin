@@ -72,4 +72,5 @@ jobs:
             -x dokkaPulumiCloudflareJavadoc \
             -x dokkaPulumiGitlabJavadoc \
             -x dokkaPulumiGithubJavadoc \
-            -x dokkaPulumiNomadJavadoc
+            -x dokkaPulumiNomadJavadoc \
+            -x dokkaPulumiDigitaloceanJavadoc
