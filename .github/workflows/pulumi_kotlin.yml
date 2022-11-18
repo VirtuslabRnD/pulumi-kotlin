@@ -67,4 +67,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Publish to Maven Local
-        run: ./gradlew publishToMavenLocal -x dokkaPulumiCloudflareJavadoc -x dokkaPulumiGitlabJavadoc -x dokkaPulumiGithubJavadoc
+        run: |
+          ./gradlew publishToMavenLocal \
+            -x dokkaPulumiCloudflareJavadoc \
+            -x dokkaPulumiGitlabJavadoc \
+            -x dokkaPulumiGithubJavadoc \
+            -x dokkaPulumiNomadJavadoc
