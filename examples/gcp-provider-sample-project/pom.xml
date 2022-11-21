@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.pulumi</groupId>
-    <artifactId>gcp-sample-project</artifactId>
+    <artifactId>gcp-provider-sample-project</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
