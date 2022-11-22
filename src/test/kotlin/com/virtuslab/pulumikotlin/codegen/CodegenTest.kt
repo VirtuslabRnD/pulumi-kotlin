@@ -296,9 +296,6 @@ class CodegenTest {
                                     customCaBundle("can bundle")
                                     ec2MetadataServiceEndpoint("ec2MetadataServiceEndpoint")
                                     ec2MetadataServiceEndpointMode("ec2MetadataServiceEndpointMode")
-                                    endpoints({
-                                        acm("acm")
-                                    })
                                     forbiddenAccountIds("1", "2")
                                     httpProxy("127.0.0.1")
                                     ignoreTags {
