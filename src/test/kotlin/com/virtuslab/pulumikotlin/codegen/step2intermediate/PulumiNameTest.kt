@@ -351,8 +351,13 @@ internal class PulumiNameTest {
         val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
 
         // when - then
-        assertThrows<IllegalArgumentException>("Malformed token should throw an exception") {
+        val exception = assertThrows<IllegalArgumentException> {
             PulumiName.from(token, namingConfiguration)
         }
+
+        assertEquals(
+            "Malformed token $token",
+            exception.message,
+        )
     }
 }

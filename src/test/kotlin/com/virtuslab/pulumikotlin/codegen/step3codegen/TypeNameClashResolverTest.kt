@@ -37,9 +37,14 @@ internal class TypeNameClashResolverTest {
             typeNameClashResolver.kotlinNames(explicitType.metadata).kotlinPoetClassName.canonicalName,
             "some.package.kotlin.inputs.FunctionNamePlainArgs",
         )
-        assertThrows<IllegalStateException>(getErrorMessage(Function, Input, Kotlin)) {
+        val exception = assertThrows<IllegalStateException> {
             typeNameClashResolver.kotlinNames(syntheticTypeMetadata).kotlinPoetClassName
         }
+
+        assertEquals(
+            getErrorMessage(Function, Input, Kotlin),
+            exception.message,
+        )
     }
 
     @Test
@@ -57,9 +62,14 @@ internal class TypeNameClashResolverTest {
             typeNameClashResolver.javaNames(explicitType.metadata).kotlinPoetClassName.canonicalName,
             "some.package.inputs.FunctionNamePlainArgs",
         )
-        assertThrows<IllegalStateException>(getErrorMessage(Function, Input, Java)) {
+        val exception = assertThrows<IllegalStateException> {
             typeNameClashResolver.javaNames(syntheticTypeMetadata).kotlinPoetClassName
         }
+
+        assertEquals(
+            getErrorMessage(Function, Input, Java),
+            exception.message,
+        )
     }
 
     @Test
@@ -160,9 +170,14 @@ internal class TypeNameClashResolverTest {
             "some.package.kotlin.outputs.ResourceName",
             typeNameClashResolver.kotlinNames(explicitType.metadata).kotlinPoetClassName.canonicalName,
         )
-        assertThrows<IllegalStateException>(getErrorMessage(Resource, Output, Kotlin)) {
+        val exception = assertThrows<IllegalStateException> {
             typeNameClashResolver.kotlinNames(typeMetadata).kotlinPoetClassName
         }
+
+        assertEquals(
+            getErrorMessage(Resource, Output, Kotlin),
+            exception.message,
+        )
     }
 
     @Test
@@ -179,9 +194,13 @@ internal class TypeNameClashResolverTest {
             "some.package.outputs.ResourceName",
             typeNameClashResolver.javaNames(explicitType.metadata).kotlinPoetClassName.canonicalName,
         )
-        assertThrows<IllegalStateException>(getErrorMessage(Resource, Output, Java)) {
+        val exception = assertThrows<IllegalStateException> {
             typeNameClashResolver.javaNames(typeMetadata).kotlinPoetClassName
         }
+        assertEquals(
+            getErrorMessage(Resource, Output, Java),
+            exception.message,
+        )
     }
 
     private fun createMetadata(name: String, depth: Depth, subject: Subject, direction: Direction) = TypeMetadata(

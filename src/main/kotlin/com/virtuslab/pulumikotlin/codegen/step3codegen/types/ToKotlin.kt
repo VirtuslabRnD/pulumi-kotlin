@@ -88,7 +88,7 @@ object ToKotlin {
         return FunSpec.builder(TO_KOTLIN_FUNCTION_NAME)
             .addParameter(prepareToJavaParameterSpec(typeMetadata, typeNameClashResolver))
             .returns(kotlinClass)
-            .addStatement("return %T.valueOf(%L.name)", kotlinClass, JAVA_TYPE_PARAMETER_NAME)
+            .addStatement("return %T.values().first·{·it.javaValue·==·%L·}", kotlinClass, JAVA_TYPE_PARAMETER_NAME)
             .build()
     }
 

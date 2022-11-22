@@ -27,5 +27,5 @@ data class Field<T : ReferencedType>(
 
     fun toKotlinName() = name.replace("$", "")
 
-    fun toJavaName() = BuilderMethodNameEscaper.escape(name)
+    fun toJavaName() = ReservedWordEscaper.escapeBuilderMethodName(name)
 }

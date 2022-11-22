@@ -70,7 +70,7 @@ object ToJava {
         return FunSpec.builder(FUNCTION_NAME)
             .addModifiers(KModifier.OVERRIDE)
             .returns(javaClass)
-            .addStatement("return %T.valueOf(this.name)", javaClass)
+            .addStatement("return javaValue")
             .build()
     }
 }
