@@ -2,6 +2,7 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.pulumi.core.Output
 import com.pulumi.kotlin.ConvertibleToJava
+import com.pulumi.kotlin.PulumiNullFieldException
 import com.pulumi.kotlin.PulumiTagMarker
 import com.pulumi.kotlin.options.CustomResourceOptions
 import com.pulumi.kotlin.options.CustomResourceOptionsBuilder
@@ -9,7 +10,6 @@ import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
-import com.virtuslab.pulumikotlin.codegen.sdk.PulumiNullFieldException
 
 object MoreTypes {
 
