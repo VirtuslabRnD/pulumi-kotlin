@@ -9,6 +9,7 @@ import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.MemberName.Companion.member
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
+import com.virtuslab.pulumikotlin.codegen.sdk.PulumiNullFieldException
 
 object MoreTypes {
 
@@ -23,6 +24,8 @@ object MoreTypes {
             fun applyValueExtensionMethod() = MemberName("com.pulumi.kotlin", "applyValue")
 
             fun pulumiDslMarkerAnnotation() = PulumiTagMarker::class.asClassName()
+
+            fun pulumiNullFieldException() = PulumiNullFieldException::class.asClassName()
 
             fun convertibleToJavaClass() = ConvertibleToJava::class.asClassName()
 

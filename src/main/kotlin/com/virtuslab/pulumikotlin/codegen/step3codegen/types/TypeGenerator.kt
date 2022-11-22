@@ -22,6 +22,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pul
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.applyValueExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.convertibleToJavaClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.pulumiDslMarkerAnnotation
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.pulumiNullFieldException
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.toJavaExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.toKotlinExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NameGeneration
@@ -247,7 +248,11 @@ object TypeGenerator {
      */
     private fun generateBuildMethod(context: Context, names: NameGeneration): FunSpec {
         val arguments = context.fields.associate {
-            val requiredPart = if (it.required) "!!" else ""
+            val requiredPart = if (it.required) {
+                " ?: throw ${pulumiNullFieldException()}(\"${it.toKotlinName()}\")"
+            } else {
+                ""
+            }
             it.toKotlinName() to CustomExpressionBuilder.start("%N$requiredPart", it.toKotlinName()).build()
         }
 
