@@ -1,10 +1,6 @@
 name: Run E2E tests
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: workflow_dispatch
 
 jobs:
   gcp-e2e-test:

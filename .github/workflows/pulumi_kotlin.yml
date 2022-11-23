@@ -1,10 +1,6 @@
 name: Compile, analyze, and test pulumi-kotlin
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: workflow_dispatch
 
 jobs:
   compile-and-test:
@@ -60,7 +56,7 @@ jobs:
           retention-days: 3
   publish:
     name: Publish pulumi-kotlin to Maven Local Repository
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
