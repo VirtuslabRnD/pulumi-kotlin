@@ -103,11 +103,6 @@ fun <T, R> Either<T, out ConvertibleToJava<R>>.toJava(): Either<T, R> {
     return applyValue { either -> either.transform({ it }, { it.toJava() }) }
 }
 
-@JvmName("X182332BH")
-fun <T> Output<out List<Either<String, out ConvertibleToJava<T>>>>.toJava(): Output<List<Either<String, T>>> {
-    return applyValue { list -> list.map { it.toJava() } }
-}
-
 @JvmName("K9D35N5P0")
 fun Either<String, List<String>>.toJava(): Either<String, List<String>> {
     return this

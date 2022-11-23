@@ -35,9 +35,7 @@ object EnumTypeGenerator {
                     .build(),
             )
 
-        enumType.possibleValues.forEach {
-            enumBuilder.addEnumConstant(it.replace("[^A-Za-z0-9]".toRegex(), "_"))
-        }
+        enumType.possibleValues.forEach { enumBuilder.addEnumConstant(it) }
 
         return enumBuilder.build()
     }
