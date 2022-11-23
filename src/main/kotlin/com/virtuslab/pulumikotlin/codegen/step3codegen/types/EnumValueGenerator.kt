@@ -29,7 +29,7 @@ object EnumValueGenerator {
             }
             .makeValid()
             .titlecaseString()
-            .replace("_+".toRegex(), "_")
+            .removeExcessUnderscores()
     }
 
     /**
@@ -75,6 +75,8 @@ object EnumValueGenerator {
         }
         return titlecaseStringBuilder.toString()
     }
+
+    private fun String.removeExcessUnderscores(): String = replace("_+".toRegex(), "_")
 
     /**
      * This function is based on the `strings::isSeparator` function from Go.
