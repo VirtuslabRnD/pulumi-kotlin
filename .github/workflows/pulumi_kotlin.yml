@@ -23,7 +23,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: test-report
-          path: ./build/reports/tests/test/*
+          path: |
+            ./build/reports/tests/test/*
+            ./buildSrc/build/reports/tests/test/*
           retention-days: 3
       - name: Upload ejected-tests
         if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
