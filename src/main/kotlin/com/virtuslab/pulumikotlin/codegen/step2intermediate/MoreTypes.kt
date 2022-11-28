@@ -2,7 +2,6 @@ package com.virtuslab.pulumikotlin.codegen.step2intermediate
 
 import com.pulumi.core.Output
 import com.pulumi.kotlin.ConvertibleToJava
-import com.pulumi.kotlin.PulumiNullFieldException
 import com.pulumi.kotlin.PulumiTagMarker
 import com.pulumi.kotlin.options.CustomResourceOptions
 import com.pulumi.kotlin.options.CustomResourceOptionsBuilder
@@ -24,8 +23,6 @@ object MoreTypes {
             fun applyValueExtensionMethod() = MemberName("com.pulumi.kotlin", "applyValue")
 
             fun pulumiDslMarkerAnnotation() = PulumiTagMarker::class.asClassName()
-
-            fun pulumiNullFieldException() = PulumiNullFieldException::class.asClassName()
 
             fun convertibleToJavaClass() = ConvertibleToJava::class.asClassName()
 
