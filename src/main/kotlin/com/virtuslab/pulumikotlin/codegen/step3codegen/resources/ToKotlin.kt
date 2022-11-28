@@ -87,7 +87,6 @@ object ToKotlin {
                     argument,
                     type.innerType,
                     typeNameClashResolver,
-                    optional = false,
                 )
             }
 
@@ -100,7 +99,6 @@ object ToKotlin {
                                     argument.field("value"),
                                     type.valueType,
                                     typeNameClashResolver,
-                                    optional = false,
                                 ),
                             )
                     }
