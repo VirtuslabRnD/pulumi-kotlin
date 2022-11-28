@@ -3,9 +3,9 @@ package com.virtuslab.pulumikotlin.codegen.step3codegen.types
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumValue
@@ -44,8 +44,16 @@ object EnumTypeGenerator {
                     .addFunction(toKotlinEnumFunction(enumType.metadata, typeNameClashResolver))
                     .build(),
             )
-            .addProperty(PROPERTY_NAME, javaEnumClassName)
-            .primaryConstructor(createPrimaryConstructor(javaEnumClassName))
+            .addProperty(
+                PropertySpec.builder(PROPERTY_NAME, javaEnumClassName)
+                    .initializer(PROPERTY_NAME)
+                    .build(),
+            )
+            .primaryConstructor(
+                FunSpec.constructorBuilder()
+                    .addParameter(PROPERTY_NAME, javaEnumClassName)
+                    .build(),
+            )
             .addDocsIfAvailable(enumType.metadata.kDoc)
 
         enumType.possibleValues.forEach {
@@ -77,14 +85,6 @@ object EnumTypeGenerator {
             .addType(enumTypeSpec)
             .build()
     }
-
-    private fun createPrimaryConstructor(javaEnumClassName: ClassName) = FunSpec.constructorBuilder()
-        .addParameter(
-            ParameterSpec.builder(PROPERTY_NAME, javaEnumClassName)
-                .build(),
-        )
-        .addCode("this.%N·=·%N", PROPERTY_NAME, PROPERTY_NAME)
-        .build()
 
     private fun TypeSpec.Builder.addEnumConstant(enumValue: EnumValue, javaEnumClassName: ClassName): TypeSpec.Builder {
         val escapedEnumValue = try {
