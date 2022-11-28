@@ -1,5 +1,5 @@
 // This class is included in the generated code. The package name matches its location in the generated code.
-@file:Suppress("InvalidPackageDeclaration", "PackageDirectoryMismatch", "unused")
+@file:Suppress("InvalidPackageDeclaration", "PackageDirectoryMismatch")
 
 package com.pulumi.kotlin.options
 
@@ -31,7 +31,7 @@ class CustomResourceOptions internal constructor(
         get() = javaBackingObject.additionalSecretOutputs
 
     /**
-     * List of aliases for a resource or component resource. If you’re changing the name, type,
+     * List of aliases for a resource or component resource. If you're changing the name, type,
      * or parent path of a resource or component resource, you can add the old name to the list of aliases
      * for a resource to ensure that existing resources will be migrated to the new name instead of being deleted
      * and replaced with the new named resource.
@@ -77,8 +77,8 @@ class CustomResourceOptions internal constructor(
      * The [dependsOn] resource option creates a list of explicit dependencies between resources.
      *
      *  Pulumi automatically tracks dependencies between resources when you supply an input argument
-     *  that came from another resource’s output properties. In some cases, however,
-     *  you may need to explicitly specify additional dependencies that Pulumi doesn’t know about
+     *  that came from another resource's output properties. In some cases, however,
+     *  you may need to explicitly specify additional dependencies that Pulumi doesn't know about
      *  but must still respect. This might happen if a dependency is external to the infrastructure itself,
      *  such as an application dependency—or is implied due to an ordering or eventual consistency requirement.
      *  The [dependsOn] option ensures that resource creation, update, and deletion operations
@@ -96,7 +96,7 @@ class CustomResourceOptions internal constructor(
     /**
      * The [ignoreChanges] resource option specifies a list of properties
      * that Pulumi will ignore when it updates existing resources. Any properties specified in this list
-     * that are also specified in the resource’s arguments will only be used when creating the resource.
+     * that are also specified in the resource's arguments will only be used when creating the resource.
      */
     val ignoreChanges: List<String>?
         get() = javaBackingObject.ignoreChanges
@@ -106,7 +106,7 @@ class CustomResourceOptions internal constructor(
      * Imported resources can have been provisioned by any other method, including manually in the cloud console
      * or with the cloud CLI.
      *
-     * To import a resource, first specify the [importId] option with the resource’s ID.
+     * To import a resource, first specify the [importId] option with the resource's ID.
      * This ID is the same as would be returned by the id property for any resource created by Pulumi;
      * the ID is resource-specific. Pulumi reads the current state of the resource
      * with the given ID from the cloud provider. Next, you must specify all required arguments
@@ -183,12 +183,12 @@ class CustomResourceOptions internal constructor(
 
     /**
      * Marks a resource to be retained. If this option is set then Pulumi will not call through
-     * to the resource provider’s `Delete` method when deleting or replacing the resource during `pulumi up`
+     * to the resource provider's `Delete` method when deleting or replacing the resource during `pulumi up`
      * or `pulumi destroy`. As a result, the resource will not be deleted from the backing cloud provider,
      * but will be removed from the Pulumi state.
      *
      * If a retained resource is deleted by Pulumi and you later want to actually delete it from the backing cloud
-     * provider you will either need to use your provider’s manual interface to find and delete the resource,
+     * provider you will either need to use your provider's manual interface to find and delete the resource,
      * or import the resource back into Pulumi to unset [retainOnDelete] and delete it again fully.
      *
      * To actually delete a retained resource, this setting must first be set to `false`.
