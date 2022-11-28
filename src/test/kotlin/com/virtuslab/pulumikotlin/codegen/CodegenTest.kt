@@ -31,6 +31,7 @@ class CodegenTest {
         "com.pulumi:github:4.17.0",
         "com.pulumi:google-native:0.27.0",
         "com.pulumi:kubernetes:3.22.1",
+        "com.pulumi:azure-native:1.85.0",
         "com.google.code.findbugs:jsr305:3.0.2",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4",
         "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
@@ -673,6 +674,26 @@ class CodegenTest {
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_KUBERNETES_SUBSET_WITH_KOTLIN_KEYWORD_IN_PROPERTY_NAME, code)
     }
 
+    @Test
+    fun `resource with lowercase name is generated`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.azurenative.aadiam.kotlin.azureADMetricResource
+            import com.pulumi.azurenative.aadiam.kotlin.AzureADMetric
+
+
+            suspend fun main() {
+                val resource: AzureADMetric = azureADMetricResource("name") {
+                    args {
+                        location("location")
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AZURE_NATIVE_SUBSET_WITH_LOWERCASE_RESOURCE, code)
+    }
+
     private fun assertGeneratedCodeCompiles(schemaPath: String) {
         assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
     }
@@ -848,3 +869,5 @@ private const val SCHEMA_KUBERNETES_SUBSET_WITH_JAVA_KEYWORD_IN_PROPERTY_NAME =
     "schema-kubernetes-3.22.1-subset-with-java-keyword-in-property-name.json"
 private const val SCHEMA_KUBERNETES_SUBSET_WITH_KOTLIN_KEYWORD_IN_PROPERTY_NAME =
     "schema-kubernetes-3.22.1-subset-with-kotlin-keyword-in-property-name.json"
+private const val SCHEMA_AZURE_NATIVE_SUBSET_WITH_LOWERCASE_RESOURCE =
+    "schema-azure-native-1.85.0-subset-with-lowercase-resource.json"
