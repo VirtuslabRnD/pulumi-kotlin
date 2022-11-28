@@ -56,9 +56,7 @@ object EnumTypeGenerator {
             )
             .addDocsIfAvailable(enumType.metadata.kDoc)
 
-        enumType.possibleValues.forEach {
-            enumBuilder.addEnumConstant(it, javaEnumClassName)
-        }
+        enumBuilder.addEnumConstants(enumType.possibleValues, javaEnumClassName)
 
         return enumBuilder.build()
     }
@@ -86,10 +84,16 @@ object EnumTypeGenerator {
             .build()
     }
 
+    private fun TypeSpec.Builder.addEnumConstants(possibleValues: List<EnumValue>, javaEnumClassName: ClassName) {
+        possibleValues.forEach {
+            addEnumConstant(it, javaEnumClassName)
+        }
+    }
+
     private fun TypeSpec.Builder.addEnumConstant(enumValue: EnumValue, javaEnumClassName: ClassName): TypeSpec.Builder {
         val escapedEnumValue = try {
             EnumValueGenerator.makeSafeEnumName(enumValue.value)
-        } catch (e: IllegalStateException) {
+        } catch (e: IllegalArgumentException) {
             throw InvalidEnumName(javaEnumClassName, e)
         }
         return addEnumConstant(
@@ -101,7 +105,7 @@ object EnumTypeGenerator {
         )
     }
 
-    private class InvalidEnumName(className: ClassName, cause: Throwable) : IllegalStateException(
+    class InvalidEnumName(className: ClassName, cause: Throwable) : IllegalArgumentException(
         "Failed to generate enum name for Java class $className",
         cause,
     )
