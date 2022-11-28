@@ -187,7 +187,7 @@ data class PulumiName(
     }
 
     fun toResourceName(namingFlags: NamingFlags): String {
-        return name
+        return name.capitalize()
     }
 
     fun toClassName(namingFlags: NamingFlags): String {
