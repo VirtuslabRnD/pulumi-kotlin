@@ -15,6 +15,9 @@ private const val JAVA_CODE_SNIPPET_REGEX_GROUP_NUMBER = 3
 private const val EXAMPLE_HEADER_REGEX = """(.*?)```\w+\n.+?```"""
 private const val EXAMPLE_HEADER_REGEX_GROUP_NUMBER = 1
 
+private const val FULL_STOP = "."
+private const val FULL_STOP_HTML_CODE = "&#46;"
+
 fun PropertySpec.Builder.addDocsIfAvailable(kDoc: KDoc) = apply {
     addDocsIfAvailable(
         { format, args -> addKdoc(format, args) },
@@ -53,7 +56,7 @@ private fun addDocs(kDocBuilder: KDocBuilder, kDoc: String) {
     val examples = getTrimmedExamplesBlock(kDoc)
 
     val trimmedDocs = kDoc
-        .replace(".", "&#46;")
+        .replace(FULL_STOP, FULL_STOP_HTML_CODE)
         .replace(
             EXAMPLES_HEADER_REGEX.toRegex(DOT_MATCHES_ALL),
         ) {
