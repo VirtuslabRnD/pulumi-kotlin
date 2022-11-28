@@ -36,7 +36,7 @@ object EnumTypeGenerator {
     private fun buildEnumTypeSpec(enumType: EnumType, typeNameClashResolver: TypeNameClashResolver): TypeSpec {
         val javaEnumClassName = enumType.metadata.names(LanguageType.Java).kotlinPoetClassName
 
-        val enumBuilder = TypeSpec.enumBuilder(enumType.metadata.pulumiName.name)
+        return TypeSpec.enumBuilder(enumType.metadata.pulumiName.name)
             .addSuperinterface(prepareConvertibleToJavaInterface(enumType.metadata, typeNameClashResolver))
             .addFunction(toJavaEnumFunction(enumType.metadata))
             .addType(
@@ -55,10 +55,8 @@ object EnumTypeGenerator {
                     .build(),
             )
             .addDocsIfAvailable(enumType.metadata.kDoc)
-
-        enumBuilder.addEnumConstants(enumType.possibleValues, javaEnumClassName)
-
-        return enumBuilder.build()
+            .addEnumConstants(enumType.possibleValues, javaEnumClassName)
+            .build()
     }
 
     private fun prepareConvertibleToJavaInterface(
@@ -84,10 +82,14 @@ object EnumTypeGenerator {
             .build()
     }
 
-    private fun TypeSpec.Builder.addEnumConstants(possibleValues: List<EnumValue>, javaEnumClassName: ClassName) {
+    private fun TypeSpec.Builder.addEnumConstants(
+        possibleValues: List<EnumValue>,
+        javaEnumClassName: ClassName,
+    ): TypeSpec.Builder {
         possibleValues.forEach {
             addEnumConstant(it, javaEnumClassName)
         }
+        return this
     }
 
     private fun TypeSpec.Builder.addEnumConstant(enumValue: EnumValue, javaEnumClassName: ClassName): TypeSpec.Builder {
