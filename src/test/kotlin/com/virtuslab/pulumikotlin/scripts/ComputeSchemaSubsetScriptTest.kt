@@ -6,6 +6,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.nio.file.Paths
@@ -169,6 +171,56 @@ internal class ComputeSchemaSubsetScriptTest {
         )
     }
 
+    @Test
+    fun `should copy provider and its children to the schema if --load-provider-with-children=true`() {
+        val outputSchema = runComputeSchemaSubsetScript(
+            schemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_WITH_PROVIDER_AND_SOME_TYPES),
+            name = "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
+            context = "type",
+            shortenDescriptions = "true",
+            loadProviderWithChildren = "true",
+        )
+
+        val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
+
+        assertContainsOnly(
+            decodedOutputSchema,
+            types = setOf(
+                "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
+                "aws:index/ProviderAssumeRole:ProviderAssumeRole",
+                "aws:index/ProviderAssumeRoleWithWebIdentity:ProviderAssumeRoleWithWebIdentity",
+                "aws:index/ProviderDefaultTags:ProviderDefaultTags",
+                "aws:index/ProviderEndpoint:ProviderEndpoint",
+                "aws:index/ProviderIgnoreTags:ProviderIgnoreTags",
+                "aws:index/Region:Region",
+            ),
+        )
+
+        assertNotNull(decodedOutputSchema.provider)
+    }
+
+    @Test
+    fun `should not copy provider and its children to the schema if --load-provider-with-children=false`() {
+        val outputSchema = runComputeSchemaSubsetScript(
+            schemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_WITH_PROVIDER_AND_SOME_TYPES),
+            name = "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
+            context = "type",
+            shortenDescriptions = "true",
+            loadProviderWithChildren = "false",
+        )
+
+        val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
+
+        assertContainsOnly(
+            decodedOutputSchema,
+            types = setOf(
+                "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
+            ),
+        )
+
+        assertNull(decodedOutputSchema.provider)
+    }
+
     private fun resolve(relativePath: String) =
         Paths.get(relativePath).absolutePathString()
 
@@ -188,12 +240,14 @@ internal class ComputeSchemaSubsetScriptTest {
         )
     }
 
+    @Suppress("LongParameterList")
     private fun runComputeSchemaSubsetScript(
         schemaPath: String,
         name: String,
         context: String,
         shortenDescriptions: String? = null,
         loadFullParents: String? = null,
+        loadProviderWithChildren: String? = null,
     ): String {
         val outputStream = ByteArrayOutputStream()
 
@@ -209,6 +263,7 @@ internal class ComputeSchemaSubsetScriptTest {
             val optionalArgumentsToBeFlattened = listOfNotNull(
                 toListOrNull("--shorten-descriptions", shortenDescriptions),
                 toListOrNull("--load-full-parents", loadFullParents),
+                toListOrNull("--load-provider-with-children", loadProviderWithChildren),
             )
 
             ComputeSchemaSubsetScript(it).main(
@@ -228,9 +283,10 @@ internal class ComputeSchemaSubsetScriptTest {
 
     @Serializable
     private data class Schema(
-        val types: Map<String, JsonElement>,
-        val resources: Map<String, JsonElement>,
-        val functions: Map<String, JsonElement>,
+        val provider: JsonElement? = null,
+        val types: Map<String, JsonElement> = emptyMap(),
+        val resources: Map<String, JsonElement> = emptyMap(),
+        val functions: Map<String, JsonElement> = emptyMap(),
     )
 
     companion object {
@@ -246,3 +302,5 @@ private const val SCHEMA_PATH_AZURE_NATIVE_SUBSET_WITH_RECURSION =
     "src/test/resources/schema-azure-native-3.44.2-subset-with-recursion.json"
 private const val SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE =
     "src/test/resources/schema-aws-classic-5.16.2-subset-for-compute-schema-subset-script-test.json"
+private const val SCHEMA_PATH_AWS_SUBSET_WITH_PROVIDER_AND_SOME_TYPES =
+    "src/test/resources/schema-aws-classic-5.16.2-subset-with-provider-and-some-types.json"

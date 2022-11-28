@@ -20,8 +20,10 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Referenci
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringEnumProperty
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.transformKeys
 import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
+import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import com.virtuslab.pulumikotlin.codegen.utils.shorten
 import com.virtuslab.pulumikotlin.scripts.Context.Function
+import com.virtuslab.pulumikotlin.scripts.Context.Provider
 import com.virtuslab.pulumikotlin.scripts.Context.Resource
 import com.virtuslab.pulumikotlin.scripts.Context.Type
 import kotlinx.serialization.Serializable
@@ -59,9 +61,10 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
     private val printStream = PrintStream(outputStream)
 
     private val schemaPath: String by option().required()
+    private val context: Context by option().enum<ExposedContext>().convert { it.toContext() }.required()
     private val name: String by option().required()
-    private val context: Context by option().enum<Context>().required()
     private val shortenDescriptions: Boolean by option().boolean(default = false)
+    private val loadProviderWithChildren: Boolean by option().boolean(default = true)
 
     private val loadFullParentsHelp =
         """
@@ -106,6 +109,8 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
     override fun run() {
         val parsedSchema = Decoder.decode(File(schemaPath).inputStream())
 
+        val providerNameWithContext = NameWithContext("pulumi:providers:${parsedSchema.provider}", Provider)
+
         val allPropertiesToBeFlattened = with(parsedSchema) {
             listOf(
                 extractProperties(types, Type) {
@@ -116,6 +121,9 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
                 },
                 extractProperties(functions, Function) {
                     it.inputs?.properties?.values.orEmpty() + it.outputs.properties.values
+                },
+                extractProperties(providerNameWithContext.name, provider, providerNameWithContext.context) {
+                    it.inputProperties.values + it.properties.values
                 },
             )
         }
@@ -128,18 +136,23 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         val chosenKey = NameWithContext(name, context)
 
         val childrenByNameWithContext = computeTransitiveClosures(propertiesByNameWithContext).lowercaseKeys()
-        val requiredChildren = childrenByNameWithContext[chosenKey] ?: error("Could not find $name children ($context)")
-
         val parentsByNameWithContext = inverse(childrenByNameWithContext).lowercaseKeys()
-        val requiredParents = parentsByNameWithContext[chosenKey] ?: run {
+
+        val childrenOfChosenNameWithContext = childrenByNameWithContext[chosenKey]
+            ?: error("Could not find $name children ($context)")
+        val parentsOfChosenNameWithContextAndTheirChildren = parentsByNameWithContext[chosenKey] ?: run {
             logger.info("Could not find $name parents ($context)")
             References.empty()
         }
-        val allReferences = if (loadFullParents) {
-            requiredChildren.merge(requiredParents)
-        } else {
-            requiredChildren
-        }
+        val childrenOfProvider = childrenByNameWithContext[providerNameWithContext] ?: References.empty()
+
+        val allTypesThatWereSomehowReferenced = childrenOfChosenNameWithContext
+            .letIf(loadProviderWithChildren) {
+                it.merge(childrenOfProvider)
+            }
+            .letIf(loadFullParents) {
+                it.merge(parentsOfChosenNameWithContextAndTheirChildren)
+            }
 
         val json = Json {
             prettyPrint = true
@@ -151,11 +164,12 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         fun <V> getFiltered(map: Map<String, V>, context: Context) =
             map.filterKeys {
                 val key = NameWithContext(it, context)
-                key == chosenKey || allReferences.contains(key)
+                key == chosenKey || allTypesThatWereSomehowReferenced.contains(key)
             }
 
         val newSchema = with(noDataLossSchemaModel) {
             copy(
+                provider = if (loadProviderWithChildren) provider else null,
                 types = getFiltered(types, Type),
                 resources = getFiltered(resources, Resource),
                 functions = getFiltered(functions, Function),
@@ -173,6 +187,14 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
             .mapKeys { NameWithContext(it.key, context) }
             .filterNotNullValues()
             .map { it.toPair() }
+
+    private fun <V> extractProperties(
+        name: String,
+        value: V?,
+        context: Context,
+        propertyExtractor: (V) -> List<Property>,
+    ) =
+        extractProperties(mapOf(name to value).filterNotNullValues(), context, propertyExtractor)
 
     private fun computeTransitiveClosures(
         allProperties: Map<NameWithContext, List<Property>>,
@@ -307,6 +329,7 @@ private data class NoDataLossSchemaModel(
     val meta: JsonElement? = null,
     val config: JsonElement? = null,
     val language: JsonElement? = null,
+    val provider: JsonElement? = null,
     val types: Map<String, JsonElement>,
     val resources: Map<String, JsonElement>,
     val functions: Map<String, JsonElement>,
@@ -316,10 +339,24 @@ private typealias Name = String
 private typealias ChildrenByNameWithContext = Map<NameWithContext, References>
 private typealias ParentsByNameWithContext = Map<NameWithContext, References>
 
+private enum class ExposedContext {
+    Function,
+    Type,
+    Resource,
+    ;
+
+    fun toContext() = when (this) {
+        Function -> Context.Function
+        Type -> Context.Type
+        Resource -> Context.Resource
+    }
+}
+
 private enum class Context {
     Function,
     Type,
     Resource,
+    Provider,
 }
 
 private data class PropertyWithContext(val property: Property, val context: Context)
