@@ -29,6 +29,7 @@ jobs:
           workload_identity_provider: 'projects/954450653667/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
           service_account: 'github-actions@jvm-lab.iam.gserviceaccount.com'
       - name: Publish Pulumi Kotlin GCP to Maven Local
+        id: run-gcp-e2e-tests
         run: ./gradlew publishPulumiGcpPublicationToMavenLocal -x formatKotlinPulumiGcp -x dokkaPulumiGcpJavadoc
       - name: Run E2E tests
         run: ./gradlew e2eTest --tests GcpE2eTest
@@ -36,7 +37,7 @@ jobs:
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
       - name: Upload E2E test report
-        if: failure()
+        if: ${{ failure() && steps.run-gcp-e2e-tests.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
         with:
           name: gcp-e2e-test-report
@@ -66,12 +67,13 @@ jobs:
       - name: Publish Pulumi Kotlin Google Native to Maven Local
         run: ./gradlew publishPulumiGoogle-nativePublicationToMavenLocal -x formatKotlinPulumiGoogle-native -x dokkaPulumiGoogle-nativeJavadoc
       - name: Run E2E tests
+        id: run-google-native-e2e-tests
         run: ./gradlew e2eTest --tests GoogleNativeE2eTest
         env:
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
       - name: Upload E2E test report
-        if: failure()
+        if: ${{ failure() && steps.run-google-native-e2e-tests.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
         with:
           name: google-native-e2e-test-report
@@ -93,6 +95,7 @@ jobs:
       - name: Set up Minikube
         uses: medyagh/setup-minikube@master
       - name: Publish Pulumi Kotlin Kubernetes to Maven Local
+        id: run-kubernetes-e2e-tests
         run: ./gradlew publishPulumiKubernetesPublicationToMavenLocal -x formatKotlinPulumiKubernetes -x dokkaPulumiKubernetesJavadoc
       - name: Run E2E tests
         run: ./gradlew e2eTest --tests KubernetesE2eTest
@@ -100,7 +103,7 @@ jobs:
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
       - name: Upload E2E test report
-        if: failure()
+        if: ${{ failure() && steps.run-kubernetes-e2e-tests.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
         with:
           name: kubernetes-e2e-test-report
