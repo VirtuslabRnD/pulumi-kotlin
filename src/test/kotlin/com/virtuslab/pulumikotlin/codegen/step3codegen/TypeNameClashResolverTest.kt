@@ -7,9 +7,6 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
@@ -37,9 +34,22 @@ internal class TypeNameClashResolverTest {
             typeNameClashResolver.kotlinNames(explicitType.metadata).kotlinPoetClassName.canonicalName,
             "some.package.kotlin.inputs.FunctionNamePlainArgs",
         )
-        assertThrows<IllegalStateException>(getErrorMessage(Function, Input, Kotlin)) {
+        val exception = assertThrows<IllegalStateException> {
             typeNameClashResolver.kotlinNames(syntheticTypeMetadata).kotlinPoetClassName
         }
+        assertEquals(
+            "No name suffix configured to deal with naming conflict. " +
+                "Name: FunctionName. " +
+                "Naming flags: NamingFlags(" +
+                "depth=Root, " +
+                "subject=Function, " +
+                "direction=Input, " +
+                "language=Kotlin, " +
+                "generatedClass=NormalClass, " +
+                "useAlternativeName=true" +
+                ")",
+            exception.message,
+        )
     }
 
     @Test
@@ -57,7 +67,7 @@ internal class TypeNameClashResolverTest {
             typeNameClashResolver.javaNames(explicitType.metadata).kotlinPoetClassName.canonicalName,
             "some.package.inputs.FunctionNamePlainArgs",
         )
-        assertThrows<IllegalStateException>(getErrorMessage(Function, Input, Java)) {
+        assertThrows<IllegalStateException> {
             typeNameClashResolver.javaNames(syntheticTypeMetadata).kotlinPoetClassName
         }
     }
@@ -160,7 +170,7 @@ internal class TypeNameClashResolverTest {
             "some.package.kotlin.outputs.ResourceName",
             typeNameClashResolver.kotlinNames(explicitType.metadata).kotlinPoetClassName.canonicalName,
         )
-        assertThrows<IllegalStateException>(getErrorMessage(Resource, Output, Kotlin)) {
+        assertThrows<IllegalStateException> {
             typeNameClashResolver.kotlinNames(typeMetadata).kotlinPoetClassName
         }
     }
@@ -179,7 +189,7 @@ internal class TypeNameClashResolverTest {
             "some.package.outputs.ResourceName",
             typeNameClashResolver.javaNames(explicitType.metadata).kotlinPoetClassName.canonicalName,
         )
-        assertThrows<IllegalStateException>(getErrorMessage(Resource, Output, Java)) {
+        assertThrows<IllegalStateException> {
             typeNameClashResolver.javaNames(typeMetadata).kotlinPoetClassName
         }
     }
@@ -189,16 +199,4 @@ internal class TypeNameClashResolverTest {
         UsageKind(depth, subject, direction),
         KDoc(null, null),
     )
-
-    private fun getErrorMessage(subject: Subject, direction: Direction, languageType: LanguageType) =
-        "No name suffix configured to deal with naming conflict. " +
-            "Name: ${subject}Name. " +
-            "Naming flags: NamingFlags(" +
-            "depth=Root, " +
-            "subject=$subject, " +
-            "direction=$direction, " +
-            "language=$languageType, " +
-            "generatedClass=NormalClass, " +
-            "useAlternativeName=true" +
-            ")"
 }

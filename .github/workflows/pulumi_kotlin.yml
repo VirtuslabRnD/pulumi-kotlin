@@ -18,8 +18,15 @@ jobs:
       - name: Compile and test code
         id: run-tests
         run: ./gradlew build test -x check
+      - name: Upload buildSrc test report
+        if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-src-test-report
+          path: ./buildSrc/build/reports/tests/test/*
+          retention-days: 3
       - name: Upload test report
-        if: failure()
+        if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
         with:
           name: test-report
@@ -41,18 +48,20 @@ jobs:
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Run Ktlint
+        id: run-ktlint
         run: ./gradlew lintKotlin
       - name: Upload Ktlint report
-        if: failure()
+        if: ${{ failure() && steps.run-ktlint.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
         with:
           name: ktlint-report
           path: ./build/reports/ktlint/*.html
           retention-days: 3
       - name: Run Detekt
+        id: run-detekt
         run: ./gradlew detekt
       - name: Upload Detekt report
-        if: failure()
+        if: ${{ failure() && steps.run-detekt.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
         with:
           name: detekt-report

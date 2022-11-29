@@ -184,9 +184,12 @@ object IntermediateRepresentationGenerator {
                     is StringEnumProperty -> EnumType(
                         TypeMetadata(pulumiName, usage, getKDoc(rootType), EnumClass),
                         rootType.enum.map {
-                            it.name
-                                ?: jsonElementToStringOrNull(it.value)
-                                ?: error("Unexpected, enum must have a name or a value ($rootType)")
+                            EnumValue(
+                                it.name
+                                    ?: jsonElementToStringOrNull(it.value)
+                                    ?: error("Unexpected, enum must have a name or a value ($rootType)"),
+                                KDoc(it.description, it.deprecationMessage),
+                            )
                         },
                     )
                 }

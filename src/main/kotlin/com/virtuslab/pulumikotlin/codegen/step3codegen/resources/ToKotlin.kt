@@ -10,6 +10,7 @@ import com.virtuslab.pulumikotlin.codegen.expressions.call0
 import com.virtuslab.pulumikotlin.codegen.expressions.callApplyValue
 import com.virtuslab.pulumikotlin.codegen.expressions.callLet
 import com.virtuslab.pulumikotlin.codegen.expressions.callMap
+import com.virtuslab.pulumikotlin.codegen.expressions.callTransform
 import com.virtuslab.pulumikotlin.codegen.expressions.field
 import com.virtuslab.pulumikotlin.codegen.expressions.invoke
 import com.virtuslab.pulumikotlin.codegen.expressions.pairWith
@@ -61,7 +62,26 @@ object ToKotlin {
                         .toKotlinMethod()(argument)
                 }
 
-            is EitherType -> expression
+            is EitherType -> expression.callTransform(
+                optional = optional,
+                expressionMapperLeft = { args ->
+                    toKotlinExpressionResource(
+                        args,
+                        type.firstType,
+                        typeNameClashResolver,
+                        optional = false,
+                    )
+                },
+                expressionMapperRight = { args ->
+                    toKotlinExpressionResource(
+                        args,
+                        type.secondType,
+                        typeNameClashResolver,
+                        optional = false,
+                    )
+                },
+            )
+
             is ListType -> expression.callMap(optional) { argument ->
                 toKotlinExpressionResource(
                     argument,

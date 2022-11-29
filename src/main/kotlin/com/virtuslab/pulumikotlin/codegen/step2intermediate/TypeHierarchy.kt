@@ -63,12 +63,14 @@ data class ComplexType(override val metadata: TypeMetadata, val fields: Map<Stri
     }
 }
 
-data class EnumType(override val metadata: TypeMetadata, val possibleValues: List<String>) : RootType() {
+data class EnumType(override val metadata: TypeMetadata, val possibleValues: List<EnumValue>) : RootType() {
 
     override fun toReference(): ReferencedEnumType {
         return ReferencedEnumType(metadata)
     }
 }
+
+data class EnumValue(val value: String, val kDoc: KDoc)
 
 data class ListType(val innerType: ReferencedType) : ReferencedType()
 

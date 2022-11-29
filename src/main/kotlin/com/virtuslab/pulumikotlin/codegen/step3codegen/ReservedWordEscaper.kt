@@ -2,7 +2,7 @@ package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import javax.lang.model.SourceVersion
 
-object BuilderMethodNameEscaper {
+object ReservedWordEscaper {
 
     private val javaObjectFunctionNames = java.lang.Object::class
         .java
@@ -10,8 +10,16 @@ object BuilderMethodNameEscaper {
         .map { it.name }
         .toSet()
 
-    fun escape(name: String): String {
+    fun escapeBuilderMethodName(name: String): String {
         return if (SourceVersion.isKeyword(name) || javaObjectFunctionNames.contains(name) || name == "builder") {
+            name + "_"
+        } else {
+            name
+        }
+    }
+
+    fun escapeKeyword(name: String): String {
+        return if (SourceVersion.isKeyword(name)) {
             name + "_"
         } else {
             name
