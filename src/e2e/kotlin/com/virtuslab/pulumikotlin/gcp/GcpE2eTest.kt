@@ -33,7 +33,7 @@ class GcpE2eTest {
     }
 
     @Test
-    fun `provider resource is correctly used`() {
+    fun `provider resources can be created and later be used to create resources with different configurations`() {
         // given
         val exampleName = "gcp-provider-sample-project"
         val rootDirectory = getExampleDirectory(exampleName)
@@ -48,20 +48,20 @@ class GcpE2eTest {
         val outputProperties = pulumi.getStackOutput<Map<String, String>>()
 
         val instanceEuropeCentral2AName =
-            requireNotNull(outputProperties["gcp-provider-sample-project-instance-europe-central2-a-name"])
+            requireNotNull(outputProperties["instanceEuropeCentral2AName"])
         val instanceEuropeNorth1CName =
-            requireNotNull(outputProperties["gcp-provider-sample-project-instance-europe-north1-c-name"])
+            requireNotNull(outputProperties["instanceEuropeNorth1CName"])
 
         val instanceEuropeCentral2A = getInstance(instanceEuropeCentral2AName)
         val instanceEuropeNorth1C = getInstance(instanceEuropeNorth1CName)
 
         assertEquals(
             "europe-central2-a",
-            outputProperties["gcp-provider-sample-project-instance-europe-central2-a-zone"],
+            outputProperties["instanceEuropeCentral2AZone"],
         )
         assertEquals(
             "europe-north1-c",
-            outputProperties["gcp-provider-sample-project-instance-europe-north1-c-zone"],
+            outputProperties["instanceEuropeNorth1CZone"],
         )
 
         assertVmExists(instanceEuropeCentral2A)

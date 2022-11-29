@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.EnumSource
 //  @see https://github.com/VirtuslabRnD/pulumi-kotlin/pull/123#intentionally-generating-fields-with-incorrect-type-string
 internal class ReferencedStringTypesResolverTest {
 
+    @Suppress("unused")
     enum class ValidTokenCase(
         val typeToken: String,
         val typesMap: TypesMap,
@@ -45,9 +46,9 @@ internal class ReferencedStringTypesResolverTest {
         val referencedStringTypesResolver = ReferencedStringTypesResolver(testCase.typesMap)
 
         // when
-        val actualShouldGenerateStrinType = referencedStringTypesResolver.shouldGenerateStringType(testCase.typeToken)
+        val actualShouldGenerateStringType = referencedStringTypesResolver.shouldGenerateStringType(testCase.typeToken)
 
         // then
-        assertEquals(testCase.shouldGenerateStringType, actualShouldGenerateStrinType)
+        assertEquals(testCase.shouldGenerateStringType, actualShouldGenerateStringType)
     }
 }

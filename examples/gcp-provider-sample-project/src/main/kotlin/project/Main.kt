@@ -5,36 +5,40 @@ import com.pulumi.gcp.kotlin.Provider
 import com.pulumi.gcp.kotlin.providerResource
 import com.pulumi.kotlin.Pulumi
 
+private val commonTags = listOf("gcp-provider-sample-project", "foo", "bar")
+
 fun main() {
     Pulumi.run { ctx ->
         val providerEuropeCentral2A = createProvider(
-            "gcp-provider-sample-project-provider-europe-central2-a",
+            "provider-europe-central2-a",
             "jvm-lab",
             "europe-central2",
             "europe-central2-a",
         )
 
         val providerEuropeNorth1C = createProvider(
-            "gcp-provider-sample-project-provider-europe-north1-c",
+            "provider-europe-north1-c",
             "jvm-lab",
             "europe-north1",
             "europe-north1-c",
         )
 
         val instanceEuropeCentral2A = createInstanceWithProvider(
-            "gcp-provider-sample-project-instance-europe-central2-a",
+            "instance-europe-central2-a",
             providerEuropeCentral2A,
+            commonTags + "zone-europe-central2-a",
         )
 
         val instanceEuropeNorth1C = createInstanceWithProvider(
-            "gcp-provider-sample-project-instance-europe-north1-c",
+            "instance-europe-north1-c",
             providerEuropeNorth1C,
+            commonTags + "zone-europe-north1-c",
         )
 
-        ctx.export("gcp-provider-sample-project-instance-europe-central2-a-name", instanceEuropeCentral2A.name)
-        ctx.export("gcp-provider-sample-project-instance-europe-north1-c-name", instanceEuropeNorth1C.name)
-        ctx.export("gcp-provider-sample-project-instance-europe-central2-a-zone", instanceEuropeCentral2A.zone)
-        ctx.export("gcp-provider-sample-project-instance-europe-north1-c-zone", instanceEuropeNorth1C.zone)
+        ctx.export("instanceEuropeCentral2AName", instanceEuropeCentral2A.name)
+        ctx.export("instanceEuropeNorth1CName", instanceEuropeNorth1C.name)
+        ctx.export("instanceEuropeCentral2AZone", instanceEuropeCentral2A.zone)
+        ctx.export("instanceEuropeNorth1CZone", instanceEuropeNorth1C.zone)
     }
 }
 
@@ -47,11 +51,11 @@ private suspend fun createProvider(resourceName: String, projectName: String, re
         }
     }
 
-private suspend fun createInstanceWithProvider(resourceName: String, provider: Provider) =
+private suspend fun createInstanceWithProvider(resourceName: String, provider: Provider, tags: List<String>) =
     instanceResource(resourceName) {
         args {
             machineType("e2-micro")
-            tags("foo", "bar")
+            tags(tags)
             bootDisk {
                 initializeParams {
                     image("debian-cloud/debian-11")

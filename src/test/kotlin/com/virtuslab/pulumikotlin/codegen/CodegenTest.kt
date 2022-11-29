@@ -266,16 +266,6 @@ class CodegenTest {
                 certificateResource("name") {
                     args {
                         subjectAlternativeNames("one", "two")
-                        validationOptions(
-                            {
-                                domainName("whatever")
-                                validationDomain("whatever")
-                            },
-                            {
-                                domainName("whatever2")
-                                validationDomain("whatever2")
-                            }
-                        )
                         options {
                             certificateTransparencyLoggingPreference("test")
                         }
@@ -285,25 +275,9 @@ class CodegenTest {
                             providerResource("custom-aws-provider") {
                                 args {
                                     accessKey("123")
-                                    allowedAccountIds("1", "2")
-                                    assumeRole {
-                                        duration("10")
-                                        policy("centrally planned economy")
-                                    }
                                     assumeRoleWithWebIdentity {
                                         roleArn("roleArm")
                                     }
-                                    customCaBundle("can bundle")
-                                    ec2MetadataServiceEndpoint("ec2MetadataServiceEndpoint")
-                                    ec2MetadataServiceEndpointMode("ec2MetadataServiceEndpointMode")
-                                    forbiddenAccountIds("1", "2")
-                                    httpProxy("127.0.0.1")
-                                    ignoreTags {
-                                        keys("tagKey")
-                                    }
-                                    insecure(false)
-                                    maxRetries(5)
-                                    profile("dev")
                                     region("EUCentral1")
                                 }
                             }

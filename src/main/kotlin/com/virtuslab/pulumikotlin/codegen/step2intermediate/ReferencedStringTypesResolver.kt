@@ -13,5 +13,5 @@ class ReferencedStringTypesResolver(types: TypesMap) {
     fun shouldGenerateStringType(referencedToken: String) =
         !containsOnlyLowercaseCharacters(referencedToken) && !rootTypesWithUnchangedTokens.contains(referencedToken)
 
-    private fun containsOnlyLowercaseCharacters(value: String) = !value.any { it.isUpperCase() }
+    private fun containsOnlyLowercaseCharacters(value: String) = value.none { it.isUpperCase() }
 }

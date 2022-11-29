@@ -128,7 +128,7 @@ object IntermediateRepresentationGenerator {
         isProvider: Boolean = false,
     ): ResourceType? {
         val resultFields = resource.properties
-            .letIf(isProvider, filterStringProperties())
+            .letIf(isProvider, ::filterStringProperties)
             .map { (propertyName, property) ->
                 val outputFieldsUsageKind = UsageKind(Nested, Resource, Output)
                 val isRequired = resource.required.contains(propertyName)
@@ -322,7 +322,7 @@ object IntermediateRepresentationGenerator {
             is MapProperty -> MapType(StringType, innerTypeMapper(property.additionalProperties))
             is OneOfProperty -> {
                 val innerTypes = property.oneOf.map { innerTypeMapper(it) }
-                val isFilledWithStringsOnly = !innerTypes.any { it !is StringType }
+                val isFilledWithStringsOnly = innerTypes.all { it is StringType }
 
                 if (isFilledWithStringsOnly) {
                     StringType
@@ -350,12 +350,10 @@ object IntermediateRepresentationGenerator {
      * values are primitives, we'll simply remove any properties for the provider resource which are not
      * strings, or types with an underlying type of string, before we generate the provider code.
      */
-    private fun filterStringProperties(): (Map<PropertyName, Property>) -> Map<PropertyName, Property> =
-        { propertiesMap ->
-            propertiesMap.filter { (_, property) ->
-                property is StringProperty ||
-                    (property is ReferenceProperty && property.type == SchemaModel.PropertyType.StringType)
-            }
+    private fun filterStringProperties(propertyMap: Map<PropertyName, Property>): Map<PropertyName, Property> =
+        propertyMap.filter { (_, property) ->
+            property is StringProperty ||
+                (property is ReferenceProperty && property.type == SchemaModel.PropertyType.StringType)
         }
 
     private data class Context(
