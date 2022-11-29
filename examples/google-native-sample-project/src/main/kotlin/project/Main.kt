@@ -16,6 +16,7 @@ fun main() {
                 disks(
                     {
                         boot(true)
+                        autoDelete(true)
                         initializeParams {
                             sourceImage("projects/debian-cloud/global/images/family/debian-11")
                         }
