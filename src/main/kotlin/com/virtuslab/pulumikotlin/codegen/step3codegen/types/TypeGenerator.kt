@@ -1,5 +1,6 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen.types
 
+import com.pulumi.kotlin.PulumiNullFieldException
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
@@ -11,6 +12,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.virtuslab.pulumikotlin.codegen.expressions.ConstructObjectExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
 import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpressionBuilder
 import com.virtuslab.pulumikotlin.codegen.expressions.Return
 import com.virtuslab.pulumikotlin.codegen.expressions.addCode
@@ -246,9 +248,14 @@ object TypeGenerator {
      * ```
      */
     private fun generateBuildMethod(context: Context, names: NameGeneration): FunSpec {
-        val arguments = context.fields.associate {
-            val requiredPart = if (it.required) "!!" else ""
-            it.toKotlinName() to CustomExpressionBuilder.start("%N$requiredPart", it.toKotlinName()).build()
+        val arguments = context.fields.associate { type ->
+            type.toKotlinName() to CustomExpressionBuilder.start("%N", type.toKotlinName())
+                .letIf(type.required) {
+                    it.plus(
+                        CustomExpression(" ?: throw %T(%S)", PulumiNullFieldException::class, type.toKotlinName()),
+                    )
+                }
+                .build()
         }
 
         return FunSpec.builder("build")

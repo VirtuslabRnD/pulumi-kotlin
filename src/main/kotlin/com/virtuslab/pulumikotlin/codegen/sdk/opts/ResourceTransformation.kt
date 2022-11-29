@@ -1,5 +1,5 @@
 // This class is included in the generated code. The package name matches its location in the generated code.
-@file:Suppress("InvalidPackageDeclaration", "PackageDirectoryMismatch", "unused")
+@file:Suppress("InvalidPackageDeclaration", "PackageDirectoryMismatch")
 
 package com.pulumi.kotlin.options
 
