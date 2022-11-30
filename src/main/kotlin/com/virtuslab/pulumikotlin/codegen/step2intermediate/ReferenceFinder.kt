@@ -17,6 +17,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapWithKeyTransformer.ConflictStrategy.Companion.mergeSetsOnConflicts
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
+import com.virtuslab.pulumikotlin.codegen.utils.DEFAULT_PROVIDER_TOKEN
 import com.virtuslab.pulumikotlin.codegen.utils.valuesToSet
 
 class ReferenceFinder(schema: Schema) {
@@ -39,6 +40,9 @@ class ReferenceFinder(schema: Schema) {
             },
             findNestedUsages(schema.resources, UsageKind(Nested, Resource, Input)) {
                 it.inputProperties.values
+            },
+            findNestedUsages(mapOf(DEFAULT_PROVIDER_TOKEN to schema.provider), UsageKind(Nested, Resource, Input)) {
+                it?.inputProperties?.values.orEmpty()
             },
             findNestedUsages(schema.functions, UsageKind(Nested, Function, Output)) {
                 it.outputs.properties.values

@@ -256,6 +256,41 @@ class CodegenTest {
     }
 
     @Test
+    fun `aws provider resource can be created`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.aws.acm.kotlin.certificateResource
+            import com.pulumi.aws.kotlin.providerResource
+            
+            suspend fun main() {
+                certificateResource("name") {
+                    args {
+                        subjectAlternativeNames("one", "two")
+                        options {
+                            certificateTransparencyLoggingPreference("test")
+                        }
+                    }
+                    opts {
+                        provider(
+                            providerResource("custom-aws-provider") {
+                                args {
+                                    accessKey("123")
+                                    assumeRoleWithWebIdentity {
+                                        roleArn("roleArm")
+                                    }
+                                    region("EUCentral1")
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+           """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_WITH_PROVIDER_AND_CERTIFICATE, code)
+    }
+
+    @Test
     fun `test medium-sized google cloud schema (without asset or archive types)`() {
         // language=kotlin
         val code = """
@@ -849,6 +884,8 @@ private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ONE_OF = "schema-aws-classic-5.
 private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ARCHIVE = "schema-aws-classic-5.16.2-subset-with-archive.json"
 private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ASSET = "schema-aws-classic-5.16.2-subset-with-asset.json"
 private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_INDEX = "schema-aws-classic-5.15.2-subset-with-index.json"
+private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_PROVIDER_AND_CERTIFICATE =
+    "schema-aws-classic-5.16.2-subset-with-certificate-and-provider.json"
 private const val SCHEMA_SLACK_SUBSET_WITH_INDEX = "schema-slack-0.3.0-subset-with-index.json"
 private const val SCHEMA_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION =
     "schema-azure-native-3.44.2-subset-with-ip-allocation.json"

@@ -1,5 +1,6 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen.resources
 
+import com.pulumi.kotlin.KotlinProviderResource
 import com.pulumi.kotlin.KotlinResource
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
@@ -84,7 +85,7 @@ object ResourceGenerator {
         val resourceMapperTypeSpec = ResourceMapperGenerator.generateMapper(resourceType)
         val resourceClass = TypeSpec
             .classBuilder(resourceClassName)
-            .superclass(KotlinResource::class)
+            .superclass(determineSuperclass(resourceType))
             .addProperties(
                 listOf(
                     PropertySpec.builder(JAVA_RESOURCE_PARAMETER_NAME, javaResourceClassName)
@@ -234,4 +235,7 @@ object ResourceGenerator {
             .addImport("com.pulumi.kotlin", "toKotlin")
             .addFunction(resourceFunction)
     }
+
+    private fun determineSuperclass(resourceType: ResourceType) =
+        if (resourceType.isProvider) KotlinProviderResource::class else KotlinResource::class
 }

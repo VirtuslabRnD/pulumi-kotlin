@@ -11,7 +11,7 @@ class Pulumi(val fullStackName: String, val rootDirectory: File) {
     }
 
     fun up(vararg configOptions: String) {
-        val config = configOptions.map { "-c $it" }
+        val config = configOptions.flatMap { listOf("-c", it) }
         runProcess(rootDirectory, "pulumi", "up", "-y", "-s", fullStackName, *config.toTypedArray())
     }
 

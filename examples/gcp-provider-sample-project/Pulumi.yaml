@@ -1,0 +1,3 @@
+name: gcp-provider-sample-project
+description: A sample Pulumi Kotlin Google Cloud program utilizing the provider resource
+runtime: java

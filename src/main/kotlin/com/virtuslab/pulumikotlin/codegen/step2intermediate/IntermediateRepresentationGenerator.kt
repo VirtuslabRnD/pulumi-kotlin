@@ -11,6 +11,7 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ObjectPro
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.OneOfProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PrimitiveProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Property
+import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.PropertyName
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferenceProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.RootTypeProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Schema
@@ -27,7 +28,9 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
+import com.virtuslab.pulumikotlin.codegen.utils.DEFAULT_PROVIDER_TOKEN
 import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
+import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import mu.KotlinLogging
@@ -44,16 +47,24 @@ object IntermediateRepresentationGenerator {
 
     fun getIntermediateRepresentation(schema: Schema): IntermediateRepresentation {
         val referenceFinder = ReferenceFinder(schema)
-        val context = Context(schema, referenceFinder)
+        val referencedStringTypesResolver = ReferencedStringTypesResolver(schema.types)
+        val context = Context(schema, referenceFinder, referencedStringTypesResolver)
 
         val types = createTypes(context)
         val typeMap = types
             .associateBy { TypeKey.from(it.metadata) }
             .transformKeys { it.withLowercaseName() }
 
+        val resources = if (schema.provider != null) {
+            createResources(typeMap, context) +
+                createResource(DEFAULT_PROVIDER_TOKEN, schema.provider, context, typeMap, isProvider = true)
+        } else {
+            createResources(typeMap, context)
+        }.filterNotNull()
+
         return IntermediateRepresentation(
             types = types,
-            resources = createResources(typeMap, context),
+            resources = resources,
             functions = createFunctions(typeMap, context),
         )
     }
@@ -73,15 +84,27 @@ object IntermediateRepresentationGenerator {
             }
 
         val syntheticTypes = listOf(
-            createTypes(schema.functions, UsageKind(Root, Function, Input)) { it.inputs },
-            createTypes(schema.functions, UsageKind(Root, Function, Output)) { it.outputs },
-            createTypes(schema.resources, UsageKind(Root, Resource, Input)) {
+            createTypes(schema.functions, UsageKind(Root, Function, Input)) { function -> function.inputs },
+            createTypes(schema.functions, UsageKind(Root, Function, Output)) { function -> function.outputs },
+            createTypes(schema.resources, UsageKind(Root, Resource, Input)) { resource ->
                 ObjectProperty(
-                    properties = it.inputProperties,
-                    description = it.description,
-                    deprecationMessage = it.deprecationMessage,
+                    properties = resource.inputProperties,
+                    description = resource.description,
+                    deprecationMessage = resource.deprecationMessage,
                 )
             },
+            schema.provider?.let {
+                createTypes(
+                    mapOf(DEFAULT_PROVIDER_TOKEN to schema.provider),
+                    UsageKind(Root, Resource, Input),
+                ) { resource ->
+                    ObjectProperty(
+                        properties = resource.inputProperties,
+                        description = resource.description,
+                        deprecationMessage = resource.deprecationMessage,
+                    )
+                }
+            }.orEmpty(),
         )
 
         val regularTypes = listOf(
@@ -92,27 +115,39 @@ object IntermediateRepresentationGenerator {
     }
 
     private fun createResources(types: Map<TypeKey, RootType>, context: Context): List<ResourceType> {
-        return context.schema.resources.mapNotNull { (typeName, resource) ->
-            val resultFields = resource.properties.map { (propertyName, property) ->
+        return context.schema.resources.mapNotNull { (typeToken, resource) ->
+            createResource(typeToken, resource, context, types)
+        }
+    }
+
+    private fun createResource(
+        typeToken: String,
+        resource: SchemaModel.Resource,
+        context: Context,
+        types: Map<TypeKey, RootType>,
+        isProvider: Boolean = false,
+    ): ResourceType? {
+        val resultFields = resource.properties
+            .letIf(isProvider, ::filterStringProperties)
+            .map { (propertyName, property) ->
                 val outputFieldsUsageKind = UsageKind(Nested, Resource, Output)
                 val isRequired = resource.required.contains(propertyName)
                 val reference = resolveNestedTypeReference(context, property, outputFieldsUsageKind)
                 Field(propertyName.value, OutputWrappedField(reference), isRequired, kDoc = getKDoc(property))
             }
 
-            try {
-                val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
-                val inputUsageKind = UsageKind(Root, Resource, Input)
-                val argumentType =
-                    findTypeAsReference<ReferencedComplexType>(
-                        types,
-                        TypeKey.from(pulumiName, inputUsageKind),
-                    )
-                ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource))
-            } catch (e: InvalidPulumiName) {
-                logger.warn("Invalid name", e)
-                null
-            }
+        return try {
+            val pulumiName = PulumiName.from(typeToken, context.namingConfiguration)
+            val inputUsageKind = UsageKind(Root, Resource, Input)
+            val argumentType =
+                findTypeAsReference<ReferencedComplexType>(
+                    types,
+                    TypeKey.from(pulumiName, inputUsageKind),
+                )
+            ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource), isProvider)
+        } catch (e: InvalidPulumiName) {
+            logger.warn("Invalid name", e)
+            null
         }
     }
 
@@ -231,30 +266,33 @@ object IntermediateRepresentationGenerator {
         property: ReferenceProperty,
         usageKind: UsageKind,
     ): ReferencedType {
-        if (property.isAssetOrArchive()) {
-            return AssetOrArchiveType
-        } else if (property.isArchive()) {
-            return ArchiveType
-        } else if (property.isAny()) {
-            return AnyType
-        } else if (property.isJson()) {
-            return JsonType
-        }
-
         val referencedTypeName = property.referencedTypeName
-        val pulumiName = PulumiName.from(referencedTypeName, context.namingConfiguration)
-        return when (context.referenceFinder.resolve(referencedTypeName)) {
-            is ObjectProperty -> ReferencedComplexType(
-                TypeMetadata(pulumiName, usageKind, getKDoc(property)),
-            )
 
-            is StringEnumProperty -> ReferencedEnumType(
-                TypeMetadata(pulumiName, usageKind, getKDoc(property), EnumClass),
-            )
+        return if (property.isAssetOrArchive()) {
+            AssetOrArchiveType
+        } else if (property.isArchive()) {
+            ArchiveType
+        } else if (property.isAny()) {
+            AnyType
+        } else if (property.isJson()) {
+            JsonType
+        } else if (context.referencedStringTypesResolver.shouldGenerateStringType(referencedTypeName)) {
+            StringType
+        } else {
+            val pulumiName = PulumiName.from(referencedTypeName, context.namingConfiguration)
+            when (context.referenceFinder.resolve(referencedTypeName)) {
+                is ObjectProperty -> ReferencedComplexType(
+                    TypeMetadata(pulumiName, usageKind, getKDoc(property)),
+                )
 
-            null -> {
-                logger.info("Not found type for $referencedTypeName, defaulting to Any")
-                return AnyType
+                is StringEnumProperty -> ReferencedEnumType(
+                    TypeMetadata(pulumiName, usageKind, getKDoc(property), EnumClass),
+                )
+
+                null -> {
+                    logger.info("Not found type for $referencedTypeName, defaulting to Any")
+                    AnyType
+                }
             }
         }
     }
@@ -278,7 +316,18 @@ object IntermediateRepresentationGenerator {
         return when (property) {
             is ArrayProperty -> ListType(innerTypeMapper(property.items))
             is MapProperty -> MapType(StringType, innerTypeMapper(property.additionalProperties))
-            is OneOfProperty -> EitherType(innerTypeMapper(property.oneOf[0]), innerTypeMapper(property.oneOf[1]))
+            is OneOfProperty -> {
+                val innerTypes = property.oneOf.map { innerTypeMapper(it) }
+                val isFilledWithStringsOnly = innerTypes.all { it is StringType }
+
+                if (isFilledWithStringsOnly) {
+                    StringType
+                } else if (innerTypes.size == 2) {
+                    EitherType(innerTypes[0], innerTypes[1])
+                } else {
+                    AnyType
+                }
+            }
         }
     }
 
@@ -291,9 +340,22 @@ object IntermediateRepresentationGenerator {
         }
     }
 
+    /**
+     * Since non-primitive provider configuration is currently JSON serialized, we can't handle it without
+     * modifying the path by which it's looked up. As a temporary workaround to enable access to config which
+     * values are primitives, we'll simply remove any properties for the provider resource which are not
+     * strings, or types with an underlying type of string, before we generate the provider code.
+     */
+    private fun filterStringProperties(propertyMap: Map<PropertyName, Property>): Map<PropertyName, Property> =
+        propertyMap.filter { (_, property) ->
+            property is StringProperty ||
+                (property is ReferenceProperty && property.type == SchemaModel.PropertyType.StringType)
+        }
+
     private data class Context(
         val schema: Schema,
         val referenceFinder: ReferenceFinder,
+        val referencedStringTypesResolver: ReferencedStringTypesResolver,
     ) {
         val namingConfiguration: PulumiNamingConfiguration =
             PulumiNamingConfiguration.create(

@@ -1,0 +1,1311 @@
+{
+  "name": "aws",
+  "meta": {
+    "moduleFormat": "(.*)(?:/[^/]*)"
+  },
+  "config": {
+    "variables": {
+      "accessKey": {
+        "type": "string",
+        "description": "The access key for API operations. You can retrieve this from the 'Security & Credentials' section of the AWS console.\n"
+      },
+      "allowedAccountIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "assumeRole": {
+        "$ref": "#/types/aws:config/assumeRole:assumeRole"
+      },
+      "assumeRoleWithWebIdentity": {
+        "$ref": "#/types/aws:config/assumeRoleWithWebIdentity:assumeRoleWithWebIdentity"
+      },
+      "customCaBundle": {
+        "type": "string",
+        "description": "File containing custom root and intermediate certificates. Can also be configured using the `AWS_CA_BUNDLE` environment\nvariable. (Setting `ca_bundle` in the shared config file is not supported.)\n"
+      },
+      "defaultTags": {
+        "$ref": "#/types/aws:config/defaultTags:defaultTags",
+        "description": "Configuration block with settings to default resource tags across all resources.\n"
+      },
+      "ec2MetadataServiceEndpoint": {
+        "type": "string",
+        "description": "Address of the EC2 metadata service endpoint to use. Can also be configured using the\n`AWS_EC2_METADATA_SERVICE_ENDPOINT` environment variable.\n"
+      },
+      "ec2MetadataServiceEndpointMode": {
+        "type": "string",
+        "description": "Protocol to use with EC2 metadata service endpoint.Valid values are `IPv4` and `IPv6`. Can also be configured using the\n`AWS_EC2_METADATA_SERVICE_ENDPOINT_MODE` environment variable.\n"
+      },
+      "endpoints": {
+        "type": "array",
+        "items": {
+          "$ref": "#/types/aws:config/endpoints:endpoints"
+        }
+      },
+      "forbiddenAccountIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "httpProxy": {
+        "type": "string",
+        "description": "The address of an HTTP proxy to use when accessing the AWS API. Can also be configured using the `HTTP_PROXY` or\n`HTTPS_PROXY` environment variables.\n"
+      },
+      "ignoreTags": {
+        "$ref": "#/types/aws:config/ignoreTags:ignoreTags",
+        "description": "Configuration block with settings to ignore resource tags across all resources.\n"
+      },
+      "insecure": {
+        "type": "boolean",
+        "description": "Explicitly allow the provider to perform \"insecure\" SSL requests. If omitted, default value is `false`\n"
+      },
+      "maxRetries": {
+        "type": "integer",
+        "description": "The maximum number of times an AWS API request is being executed. If the API request still fails, an error is thrown.\n"
+      },
+      "profile": {
+        "type": "string",
+        "description": "The profile for API operations. If not set, the default profile created with `aws configure` will be used.\n"
+      },
+      "region": {
+        "type": "string",
+        "$ref": "#/types/aws:index/region:Region",
+        "description": "The region where AWS operations will take place. Examples are us-east-1, us-west-2, etc.\n",
+        "defaultInfo": {
+          "environment": [
+            "AWS_REGION",
+            "AWS_DEFAULT_REGION"
+          ]
+        }
+      },
+      "s3ForcePathStyle": {
+        "type": "boolean",
+        "description": "Set this to true to enable the request to use path-style addressing, i.e., https://s3.amazonaws.com/BUCKET/KEY. By\ndefault, the S3 client will use virtual hosted bucket addressing when possible (https://BUCKET.s3.amazonaws.com/KEY).\nSpecific to the Amazon S3 service.\n",
+        "deprecationMessage": "Use s3_use_path_style instead."
+      },
+      "s3UsePathStyle": {
+        "type": "boolean",
+        "description": "Set this to true to enable the request to use path-style addressing, i.e., https://s3.amazonaws.com/BUCKET/KEY. By\ndefault, the S3 client will use virtual hosted bucket addressing when possible (https://BUCKET.s3.amazonaws.com/KEY).\nSpecific to the Amazon S3 service.\n"
+      },
+      "secretKey": {
+        "type": "string",
+        "description": "The secret key for API operations. You can retrieve this from the 'Security & Credentials' section of the AWS console.\n"
+      },
+      "sharedConfigFiles": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of paths to shared config files. If not set, defaults to [~/.aws/config].\n"
+      },
+      "sharedCredentialsFile": {
+        "type": "string",
+        "description": "The path to the shared credentials file. If not set, defaults to ~/.aws/credentials.\n",
+        "deprecationMessage": "Use shared_credentials_files instead."
+      },
+      "sharedCredentialsFiles": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of paths to shared credentials files. If not set, defaults to [~/.aws/credentials].\n"
+      },
+      "skipCredentialsValidation": {
+        "type": "boolean",
+        "description": "Skip the credentials validation via STS API. Used for AWS API implementations that do not have STS\navailable/implemented.\n",
+        "default": false
+      },
+      "skipGetEc2Platforms": {
+        "type": "boolean",
+        "description": "Skip getting the supported EC2 platforms. Used by users that don't have ec2:DescribeAccountAttributes permissions.\n",
+        "default": true
+      },
+      "skipMetadataApiCheck": {
+        "type": "boolean",
+        "description": "Skip the AWS Metadata API check. Used for AWS API implementations that do not have a metadata api endpoint.\n",
+        "default": true
+      },
+      "skipRegionValidation": {
+        "type": "boolean",
+        "description": "Skip static validation of region name. Used by users of alternative AWS-like APIs or users w/ access to regions that are\nnot public (yet).\n",
+        "default": true
+      },
+      "skipRequestingAccountId": {
+        "type": "boolean",
+        "description": "Skip requesting the account ID. Used for AWS API implementations that do not have IAM/STS API and/or metadata API.\n"
+      },
+      "stsRegion": {
+        "type": "string",
+        "description": "The region where AWS STS operations will take place. Examples are us-east-1 and us-west-2.\n"
+      },
+      "token": {
+        "type": "string",
+        "description": "session token. A session token is only required if you are using temporary security credentials.\n"
+      },
+      "useDualstackEndpoint": {
+        "type": "boolean",
+        "description": "Resolve an endpoint with DualStack capability\n"
+      },
+      "useFipsEndpoint": {
+        "type": "boolean",
+        "description": "Resolve an endpoint with FIPS capability\n"
+      }
+    }
+  },
+  "language": {
+    "csharp": {
+      "compatibility": "tfbridge20",
+      "namespaces": {
+        "accessanalyzer": "AccessAnalyzer",
+        "account": "Account",
+        "acm": "Acm",
+        "acmpca": "Acmpca",
+        "alb": "Alb",
+        "amp": "Amp",
+        "amplify": "Amplify",
+        "apigateway": "ApiGateway",
+        "apigatewayv2": "ApiGatewayV2",
+        "appautoscaling": "AppAutoScaling",
+        "appconfig": "AppConfig",
+        "appflow": "AppFlow",
+        "applicationinsights": "ApplicationInsights",
+        "applicationloadbalancing": "ApplicationLoadBalancing",
+        "appmesh": "AppMesh",
+        "apprunner": "AppRunner",
+        "appstream": "AppStream",
+        "appsync": "AppSync",
+        "athena": "Athena",
+        "autoscaling": "AutoScaling",
+        "autoscalingplans": "AutoScalingPlans",
+        "aws": "Aws",
+        "backup": "Backup",
+        "batch": "Batch",
+        "budgets": "Budgets",
+        "cfg": "Cfg",
+        "chime": "Chime",
+        "cloud9": "Cloud9",
+        "cloudcontrol": "CloudControl",
+        "cloudformation": "CloudFormation",
+        "cloudfront": "CloudFront",
+        "cloudhsmv2": "CloudHsmV2",
+        "cloudsearch": "CloudSearch",
+        "cloudtrail": "CloudTrail",
+        "cloudwatch": "CloudWatch",
+        "codeartifact": "CodeArtifact",
+        "codebuild": "CodeBuild",
+        "codecommit": "CodeCommit",
+        "codedeploy": "CodeDeploy",
+        "codepipeline": "CodePipeline",
+        "codestarconnections": "CodeStarConnections",
+        "codestarnotifications": "CodeStarNotifications",
+        "cognito": "Cognito",
+        "comprehend": "Comprehend",
+        "connect": "Connect",
+        "costexplorer": "CostExplorer",
+        "cur": "Cur",
+        "dataexchange": "DataExchange",
+        "datapipeline": "DataPipeline",
+        "datasync": "DataSync",
+        "dax": "Dax",
+        "detective": "Detective",
+        "devicefarm": "DeviceFarm",
+        "directconnect": "DirectConnect",
+        "directoryservice": "DirectoryService",
+        "dlm": "Dlm",
+        "dms": "Dms",
+        "docdb": "DocDB",
+        "dynamodb": "DynamoDB",
+        "ebs": "Ebs",
+        "ec2": "Ec2",
+        "ec2clientvpn": "Ec2ClientVpn",
+        "ec2transitgateway": "Ec2TransitGateway",
+        "ecr": "Ecr",
+        "ecrpublic": "EcrPublic",
+        "ecs": "Ecs",
+        "efs": "Efs",
+        "eks": "Eks",
+        "elasticache": "ElastiCache",
+        "elasticbeanstalk": "ElasticBeanstalk",
+        "elasticloadbalancing": "ElasticLoadBalancing",
+        "elasticloadbalancingv2": "ElasticLoadBalancingV2",
+        "elasticsearch": "ElasticSearch",
+        "elastictranscoder": "ElasticTranscoder",
+        "elb": "Elb",
+        "emr": "Emr",
+        "emrcontainers": "EmrContainers",
+        "emrserverless": "EmrServerless",
+        "fis": "Fis",
+        "fms": "Fms",
+        "fsx": "Fsx",
+        "gamelift": "GameLift",
+        "glacier": "Glacier",
+        "globalaccelerator": "GlobalAccelerator",
+        "glue": "Glue",
+        "grafana": "Grafana",
+        "guardduty": "GuardDuty",
+        "iam": "Iam",
+        "identitystore": "IdentityStore",
+        "imagebuilder": "ImageBuilder",
+        "index": "index",
+        "inspector": "Inspector",
+        "iot": "Iot",
+        "kendra": "Kendra",
+        "keyspaces": "Keyspaces",
+        "kinesis": "Kinesis",
+        "kinesisanalyticsv2": "KinesisAnalyticsV2",
+        "kms": "Kms",
+        "lakeformation": "LakeFormation",
+        "lambda": "Lambda",
+        "lb": "LB",
+        "lex": "Lex",
+        "licensemanager": "LicenseManager",
+        "lightsail": "LightSail",
+        "location": "Location",
+        "macie": "Macie",
+        "macie2": "Macie2",
+        "mediaconvert": "MediaConvert",
+        "medialive": "MediaLive",
+        "mediapackage": "MediaPackage",
+        "mediastore": "MediaStore",
+        "memorydb": "MemoryDb",
+        "mq": "Mq",
+        "msk": "Msk",
+        "mskconnect": "MskConnect",
+        "mwaa": "Mwaa",
+        "neptune": "Neptune",
+        "networkfirewall": "NetworkFirewall",
+        "networkmanager": "NetworkManager",
+        "opensearch": "OpenSearch",
+        "opsworks": "OpsWorks",
+        "organizations": "Organizations",
+        "outposts": "Outposts",
+        "pinpoint": "Pinpoint",
+        "pricing": "Pricing",
+        "qldb": "Qldb",
+        "quicksight": "Quicksight",
+        "ram": "Ram",
+        "rds": "Rds",
+        "redshift": "RedShift",
+        "redshiftdata": "RedshiftData",
+        "redshiftserverless": "RedshiftServerless",
+        "resourcegroups": "ResourceGroups",
+        "resourcegroupstaggingapi": "ResourceGroupsTaggingApi",
+        "rolesanywhere": "RolesAnywhere",
+        "route53": "Route53",
+        "route53domains": "Route53Domains",
+        "route53recoverycontrol": "Route53RecoveryControl",
+        "route53recoveryreadiness": "Route53RecoveryReadiness",
+        "rum": "Rum",
+        "s3": "S3",
+        "s3control": "S3Control",
+        "s3outposts": "S3Outposts",
+        "sagemaker": "Sagemaker",
+        "schemas": "Schemas",
+        "secretsmanager": "SecretsManager",
+        "securityhub": "SecurityHub",
+        "serverlessrepository": "ServerlessRepository",
+        "servicecatalog": "ServiceCatalog",
+        "servicediscovery": "ServiceDiscovery",
+        "servicequotas": "ServiceQuotas",
+        "ses": "Ses",
+        "sfn": "Sfn",
+        "shield": "Shield",
+        "signer": "Signer",
+        "simpledb": "SimpleDB",
+        "sns": "Sns",
+        "sqs": "Sqs",
+        "ssm": "Ssm",
+        "ssoadmin": "SsoAdmin",
+        "storagegateway": "StorageGateway",
+        "swf": "Swf",
+        "synthetics": "Synthetics",
+        "timestreamwrite": "TimestreamWrite",
+        "transcribe": "Transcribe",
+        "transfer": "Transfer",
+        "waf": "Waf",
+        "wafregional": "WafRegional",
+        "wafv2": "WafV2",
+        "worklink": "WorkLink",
+        "workspaces": "Workspaces",
+        "xray": "Xray"
+      },
+      "packageReferences": {
+        "Pulumi": "3.*"
+      }
+    },
+    "go": {
+      "generateExtraInputTypes": true,
+      "generateResourceContainerTypes": true,
+      "importBasePath": "github.com/pulumi/pulumi-aws/sdk/v5/go/aws"
+    },
+    "nodejs": {
+      "compatibility": "tfbridge20",
+      "dependencies": {
+        "@pulumi/pulumi": "^3.0.0",
+        "aws-sdk": "^2.0.0",
+        "builtin-modules": "3.0.0",
+        "mime": "^2.0.0",
+        "read-package-tree": "^5.2.1",
+        "resolve": "^1.7.1"
+      },
+      "devDependencies": {
+        "@types/mime": "^2.0.0",
+        "@types/node": "^10.0.0"
+      },
+      "disableUnionOutputTypes": true,
+      "packageDescription": "A Pulumi package for creating and managing Amazon Web Services (AWS) cloud resources.",
+      "packageName": "",
+      "readme": "> This provider is a derived work of the [Terraform Provider](https://github.com/hashicorp/terraform-provider-aws)\n> distributed under [MPL 2.0](https://www.mozilla.org/en-US/MPL/2.0/). If you encounter a bug or missing feature,\n> first check the [`pulumi-aws` repo](https://github.com/pulumi/pulumi-aws/issues); however, if that doesn't turn up anything,\n> please consult the source [`terraform-provider-aws` repo](https://github.com/hashicorp/terraform-provider-aws/issues).",
+      "typescriptVersion": ""
+    },
+    "python": {
+      "compatibility": "tfbridge20",
+      "readme": "> This provider is a derived work of the [Terraform Provider](https://github.com/hashicorp/terraform-provider-aws)\n> distributed under [MPL 2.0](https://www.mozilla.org/en-US/MPL/2.0/). If you encounter a bug or missing feature,\n> first check the [`pulumi-aws` repo](https://github.com/pulumi/pulumi-aws/issues); however, if that doesn't turn up anything,\n> please consult the source [`terraform-provider-aws` repo](https://github.com/hashicorp/terraform-provider-aws/issues).",
+      "requires": {
+        "pulumi": ">=3.0.0,<4.0.0"
+      }
+    }
+  },
+  "provider": {
+    "description": "The provider type for the aws package. By default, resources use package-wide configuration\nsettings, however an explicit `Provider` instance may be created and passed during resource\nconstruction to achieve fine-grained programmatic control over provider settings. See the\n[documentation](https://www.pulumi.com/docs/reference/programming-model/#providers) for more information.\n",
+    "properties": {
+      "accessKey": {
+        "type": "string",
+        "description": "The access key for API operations. You can retrieve this from the 'Security & Credentials' section of the AWS console.\n"
+      },
+      "allowedAccountIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "assumeRole": {
+        "$ref": "#/types/aws:index/ProviderAssumeRole:ProviderAssumeRole"
+      },
+      "assumeRoleWithWebIdentity": {
+        "$ref": "#/types/aws:index/ProviderAssumeRoleWithWebIdentity:ProviderAssumeRoleWithWebIdentity"
+      },
+      "customCaBundle": {
+        "type": "string",
+        "description": "File containing custom root and intermediate certificates. Can also be configured using the `AWS_CA_BUNDLE` environment\nvariable. (Setting `ca_bundle` in the shared config file is not supported.)\n"
+      },
+      "defaultTags": {
+        "$ref": "#/types/aws:index/ProviderDefaultTags:ProviderDefaultTags",
+        "description": "Configuration block with settings to default resource tags across all resources.\n"
+      },
+      "ec2MetadataServiceEndpoint": {
+        "type": "string",
+        "description": "Address of the EC2 metadata service endpoint to use. Can also be configured using the\n`AWS_EC2_METADATA_SERVICE_ENDPOINT` environment variable.\n"
+      },
+      "ec2MetadataServiceEndpointMode": {
+        "type": "string",
+        "description": "Protocol to use with EC2 metadata service endpoint.Valid values are `IPv4` and `IPv6`. Can also be configured using the\n`AWS_EC2_METADATA_SERVICE_ENDPOINT_MODE` environment variable.\n"
+      },
+      "forbiddenAccountIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "httpProxy": {
+        "type": "string",
+        "description": "The address of an HTTP proxy to use when accessing the AWS API. Can also be configured using the `HTTP_PROXY` or\n`HTTPS_PROXY` environment variables.\n"
+      },
+      "ignoreTags": {
+        "$ref": "#/types/aws:index/ProviderIgnoreTags:ProviderIgnoreTags",
+        "description": "Configuration block with settings to ignore resource tags across all resources.\n"
+      },
+      "insecure": {
+        "type": "boolean",
+        "description": "Explicitly allow the provider to perform \"insecure\" SSL requests. If omitted, default value is `false`\n"
+      },
+      "maxRetries": {
+        "type": "integer",
+        "description": "The maximum number of times an AWS API request is being executed. If the API request still fails, an error is thrown.\n"
+      },
+      "profile": {
+        "type": "string",
+        "description": "The profile for API operations. If not set, the default profile created with `aws configure` will be used.\n"
+      },
+      "region": {
+        "type": "string",
+        "$ref": "#/types/aws:index/region:Region",
+        "description": "The region where AWS operations will take place. Examples are us-east-1, us-west-2, etc.\n"
+      },
+      "s3ForcePathStyle": {
+        "type": "boolean",
+        "description": "Set this to true to enable the request to use path-style addressing, i.e., https://s3.amazonaws.com/BUCKET/KEY. By\ndefault, the S3 client will use virtual hosted bucket addressing when possible (https://BUCKET.s3.amazonaws.com/KEY).\nSpecific to the Amazon S3 service.\n",
+        "deprecationMessage": "Use s3_use_path_style instead."
+      },
+      "s3UsePathStyle": {
+        "type": "boolean",
+        "description": "Set this to true to enable the request to use path-style addressing, i.e., https://s3.amazonaws.com/BUCKET/KEY. By\ndefault, the S3 client will use virtual hosted bucket addressing when possible (https://BUCKET.s3.amazonaws.com/KEY).\nSpecific to the Amazon S3 service.\n"
+      },
+      "secretKey": {
+        "type": "string",
+        "description": "The secret key for API operations. You can retrieve this from the 'Security & Credentials' section of the AWS console.\n"
+      },
+      "sharedConfigFiles": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of paths to shared config files. If not set, defaults to [~/.aws/config].\n"
+      },
+      "sharedCredentialsFile": {
+        "type": "string",
+        "description": "The path to the shared credentials file. If not set, defaults to ~/.aws/credentials.\n",
+        "deprecationMessage": "Use shared_credentials_files instead."
+      },
+      "sharedCredentialsFiles": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of paths to shared credentials files. If not set, defaults to [~/.aws/credentials].\n"
+      },
+      "skipCredentialsValidation": {
+        "type": "boolean",
+        "description": "Skip the credentials validation via STS API. Used for AWS API implementations that do not have STS\navailable/implemented.\n"
+      },
+      "skipGetEc2Platforms": {
+        "type": "boolean",
+        "description": "Skip getting the supported EC2 platforms. Used by users that don't have ec2:DescribeAccountAttributes permissions.\n"
+      },
+      "skipMetadataApiCheck": {
+        "type": "boolean",
+        "description": "Skip the AWS Metadata API check. Used for AWS API implementations that do not have a metadata api endpoint.\n"
+      },
+      "skipRegionValidation": {
+        "type": "boolean",
+        "description": "Skip static validation of region name. Used by users of alternative AWS-like APIs or users w/ access to regions that are\nnot public (yet).\n"
+      },
+      "skipRequestingAccountId": {
+        "type": "boolean",
+        "description": "Skip requesting the account ID. Used for AWS API implementations that do not have IAM/STS API and/or metadata API.\n"
+      },
+      "stsRegion": {
+        "type": "string",
+        "description": "The region where AWS STS operations will take place. Examples are us-east-1 and us-west-2.\n"
+      },
+      "token": {
+        "type": "string",
+        "description": "session token. A session token is only required if you are using temporary security credentials.\n"
+      },
+      "useDualstackEndpoint": {
+        "type": "boolean",
+        "description": "Resolve an endpoint with DualStack capability\n"
+      },
+      "useFipsEndpoint": {
+        "type": "boolean",
+        "description": "Resolve an endpoint with FIPS capability\n"
+      }
+    },
+    "inputProperties": {
+      "accessKey": {
+        "type": "string",
+        "description": "The access key for API operations. You can retrieve this from the 'Security & Credentials' section of the AWS console.\n"
+      },
+      "allowedAccountIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "assumeRole": {
+        "$ref": "#/types/aws:index/ProviderAssumeRole:ProviderAssumeRole"
+      },
+      "assumeRoleWithWebIdentity": {
+        "$ref": "#/types/aws:index/ProviderAssumeRoleWithWebIdentity:ProviderAssumeRoleWithWebIdentity"
+      },
+      "customCaBundle": {
+        "type": "string",
+        "description": "File containing custom root and intermediate certificates. Can also be configured using the `AWS_CA_BUNDLE` environment\nvariable. (Setting `ca_bundle` in the shared config file is not supported.)\n"
+      },
+      "defaultTags": {
+        "$ref": "#/types/aws:index/ProviderDefaultTags:ProviderDefaultTags",
+        "description": "Configuration block with settings to default resource tags across all resources.\n"
+      },
+      "ec2MetadataServiceEndpoint": {
+        "type": "string",
+        "description": "Address of the EC2 metadata service endpoint to use. Can also be configured using the\n`AWS_EC2_METADATA_SERVICE_ENDPOINT` environment variable.\n"
+      },
+      "ec2MetadataServiceEndpointMode": {
+        "type": "string",
+        "description": "Protocol to use with EC2 metadata service endpoint.Valid values are `IPv4` and `IPv6`. Can also be configured using the\n`AWS_EC2_METADATA_SERVICE_ENDPOINT_MODE` environment variable.\n"
+      },
+      "forbiddenAccountIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "httpProxy": {
+        "type": "string",
+        "description": "The address of an HTTP proxy to use when accessing the AWS API. Can also be configured using the `HTTP_PROXY` or\n`HTTPS_PROXY` environment variables.\n"
+      },
+      "ignoreTags": {
+        "$ref": "#/types/aws:index/ProviderIgnoreTags:ProviderIgnoreTags",
+        "description": "Configuration block with settings to ignore resource tags across all resources.\n"
+      },
+      "insecure": {
+        "type": "boolean",
+        "description": "Explicitly allow the provider to perform \"insecure\" SSL requests. If omitted, default value is `false`\n"
+      },
+      "maxRetries": {
+        "type": "integer",
+        "description": "The maximum number of times an AWS API request is being executed. If the API request still fails, an error is thrown.\n"
+      },
+      "profile": {
+        "type": "string",
+        "description": "The profile for API operations. If not set, the default profile created with `aws configure` will be used.\n"
+      },
+      "region": {
+        "type": "string",
+        "$ref": "#/types/aws:index/region:Region",
+        "description": "The region where AWS operations will take place. Examples are us-east-1, us-west-2, etc.\n",
+        "defaultInfo": {
+          "environment": [
+            "AWS_REGION",
+            "AWS_DEFAULT_REGION"
+          ]
+        }
+      },
+      "s3ForcePathStyle": {
+        "type": "boolean",
+        "description": "Set this to true to enable the request to use path-style addressing, i.e., https://s3.amazonaws.com/BUCKET/KEY. By\ndefault, the S3 client will use virtual hosted bucket addressing when possible (https://BUCKET.s3.amazonaws.com/KEY).\nSpecific to the Amazon S3 service.\n",
+        "deprecationMessage": "Use s3_use_path_style instead."
+      },
+      "s3UsePathStyle": {
+        "type": "boolean",
+        "description": "Set this to true to enable the request to use path-style addressing, i.e., https://s3.amazonaws.com/BUCKET/KEY. By\ndefault, the S3 client will use virtual hosted bucket addressing when possible (https://BUCKET.s3.amazonaws.com/KEY).\nSpecific to the Amazon S3 service.\n"
+      },
+      "secretKey": {
+        "type": "string",
+        "description": "The secret key for API operations. You can retrieve this from the 'Security & Credentials' section of the AWS console.\n"
+      },
+      "sharedConfigFiles": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of paths to shared config files. If not set, defaults to [~/.aws/config].\n"
+      },
+      "sharedCredentialsFile": {
+        "type": "string",
+        "description": "The path to the shared credentials file. If not set, defaults to ~/.aws/credentials.\n",
+        "deprecationMessage": "Use shared_credentials_files instead."
+      },
+      "sharedCredentialsFiles": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of paths to shared credentials files. If not set, defaults to [~/.aws/credentials].\n"
+      },
+      "skipCredentialsValidation": {
+        "type": "boolean",
+        "description": "Skip the credentials validation via STS API. Used for AWS API implementations that do not have STS\navailable/implemented.\n",
+        "default": false
+      },
+      "skipGetEc2Platforms": {
+        "type": "boolean",
+        "description": "Skip getting the supported EC2 platforms. Used by users that don't have ec2:DescribeAccountAttributes permissions.\n",
+        "default": true
+      },
+      "skipMetadataApiCheck": {
+        "type": "boolean",
+        "description": "Skip the AWS Metadata API check. Used for AWS API implementations that do not have a metadata api endpoint.\n",
+        "default": true
+      },
+      "skipRegionValidation": {
+        "type": "boolean",
+        "description": "Skip static validation of region name. Used by users of alternative AWS-like APIs or users w/ access to regions that are\nnot public (yet).\n",
+        "default": true
+      },
+      "skipRequestingAccountId": {
+        "type": "boolean",
+        "description": "Skip requesting the account ID. Used for AWS API implementations that do not have IAM/STS API and/or metadata API.\n"
+      },
+      "stsRegion": {
+        "type": "string",
+        "description": "The region where AWS STS operations will take place. Examples are us-east-1 and us-west-2.\n"
+      },
+      "token": {
+        "type": "string",
+        "description": "session token. A session token is only required if you are using temporary security credentials.\n"
+      },
+      "useDualstackEndpoint": {
+        "type": "boolean",
+        "description": "Resolve an endpoint with DualStack capability\n"
+      },
+      "useFipsEndpoint": {
+        "type": "boolean",
+        "description": "Resolve an endpoint with FIPS capability\n"
+      }
+    }
+  },
+  "types": {
+    "aws:acm/CertificateDomainValidationOption:CertificateDomainValidationOption": {
+      "properties": {
+        "domainName": {
+          "type": "string",
+          "description": "Fully qualified domain name (FQDN) in the certificate.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "resourceRecordName": {
+          "type": "string",
+          "description": "The name of the DNS record to create to validate the certificate\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "resourceRecordType": {
+          "type": "string",
+          "description": "The type of DNS record to create\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "resourceRecordValue": {
+          "type": "string",
+          "description": "The value the DNS record needs to have\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "type": "object",
+      "language": {
+        "nodejs": {
+          "requiredOutputs": [
+            "domainName",
+            "resourceRecordName",
+            "resourceRecordType",
+            "resourceRecordValue"
+          ]
+        }
+      }
+    },
+    "aws:acm/CertificateOptions:CertificateOptions": {
+      "properties": {
+        "certificateTransparencyLoggingPreference": {
+          "type": "string",
+          "description": "Whether certificate details should be added to a certificate transparency log. Valid values are `ENABLED` or `DISABLED`. See https://docs.aws.amazon.com/acm/latest/userguide/acm-concepts.html#concept-transparency for more details.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          },
+          "willReplaceOnChanges": true
+        }
+      },
+      "type": "object"
+    },
+    "aws:acm/CertificateValidationOption:CertificateValidationOption": {
+      "properties": {
+        "domainName": {
+          "type": "string",
+          "description": "Fully qualified domain name (FQDN) in the certificate.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          },
+          "willReplaceOnChanges": true
+        },
+        "validationDomain": {
+          "type": "string",
+          "description": "Domain name that you want ACM to use to send you validation emails. This domain name is the suffix of the email addresses that you want ACM to use. This must be the same as the `domain_name` value or a superdomain of the `domain_name` value. For example, if you request a certificate for `\"testing.example.com\"`, you can specify `\"example.com\"` for this value.\n",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          },
+          "willReplaceOnChanges": true
+        }
+      },
+      "type": "object",
+      "required": [
+        "domainName",
+        "validationDomain"
+      ]
+    },
+    "aws:index/ProviderAssumeRole:ProviderAssumeRole": {
+      "properties": {
+        "duration": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "durationSeconds": {
+          "type": "integer",
+          "deprecationMessage": "Use assume_role.duration instead",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "externalId": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "policy": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "policyArns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "roleArn": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "sessionName": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "sourceIdentity": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "transitiveTagKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "type": "object"
+    },
+    "aws:index/ProviderAssumeRoleWithWebIdentity:ProviderAssumeRoleWithWebIdentity": {
+      "properties": {
+        "duration": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "policy": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "policyArns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "roleArn": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "sessionName": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "webIdentityToken": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "webIdentityTokenFile": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "type": "object"
+    },
+    "aws:index/ProviderDefaultTags:ProviderDefaultTags": {
+      "properties": {
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "type": "object"
+    },
+    "aws:index/ProviderIgnoreTags:ProviderIgnoreTags": {
+      "properties": {
+        "keyPrefixes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "type": "object"
+    },
+    "aws:index/Region:Region": {
+      "description": "A Region represents any valid Amazon region that may be targeted with deployments.",
+      "type": "string",
+      "enum": [
+        {
+          "name": "AFSouth1",
+          "value": "af-south-1"
+        },
+        {
+          "name": "APEast1",
+          "value": "ap-east-1"
+        },
+        {
+          "name": "APNortheast1",
+          "value": "ap-northeast-1"
+        },
+        {
+          "name": "APNortheast2",
+          "value": "ap-northeast-2"
+        },
+        {
+          "name": "APNortheast3",
+          "value": "ap-northeast-3"
+        },
+        {
+          "name": "APSouth1",
+          "value": "ap-south-1"
+        },
+        {
+          "name": "APSoutheast2",
+          "value": "ap-southeast-2"
+        },
+        {
+          "name": "APSoutheast1",
+          "value": "ap-southeast-1"
+        },
+        {
+          "name": "CACentral",
+          "value": "ca-central-1"
+        },
+        {
+          "name": "CNNorth1",
+          "value": "cn-north-1"
+        },
+        {
+          "name": "CNNorthwest1",
+          "value": "cn-northwest-1"
+        },
+        {
+          "name": "EUCentral1",
+          "value": "eu-central-1"
+        },
+        {
+          "name": "EUNorth1",
+          "value": "eu-north-1"
+        },
+        {
+          "name": "EUWest1",
+          "value": "eu-west-1"
+        },
+        {
+          "name": "EUWest2",
+          "value": "eu-west-2"
+        },
+        {
+          "name": "EUWest3",
+          "value": "eu-west-3"
+        },
+        {
+          "name": "EUSouth1",
+          "value": "eu-south-1"
+        },
+        {
+          "name": "MESouth1",
+          "value": "me-south-1"
+        },
+        {
+          "name": "SAEast1",
+          "value": "sa-east-1"
+        },
+        {
+          "name": "USGovEast1",
+          "value": "us-gov-east-1"
+        },
+        {
+          "name": "USGovWest1",
+          "value": "us-gov-west-1"
+        },
+        {
+          "name": "USEast1",
+          "value": "us-east-1"
+        },
+        {
+          "name": "USEast2",
+          "value": "us-east-2"
+        },
+        {
+          "name": "USWest1",
+          "value": "us-west-1"
+        },
+        {
+          "name": "USWest2",
+          "value": "us-west-2"
+        }
+      ]
+    }
+  },
+  "resources": {
+    "aws:acm/certificate:Certificate": {
+      "description": "The ACM certificate resource allows requesting and management of certificates\nfrom the Amazon Certificate Manager.\n\nIt deals with requesting certificates and managing their attributes and life-cycle.\nThis resource does not deal with validation of a certificate but can provide inputs\nfor other resources implementing the validation. It does not wait for a certificate to be issued.\nUse a `aws.acm.CertificateValidation` resource for this.\n\nMost commonly, this resource is used together with `aws.route53.Record` and\n`aws.acm.CertificateValidation` to request a DNS validated certificate,\ndeploy the required validation records and wait for validation to complete.\n\nDomain validation through E-Mail is also supported but should be avoided as it requires a manual step outside\nof this provider.\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n### Create Certificate\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst cert = new aws.acm.Certificate(\"cert\", {\n    domainName: \"example.com\",\n    tags: {\n        Environment: \"test\",\n    },\n    validationMethod: \"DNS\",\n});\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\ncert = aws.acm.Certificate(\"cert\",\n    domain_name=\"example.com\",\n    tags={\n        \"Environment\": \"test\",\n    },\n    validation_method=\"DNS\")\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Aws = Pulumi.Aws;\n\nreturn await Deployment.RunAsync(() => \n{\n    var cert = new Aws.Acm.Certificate(\"cert\", new()\n    {\n        DomainName = \"example.com\",\n        Tags = \n        {\n            { \"Environment\", \"test\" },\n        },\n        ValidationMethod = \"DNS\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/acm\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := acm.NewCertificate(ctx, \"cert\", &acm.CertificateArgs{\n\t\t\tDomainName: pulumi.String(\"example.com\"),\n\t\t\tTags: pulumi.StringMap{\n\t\t\t\t\"Environment\": pulumi.String(\"test\"),\n\t\t\t},\n\t\t\tValidationMethod: pulumi.String(\"DNS\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.aws.acm.Certificate;\nimport com.pulumi.aws.acm.CertificateArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var cert = new Certificate(\"cert\", CertificateArgs.builder()        \n            .domainName(\"example.com\")\n            .tags(Map.of(\"Environment\", \"test\"))\n            .validationMethod(\"DNS\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  cert:\n    type: aws:acm:Certificate\n    properties:\n      domainName: example.com\n      tags:\n        Environment: test\n      validationMethod: DNS\n```\n{{% /example %}}\n{{% example %}}\n### Custom Domain Validation Options\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst cert = new aws.acm.Certificate(\"cert\", {\n    domainName: \"testing.example.com\",\n    validationMethod: \"EMAIL\",\n    validationOptions: [{\n        domainName: \"testing.example.com\",\n        validationDomain: \"example.com\",\n    }],\n});\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\ncert = aws.acm.Certificate(\"cert\",\n    domain_name=\"testing.example.com\",\n    validation_method=\"EMAIL\",\n    validation_options=[aws.acm.CertificateValidationOptionArgs(\n        domain_name=\"testing.example.com\",\n        validation_domain=\"example.com\",\n    )])\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Aws = Pulumi.Aws;\n\nreturn await Deployment.RunAsync(() => \n{\n    var cert = new Aws.Acm.Certificate(\"cert\", new()\n    {\n        DomainName = \"testing.example.com\",\n        ValidationMethod = \"EMAIL\",\n        ValidationOptions = new[]\n        {\n            new Aws.Acm.Inputs.CertificateValidationOptionArgs\n            {\n                DomainName = \"testing.example.com\",\n                ValidationDomain = \"example.com\",\n            },\n        },\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/acm\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := acm.NewCertificate(ctx, \"cert\", &acm.CertificateArgs{\n\t\t\tDomainName:       pulumi.String(\"testing.example.com\"),\n\t\t\tValidationMethod: pulumi.String(\"EMAIL\"),\n\t\t\tValidationOptions: acm.CertificateValidationOptionArray{\n\t\t\t\t&acm.CertificateValidationOptionArgs{\n\t\t\t\t\tDomainName:       pulumi.String(\"testing.example.com\"),\n\t\t\t\t\tValidationDomain: pulumi.String(\"example.com\"),\n\t\t\t\t},\n\t\t\t},\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.aws.acm.Certificate;\nimport com.pulumi.aws.acm.CertificateArgs;\nimport com.pulumi.aws.acm.inputs.CertificateValidationOptionArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var cert = new Certificate(\"cert\", CertificateArgs.builder()        \n            .domainName(\"testing.example.com\")\n            .validationMethod(\"EMAIL\")\n            .validationOptions(CertificateValidationOptionArgs.builder()\n                .domainName(\"testing.example.com\")\n                .validationDomain(\"example.com\")\n                .build())\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  cert:\n    type: aws:acm:Certificate\n    properties:\n      domainName: testing.example.com\n      validationMethod: EMAIL\n      validationOptions:\n        - domainName: testing.example.com\n          validationDomain: example.com\n```\n{{% /example %}}\n{{% example %}}\n### Existing Certificate Body Import\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\nimport * as tls from \"@pulumi/tls\";\n\nconst examplePrivateKey = new tls.PrivateKey(\"examplePrivateKey\", {algorithm: \"RSA\"});\nconst exampleSelfSignedCert = new tls.SelfSignedCert(\"exampleSelfSignedCert\", {\n    keyAlgorithm: \"RSA\",\n    privateKeyPem: examplePrivateKey.privateKeyPem,\n    subjects: [{\n        commonName: \"example.com\",\n        organization: \"ACME Examples, Inc\",\n    }],\n    validityPeriodHours: 12,\n    allowedUses: [\n        \"key_encipherment\",\n        \"digital_signature\",\n        \"server_auth\",\n    ],\n});\nconst cert = new aws.acm.Certificate(\"cert\", {\n    privateKey: examplePrivateKey.privateKeyPem,\n    certificateBody: exampleSelfSignedCert.certPem,\n});\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\nimport pulumi_tls as tls\n\nexample_private_key = tls.PrivateKey(\"examplePrivateKey\", algorithm=\"RSA\")\nexample_self_signed_cert = tls.SelfSignedCert(\"exampleSelfSignedCert\",\n    key_algorithm=\"RSA\",\n    private_key_pem=example_private_key.private_key_pem,\n    subjects=[tls.SelfSignedCertSubjectArgs(\n        common_name=\"example.com\",\n        organization=\"ACME Examples, Inc\",\n    )],\n    validity_period_hours=12,\n    allowed_uses=[\n        \"key_encipherment\",\n        \"digital_signature\",\n        \"server_auth\",\n    ])\ncert = aws.acm.Certificate(\"cert\",\n    private_key=example_private_key.private_key_pem,\n    certificate_body=example_self_signed_cert.cert_pem)\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Aws = Pulumi.Aws;\nusing Tls = Pulumi.Tls;\n\nreturn await Deployment.RunAsync(() => \n{\n    var examplePrivateKey = new Tls.PrivateKey(\"examplePrivateKey\", new()\n    {\n        Algorithm = \"RSA\",\n    });\n\n    var exampleSelfSignedCert = new Tls.SelfSignedCert(\"exampleSelfSignedCert\", new()\n    {\n        KeyAlgorithm = \"RSA\",\n        PrivateKeyPem = examplePrivateKey.PrivateKeyPem,\n        Subjects = new[]\n        {\n            new Tls.Inputs.SelfSignedCertSubjectArgs\n            {\n                CommonName = \"example.com\",\n                Organization = \"ACME Examples, Inc\",\n            },\n        },\n        ValidityPeriodHours = 12,\n        AllowedUses = new[]\n        {\n            \"key_encipherment\",\n            \"digital_signature\",\n            \"server_auth\",\n        },\n    });\n\n    var cert = new Aws.Acm.Certificate(\"cert\", new()\n    {\n        PrivateKey = examplePrivateKey.PrivateKeyPem,\n        CertificateBody = exampleSelfSignedCert.CertPem,\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/acm\"\n\t\"github.com/pulumi/pulumi-tls/sdk/v4/go/tls\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\texamplePrivateKey, err := tls.NewPrivateKey(ctx, \"examplePrivateKey\", &tls.PrivateKeyArgs{\n\t\t\tAlgorithm: pulumi.String(\"RSA\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\texampleSelfSignedCert, err := tls.NewSelfSignedCert(ctx, \"exampleSelfSignedCert\", &tls.SelfSignedCertArgs{\n\t\t\tKeyAlgorithm:  pulumi.String(\"RSA\"),\n\t\t\tPrivateKeyPem: examplePrivateKey.PrivateKeyPem,\n\t\t\tSubjects: SelfSignedCertSubjectArray{\n\t\t\t\t&SelfSignedCertSubjectArgs{\n\t\t\t\t\tCommonName:   pulumi.String(\"example.com\"),\n\t\t\t\t\tOrganization: pulumi.String(\"ACME Examples, Inc\"),\n\t\t\t\t},\n\t\t\t},\n\t\t\tValidityPeriodHours: pulumi.Int(12),\n\t\t\tAllowedUses: pulumi.StringArray{\n\t\t\t\tpulumi.String(\"key_encipherment\"),\n\t\t\t\tpulumi.String(\"digital_signature\"),\n\t\t\t\tpulumi.String(\"server_auth\"),\n\t\t\t},\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = acm.NewCertificate(ctx, \"cert\", &acm.CertificateArgs{\n\t\t\tPrivateKey:      examplePrivateKey.PrivateKeyPem,\n\t\t\tCertificateBody: exampleSelfSignedCert.CertPem,\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.tls.PrivateKey;\nimport com.pulumi.tls.PrivateKeyArgs;\nimport com.pulumi.tls.SelfSignedCert;\nimport com.pulumi.tls.SelfSignedCertArgs;\nimport com.pulumi.tls.inputs.SelfSignedCertSubjectArgs;\nimport com.pulumi.aws.acm.Certificate;\nimport com.pulumi.aws.acm.CertificateArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var examplePrivateKey = new PrivateKey(\"examplePrivateKey\", PrivateKeyArgs.builder()        \n            .algorithm(\"RSA\")\n            .build());\n\n        var exampleSelfSignedCert = new SelfSignedCert(\"exampleSelfSignedCert\", SelfSignedCertArgs.builder()        \n            .keyAlgorithm(\"RSA\")\n            .privateKeyPem(examplePrivateKey.privateKeyPem())\n            .subjects(SelfSignedCertSubjectArgs.builder()\n                .commonName(\"example.com\")\n                .organization(\"ACME Examples, Inc\")\n                .build())\n            .validityPeriodHours(12)\n            .allowedUses(            \n                \"key_encipherment\",\n                \"digital_signature\",\n                \"server_auth\")\n            .build());\n\n        var cert = new Certificate(\"cert\", CertificateArgs.builder()        \n            .privateKey(examplePrivateKey.privateKeyPem())\n            .certificateBody(exampleSelfSignedCert.certPem())\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  examplePrivateKey:\n    type: tls:PrivateKey\n    properties:\n      algorithm: RSA\n  exampleSelfSignedCert:\n    type: tls:SelfSignedCert\n    properties:\n      keyAlgorithm: RSA\n      privateKeyPem: ${examplePrivateKey.privateKeyPem}\n      subjects:\n        - commonName: example.com\n          organization: ACME Examples, Inc\n      validityPeriodHours: 12\n      allowedUses:\n        - key_encipherment\n        - digital_signature\n        - server_auth\n  cert:\n    type: aws:acm:Certificate\n    properties:\n      privateKey: ${examplePrivateKey.privateKeyPem}\n      certificateBody: ${exampleSelfSignedCert.certPem}\n```\n{{% /example %}}\n{{% example %}}\n### Referencing domain_validation_options With for_each Based Resources\n\nSee the `aws.acm.CertificateValidation` resource for a full example of performing DNS validation.\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst example: aws.route53.Record[];\nfor (const range of Object.entries(.reduce((__obj, dvo) => { ...__obj, [dvo.domainName]: {\n    name: dvo.resourceRecordName,\n    record: dvo.resourceRecordValue,\n    type: dvo.resourceRecordType,\n} })).map(([k, v]) => {key: k, value: v})) {\n    example.push(new aws.route53.Record(`example-${range.key}`, {\n        allowOverwrite: true,\n        name: range.value.name,\n        records: [range.value.record],\n        ttl: 60,\n        type: aws.route53.recordtype.RecordType[range.value.type],\n        zoneId: aws_route53_zone.example.zone_id,\n    }));\n}\n```\n```python\nimport pulumi\nimport pulumi_aws as aws\n\nexample = []\nfor range in [{\"key\": k, \"value\": v} for [k, v] in enumerate({dvo.domainName: {\n    name: dvo.resourceRecordName,\n    record: dvo.resourceRecordValue,\n    type: dvo.resourceRecordType,\n} for dvo in aws_acm_certificate.example.domain_validation_options})]:\n    example.append(aws.route53.Record(f\"example-{range['key']}\",\n        allow_overwrite=True,\n        name=range[\"value\"][\"name\"],\n        records=[range[\"value\"][\"record\"]],\n        ttl=60,\n        type=aws.route53/recordtype.RecordType(range[\"value\"][\"type\"]),\n        zone_id=aws_route53_zone[\"example\"][\"zone_id\"]))\n```\n```yaml\nresources:\n  example:\n    type: aws:route53:Record\n    properties:\n      allowOverwrite: true\n      name: ${range.value.name}\n      records:\n        - ${range.value.record}\n      ttl: 60\n      type: ${range.value.type}\n      zoneId: ${aws_route53_zone.example.zone_id}\n    options: {}\n```\n{{% /example %}}\n{{% /examples %}}\n\n## Import\n\nCertificates can be imported using their ARN, e.g.,\n\n```sh\n $ pulumi import aws:acm/certificate:Certificate cert arn:aws:acm:eu-central-1:123456789012:certificate/7e7a28d2-163f-4b8f-b9cd-822f96c08d6a\n```\n\n ",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "description": "ARN of the certificate\n"
+        },
+        "certificateAuthorityArn": {
+          "type": "string",
+          "description": "ARN of an ACM PCA\n"
+        },
+        "certificateBody": {
+          "type": "string",
+          "description": "Certificate's PEM-formatted public key\n"
+        },
+        "certificateChain": {
+          "type": "string",
+          "description": "Certificate's PEM-formatted chain\n* Creating a private CA issued certificate\n"
+        },
+        "domainName": {
+          "type": "string",
+          "description": "Fully qualified domain name (FQDN) in the certificate.\n"
+        },
+        "domainValidationOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/aws:acm/CertificateDomainValidationOption:CertificateDomainValidationOption"
+          },
+          "description": "Set of domain validation objects which can be used to complete certificate validation. Can have more than one element, e.g., if SANs are defined. Only set if `DNS`-validation was used.\n"
+        },
+        "notAfter": {
+          "type": "string",
+          "description": "Expiration date and time of the certificate.\n"
+        },
+        "notBefore": {
+          "type": "string",
+          "description": "Start of the validity period of the certificate.\n"
+        },
+        "options": {
+          "$ref": "#/types/aws:acm/CertificateOptions:CertificateOptions",
+          "description": "Configuration block used to set certificate options. Detailed below.\n"
+        },
+        "privateKey": {
+          "type": "string",
+          "description": "Certificate's PEM-formatted private key\n"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the certificate.\n"
+        },
+        "subjectAlternativeNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Set of domains that should be SANs in the issued certificate. To remove all elements of a previously configured list, set this value equal to an empty list (`[]`).\n"
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of tags to assign to the resource. If configured with a provider `default_tags` configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n"
+        },
+        "tagsAll": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of tags assigned to the resource, including those inherited from the provider `default_tags` configuration block.\n"
+        },
+        "validationEmails": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of addresses that received a validation E-Mail. Only set if `EMAIL`-validation was used.\n"
+        },
+        "validationMethod": {
+          "type": "string"
+        },
+        "validationOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/aws:acm/CertificateValidationOption:CertificateValidationOption"
+          },
+          "description": "Configuration block used to specify information about the initial validation of each domain name. Detailed below.\n* Importing an existing certificate\n"
+        }
+      },
+      "required": [
+        "arn",
+        "domainName",
+        "domainValidationOptions",
+        "notAfter",
+        "notBefore",
+        "status",
+        "subjectAlternativeNames",
+        "tagsAll",
+        "validationEmails",
+        "validationMethod"
+      ],
+      "inputProperties": {
+        "certificateAuthorityArn": {
+          "type": "string",
+          "description": "ARN of an ACM PCA\n",
+          "willReplaceOnChanges": true
+        },
+        "certificateBody": {
+          "type": "string",
+          "description": "Certificate's PEM-formatted public key\n"
+        },
+        "certificateChain": {
+          "type": "string",
+          "description": "Certificate's PEM-formatted chain\n* Creating a private CA issued certificate\n"
+        },
+        "domainName": {
+          "type": "string",
+          "description": "Fully qualified domain name (FQDN) in the certificate.\n",
+          "willReplaceOnChanges": true
+        },
+        "options": {
+          "$ref": "#/types/aws:acm/CertificateOptions:CertificateOptions",
+          "description": "Configuration block used to set certificate options. Detailed below.\n"
+        },
+        "privateKey": {
+          "type": "string",
+          "description": "Certificate's PEM-formatted private key\n"
+        },
+        "subjectAlternativeNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Set of domains that should be SANs in the issued certificate. To remove all elements of a previously configured list, set this value equal to an empty list (`[]`).\n",
+          "willReplaceOnChanges": true
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of tags to assign to the resource. If configured with a provider `default_tags` configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n"
+        },
+        "validationMethod": {
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "validationOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/aws:acm/CertificateValidationOption:CertificateValidationOption"
+          },
+          "description": "Configuration block used to specify information about the initial validation of each domain name. Detailed below.\n* Importing an existing certificate\n",
+          "willReplaceOnChanges": true
+        }
+      },
+      "stateInputs": {
+        "description": "Input properties used for looking up and filtering Certificate resources.\n",
+        "properties": {
+          "arn": {
+            "type": "string",
+            "description": "ARN of the certificate\n"
+          },
+          "certificateAuthorityArn": {
+            "type": "string",
+            "description": "ARN of an ACM PCA\n",
+            "willReplaceOnChanges": true
+          },
+          "certificateBody": {
+            "type": "string",
+            "description": "Certificate's PEM-formatted public key\n"
+          },
+          "certificateChain": {
+            "type": "string",
+            "description": "Certificate's PEM-formatted chain\n* Creating a private CA issued certificate\n"
+          },
+          "domainName": {
+            "type": "string",
+            "description": "Fully qualified domain name (FQDN) in the certificate.\n",
+            "willReplaceOnChanges": true
+          },
+          "domainValidationOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/aws:acm/CertificateDomainValidationOption:CertificateDomainValidationOption"
+            },
+            "description": "Set of domain validation objects which can be used to complete certificate validation. Can have more than one element, e.g., if SANs are defined. Only set if `DNS`-validation was used.\n"
+          },
+          "notAfter": {
+            "type": "string",
+            "description": "Expiration date and time of the certificate.\n"
+          },
+          "notBefore": {
+            "type": "string",
+            "description": "Start of the validity period of the certificate.\n"
+          },
+          "options": {
+            "$ref": "#/types/aws:acm/CertificateOptions:CertificateOptions",
+            "description": "Configuration block used to set certificate options. Detailed below.\n"
+          },
+          "privateKey": {
+            "type": "string",
+            "description": "Certificate's PEM-formatted private key\n"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the certificate.\n"
+          },
+          "subjectAlternativeNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Set of domains that should be SANs in the issued certificate. To remove all elements of a previously configured list, set this value equal to an empty list (`[]`).\n",
+            "willReplaceOnChanges": true
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Map of tags to assign to the resource. If configured with a provider `default_tags` configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n"
+          },
+          "tagsAll": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Map of tags assigned to the resource, including those inherited from the provider `default_tags` configuration block.\n"
+          },
+          "validationEmails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of addresses that received a validation E-Mail. Only set if `EMAIL`-validation was used.\n"
+          },
+          "validationMethod": {
+            "type": "string",
+            "willReplaceOnChanges": true
+          },
+          "validationOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/aws:acm/CertificateValidationOption:CertificateValidationOption"
+            },
+            "description": "Configuration block used to specify information about the initial validation of each domain name. Detailed below.\n* Importing an existing certificate\n",
+            "willReplaceOnChanges": true
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "functions": {}
+}
