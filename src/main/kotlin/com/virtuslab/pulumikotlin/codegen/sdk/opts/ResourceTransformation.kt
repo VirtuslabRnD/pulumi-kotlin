@@ -3,7 +3,6 @@
 
 package com.pulumi.kotlin.options
 
-import com.pulumi.kotlin.toKotlin
 import java.util.Optional
 import com.pulumi.resources.ResourceArgs as JavaResourceArgs
 import com.pulumi.resources.ResourceOptions as JavaResourceOptions
@@ -25,7 +24,7 @@ internal fun ResourceTransformation.toJava(): JavaResourceTransformation {
 }
 
 internal fun JavaResourceTransformation.toKotlin(): ResourceTransformation {
-    return ResourceTransformation { this.apply(it).toKotlin() }
+    return ResourceTransformation { this.apply(it).orElse(null) }
 }
 
 /**

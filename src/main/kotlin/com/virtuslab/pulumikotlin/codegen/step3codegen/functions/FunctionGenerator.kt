@@ -25,6 +25,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.coroutinesFutureAwaitExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.OptionalType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetExtensions.addImport
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
@@ -136,9 +137,10 @@ object FunctionGenerator {
                         parameters.map { (name, type) ->
                             ParameterSpec.builder(
                                 name,
-                                typeNameClashResolver.toTypeName(type.type, Kotlin).copy(nullable = !type.required),
+                                typeNameClashResolver.toTypeName(type.type, Kotlin)
+                                    .copy(nullable = type.type is OptionalType),
                             )
-                                .letIf(!type.required) {
+                                .letIf(type.type is OptionalType) {
                                     it.defaultValue("null")
                                 }
                                 .build()

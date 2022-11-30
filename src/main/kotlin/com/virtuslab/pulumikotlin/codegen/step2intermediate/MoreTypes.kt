@@ -14,13 +14,7 @@ object MoreTypes {
 
     object Kotlin {
         object Pulumi {
-            fun toJavaExtensionMethod() = MemberName("com.pulumi.kotlin", "toJava")
-
-            fun toKotlinExtensionMethod() = MemberName("com.pulumi.kotlin", "toKotlin")
-
             fun applySuspendExtensionMethod() = MemberName("com.pulumi.kotlin", "applySuspend")
-
-            fun applyValueExtensionMethod() = MemberName("com.pulumi.kotlin", "applyValue")
 
             fun pulumiDslMarkerAnnotation() = PulumiTagMarker::class.asClassName()
 

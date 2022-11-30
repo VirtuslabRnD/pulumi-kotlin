@@ -3,20 +3,17 @@ package com.virtuslab.pulumikotlin.codegen.step3codegen.types
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumValue
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.convertibleToJavaClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.RootType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
+import com.virtuslab.pulumikotlin.codegen.step3codegen.ToKotlin.enumFunction
 import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocsIfAvailable
-import com.virtuslab.pulumikotlin.codegen.step3codegen.types.ToJava.toJavaEnumFunction
-import com.virtuslab.pulumikotlin.codegen.step3codegen.types.ToKotlin.toKotlinEnumFunction
+import com.virtuslab.pulumikotlin.codegen.step3codegen.types.ToJava.enumFunction
 
 private const val PROPERTY_NAME = "javaValue"
 
@@ -28,56 +25,41 @@ object EnumTypeGenerator {
     ): List<FileSpec> {
         return types.filterIsInstance<EnumType>()
             .map {
-                val enumTypeSpec = buildEnumTypeSpec(it, typeNameClashResolver)
-                buildEnumFileSpec(it, enumTypeSpec, typeNameClashResolver)
+                val javaClass = typeNameClashResolver.javaNames(it.metadata).kotlinPoetClassName
+                val kotlinClass = typeNameClashResolver.kotlinNames(it.metadata).kotlinPoetClassName
+                buildEnumFileSpec(buildEnumTypeSpec(it, javaClass, kotlinClass), kotlinClass)
             }
     }
 
-    private fun buildEnumTypeSpec(enumType: EnumType, typeNameClashResolver: TypeNameClashResolver): TypeSpec {
-        val javaEnumClassName = enumType.metadata.names(LanguageType.Java).kotlinPoetClassName
-
-        return TypeSpec.enumBuilder(enumType.metadata.pulumiName.name)
-            .addSuperinterface(prepareConvertibleToJavaInterface(enumType.metadata, typeNameClashResolver))
-            .addFunction(toJavaEnumFunction(enumType.metadata))
+    private fun buildEnumTypeSpec(enumType: EnumType, javaClass: ClassName, kotlinClass: ClassName): TypeSpec {
+        return TypeSpec.enumBuilder(kotlinClass)
+            .addSuperinterface(convertibleToJavaClass().parameterizedBy(javaClass))
+            .addFunction(enumFunction(javaClass))
             .addType(
                 TypeSpec.companionObjectBuilder()
-                    .addFunction(toKotlinEnumFunction(enumType.metadata, typeNameClashResolver))
+                    .addFunction(enumFunction(javaClass, kotlinClass))
                     .build(),
             )
             .addProperty(
-                PropertySpec.builder(PROPERTY_NAME, javaEnumClassName)
+                PropertySpec.builder(PROPERTY_NAME, javaClass)
                     .initializer(PROPERTY_NAME)
                     .build(),
             )
             .primaryConstructor(
                 FunSpec.constructorBuilder()
-                    .addParameter(PROPERTY_NAME, javaEnumClassName)
+                    .addParameter(PROPERTY_NAME, javaClass)
                     .build(),
             )
             .addDocsIfAvailable(enumType.metadata.kDoc)
-            .addEnumConstants(enumType.possibleValues, javaEnumClassName)
+            .addEnumConstants(enumType.possibleValues, javaClass)
             .build()
     }
 
-    private fun prepareConvertibleToJavaInterface(
-        typeMetadata: TypeMetadata,
-        typeNameClashResolver: TypeNameClashResolver,
-    ): ParameterizedTypeName {
-        val javaNames = typeNameClashResolver.javaNames(typeMetadata)
-        val javaClass = ClassName(javaNames.packageName, javaNames.className)
-        return convertibleToJavaClass().parameterizedBy(javaClass)
-    }
-
     private fun buildEnumFileSpec(
-        enumType: EnumType,
         enumTypeSpec: TypeSpec,
-        typeNameClashResolver: TypeNameClashResolver,
+        kotlinClass: ClassName,
     ): FileSpec {
-        val kotlinNames = typeNameClashResolver.kotlinNames(enumType.metadata)
-        return FileSpec.builder(
-            kotlinNames.packageName,
-            kotlinNames.className,
-        )
+        return FileSpec.builder(kotlinClass.packageName, kotlinClass.simpleName)
             .addType(enumTypeSpec)
             .build()
     }

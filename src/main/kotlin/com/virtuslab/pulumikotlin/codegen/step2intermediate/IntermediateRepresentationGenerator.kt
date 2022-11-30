@@ -132,7 +132,12 @@ object IntermediateRepresentationGenerator {
             .map { (propertyName, property) ->
                 val outputFieldsUsageKind = UsageKind(Nested, Resource, Output)
                 val isRequired = resource.required.contains(propertyName)
-                val reference = resolveNestedTypeReference(context, property, outputFieldsUsageKind)
+                val reference = resolveNestedTypeReference(
+                    context,
+                    property,
+                    outputFieldsUsageKind,
+                    isRequired,
+                )
                 Field(propertyName.value, OutputWrappedField(reference), isRequired, kDoc = getKDoc(property))
             }
 
@@ -242,22 +247,39 @@ object IntermediateRepresentationGenerator {
         property.properties
             .map { (name, value) ->
                 name.value to TypeAndOptionality(
-                    resolveNestedTypeReference(context, value, usageKind.toNested()),
-                    property.required.contains(name),
+                    resolveNestedTypeReference(context, value, usageKind.toNested(), property.required.contains(name)),
                     getKDoc(value),
                 )
             }
             .toMap()
 
-    private fun resolveNestedTypeReference(context: Context, property: Property, usageKind: UsageKind): ReferencedType {
+    private fun resolveNestedTypeReference(
+        context: Context,
+        property: Property,
+        usageKind: UsageKind,
+        isRequired: Boolean,
+    ): ReferencedType {
         require(usageKind.depth != Root) { "Root properties are not supported here (usageKind was $usageKind)" }
 
-        return when (property) {
+        val referencedType = when (property) {
             is ReferenceProperty -> resolveSingleTypeReference(context, property, usageKind)
-            is GenericTypeProperty -> mapGenericTypes(property) { resolveNestedTypeReference(context, it, usageKind) }
+            is GenericTypeProperty -> mapGenericTypes(property) {
+                resolveNestedTypeReference(
+                    context,
+                    it,
+                    usageKind,
+                    true,
+                )
+            }
+
             is PrimitiveProperty -> mapPrimitiveTypes(property)
             is ObjectProperty -> MapType(StringType, StringType)
             is StringEnumProperty -> error("Nesting not supported for ${property.javaClass}")
+        }
+        return if (isRequired) {
+            referencedType
+        } else {
+            OptionalType(referencedType)
         }
     }
 

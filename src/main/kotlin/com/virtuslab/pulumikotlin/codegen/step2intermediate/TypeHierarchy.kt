@@ -25,7 +25,7 @@ data class TypeMetadata(
     }
 }
 
-data class TypeAndOptionality(val type: ReferencedType, val required: Boolean, val kDoc: KDoc)
+data class TypeAndOptionality(val type: ReferencedType, val kDoc: KDoc)
 
 sealed class Type
 
@@ -40,6 +40,8 @@ sealed class ReferencedRootType : ReferencedType() {
 }
 
 sealed class ReferencedType : Type()
+
+data class OptionalType(val innerType: ReferencedType) : ReferencedType()
 
 object AnyType : ReferencedType()
 
