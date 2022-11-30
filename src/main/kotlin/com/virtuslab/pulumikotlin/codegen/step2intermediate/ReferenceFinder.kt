@@ -44,7 +44,6 @@ class ReferenceFinder(schema: Schema) {
             findNestedUsages(mapOf(DEFAULT_PROVIDER_TOKEN to schema.provider), UsageKind(Nested, Resource, Input)) {
                 it?.inputProperties?.values.orEmpty()
             },
-
             findNestedUsages(schema.functions, UsageKind(Nested, Function, Output)) {
                 it.outputs.properties.values
             },

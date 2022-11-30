@@ -45,23 +45,18 @@ class GcpE2eTest {
         pulumi.up("gcp:project=$PROJECT_NAME")
 
         // then
-        val outputProperties = pulumi.getStackOutput<Map<String, String>>()
+        val outputProperties = pulumi.getStackOutput<ProviderTestStackOutput>()
 
-        val instanceEuropeCentral2AName =
-            requireNotNull(outputProperties["instanceEuropeCentral2AName"])
-        val instanceEuropeNorth1CName =
-            requireNotNull(outputProperties["instanceEuropeNorth1CName"])
-
-        val instanceEuropeCentral2A = getInstance(instanceEuropeCentral2AName)
-        val instanceEuropeNorth1C = getInstance(instanceEuropeNorth1CName)
+        val instanceEuropeCentral2A = getInstance(outputProperties.instanceEuropeCentral2A.instanceName)
+        val instanceEuropeNorth1C = getInstance(outputProperties.instanceEuropeNorth1C.instanceName)
 
         assertEquals(
             "europe-central2-a",
-            outputProperties["instanceEuropeCentral2AZone"],
+            outputProperties.instanceEuropeCentral2A.instanceZone,
         )
         assertEquals(
             "europe-north1-c",
-            outputProperties["instanceEuropeNorth1CZone"],
+            outputProperties.instanceEuropeNorth1C.instanceZone,
         )
 
         assertVmExists(instanceEuropeCentral2A)

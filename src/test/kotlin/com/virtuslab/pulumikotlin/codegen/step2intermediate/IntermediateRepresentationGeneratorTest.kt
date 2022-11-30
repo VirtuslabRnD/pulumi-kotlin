@@ -485,7 +485,7 @@ internal class IntermediateRepresentationGeneratorTest {
         assertAll(assertions)
     }
 
-    // FIXME this test class verifies incorrect behaviour introduced intentionally to keep consistency with Pulumi-java,
+    // TODO this test class verifies incorrect behaviour introduced intentionally to keep consistency with Pulumi-java,
     //  it should be removed, when the issue in Pulumi-java is solved
     //  @see https://github.com/VirtuslabRnD/pulumi-kotlin/pull/123#intentionally-generating-fields-with-incorrect-type-string
     @Test
@@ -514,8 +514,8 @@ internal class IntermediateRepresentationGeneratorTest {
         irResources.forEach {
             assertContainsPropertyWhere(
                 resources = it,
-                expectedFieldName = "type",
-                expectedFieldType = StringType::class,
+                fieldNameIs = "type",
+                fieldTypeIs = StringType::class,
                 shouldBeOutputWrapped = true,
             )
         }
@@ -545,8 +545,8 @@ internal class IntermediateRepresentationGeneratorTest {
         irResources.forEach {
             assertContainsPropertyWhere(
                 resources = it,
-                expectedFieldName = "oneOfProperty",
-                expectedFieldType = StringType::class,
+                fieldNameIs = "oneOfProperty",
+                fieldTypeIs = StringType::class,
                 shouldBeOutputWrapped = true,
             )
         }
@@ -591,8 +591,8 @@ internal class IntermediateRepresentationGeneratorTest {
         irResources.forEach {
             assertContainsPropertyWhere(
                 resources = it,
-                expectedFieldName = "oneOfProperty",
-                expectedFieldType = AnyType::class,
+                fieldNameIs = "oneOfProperty",
+                fieldTypeIs = AnyType::class,
                 shouldBeOutputWrapped = true,
             )
         }
@@ -679,14 +679,14 @@ internal class IntermediateRepresentationGeneratorTest {
 
     private fun <T : ReferencedType> assertContainsPropertyWhere(
         resources: ResourceType,
-        expectedFieldName: String,
-        expectedFieldType: KClass<T>,
+        fieldNameIs: String,
+        fieldTypeIs: KClass<T>,
         shouldBeOutputWrapped: Boolean,
     ) {
         val actualField: Field<*>? =
-            resources.outputFields.filter { field -> field.toKotlinName() == expectedFieldName }
+            resources.outputFields.filter { field -> field.toKotlinName() == fieldNameIs }
                 .letIf(shouldBeOutputWrapped) { fields -> fields.filter { field -> field.fieldType::class == OutputWrappedField::class } }
-                .firstOrNull { field -> field.fieldType.type::class == expectedFieldType }
+                .firstOrNull { field -> field.fieldType.type::class == fieldTypeIs }
 
         assertNotNull(actualField)
     }

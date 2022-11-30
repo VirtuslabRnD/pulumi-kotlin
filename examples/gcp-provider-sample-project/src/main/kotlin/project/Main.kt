@@ -1,5 +1,6 @@
 package project
 
+import com.pulumi.core.Output
 import com.pulumi.gcp.compute.kotlin.instanceResource
 import com.pulumi.gcp.kotlin.Provider
 import com.pulumi.gcp.kotlin.providerResource
@@ -35,10 +36,17 @@ fun main() {
             commonTags + "zone-europe-north1-c",
         )
 
-        ctx.export("instanceEuropeCentral2AName", instanceEuropeCentral2A.name)
-        ctx.export("instanceEuropeNorth1CName", instanceEuropeNorth1C.name)
-        ctx.export("instanceEuropeCentral2AZone", instanceEuropeCentral2A.zone)
-        ctx.export("instanceEuropeNorth1CZone", instanceEuropeNorth1C.zone)
+        val instanceEuropeCentral2AOutputMap = mapOf(
+            "instanceName" to instanceEuropeCentral2A.name,
+            "instanceZone" to instanceEuropeCentral2A.zone,
+        )
+        val instanceEuropeNorth1COutputMap = mapOf(
+            "instanceName" to instanceEuropeNorth1C.name,
+            "instanceZone" to instanceEuropeNorth1C.zone,
+        )
+
+        ctx.export("instanceEuropeCentral2A", Output.of(instanceEuropeCentral2AOutputMap))
+        ctx.export("instanceEuropeNorth1C", Output.of(instanceEuropeNorth1COutputMap))
     }
 }
 
@@ -57,6 +65,7 @@ private suspend fun createInstanceWithProvider(resourceName: String, provider: P
             machineType("e2-micro")
             tags(tags)
             bootDisk {
+                autoDelete(true)
                 initializeParams {
                     image("debian-cloud/debian-11")
                 }

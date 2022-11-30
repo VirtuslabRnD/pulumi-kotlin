@@ -277,10 +277,6 @@ object IntermediateRepresentationGenerator {
         } else if (property.isJson()) {
             JsonType
         } else if (context.referencedStringTypesResolver.shouldGenerateStringType(referencedTypeName)) {
-            // FIXME this if statement introduces a bug present in golang implementation,
-            //  it should be removed when the bug in golang is fixed and types are properly generated
-            //  despite the case insensitive type tokens
-            //  @see https://github.com/VirtuslabRnD/pulumi-kotlin/pull/123#intentionally-generating-fields-with-incorrect-type-string
             StringType
         } else {
             val pulumiName = PulumiName.from(referencedTypeName, context.namingConfiguration)
