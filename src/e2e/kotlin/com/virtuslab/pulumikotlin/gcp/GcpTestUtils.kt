@@ -42,13 +42,10 @@ fun assertVmExists(instance: Instance) {
 }
 
 @Serializable
-data class PulumiStackOutput(val instanceName: String)
+data class InstanceTestInstanceStackOutput(val instanceName: String, val instanceZone: String? = null)
 
 @Serializable
-data class GcpInstanceStackOutput(val instanceName: String, val instanceZone: String)
-
-@Serializable
-data class ProviderTestStackOutput(
-    val instanceEuropeCentral2A: GcpInstanceStackOutput,
-    val instanceEuropeNorth1C: GcpInstanceStackOutput,
+data class ProviderTestInstanceStackOutput(
+    val instanceEuropeCentral2A: InstanceTestInstanceStackOutput,
+    val instanceEuropeNorth1C: InstanceTestInstanceStackOutput,
 )
