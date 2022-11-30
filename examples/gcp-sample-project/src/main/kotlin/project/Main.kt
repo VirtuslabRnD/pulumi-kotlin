@@ -12,6 +12,7 @@ fun main() {
                 zone("europe-central2-a")
                 tags("foo", "bar")
                 bootDisk {
+                    autoDelete(true)
                     initializeParams {
                         image("debian-cloud/debian-11")
                     }
