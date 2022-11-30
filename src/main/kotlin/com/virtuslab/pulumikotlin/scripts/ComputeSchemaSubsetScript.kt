@@ -4,10 +4,12 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.RawOption
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.help
+import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.options.transformValues
 import com.github.ajalt.clikt.parameters.types.choice
-import com.github.ajalt.clikt.parameters.types.enum
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Decoder
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArrayProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.MapProperty
@@ -19,6 +21,7 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Reference
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferencingOtherTypesProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringEnumProperty
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.transformKeys
+import com.virtuslab.pulumikotlin.codegen.utils.capitalize
 import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import com.virtuslab.pulumikotlin.codegen.utils.shorten
@@ -57,12 +60,24 @@ private const val HELP =
 
 class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : CliktCommand(help = HELP) {
 
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+    }
     private val logger = KotlinLogging.logger {}
     private val printStream = PrintStream(outputStream)
 
     private val schemaPath: String by option().required()
-    private val context: Context by option().enum<ExposedContext>().convert { it.toContext() }.required()
-    private val name: String by option().required()
+    private val existingSchema: String? by option()
+    private val nameAndContexts: List<NameWithContext>
+        by option("--name-and-context")
+            .transformValues(2) { NameWithContext(it[0], ExposedContext.valueOf(it[1].capitalize()).toContext()) }
+            .multiple()
+            .help(
+                "Specify multiple names and their context (type / function). " +
+                    "For example --name-and-context VirtualMachine --name-and-context",
+            )
+
     private val shortenDescriptions: Boolean by option().boolean(default = false)
     private val loadProviderWithChildren: Boolean by option().boolean(default = true)
 
@@ -108,6 +123,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
 
     override fun run() {
         val parsedSchema = Decoder.decode(File(schemaPath).inputStream())
+        val parsedExistingSchema = existingSchema ?. let { Decoder.decode(File(it).inputStream()) }
 
         val providerNameWithContext = NameWithContext("pulumi:providers:${parsedSchema.provider}", Provider)
 
@@ -133,30 +149,39 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
             .toMap()
             .lowercaseKeys()
 
-        val chosenKey = NameWithContext(name, context)
+        val propertiesByNameWithContextFromExistingSchema = parsedExistingSchema ?.let {
+            with(it) {
+                types.keys.map { NameWithContext(it, Type) } +
+                    resources.keys.map { NameWithContext(it, Resource) } +
+                    functions.keys.map { NameWithContext(it, Function) }
+            }
+        } ?: emptyList()
+
+        val allNamesWithContext = nameAndContexts + propertiesByNameWithContextFromExistingSchema
 
         val childrenByNameWithContext = computeTransitiveClosures(propertiesByNameWithContext).lowercaseKeys()
         val parentsByNameWithContext = inverse(childrenByNameWithContext).lowercaseKeys()
 
-        val childrenOfChosenNameWithContext = childrenByNameWithContext[chosenKey]
-            ?: error("Could not find $name children ($context)")
-        val parentsOfChosenNameWithContextAndTheirChildren = parentsByNameWithContext[chosenKey] ?: run {
-            logger.info("Could not find $name parents ($context)")
-            References.empty()
-        }
-        val childrenOfProvider = childrenByNameWithContext[providerNameWithContext] ?: References.empty()
+        val allTypesThatWereSomehowReferenced = allNamesWithContext.fold(References.empty()) { acc, chosenKey ->
+            val (name, context) = chosenKey
 
-        val allTypesThatWereSomehowReferenced = childrenOfChosenNameWithContext
-            .letIf(loadProviderWithChildren) {
-                it.merge(childrenOfProvider)
+            val childrenOfChosenNameWithContext = childrenByNameWithContext[chosenKey]
+                ?: error("Could not find $name children ($context)")
+            val parentsOfChosenNameWithContextAndTheirChildren = parentsByNameWithContext[chosenKey] ?: run {
+                logger.info("Could not find $name parents ($context)")
+                References.empty()
             }
-            .letIf(loadFullParents) {
-                it.merge(parentsOfChosenNameWithContextAndTheirChildren)
-            }
+            val childrenOfProvider = childrenByNameWithContext[providerNameWithContext] ?: References.empty()
 
-        val json = Json {
-            prettyPrint = true
-            ignoreUnknownKeys = true
+            val allTypesThatWereSomehowReferenced = childrenOfChosenNameWithContext
+                .letIf(loadProviderWithChildren) {
+                    it.merge(childrenOfProvider)
+                }
+                .letIf(loadFullParents) {
+                    it.merge(parentsOfChosenNameWithContextAndTheirChildren)
+                }
+
+            acc.merge(allTypesThatWereSomehowReferenced)
         }
 
         val noDataLossSchemaModel = json.decodeFromString<NoDataLossSchemaModel>(File(schemaPath).readText())
@@ -164,7 +189,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         fun <V> getFiltered(map: Map<String, V>, context: Context) =
             map.filterKeys {
                 val key = NameWithContext(it, context)
-                key == chosenKey || allTypesThatWereSomehowReferenced.contains(key)
+                allNamesWithContext.contains(key) || allTypesThatWereSomehowReferenced.contains(key)
             }
 
         val newSchema = with(noDataLossSchemaModel) {

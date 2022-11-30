@@ -1,12 +1,35 @@
 [
   {
+    "providerName": "random",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.6.0/provider/cmd/pulumi-resource-random/schema.json",
+    "kotlinVersion": "4.6.0.0-SNAPSHOT",
+    "javaVersion": "4.6.0",
+    "javaGitTag": "v4.6.0",
+    "customDependencies": []
+  },
+  {
+    "providerName": "azure",
+    "url": "https://gist.githubusercontent.com/myhau/cab21c752afb0f7c8e9c8deec82c7c65/raw/850a299b7226547e70df986b096b8d38ef6ebe6d/schema-azure-classic-v5.25.0-subset-for-build.json",
+    "kotlinVersion": "5.25.0.0-SNAPSHOT",
+    "javaVersion": "5.25.0",
+    "javaGitTag": "v5.25.0",
+    "customDependencies": []
+  },
+  {
+    "providerName": "azure-native",
+    "url": "https://gist.githubusercontent.com/myhau/00414627dd33a2d3dd5293fe1845562f/raw/3616714f80af381fd46f45e47a8bc1684317b166/schema-azure-native-v1.87.0-subset-for-build.json",
+    "kotlinVersion": "1.87.0.0-SNAPSHOT",
+    "javaVersion": "1.87.0",
+    "javaGitTag": "v1.87.0",
+    "customDependencies": []
+  },
+  {
     "providerName": "gcp",
     "url": "https://gist.githubusercontent.com/myhau/0aa5e4a2a18ea6ae194abd824440e558/raw/6d01f8b7165a0a515eceee9924c0ffc9dd86fbae/schema-gcp-classic-v6.43.0-subset-for-build.json",
     "kotlinVersion": "6.43.0.0-SNAPSHOT",
     "javaVersion": "6.43.0",
     "javaGitTag": "v6.43.0",
-    "customDependencies": [
-    ]
+    "customDependencies": []
   },
   {
     "providerName": "google-native",
@@ -14,8 +37,7 @@
     "kotlinVersion": "0.27.0.0-SNAPSHOT",
     "javaVersion": "0.27.0",
     "javaGitTag": "v0.27.0",
-    "customDependencies": [
-    ]
+    "customDependencies": []
   },
   {
     "providerName": "kubernetes",
@@ -23,7 +45,6 @@
     "kotlinVersion": "3.22.1.0-SNAPSHOT",
     "javaVersion": "3.22.1",
     "javaGitTag": "v3.22.1",
-    "customDependencies": [
-    ]
+    "customDependencies": []
   }
 ]

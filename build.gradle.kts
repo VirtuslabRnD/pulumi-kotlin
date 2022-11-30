@@ -36,6 +36,9 @@ dependencies {
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
     testImplementation(kotlin("test"))
     testImplementation("com.google.cloud:google-cloud-compute:1.15.0")
+    testImplementation("com.azure:azure-identity:1.7.1")
+    testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.21.0")
+
     testImplementation("io.kubernetes:client-java:16.0.2")
     testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("io.github.cdklabs:projen:0.65.42")
