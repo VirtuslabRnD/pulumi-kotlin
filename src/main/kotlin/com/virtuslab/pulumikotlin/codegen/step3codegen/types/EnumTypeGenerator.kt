@@ -10,6 +10,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EnumValue
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.convertibleToJavaClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.RootType
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.addStandardSuppressAnnotations
 import com.virtuslab.pulumikotlin.codegen.step3codegen.ToKotlin.enumFunction
 import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocsIfAvailable
@@ -61,6 +62,7 @@ object EnumTypeGenerator {
     ): FileSpec {
         return FileSpec.builder(kotlinClass.packageName, kotlinClass.simpleName)
             .addType(enumTypeSpec)
+            .addStandardSuppressAnnotations()
             .build()
     }
 

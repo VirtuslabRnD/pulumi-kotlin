@@ -1,6 +1,8 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.KModifier.SUSPEND
@@ -152,4 +154,10 @@ object KotlinPoetPatterns {
         addDocs("@param $paramName ${kDoc.description.orEmpty()}")
         addDeprecationWarningIfAvailable(kDoc)
     }
+
+    fun FileSpec.Builder.addStandardSuppressAnnotations() = addAnnotation(
+        AnnotationSpec.builder(Suppress::class)
+            .addMember("\"NAME_SHADOWING\", \"DEPRECATION\"")
+            .build(),
+    )
 }

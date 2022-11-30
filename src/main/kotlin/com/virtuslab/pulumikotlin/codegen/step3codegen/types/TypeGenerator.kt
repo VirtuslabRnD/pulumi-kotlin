@@ -31,6 +31,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetExtensions.addImports
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetExtensions.addTypes
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.addStandardSuppressAnnotations
 import com.virtuslab.pulumikotlin.codegen.step3codegen.NormalField
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
 import com.virtuslab.pulumikotlin.codegen.step3codegen.ToKotlin
@@ -92,12 +93,14 @@ object TypeGenerator {
             )
         }
 
+    @Suppress("QWD", "QWD")
     private fun generateFile(context: Context, typeNameClashResolver: TypeNameClashResolver): FileSpec {
         val typeMetadata = context.typeMetadata
         val names = typeNameClashResolver.kotlinNames(typeMetadata)
 
         return FileSpec
             .builder(names.packageName, names.className)
+            .addStandardSuppressAnnotations()
             .addImports(
                 applySuspendExtensionMethod(),
             )

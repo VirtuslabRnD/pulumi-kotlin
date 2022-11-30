@@ -28,6 +28,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.OptionalType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetExtensions.addImport
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.addStandardSuppressAnnotations
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.builderLambda
 import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
@@ -57,6 +58,7 @@ object FunctionGenerator {
                     )
                     .addType(objectSpecBuilder.build())
                     .addImport(coroutinesFutureAwaitExtensionMethod())
+                    .addStandardSuppressAnnotations()
                     .build()
 
                 fileSpec

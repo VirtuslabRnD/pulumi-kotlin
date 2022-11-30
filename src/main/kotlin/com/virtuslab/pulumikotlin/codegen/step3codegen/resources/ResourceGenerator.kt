@@ -25,6 +25,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pul
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.addStandardSuppressAnnotations
 import com.virtuslab.pulumikotlin.codegen.step3codegen.ToKotlin
 import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
@@ -49,6 +50,7 @@ object ResourceGenerator {
                 type.name.toResourcePackage(NamingFlags(Root, Resource, Output, Kotlin)),
                 type.name.toResourceName(NamingFlags(Root, Resource, Output, Kotlin)),
             )
+                .addStandardSuppressAnnotations()
 
             buildArgsClass(file, type, typeNameClashResolver)
 
