@@ -32,7 +32,6 @@ internal class CodeGeneratorGenerateTypesTest {
             mapOf(
                 "field1" to TypeAndOptionality(
                     StringType,
-                    true,
                     KDoc(null, null),
                 ),
             ),
@@ -46,7 +45,6 @@ internal class CodeGeneratorGenerateTypesTest {
             mapOf(
                 "field2" to TypeAndOptionality(
                     firstType.toReference(),
-                    true,
                     KDoc(null, null),
                 ),
             ),

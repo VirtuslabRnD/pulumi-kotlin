@@ -38,7 +38,6 @@ internal class CodeGeneratorGenerateFunctionsTest {
             mapOf(
                 "arn" to TypeAndOptionality(
                     StringType,
-                    true,
                     KDoc(null, null),
                 ),
             ),
@@ -56,7 +55,6 @@ internal class CodeGeneratorGenerateFunctionsTest {
             mapOf(
                 "arn" to TypeAndOptionality(
                     StringType,
-                    true,
                     KDoc(null, null),
                 ),
             ),
