@@ -6,7 +6,6 @@
     "javaVersion": "0.2.2",
     "javaGitTag": "v0.2.2",
     "customDependencies": [
-      "com.pulumi:slack:0.2.2"
     ]
   },
   {
@@ -16,7 +15,6 @@
     "javaVersion": "4.8.1",
     "javaGitTag": "v4.8.1",
     "customDependencies": [
-      "com.pulumi:random:4.8.1"
     ]
   },
   {
@@ -26,7 +24,6 @@
     "javaVersion": "5.17.0-alpha.1665590627+9c01b95f",
     "javaGitTag": "9c01b95f",
     "customDependencies": [
-      "com.pulumi:aws:5.17.0-alpha.1665590627+9c01b95f"
     ]
   },
   {
@@ -36,7 +33,6 @@
     "javaVersion": "6.39.0",
     "javaGitTag": "v6.39.0",
     "customDependencies": [
-      "com.pulumi:gcp:6.39.0"
     ]
   }
 ]
