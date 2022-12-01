@@ -2,12 +2,12 @@ package com.virtuslab.pulumikotlin.codegen.step1schemaparse
 
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.RawFullProviderSchema
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Schema
+import com.virtuslab.pulumikotlin.codegen.utils.Constants
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.InputStream
 
 object Decoder {
-    private val KNOWN_TYPE_DUPLICATES = setOf("azure-native:network:IpAllocationMethod")
 
     fun decode(inputStream: InputStream): Schema {
         val rawFullProviderSchema =
@@ -29,5 +29,6 @@ object Decoder {
         }
     }
 
-    private fun withoutKnownTypeDuplicates(types: TypesMap) = types.filterKeys { !KNOWN_TYPE_DUPLICATES.contains(it) }
+    private fun withoutKnownTypeDuplicates(types: TypesMap) =
+        types.filterKeys { !Constants.DUPLICATED_TYPES.containsKey(it) }
 }

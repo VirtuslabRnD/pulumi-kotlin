@@ -28,6 +28,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
+import com.virtuslab.pulumikotlin.codegen.utils.Constants.DUPLICATED_TYPES
 import com.virtuslab.pulumikotlin.codegen.utils.DEFAULT_PROVIDER_TOKEN
 import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
@@ -288,7 +289,7 @@ object IntermediateRepresentationGenerator {
         property: ReferenceProperty,
         usageKind: UsageKind,
     ): ReferencedType {
-        val referencedTypeName = property.referencedTypeName
+        val referencedTypeName = DUPLICATED_TYPES.getOrDefault(property.referencedTypeName, property.referencedTypeName)
 
         return if (property.isAssetOrArchive()) {
             AssetOrArchiveType

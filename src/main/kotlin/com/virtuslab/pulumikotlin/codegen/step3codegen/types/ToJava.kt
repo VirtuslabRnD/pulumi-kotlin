@@ -19,7 +19,6 @@ import com.virtuslab.pulumikotlin.codegen.expressions.pairWith
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.JsonType
@@ -64,7 +63,6 @@ object ToJava {
                                         args,
                                         it.fieldType.type,
                                         typeNameClashResolver,
-                                        usageKind.depth,
                                     )
                                 }
                         } else {
@@ -74,7 +72,6 @@ object ToJava {
                                         args,
                                         it.fieldType.type,
                                         typeNameClashResolver,
-                                        usageKind.depth,
                                     )
                                 }
                         }
@@ -94,7 +91,6 @@ object ToJava {
         expression: Expression,
         type: ReferencedType,
         typeNameClashResolver: TypeNameClashResolver,
-        depth: Depth,
     ): Expression {
         return when (type) {
             is AnyType, ArchiveType, AssetOrArchiveType -> expression
@@ -107,7 +103,6 @@ object ToJava {
                             args,
                             firstType,
                             typeNameClashResolver,
-                            depth,
                         )
                     },
                     expressionMapperRight = { args ->
@@ -115,7 +110,6 @@ object ToJava {
                             args,
                             secondType,
                             typeNameClashResolver,
-                            depth,
                         )
                     },
                 )
@@ -138,7 +132,6 @@ object ToJava {
                     it,
                     type.innerType,
                     typeNameClashResolver,
-                    depth,
                 )
             }
 
@@ -149,7 +142,6 @@ object ToJava {
                             argument.field("value"),
                             type.valueType,
                             typeNameClashResolver,
-                            depth,
                         ),
                     )
             }
@@ -159,7 +151,6 @@ object ToJava {
                 expression,
                 type.innerType,
                 typeNameClashResolver,
-                depth,
             )
 
             is PrimitiveType -> expression
