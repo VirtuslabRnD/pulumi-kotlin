@@ -153,7 +153,7 @@ private fun fetchUpdatedSchemas(schemas: List<SchemaMetadata>, client: HttpClien
                 newKotlinVersion.toString(),
                 newJavaVersion.toString(),
                 newGitTag,
-                listOf("com.pulumi:$providerName:$newJavaVersion"),
+                schema.customDependencies,
             )
         }
             .firstOrNull { newSchema ->
