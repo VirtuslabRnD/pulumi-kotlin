@@ -1,3 +1,5 @@
+import org.gradle.configurationcache.extensions.capitalized
+
 plugins {
     application
     kotlin("jvm")
@@ -26,7 +28,7 @@ dependencies {
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
 
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
-    implementation("ch.qos.logback:logback-classic:1.4.4")
+    implementation("ch.qos.logback:logback-classic:1.4.5")
 
     implementation("com.google.code.gson:gson:2.10")
 
@@ -36,7 +38,7 @@ dependencies {
     testImplementation("com.google.cloud:google-cloud-compute:1.15.0")
     testImplementation("io.kubernetes:client-java:16.0.2")
     testImplementation("io.mockk:mockk:1.13.2")
-    testImplementation("io.github.cdklabs:projen:0.65.23")
+    testImplementation("io.github.cdklabs:projen:0.65.31")
 }
 
 tasks.test {
@@ -122,5 +124,28 @@ tasks.register<Task>("postRelease") {
     group = "releaseManagement"
     doLast {
         replaceReleasedVersionsWithSnapshots(projectDir, versionConfigFile)
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/VirtuslabRnD/pulumi-kotlin")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
+val publicationsToPublishToGitHub = schemaMetadata
+    .filter { !KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot }
+    .map { "pulumi${it.providerName.capitalized()}" }
+
+tasks.withType<PublishToMavenRepository>().configureEach {
+    onlyIf {
+        repository.name == "GitHubPackages" && publicationsToPublishToGitHub.contains(publication.name)
     }
 }

@@ -20,8 +20,6 @@ val commonDependencies = listOf(
 
 val createTasksForProvider by extra {
     fun(schema: SchemaMetadata) {
-        val kotlinVersion = KotlinVersion.fromVersionString(schema.kotlinVersion)
-
         val rootDir = project.rootDir.absolutePath
         val outputDirectory = Paths.get(rootDir, "build", "generated-src").toFile()
         val providerName = schema.providerName
@@ -58,19 +56,6 @@ val createTasksForProvider by extra {
         createJavadocJarTask(javadocJarTaskName, javadocGenerationTaskName, archiveName)
 
         publishing {
-            repositories {
-                if (!kotlinVersion.isSnapshot) {
-                    maven {
-                        name = "GitHubPackages"
-                        url = uri("https://maven.pkg.github.com/VirtuslabRnD/pulumi-kotlin")
-                        credentials {
-                            username = System.getenv("GITHUB_ACTOR")
-                            password = System.getenv("GITHUB_TOKEN")
-                        }
-                    }
-                }
-            }
-
             publications {
                 create<MavenPublication>(sourceSetName) {
                     artifact(tasks[jarTaskName])
