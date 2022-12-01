@@ -30,10 +30,13 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocsIfAvailable
 import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ToKotlin.toKotlinFunctionResource
 import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
+import kotlin.reflect.full.declaredMemberProperties
 
 object ResourceGenerator {
 
     private const val JAVA_RESOURCE_PARAMETER_NAME = "javaResource"
+
+    private val fieldNamesInBaseClass = KotlinResource::class.declaredMemberProperties.map { it.name }
 
     fun generateResources(resources: List<ResourceType>, typeNameClashResolver: TypeNameClashResolver): List<FileSpec> {
         val files = resources.map { type ->
@@ -62,25 +65,27 @@ object ResourceGenerator {
         val resourceClassName = ClassName(names.toResourcePackage(kotlinFlags), names.toResourceName(kotlinFlags))
         val javaResourceClassName = ClassName(names.toResourcePackage(javaFlags), names.toResourceName(javaFlags))
 
-        val fields = resourceType.outputFields.map { field ->
-            PropertySpec
-                .builder(field.toKotlinName(), field.toTypeName(typeNameClashResolver))
-                .getter(
-                    FunSpec.getterBuilder()
-                        .addCode(
-                            toKotlinFunctionResource(
-                                field.toJavaName(),
-                                field.fieldType.type,
-                                typeNameClashResolver,
-                                !field.required,
-                            ),
-                        )
-                        .build(),
-                )
-                .addDocsIfAvailable(field.kDoc)
-                .addDeprecationWarningIfAvailable(field.kDoc)
-                .build()
-        }
+        val fields = resourceType.outputFields
+            .filter { !fieldNamesInBaseClass.contains(it.toKotlinName()) }
+            .map { field ->
+                PropertySpec
+                    .builder(field.toKotlinName(), field.toTypeName(typeNameClashResolver))
+                    .getter(
+                        FunSpec.getterBuilder()
+                            .addCode(
+                                toKotlinFunctionResource(
+                                    field.toJavaName(),
+                                    field.fieldType.type,
+                                    typeNameClashResolver,
+                                    !field.required,
+                                ),
+                            )
+                            .build(),
+                    )
+                    .addDocsIfAvailable(field.kDoc)
+                    .addDeprecationWarningIfAvailable(field.kDoc)
+                    .build()
+            }
 
         val resourceMapperTypeSpec = ResourceMapperGenerator.generateMapper(resourceType)
         val resourceClass = TypeSpec
