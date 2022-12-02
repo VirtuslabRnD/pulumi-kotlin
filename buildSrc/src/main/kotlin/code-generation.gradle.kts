@@ -16,6 +16,7 @@ val tasksToDisable: List<(String) -> String> = listOf(
 
 val commonDependencies = listOf(
     "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1",
+    "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
 )
 
 val createTasksForProvider by extra {
