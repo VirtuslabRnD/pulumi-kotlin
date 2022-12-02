@@ -97,6 +97,7 @@ data class ResourceType(
     val outputFields: List<Field<*>>,
     val kDoc: KDoc,
     val isProvider: Boolean = false,
+    val isComponent: Boolean = false,
 )
 
 data class FunctionType(

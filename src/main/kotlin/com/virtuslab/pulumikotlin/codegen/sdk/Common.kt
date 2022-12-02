@@ -8,11 +8,12 @@ import com.google.gson.JsonParser
 import com.pulumi.Context
 import com.pulumi.core.Either
 import com.pulumi.core.Output
-import com.pulumi.resources.Resource
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.Optional
+import com.pulumi.resources.ComponentResource as JavaComponentResource
+import com.pulumi.resources.CustomResource as JavaCustomResource
 import com.pulumi.resources.ProviderResource as JavaProviderResource
 import com.pulumi.resources.Resource as JavaResource
 
@@ -241,8 +242,12 @@ private constructor(internal open val javaResource: JavaResource) {
     val urn: Output<String>
         get() = javaResource.urn()
 
-    val pulumiChildResources: MutableSet<Resource>
+    val pulumiChildResources: Set<KotlinResource>
         get() = javaResource.pulumiChildResources()
+            .map {
+                GlobalResourceMapper.tryMap(it)!!
+            }
+            .toSet()
 
     protected constructor(
         javaResource: JavaResource,
@@ -253,10 +258,31 @@ private constructor(internal open val javaResource: JavaResource) {
 }
 
 /**
+ * Parent class for component resources within Kotlin SDK - equivalent to [JavaComponentResource].
+ */
+@Suppress("UnnecessaryAbstractClass")
+abstract class KotlinComponentResource private constructor(
+    override val javaResource: JavaComponentResource,
+    mapper: ResourceMapper<KotlinResource>,
+) : KotlinResource(javaResource, mapper)
+
+/**
+ * Parent class for custom resources within Kotlin SDK - equivalent to [JavaCustomResource].
+ */
+@Suppress("UnnecessaryAbstractClass")
+abstract class KotlinCustomResource internal constructor(
+    override val javaResource: JavaCustomResource,
+    mapper: ResourceMapper<KotlinResource>,
+) : KotlinResource(javaResource, mapper) {
+    val id: Output<String>
+        get() = javaResource.id()
+}
+
+/**
  * Parent class for provider resources within Kotlin SDK - equivalent to [JavaProviderResource].
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class KotlinProviderResource protected constructor(
+abstract class KotlinProviderResource internal constructor(
     override val javaResource: JavaProviderResource,
     mapper: ResourceMapper<KotlinResource>,
 ) : KotlinResource(javaResource, mapper)

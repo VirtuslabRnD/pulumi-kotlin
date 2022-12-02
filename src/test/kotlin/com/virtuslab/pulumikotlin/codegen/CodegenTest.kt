@@ -729,6 +729,29 @@ class CodegenTest {
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_AZURE_NATIVE_SUBSET_WITH_LOWERCASE_RESOURCE, code)
     }
 
+    @Test
+    fun `id, pulumiResourceName, pulumiResourceType, pulumiChildResources and urn methods should be present`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.azurenative.aadiam.kotlin.azureADMetricResource
+            import com.pulumi.azurenative.aadiam.kotlin.AzureADMetric
+            import com.pulumi.core.Output
+            import com.pulumi.kotlin.KotlinResource
+
+            suspend fun main() {
+                val resource: AzureADMetric = azureADMetricResource("name") {}
+
+                val id: Output<String> = resource.id
+                val pulumiResourceName: String = resource.pulumiResourceName
+                val pulumiResourceType: String = resource.pulumiResourceType
+                val urn: Output<String> = resource.urn
+                val pulumiChildResources: Set<KotlinResource> = resource.pulumiChildResources
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AZURE_NATIVE_SUBSET_WITH_LOWERCASE_RESOURCE, code)
+    }
+
     private fun assertGeneratedCodeCompiles(schemaPath: String) {
         assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
     }
