@@ -34,12 +34,12 @@ class KubernetesE2eTest {
         val pod = getCreatedPod(pulumi.getStackOutput<PulumiStackOutput>().name)
 
         assertContains(
-            pod?.metadata?.labels?.entries!!.map { it.toPair() },
+            pod?.metadata?.labels?.entries.orEmpty().map { it.toPair() },
             "app" to "nginx",
         )
 
-        assertEquals(1, pod.spec?.containers?.size)
-        val container = pod.spec?.containers?.get(0)
+        assertEquals(1, pod?.spec?.containers?.size)
+        val container = pod?.spec?.containers?.get(0)
         assertEquals(container?.name, "nginx")
         assertEquals(container?.image, "nginx")
 
