@@ -1,5 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen.resources
 
+import com.pulumi.kotlin.KotlinComponentResource
+import com.pulumi.kotlin.KotlinCustomResource
 import com.pulumi.kotlin.KotlinProviderResource
 import com.pulumi.kotlin.KotlinResource
 import com.squareup.kotlinpoet.ClassName
@@ -30,13 +32,17 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocsIfAvailable
 import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ToKotlin.toKotlinFunctionResource
 import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
+import com.virtuslab.pulumikotlin.codegen.utils.letIf
+import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
 
 object ResourceGenerator {
 
     private const val JAVA_RESOURCE_PARAMETER_NAME = "javaResource"
 
-    private val fieldNamesInBaseClass = KotlinResource::class.declaredMemberProperties.map { it.name }
+    private val fieldNamesInBaseResourceClass = KotlinResource::class.declaredMemberProperties.map { it.name }
+    private val fieldNamesInBaseCustomResourceClass =
+        KotlinCustomResource::class.declaredMemberProperties.map { it.name }
 
     fun generateResources(resources: List<ResourceType>, typeNameClashResolver: TypeNameClashResolver): List<FileSpec> {
         val files = resources.map { type ->
@@ -66,7 +72,10 @@ object ResourceGenerator {
         val javaResourceClassName = ClassName(names.toResourcePackage(javaFlags), names.toResourceName(javaFlags))
 
         val fields = resourceType.outputFields
-            .filter { !fieldNamesInBaseClass.contains(it.toKotlinName()) }
+            .filter { field -> !fieldNamesInBaseResourceClass.contains(field.toKotlinName()) }
+            .letIf(resourceType.isComponent) {
+                it.filter { field -> !fieldNamesInBaseCustomResourceClass.contains(field.toKotlinName()) }
+            }
             .map { field ->
                 PropertySpec
                     .builder(field.toKotlinName(), field.toTypeName(typeNameClashResolver))
@@ -241,6 +250,13 @@ object ResourceGenerator {
             .addFunction(resourceFunction)
     }
 
-    private fun determineSuperclass(resourceType: ResourceType) =
-        if (resourceType.isProvider) KotlinProviderResource::class else KotlinResource::class
+    private fun determineSuperclass(resourceType: ResourceType): KClass<*> {
+        return if (resourceType.isProvider) {
+            KotlinProviderResource::class
+        } else if (resourceType.isComponent) {
+            KotlinComponentResource::class
+        } else {
+            KotlinCustomResource::class
+        }
+    }
 }
