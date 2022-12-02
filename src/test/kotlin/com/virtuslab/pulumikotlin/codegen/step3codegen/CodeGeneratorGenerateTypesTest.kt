@@ -7,10 +7,10 @@ import com.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Nested
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.FieldInfo
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.StringType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.FieldInfo
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UsageKind
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
