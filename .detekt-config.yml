@@ -6,7 +6,7 @@ output-reports:
     - 'XmlOutputReport'
 
 build:
-  maxIssues: 20 # TODO: Remove this setting after adjusting the codebase to Detekt
+  maxIssues: 21 # TODO: Remove this setting after adjusting the codebase to Detekt
 
 style:
   CanBeNonNullable:
