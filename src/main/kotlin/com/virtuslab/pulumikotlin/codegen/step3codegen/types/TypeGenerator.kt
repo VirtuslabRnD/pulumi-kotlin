@@ -93,7 +93,6 @@ object TypeGenerator {
             )
         }
 
-    @Suppress("QWD", "QWD")
     private fun generateFile(context: Context, typeNameClashResolver: TypeNameClashResolver): FileSpec {
         val typeMetadata = context.typeMetadata
         val names = typeNameClashResolver.kotlinNames(typeMetadata)
