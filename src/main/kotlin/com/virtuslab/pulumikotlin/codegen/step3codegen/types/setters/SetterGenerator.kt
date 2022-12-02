@@ -33,6 +33,7 @@ object AllSetterGenerators : SetterGenerator {
         ComplexTypeSetterGenerator,
         ListTypeSetterGenerator,
         MapTypeSetterGenerator,
+        EitherTypeSetterGenerator,
     )
 
     override fun generate(setter: Setter, typeNameClashResolver: TypeNameClashResolver): Iterable<FunSpec> {
