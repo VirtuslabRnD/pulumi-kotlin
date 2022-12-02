@@ -234,9 +234,9 @@ object ToKotlin {
             "%T.parseToJsonElement(%T().serializeNulls().create().toJson(",
             Json::class,
             GsonBuilder::class,
-        ) +
-            expression +
-            "))"
+        )
+            .plus(expression)
+            .plus("))")
         )
         .build()
 
