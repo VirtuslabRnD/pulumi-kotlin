@@ -247,7 +247,7 @@ object IntermediateRepresentationGenerator {
     private fun createComplexTypeFields(property: ObjectProperty, context: Context, usageKind: UsageKind) =
         property.properties
             .map { (name, value) ->
-                name.value to TypeAndOptionality(
+                name.value to FieldInfo(
                     resolveNestedTypeReference(context, value, usageKind.toNested(), property.required.contains(name)),
                     getKDoc(value),
                 )
@@ -269,7 +269,7 @@ object IntermediateRepresentationGenerator {
                     context,
                     it,
                     usageKind,
-                    true,
+                    isRequired = true,
                 )
             }
 

@@ -10,7 +10,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Input
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.StringType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeAndOptionality
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.FieldInfo
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UsageKind
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
@@ -30,7 +30,7 @@ internal class CodeGeneratorGenerateTypesTest {
             ),
 
             mapOf(
-                "field1" to TypeAndOptionality(
+                "field1" to FieldInfo(
                     StringType,
                     KDoc(null, null),
                 ),
@@ -43,7 +43,7 @@ internal class CodeGeneratorGenerateTypesTest {
                 KDoc(null, null),
             ),
             mapOf(
-                "field2" to TypeAndOptionality(
+                "field2" to FieldInfo(
                     firstType.toReference(),
                     KDoc(null, null),
                 ),

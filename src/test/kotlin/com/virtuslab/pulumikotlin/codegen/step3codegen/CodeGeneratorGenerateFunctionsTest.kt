@@ -12,7 +12,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.FunctionType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.StringType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeAndOptionality
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.FieldInfo
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.UsageKind
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.TypeGenerator
@@ -36,7 +36,7 @@ internal class CodeGeneratorGenerateFunctionsTest {
             ),
 
             mapOf(
-                "arn" to TypeAndOptionality(
+                "arn" to FieldInfo(
                     StringType,
                     KDoc(null, null),
                 ),
@@ -53,7 +53,7 @@ internal class CodeGeneratorGenerateFunctionsTest {
             ),
 
             mapOf(
-                "arn" to TypeAndOptionality(
+                "arn" to FieldInfo(
                     StringType,
                     KDoc(null, null),
                 ),
