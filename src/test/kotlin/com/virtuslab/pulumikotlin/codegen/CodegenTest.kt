@@ -195,7 +195,6 @@ class CodegenTest {
             import com.pulumi.core.Either
 
             private const val RECORD_NAME = "record"
-            private const val ZONE_ID = "zoneId"
             
             suspend fun main() {
                 val record = recordResource(RECORD_NAME) {
@@ -221,7 +220,6 @@ class CodegenTest {
             import com.pulumi.aws.route53.kotlin.recordResource
 
             private const val RECORD_NAME = "record"
-            private const val ZONE_ID = "zoneId"
             
             suspend fun main() {
                 val record = recordResource(RECORD_NAME) {
