@@ -82,9 +82,9 @@ object ResourceGenerator {
                     .builder(field.toKotlinName(), field.toTypeName(typeNameClashResolver))
                     .getter(
                         ToKotlin.resourceFunction(
-                        field,
-                        typeNameClashResolver,
-                    ),
+                            field,
+                            typeNameClashResolver,
+                        ),
                     )
                     .addDocsIfAvailable(field.kDoc)
                     .addDeprecationWarningIfAvailable(field.kDoc)
