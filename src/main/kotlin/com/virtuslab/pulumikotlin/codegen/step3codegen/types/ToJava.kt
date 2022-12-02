@@ -93,72 +93,96 @@ object ToJava {
         typeNameClashResolver: TypeNameClashResolver,
     ): Expression {
         return when (type) {
-            is AnyType, ArchiveType, AssetOrArchiveType -> expression
-            is EitherType -> {
-                val firstType = type.firstType
-                val secondType = type.secondType
-                expression.callTransform(
-                    expressionMapperLeft = { args ->
-                        toJavaExpression(
-                            args,
-                            firstType,
-                            typeNameClashResolver,
-                        )
-                    },
-                    expressionMapperRight = { args ->
-                        toJavaExpression(
-                            args,
-                            secondType,
-                            typeNameClashResolver,
-                        )
-                    },
-                )
-            }
-
-            is JsonType -> (
-                CustomExpressionBuilder.start(
-                    "%T.parseString(%T.encodeToString(%T.serializer(),",
-                    JsonParser::class,
-                    Json::class,
-                    JsonElement::class,
-                ) +
-                    expression +
-                    "))"
-                )
-                .build()
-
-            is ListType -> expression.callMap {
-                toJavaExpression(
-                    it,
-                    type.innerType,
-                    typeNameClashResolver,
-                )
-            }
-
-            is MapType -> expression.callMap { argument ->
-                argument.field("key")
-                    .pairWith(
-                        toJavaExpression(
-                            argument.field("value"),
-                            type.valueType,
-                            typeNameClashResolver,
-                        ),
-                    )
-            }
-                .call0("toMap")
-
-            is OptionalType -> toJavaExpression(
-                expression,
-                type.innerType,
-                typeNameClashResolver,
-            )
-
+            is ReferencedRootType -> toJavaReferencedRootExpression(expression)
+            is EitherType -> toJavaEitherExpression(expression, type, typeNameClashResolver)
+            is ListType -> toJavaListExpression(expression, type, typeNameClashResolver)
+            is MapType -> toJavaMapExpression(expression, type, typeNameClashResolver)
+            is JsonType -> toJavaJsonExpression(expression)
+            is OptionalType -> toJavaOptionalExpression(expression, type, typeNameClashResolver)
+            is AnyType, is ArchiveType, is AssetOrArchiveType -> expression
             is PrimitiveType -> expression
-            is ReferencedRootType -> expression.callLet { argument ->
-                (CustomExpressionBuilder.start() + argument + CustomExpression(".%N()", TO_JAVA_FUNCTION_NAME)).build()
-            }
         }
     }
+
+    private fun toJavaReferencedRootExpression(expression: Expression) =
+        expression.callLet { argument ->
+            (CustomExpressionBuilder.start() + argument + CustomExpression(".%N()", TO_JAVA_FUNCTION_NAME)).build()
+        }
+
+    private fun toJavaEitherExpression(
+        expression: Expression,
+        type: EitherType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): Expression {
+        val firstType = type.firstType
+        val secondType = type.secondType
+        return expression.callTransform(
+            expressionMapperLeft = { args ->
+                toJavaExpression(
+                    args,
+                    firstType,
+                    typeNameClashResolver,
+                )
+            },
+            expressionMapperRight = { args ->
+                toJavaExpression(
+                    args,
+                    secondType,
+                    typeNameClashResolver,
+                )
+            },
+        )
+    }
+
+    private fun toJavaListExpression(
+        expression: Expression,
+        type: ListType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ) = expression.callMap {
+        toJavaExpression(
+            it,
+            type.innerType,
+            typeNameClashResolver,
+        )
+    }
+
+    private fun toJavaMapExpression(
+        expression: Expression,
+        type: MapType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ) = expression.callMap { argument ->
+        argument.field("key")
+            .pairWith(
+                toJavaExpression(
+                    argument.field("value"),
+                    type.valueType,
+                    typeNameClashResolver,
+                ),
+            )
+    }
+        .call0("toMap")
+
+    private fun toJavaJsonExpression(expression: Expression) = (
+        CustomExpressionBuilder.start(
+            "%T.parseString(%T.encodeToString(%T.serializer(),",
+            JsonParser::class,
+            Json::class,
+            JsonElement::class,
+        ) +
+            expression +
+            "))"
+        )
+        .build()
+
+    private fun toJavaOptionalExpression(
+        expression: Expression,
+        type: OptionalType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ) = toJavaExpression(
+        expression,
+        type.innerType,
+        typeNameClashResolver,
+    )
 
     fun enumFunction(javaClass: ClassName) =
         FunSpec.builder(TO_JAVA_FUNCTION_NAME)

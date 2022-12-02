@@ -129,118 +129,150 @@ object ToKotlin {
         typeNameClashResolver: TypeNameClashResolver,
     ): Expression {
         return when (type) {
-            is AnyType -> expression
-            is ReferencedRootType -> expression.callLet { argument ->
-                typeNameClashResolver.toTypeName(type, languageType = Kotlin)
-                    .nestedClass("Companion")
-                    .member(TO_KOTLIN_FUNCTION_NAME)(argument)
-            }
+            is ReferencedRootType -> toKotlinReferencedRootExpression(expression, type, typeNameClashResolver)
+            is EitherType -> toKotlinEitherExpression(direction, isType, expression, type, typeNameClashResolver)
+            is ListType -> toKotlinListExpression(direction, isType, expression, type, typeNameClashResolver)
+            is MapType -> toKotlinMapExpression(direction, isType, expression, type, typeNameClashResolver)
+            is JsonType -> toKotlinJsonExpression(expression)
+            is OptionalType -> toKotlinOptionalExpression(direction, isType, expression, type, typeNameClashResolver)
+            is AnyType, is AssetOrArchiveType, is ArchiveType -> expression
+            is PrimitiveType -> expression
+        }
+    }
 
-            is EitherType -> {
-                val firstType = type.firstType
-                val secondType = type.secondType
-                if (direction == Output && firstType is ReferencedEnumType && secondType is StringType) {
-                    expression.ofRight(
-                        typeNameClashResolver.toTypeName(firstType, Kotlin),
-                        typeNameClashResolver.toTypeName(secondType, Kotlin),
-                    )
-                } else if (direction == Output && firstType is StringType && secondType is ReferencedEnumType) {
-                    expression.ofLeft(
-                        typeNameClashResolver.toTypeName(firstType, Kotlin),
-                        typeNameClashResolver.toTypeName(secondType, Kotlin),
-                    )
-                } else {
-                    expression.callTransform(
-                        expressionMapperLeft = { args ->
-                            toKotlinExpression(
-                                direction,
-                                isType,
-                                args,
-                                firstType,
-                                typeNameClashResolver,
-                            )
-                        },
-                        expressionMapperRight = { args ->
-                            toKotlinExpression(
-                                direction,
-                                isType,
-                                args,
-                                secondType,
-                                typeNameClashResolver,
-                            )
-                        },
-                    )
-                }
-            }
+    private fun toKotlinReferencedRootExpression(
+        expression: Expression,
+        type: ReferencedRootType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ) = expression.callLet { argument ->
+        typeNameClashResolver.toTypeName(type, languageType = Kotlin)
+            .nestedClass("Companion")
+            .member(TO_KOTLIN_FUNCTION_NAME)(argument)
+    }
 
-            is ListType -> expression.callMap { args ->
+    private fun toKotlinEitherExpression(
+        direction: Direction,
+        isType: Boolean,
+        expression: Expression,
+        type: EitherType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): Expression {
+        val firstType = type.firstType
+        val secondType = type.secondType
+        return if (direction == Output && firstType is ReferencedEnumType && secondType is StringType) {
+            expression.ofRight(
+                typeNameClashResolver.toTypeName(firstType, Kotlin),
+                typeNameClashResolver.toTypeName(secondType, Kotlin),
+            )
+        } else if (direction == Output && firstType is StringType && secondType is ReferencedEnumType) {
+            expression.ofLeft(
+                typeNameClashResolver.toTypeName(firstType, Kotlin),
+                typeNameClashResolver.toTypeName(secondType, Kotlin),
+            )
+        } else {
+            expression.callTransform(
+                expressionMapperLeft = { args ->
+                    toKotlinExpression(
+                        direction,
+                        isType,
+                        args,
+                        firstType,
+                        typeNameClashResolver,
+                    )
+                },
+                expressionMapperRight = { args ->
+                    toKotlinExpression(
+                        direction,
+                        isType,
+                        args,
+                        secondType,
+                        typeNameClashResolver,
+                    )
+                },
+            )
+        }
+    }
+
+    private fun toKotlinListExpression(
+        direction: Direction,
+        isType: Boolean,
+        expression: Expression,
+        type: ListType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ) = expression.callMap { args ->
+        toKotlinExpression(
+            direction,
+            isType,
+            args,
+            type.innerType,
+            typeNameClashResolver,
+        )
+    }
+
+    private fun toKotlinMapExpression(
+        direction: Direction,
+        isType: Boolean,
+        expression: Expression,
+        type: MapType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ) = expression.callMap { argument ->
+        argument.field("key")
+            .pairWith(
                 toKotlinExpression(
                     direction,
                     isType,
-                    args,
-                    type.innerType,
+                    argument.field("value"),
+                    type.valueType,
                     typeNameClashResolver,
-                )
-            }
+                ),
+            )
+    }
+        .call0("toMap")
 
-            is MapType -> expression.callMap { argument ->
-                argument.field("key")
-                    .pairWith(
-                        toKotlinExpression(
-                            direction,
-                            isType,
-                            argument.field("value"),
-                            type.valueType,
-                            typeNameClashResolver,
-                        ),
-                    )
-            }
-                .call0("toMap")
+    private fun toKotlinJsonExpression(expression: Expression) = (
+        CustomExpressionBuilder.start(
+            "%T.parseToJsonElement(%T().serializeNulls().create().toJson(",
+            Json::class,
+            GsonBuilder::class,
+        ) +
+            expression +
+            "))"
+        )
+        .build()
 
-            is PrimitiveType -> expression
-            is AssetOrArchiveType, is ArchiveType -> expression
-            is JsonType -> (
-                CustomExpressionBuilder.start(
-                    "%T.parseToJsonElement(%T().serializeNulls().create().toJson(",
-                    Json::class,
-                    GsonBuilder::class,
-                ) +
-                    expression +
-                    "))"
-                )
-                .build()
-
-            is OptionalType -> {
-                if (isType && (type.innerType is ListType || type.innerType is MapType)) {
-                    toKotlinExpression(
-                        direction,
-                        isType,
-                        expression,
-                        type.innerType,
-                        typeNameClashResolver,
-                    )
-                } else if (type.innerType is PrimitiveType) {
-                    toKotlinExpression(
-                        direction,
-                        isType,
-                        expression,
-                        type.innerType,
-                        typeNameClashResolver,
-                    )
-                        .call1("orElse", CustomExpression("null"))
-                } else {
-                    expression.callMap { args ->
-                        toKotlinExpression(
-                            direction,
-                            isType,
-                            args,
-                            type.innerType,
-                            typeNameClashResolver,
-                        )
-                    }
-                        .call1("orElse", CustomExpression("null"))
-                }
-            }
+    private fun toKotlinOptionalExpression(
+        direction: Direction,
+        isType: Boolean,
+        expression: Expression,
+        type: OptionalType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ) = if (isType && (type.innerType is ListType || type.innerType is MapType)) {
+        toKotlinExpression(
+            direction,
+            isType,
+            expression,
+            type.innerType,
+            typeNameClashResolver,
+        )
+    } else if (type.innerType is PrimitiveType) {
+        toKotlinExpression(
+            direction,
+            isType,
+            expression,
+            type.innerType,
+            typeNameClashResolver,
+        )
+            .call1("orElse", CustomExpression("null"))
+    } else {
+        expression.callMap { args ->
+            toKotlinExpression(
+                direction,
+                isType,
+                args,
+                type.innerType,
+                typeNameClashResolver,
+            )
         }
+            .call1("orElse", CustomExpression("null"))
     }
 }
