@@ -8,6 +8,7 @@ import com.google.gson.JsonParser
 import com.pulumi.Context
 import com.pulumi.core.Either
 import com.pulumi.core.Output
+import com.pulumi.resources.Resource
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -230,6 +231,19 @@ interface ConvertibleToJava<T> {
 @Suppress("UnnecessaryAbstractClass")
 abstract class KotlinResource
 private constructor(internal open val javaResource: JavaResource) {
+
+    val pulumiResourceName: String
+        get() = javaResource.pulumiResourceName()
+
+    val pulumiResourceType: String
+        get() = javaResource.pulumiResourceType()
+
+    val urn: Output<String>
+        get() = javaResource.urn()
+
+    val pulumiChildResources: MutableSet<Resource>
+        get() = javaResource.pulumiChildResources()
+
     protected constructor(
         javaResource: JavaResource,
         mapper: ResourceMapper<KotlinResource>,
