@@ -254,15 +254,6 @@ object ToKotlin {
             type.innerType,
             typeNameClashResolver,
         )
-    } else if (type.innerType is PrimitiveType) {
-        toKotlinExpression(
-            direction,
-            isType,
-            expression,
-            type.innerType,
-            typeNameClashResolver,
-        )
-            .call1("orElse", CustomExpression("null"))
     } else {
         expression.callMap { args ->
             toKotlinExpression(
