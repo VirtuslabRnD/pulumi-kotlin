@@ -1,5 +1,6 @@
 package com.virtuslab.pulumikotlin.codegen.expressions
 
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.MemberName
@@ -75,9 +76,11 @@ fun Expression.callWithNArgumentExpressions(
         ).build()
 }
 
-fun Expression.ofLeft() = (CustomExpressionBuilder.start() + "Either.ofLeft(" + this + ")").build()
+fun Expression.ofLeft(firstType: TypeName, secondType: ClassName) =
+    (CustomExpressionBuilder.start("Either.ofLeft<%T, %T>(", firstType, secondType) + this + ")").build()
 
-fun Expression.ofRight() = (CustomExpressionBuilder.start() + "Either.ofRight(" + this + ")").build()
+fun Expression.ofRight(firstType: ClassName, secondType: TypeName) =
+    (CustomExpressionBuilder.start("Either.ofRight<%T, %T>(", firstType, secondType) + this + ")").build()
 
 data class FunctionExpression(val argumentNames: List<String>, val expression: Expression) : Expression() {
     override fun toCodeBlock(): CustomCodeBlock {

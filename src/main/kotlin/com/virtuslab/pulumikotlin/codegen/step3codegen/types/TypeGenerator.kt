@@ -2,7 +2,6 @@ package com.virtuslab.pulumikotlin.codegen.step3codegen.types
 
 import com.pulumi.kotlin.PulumiNullFieldException
 import com.squareup.kotlinpoet.AnnotationSpec
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -21,12 +20,10 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Java.Pulumi.outputOfMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.applySuspendExtensionMethod
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.applyValueExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.convertibleToJavaClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.pulumiDslMarkerAnnotation
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.toJavaExtensionMethod
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.toKotlinExtensionMethod
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NameGeneration
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.OptionalType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.RootType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
@@ -34,13 +31,13 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetExtensions.addImports
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetExtensions.addTypes
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.addStandardSuppressAnnotations
 import com.virtuslab.pulumikotlin.codegen.step3codegen.NormalField
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
+import com.virtuslab.pulumikotlin.codegen.step3codegen.ToKotlin
 import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
-import com.virtuslab.pulumikotlin.codegen.step3codegen.types.ToJava.toJavaFunction
-import com.virtuslab.pulumikotlin.codegen.step3codegen.types.ToKotlin.toKotlinFunction
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.setters.AllSetterGenerators
 import com.virtuslab.pulumikotlin.codegen.step3codegen.types.setters.Setter
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
@@ -75,7 +72,7 @@ object TypeGenerator {
             Field(
                 name,
                 OutputWrappedField(typeAndOptionality.type),
-                typeAndOptionality.required,
+                typeAndOptionality.type !is OptionalType,
                 listOf(
                     NormalField(typeAndOptionality.type) { argument ->
                         outputOfMethod().invoke(argument)
@@ -90,7 +87,7 @@ object TypeGenerator {
             Field(
                 name,
                 NormalField(typeAndOptionality.type) { it },
-                typeAndOptionality.required,
+                typeAndOptionality.type !is OptionalType,
                 overloads = emptyList(),
                 typeAndOptionality.kDoc,
             )
@@ -102,18 +99,10 @@ object TypeGenerator {
 
         return FileSpec
             .builder(names.packageName, names.className)
+            .addStandardSuppressAnnotations()
             .addImports(
                 applySuspendExtensionMethod(),
-                applyValueExtensionMethod(),
             )
-            .letIf(context.options.implementToJava && names.shouldImplementToJava) {
-                it.addImports(toJavaExtensionMethod())
-                it
-            }
-            .letIf(context.options.implementToKotlin && names.shouldImplementToKotlin) {
-                it.addImports(toKotlinExtensionMethod())
-                it
-            }
             .addTypes(
                 generateArgsClass(context, names, typeNameClashResolver),
             )
@@ -137,7 +126,10 @@ object TypeGenerator {
             "@property ${it.toKotlinName()} ${it.kDoc.description.orEmpty()}"
         }
 
-        return TypeSpec.classBuilder(argsClassName(kotlinNames))
+        val kotlinClass = kotlinNames.kotlinPoetClassName
+        val javaClass = typeNameClashResolver.javaNames(context.typeMetadata).kotlinPoetClassName
+
+        return TypeSpec.classBuilder(kotlinClass)
             .letIf(fields.isNotEmpty()) {
                 it.addModifiers(KModifier.DATA)
             }
@@ -145,20 +137,16 @@ object TypeGenerator {
             .addProperties(properties)
             .addDocs("$classDocs\n$propertyDocs")
             .letIf(options.implementToJava && kotlinNames.shouldImplementToJava) {
-                val javaNames = typeNameClashResolver.javaNames(context.typeMetadata)
-                val innerType = javaNames.kotlinPoetClassName
-                val convertibleToJava = convertibleToJavaClass().parameterizedBy(innerType)
                 it
-                    .addSuperinterface(convertibleToJava)
-                    .addFunction(toJavaFunction(fields, javaNames))
+                    .addSuperinterface(convertibleToJavaClass().parameterizedBy(javaClass))
+                    .addFunction(ToJava.typeFunction(fields, typeNameClashResolver, context.typeMetadata))
             }
             .letIf(options.implementToKotlin && kotlinNames.shouldImplementToKotlin) {
                 it.addType(
                     TypeSpec.companionObjectBuilder()
                         .addFunction(
-                            toKotlinFunction(
+                            ToKotlin.typeFunction(
                                 typeMetadata,
-                                kotlinNames,
                                 fields,
                                 typeNameClashResolver,
                             ),
@@ -171,11 +159,10 @@ object TypeGenerator {
 
     private fun generateArgsBuilderClass(
         context: Context,
-        names: NameGeneration,
+        kotlinNames: NameGeneration,
         typeNameClashResolver: TypeNameClashResolver,
     ): TypeSpec {
-        return TypeSpec
-            .classBuilder(argsBuilderClassName(names))
+        return TypeSpec.classBuilder(kotlinNames.builderClassName)
             .primaryConstructor(
                 FunSpec
                     .constructorBuilder()
@@ -185,10 +172,10 @@ object TypeGenerator {
             .addAnnotation(pulumiDslMarkerAnnotation())
             .addProperties(generatePropertiesPerField(context, typeNameClashResolver))
             .addFunctions(
-                generateMethodsPerField(context, typeNameClashResolver) + generateBuildMethod(context, names),
+                generateMethodsPerField(context, typeNameClashResolver) + generateBuildMethod(context, kotlinNames),
             )
             .addDeprecationWarningIfAvailable(context.typeMetadata.kDoc)
-            .addDocs("Builder for [${argsClassName(names).simpleName}].")
+            .addDocs("Builder for [${kotlinNames.kotlinPoetClassName.simpleName}].")
             .build()
     }
 
@@ -260,8 +247,8 @@ object TypeGenerator {
 
         return FunSpec.builder("build")
             .addModifiers(INTERNAL)
-            .returns(argsClassName(names))
-            .addCode(Return(ConstructObjectExpression(argsClassName(names), fields = arguments)))
+            .returns(names.kotlinPoetClassName)
+            .addCode(Return(ConstructObjectExpression(names.kotlinPoetClassName, fields = arguments)))
             .build()
     }
 
@@ -286,14 +273,6 @@ object TypeGenerator {
         typeNameClashResolver: TypeNameClashResolver,
     ): Iterable<FunSpec> {
         return AllSetterGenerators.generate(field, typeNameClashResolver)
-    }
-
-    private fun argsBuilderClassName(names: NameGeneration): ClassName {
-        return ClassName(names.packageName, names.builderClassName)
-    }
-
-    private fun argsClassName(names: NameGeneration): ClassName {
-        return ClassName(names.packageName, names.className)
     }
 
     private fun withoutJvmPlatformNameClashRisk(funSpec: FunSpec): FunSpec {

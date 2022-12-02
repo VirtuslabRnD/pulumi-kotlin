@@ -9,9 +9,6 @@ import com.pulumi.kotlin.GlobalResourceMapper
 import com.pulumi.kotlin.KotlinProviderResource
 import com.pulumi.kotlin.KotlinResource
 import com.pulumi.kotlin.PulumiTagMarker
-import com.pulumi.kotlin.applyValue
-import com.pulumi.kotlin.toJava
-import com.pulumi.kotlin.toKotlin
 import com.pulumi.resources.CustomResourceOptions as JavaCustomResourceOptions
 
 /**
@@ -56,7 +53,7 @@ class CustomResourceOptions internal constructor(
      * and will not have the intended effect.
      */
     val customTimeouts: CustomTimeouts?
-        get() = javaBackingObject.customTimeouts?.toKotlin()?.applyValue { CustomTimeouts(it) }
+        get() = javaBackingObject.customTimeouts.map { CustomTimeouts(it) }.orElse(null)
 
     /**
      * A resource may need to be replaced if an immutable property changes. In these cases,
@@ -91,7 +88,7 @@ class CustomResourceOptions internal constructor(
      * An optional existing ID to load, rather than create.
      */
     val id: Output<String>?
-        get() = javaBackingObject.id?.toKotlin()
+        get() = javaBackingObject.id.orElse(null)
 
     /**
      * The [ignoreChanges] resource option specifies a list of properties
@@ -114,14 +111,14 @@ class CustomResourceOptions internal constructor(
      * you end up with a Pulumi program that will accurately generate a matching desired state.
      */
     val importId: String?
-        get() = javaBackingObject.importId?.toKotlin()
+        get() = javaBackingObject.importId?.orElse(null)
 
     /**
      * Specifies a parent for a resource. It is used to associate children with the parents that encapsulate
      * or are responsible for them.
      */
     val parent: KotlinResource?
-        get() = javaBackingObject.parent?.toKotlin()?.applyValue { GlobalResourceMapper.tryMap(it) }
+        get() = GlobalResourceMapper.tryMap(javaBackingObject.parent.orElse(null))
 
     /**
      * An optional URL, corresponding to the url from which the provider plugin that should be
@@ -129,7 +126,7 @@ class CustomResourceOptions internal constructor(
      * inferred from the current package and should rarely be used.
      */
     val pluginDownloadURL: String?
-        get() = javaBackingObject.pluginDownloadURL?.toKotlin()
+        get() = javaBackingObject.pluginDownloadURL.orElse(null)
 
     /**
      * Marks a resource as protected. A protected resource cannot be deleted directly, and it will be an error
@@ -152,8 +149,7 @@ class CustomResourceOptions internal constructor(
      * provider is pulled from the parent's provider bag.
      */
     val provider: KotlinProviderResource?
-        get() = javaBackingObject.provider?.toKotlin()
-            ?.applyValue { GlobalResourceMapper.tryMap(it) } as KotlinProviderResource?
+        get() = GlobalResourceMapper.tryMap(javaBackingObject.provider.orElse(null)) as KotlinProviderResource?
 
     /**
      * Indicates that changes to certain properties on a resource should force a replacement of the resource
@@ -177,7 +173,7 @@ class CustomResourceOptions internal constructor(
     val resourceTransformations: List<ResourceTransformation>?
         get() = javaBackingObject.resourceTransformations?.map { jrt ->
             ResourceTransformation {
-                jrt.apply(it).toKotlin()
+                jrt.apply(it).orElse(null)
             }
         }
 
@@ -200,14 +196,14 @@ class CustomResourceOptions internal constructor(
      * The URN of a previously-registered resource of this type to read from the engine.
      */
     val urn: String?
-        get() = javaBackingObject.urn?.toKotlin()
+        get() = javaBackingObject.urn.orElse(null)
 
     /**
      * Specifies a provider version to use when operating on a resource. This version overrides the version
      * information inferred from the current package. This option should be used rarely.
      */
     val version: String?
-        get() = javaBackingObject.version?.toKotlin()
+        get() = javaBackingObject.version.orElse(null)
 
     // generated resources use no args constructor as default value for options
     constructor() : this(JavaCustomResourceOptions.Empty)
@@ -458,10 +454,10 @@ data class CustomResourceOptionsBuilder(
     internal fun build(): CustomResourceOptions {
         val javaBackingObject = JavaCustomResourceOptions.builder()
             .additionalSecretOutputs(additionalSecretOutputs)
-            .aliases(aliases?.map { it.toJava() })
+            .aliases(aliases?.map { output -> output.applyValue { it.toJava() } })
             .customTimeouts(customTimeouts?.toJava())
             .deleteBeforeReplace(deleteBeforeReplace)
-            .dependsOn(dependsOn?.toJava())
+            .dependsOn(dependsOn?.applyValue { list -> list.map { it.javaResource } })
             .id(id)
             .ignoreChanges(ignoreChanges)
             .importId(importId)

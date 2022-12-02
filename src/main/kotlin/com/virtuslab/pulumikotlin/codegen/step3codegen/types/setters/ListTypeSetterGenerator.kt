@@ -5,6 +5,7 @@ import com.squareup.kotlinpoet.KModifier.SUSPEND
 import com.squareup.kotlinpoet.KModifier.VARARG
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.OptionalType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.BuilderSettingCodeBlock
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.addDocsToBuilderMethod
@@ -18,7 +19,14 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 object ListTypeSetterGenerator : SetterGenerator {
     override fun generate(setter: Setter, typeNameClashResolver: TypeNameClashResolver): Iterable<FunSpec> {
         val normalField = setter.fieldType as? NormalField<*> ?: return emptyList()
-        val type = normalField.type as? ListType ?: return emptyList()
+
+        val type = if (normalField.type is ListType) {
+            normalField.type
+        } else if (normalField.type is OptionalType && normalField.type.innerType is ListType) {
+            normalField.type.innerType
+        } else {
+            return emptyList()
+        }
 
         val innerType = type.innerType
 

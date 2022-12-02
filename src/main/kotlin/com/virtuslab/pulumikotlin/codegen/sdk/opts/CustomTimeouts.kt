@@ -5,7 +5,6 @@ package com.pulumi.kotlin.options
 
 import com.pulumi.kotlin.ConvertibleToJava
 import com.pulumi.kotlin.PulumiTagMarker
-import com.pulumi.kotlin.toKotlin
 import java.util.Optional
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
@@ -21,11 +20,11 @@ import com.pulumi.resources.CustomTimeouts as JavaCustomTimeouts
 class CustomTimeouts internal constructor(private val javaBackingObject: JavaCustomTimeouts) :
     ConvertibleToJava<JavaCustomTimeouts> {
     val create: Duration?
-        get() = javaBackingObject.create?.toKotlin()?.toKotlinDuration()
+        get() = javaBackingObject.create.orElse(null)?.toKotlinDuration()
     val update: Duration?
-        get() = javaBackingObject.update?.toKotlin()?.toKotlinDuration()
+        get() = javaBackingObject.update.orElse(null)?.toKotlinDuration()
     val delete: Duration?
-        get() = javaBackingObject.delete?.toKotlin()?.toKotlinDuration()
+        get() = javaBackingObject.delete.orElse(null)?.toKotlinDuration()
 
     override fun toJava(): JavaCustomTimeouts {
         return javaBackingObject

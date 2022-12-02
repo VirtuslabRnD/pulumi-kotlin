@@ -517,6 +517,7 @@ internal class IntermediateRepresentationGeneratorTest {
                 fieldNameIs = "type",
                 fieldTypeIs = StringType::class,
                 shouldBeOutputWrapped = true,
+                optional = true,
             )
         }
     }
@@ -548,6 +549,7 @@ internal class IntermediateRepresentationGeneratorTest {
                 fieldNameIs = "oneOfProperty",
                 fieldTypeIs = StringType::class,
                 shouldBeOutputWrapped = true,
+                optional = true,
             )
         }
     }
@@ -594,6 +596,50 @@ internal class IntermediateRepresentationGeneratorTest {
                 fieldNameIs = "oneOfProperty",
                 fieldTypeIs = AnyType::class,
                 shouldBeOutputWrapped = true,
+                optional = true,
+            )
+        }
+    }
+
+    @Test
+    fun `optional properties should be mapped to OptionalType`() {
+        // given
+        val resources = mapOf(
+            randomResourceName() to SchemaModel.Resource(
+                properties = mapOf(
+                    PropertyName("optionalString") to StringProperty(),
+                    PropertyName("requiredString") to StringProperty(),
+                ),
+                required = listOf(PropertyName("requiredString")),
+            ),
+        )
+
+        // when
+        val ir = getIntermediateRepresentation(
+            providerName = "provider",
+            resources = resources,
+        )
+
+        // then
+        val irResources = ir.resources
+
+        irResources.forEach {
+            assertContainsPropertyWhere(
+                resources = it,
+                fieldNameIs = "optionalString",
+                fieldTypeIs = StringType::class,
+                shouldBeOutputWrapped = true,
+                optional = true,
+            )
+        }
+
+        irResources.forEach {
+            assertContainsPropertyWhere(
+                resources = it,
+                fieldNameIs = "requiredString",
+                fieldTypeIs = StringType::class,
+                shouldBeOutputWrapped = true,
+                optional = false,
             )
         }
     }
@@ -682,11 +728,18 @@ internal class IntermediateRepresentationGeneratorTest {
         fieldNameIs: String,
         fieldTypeIs: KClass<T>,
         shouldBeOutputWrapped: Boolean,
+        optional: Boolean,
     ) {
         val actualField: Field<*>? =
             resources.outputFields.filter { field -> field.toKotlinName() == fieldNameIs }
-                .letIf(shouldBeOutputWrapped) { fields -> fields.filter { field -> field.fieldType::class == OutputWrappedField::class } }
-                .firstOrNull { field -> field.fieldType.type::class == fieldTypeIs }
+                .letIf(shouldBeOutputWrapped) { fields ->
+                    fields.filter { field -> field.fieldType::class == OutputWrappedField::class }
+                }
+                .firstOrNull { field ->
+                    val fieldType = field.fieldType.type
+                    (!optional && fieldType::class == fieldTypeIs) ||
+                        (optional && fieldType is OptionalType && fieldType.innerType::class == fieldTypeIs)
+                }
 
         assertNotNull(actualField)
     }

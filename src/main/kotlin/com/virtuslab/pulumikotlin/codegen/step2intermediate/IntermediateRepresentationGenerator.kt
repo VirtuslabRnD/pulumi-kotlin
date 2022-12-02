@@ -28,6 +28,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KDoc
 import com.virtuslab.pulumikotlin.codegen.step3codegen.OutputWrappedField
+import com.virtuslab.pulumikotlin.codegen.utils.Constants.DUPLICATED_TYPES
 import com.virtuslab.pulumikotlin.codegen.utils.DEFAULT_PROVIDER_TOKEN
 import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
@@ -132,7 +133,12 @@ object IntermediateRepresentationGenerator {
             .map { (propertyName, property) ->
                 val outputFieldsUsageKind = UsageKind(Nested, Resource, Output)
                 val isRequired = resource.required.contains(propertyName)
-                val reference = resolveNestedTypeReference(context, property, outputFieldsUsageKind)
+                val reference = resolveNestedTypeReference(
+                    context,
+                    property,
+                    outputFieldsUsageKind,
+                    isRequired,
+                )
                 Field(propertyName.value, OutputWrappedField(reference), isRequired, kDoc = getKDoc(property))
             }
 
@@ -241,23 +247,40 @@ object IntermediateRepresentationGenerator {
     private fun createComplexTypeFields(property: ObjectProperty, context: Context, usageKind: UsageKind) =
         property.properties
             .map { (name, value) ->
-                name.value to TypeAndOptionality(
-                    resolveNestedTypeReference(context, value, usageKind.toNested()),
-                    property.required.contains(name),
+                name.value to FieldInfo(
+                    resolveNestedTypeReference(context, value, usageKind.toNested(), property.required.contains(name)),
                     getKDoc(value),
                 )
             }
             .toMap()
 
-    private fun resolveNestedTypeReference(context: Context, property: Property, usageKind: UsageKind): ReferencedType {
+    private fun resolveNestedTypeReference(
+        context: Context,
+        property: Property,
+        usageKind: UsageKind,
+        isRequired: Boolean,
+    ): ReferencedType {
         require(usageKind.depth != Root) { "Root properties are not supported here (usageKind was $usageKind)" }
 
-        return when (property) {
+        val referencedType = when (property) {
             is ReferenceProperty -> resolveSingleTypeReference(context, property, usageKind)
-            is GenericTypeProperty -> mapGenericTypes(property) { resolveNestedTypeReference(context, it, usageKind) }
+            is GenericTypeProperty -> mapGenericTypes(property) {
+                resolveNestedTypeReference(
+                    context,
+                    it,
+                    usageKind,
+                    isRequired = true,
+                )
+            }
+
             is PrimitiveProperty -> mapPrimitiveTypes(property)
             is ObjectProperty -> MapType(StringType, StringType)
             is StringEnumProperty -> error("Nesting not supported for ${property.javaClass}")
+        }
+        return if (isRequired) {
+            referencedType
+        } else {
+            OptionalType(referencedType)
         }
     }
 
@@ -266,7 +289,7 @@ object IntermediateRepresentationGenerator {
         property: ReferenceProperty,
         usageKind: UsageKind,
     ): ReferencedType {
-        val referencedTypeName = property.referencedTypeName
+        val referencedTypeName = DUPLICATED_TYPES.getOrDefault(property.referencedTypeName, property.referencedTypeName)
 
         return if (property.isAssetOrArchive()) {
             AssetOrArchiveType

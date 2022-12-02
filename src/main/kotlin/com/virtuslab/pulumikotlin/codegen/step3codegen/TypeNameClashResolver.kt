@@ -23,6 +23,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Java.Pulumi.outputClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NameGeneration
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.OptionalType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedEnumType
@@ -94,6 +95,7 @@ class TypeNameClashResolver(types: List<RootType>) {
             is PrimitiveType -> type.toTypeName(languageType)
             is ReferencedComplexType -> toTypeName(type, languageType)
             is ReferencedEnumType -> toTypeName(type, languageType)
+            is OptionalType -> toTypeName(type.innerType, languageType)
         }
     }
 

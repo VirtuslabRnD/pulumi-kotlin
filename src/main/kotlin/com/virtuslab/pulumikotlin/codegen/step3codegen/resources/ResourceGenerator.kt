@@ -15,7 +15,6 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
-import com.virtuslab.pulumikotlin.codegen.expressions.addCode
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
@@ -26,11 +25,12 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pul
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
+import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.addStandardSuppressAnnotations
+import com.virtuslab.pulumikotlin.codegen.step3codegen.ToKotlin
 import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
 import com.virtuslab.pulumikotlin.codegen.step3codegen.addDocsIfAvailable
-import com.virtuslab.pulumikotlin.codegen.step3codegen.resources.ToKotlin.toKotlinFunctionResource
 import com.virtuslab.pulumikotlin.codegen.utils.decapitalize
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import kotlin.reflect.KClass
@@ -50,6 +50,7 @@ object ResourceGenerator {
                 type.name.toResourcePackage(NamingFlags(Root, Resource, Output, Kotlin)),
                 type.name.toResourceName(NamingFlags(Root, Resource, Output, Kotlin)),
             )
+                .addStandardSuppressAnnotations()
 
             buildArgsClass(file, type, typeNameClashResolver)
 
@@ -80,16 +81,10 @@ object ResourceGenerator {
                 PropertySpec
                     .builder(field.toKotlinName(), field.toTypeName(typeNameClashResolver))
                     .getter(
-                        FunSpec.getterBuilder()
-                            .addCode(
-                                toKotlinFunctionResource(
-                                    field.toJavaName(),
-                                    field.fieldType.type,
-                                    typeNameClashResolver,
-                                    !field.required,
-                                ),
-                            )
-                            .build(),
+                        ToKotlin.resourceFunction(
+                            field,
+                            typeNameClashResolver,
+                        ),
                     )
                     .addDocsIfAvailable(field.kDoc)
                     .addDeprecationWarningIfAvailable(field.kDoc)
@@ -97,8 +92,7 @@ object ResourceGenerator {
             }
 
         val resourceMapperTypeSpec = ResourceMapperGenerator.generateMapper(resourceType)
-        val resourceClass = TypeSpec
-            .classBuilder(resourceClassName)
+        val resourceClass = TypeSpec.classBuilder(resourceClassName)
             .superclass(determineSuperclass(resourceType))
             .addProperties(
                 listOf(
@@ -246,7 +240,6 @@ object ResourceGenerator {
             .addType(resourceBuilderClass)
             .addType(resourceClass)
             .addType(resourceMapperTypeSpec)
-            .addImport("com.pulumi.kotlin", "toKotlin")
             .addFunction(resourceFunction)
     }
 

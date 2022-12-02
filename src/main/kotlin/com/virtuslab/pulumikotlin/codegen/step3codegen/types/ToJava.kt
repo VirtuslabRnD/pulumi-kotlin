@@ -1,76 +1,193 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen.types
 
+import com.google.gson.JsonParser
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName.Companion.member
+import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpression
+import com.virtuslab.pulumikotlin.codegen.expressions.CustomExpressionBuilder
+import com.virtuslab.pulumikotlin.codegen.expressions.Expression
+import com.virtuslab.pulumikotlin.codegen.expressions.call0
+import com.virtuslab.pulumikotlin.codegen.expressions.callApplyValue
+import com.virtuslab.pulumikotlin.codegen.expressions.callLet
+import com.virtuslab.pulumikotlin.codegen.expressions.callMap
+import com.virtuslab.pulumikotlin.codegen.expressions.callTransform
+import com.virtuslab.pulumikotlin.codegen.expressions.field
+import com.virtuslab.pulumikotlin.codegen.expressions.pairWith
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AnyType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ArchiveType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.AssetOrArchiveType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Direction
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.EitherType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.JsonType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.NameGeneration
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.OptionalType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.PrimitiveType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
-import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedEnumType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedRootType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.Subject
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
 import com.virtuslab.pulumikotlin.codegen.step3codegen.Field
+import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 
-private const val FUNCTION_NAME = "toJava"
+private const val TO_JAVA_FUNCTION_NAME = "toJava"
+
+private const val ENUM_JAVA_PROPERTY_NAME = "javaValue"
 
 object ToJava {
-    fun toJavaFunction(fields: List<Field<*>>, names: NameGeneration): FunSpec {
-        val codeBlocks = fields.map { field ->
-            val block = CodeBlock.of(
-                "\n.%N(%N)",
-                field.toJavaName(),
-                field.toKotlinName(),
-            )
-            val toJavaBlock = CodeBlock.of(
-                ".%N(%N${if (field.required) "" else "?"}.%N())",
-                field.toJavaName(),
-                field.toKotlinName(),
-                FUNCTION_NAME,
-            )
-            when (field.fieldType.type) {
-                is AnyType -> block
-                is PrimitiveType -> block
-                is EitherType -> toJavaBlock
-                is ListType -> toJavaBlock
-                is MapType -> toJavaBlock
-                is ReferencedComplexType -> toJavaBlock
-                is ReferencedEnumType -> toJavaBlock
-                is AssetOrArchiveType, is ArchiveType -> block
-                is JsonType -> toJavaBlock
-            }
-        }
 
-        val javaArgsClass = ClassName(names.packageName, names.className)
+    fun typeFunction(
+        fields: List<Field<*>>,
+        typeNameClashResolver: TypeNameClashResolver,
+        typeMetadata: TypeMetadata,
+    ): FunSpec {
+        val usageKind = typeMetadata.usageKind
+        val javaClass = typeNameClashResolver.javaNames(typeMetadata).kotlinPoetClassName
 
-        return FunSpec.builder(FUNCTION_NAME)
-            .returns(javaArgsClass)
+        return FunSpec.builder(TO_JAVA_FUNCTION_NAME)
+            .returns(javaClass)
             .addModifiers(KModifier.OVERRIDE)
-            .addCode(CodeBlock.of("return %T.%M()", javaArgsClass, javaArgsClass.member("builder")))
+            .addCode(CodeBlock.of("return %T.%M()", javaClass, javaClass.member("builder")))
             .apply {
-                codeBlocks.forEach { block ->
-                    addCode(block)
+                fields.map {
+                    val expression =
+                        if (usageKind.direction == Direction.Input && usageKind.subject == Subject.Function) {
+                            CustomExpression("%N", it.toKotlinName())
+                                .callLet(it.fieldType.type is OptionalType) { args ->
+                                    toJavaExpression(
+                                        args,
+                                        it.fieldType.type,
+                                        typeNameClashResolver,
+                                    )
+                                }
+                        } else {
+                            CustomExpression("%N", it.toKotlinName())
+                                .callApplyValue(it.fieldType.type is OptionalType) { args ->
+                                    toJavaExpression(
+                                        args,
+                                        it.fieldType.type,
+                                        typeNameClashResolver,
+                                    )
+                                }
+                        }
+                    val codeBlock = CodeBlock.builder()
+                        .add("\n.%N(", it.toJavaName())
+                        .add(expression.toCodeBlock().toKotlinPoetCodeBlock())
+                        .add(")")
+                        .build()
+                    addCode(codeBlock)
                 }
             }
             .addCode(CodeBlock.of(".build()"))
             .build()
     }
 
-    fun toJavaEnumFunction(typeMetadata: TypeMetadata): FunSpec {
-        val javaClass = typeMetadata.names(LanguageType.Java).kotlinPoetClassName
+    private fun toJavaExpression(
+        expression: Expression,
+        type: ReferencedType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): Expression {
+        return when (type) {
+            is ReferencedRootType -> toJavaReferencedRootExpression(expression)
+            is EitherType -> toJavaEitherExpression(expression, type, typeNameClashResolver)
+            is ListType -> toJavaListExpression(expression, type, typeNameClashResolver)
+            is MapType -> toJavaMapExpression(expression, type, typeNameClashResolver)
+            is JsonType -> toJavaJsonExpression(expression)
+            is OptionalType -> toJavaOptionalExpression(expression, type, typeNameClashResolver)
+            is AnyType, is ArchiveType, is AssetOrArchiveType -> expression
+            is PrimitiveType -> expression
+        }
+    }
 
-        return FunSpec.builder(FUNCTION_NAME)
+    private fun toJavaReferencedRootExpression(expression: Expression) =
+        expression.callLet { argument ->
+            (CustomExpressionBuilder.start() + argument + CustomExpression(".%N()", TO_JAVA_FUNCTION_NAME)).build()
+        }
+
+    private fun toJavaEitherExpression(
+        expression: Expression,
+        type: EitherType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ): Expression {
+        val firstType = type.firstType
+        val secondType = type.secondType
+        return expression.callTransform(
+            expressionMapperLeft = { args ->
+                toJavaExpression(
+                    args,
+                    firstType,
+                    typeNameClashResolver,
+                )
+            },
+            expressionMapperRight = { args ->
+                toJavaExpression(
+                    args,
+                    secondType,
+                    typeNameClashResolver,
+                )
+            },
+        )
+    }
+
+    private fun toJavaListExpression(
+        expression: Expression,
+        type: ListType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ) = expression.callMap {
+        toJavaExpression(
+            it,
+            type.innerType,
+            typeNameClashResolver,
+        )
+    }
+
+    private fun toJavaMapExpression(
+        expression: Expression,
+        type: MapType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ) = expression.callMap { argument ->
+        argument.field("key")
+            .pairWith(
+                toJavaExpression(
+                    argument.field("value"),
+                    type.valueType,
+                    typeNameClashResolver,
+                ),
+            )
+    }
+        .call0("toMap")
+
+    private fun toJavaJsonExpression(expression: Expression) = (
+        CustomExpressionBuilder.start(
+            "%T.parseString(%T.encodeToString(%T.serializer(),",
+            JsonParser::class,
+            Json::class,
+            JsonElement::class,
+        ) +
+            expression +
+            "))"
+        )
+        .build()
+
+    private fun toJavaOptionalExpression(
+        expression: Expression,
+        type: OptionalType,
+        typeNameClashResolver: TypeNameClashResolver,
+    ) = toJavaExpression(
+        expression,
+        type.innerType,
+        typeNameClashResolver,
+    )
+
+    fun enumFunction(javaClass: ClassName) =
+        FunSpec.builder(TO_JAVA_FUNCTION_NAME)
             .addModifiers(KModifier.OVERRIDE)
             .returns(javaClass)
-            .addStatement("return javaValue")
+            .addStatement("return $ENUM_JAVA_PROPERTY_NAME")
             .build()
-    }
 }

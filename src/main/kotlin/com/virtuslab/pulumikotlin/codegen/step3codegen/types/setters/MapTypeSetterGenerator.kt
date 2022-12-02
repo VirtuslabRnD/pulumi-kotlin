@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MapType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.pairClass
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.OptionalType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedComplexType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.BuilderSettingCodeBlock
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.addDocsToBuilderMethod
@@ -18,7 +19,14 @@ import com.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 object MapTypeSetterGenerator : SetterGenerator {
     override fun generate(setter: Setter, typeNameClashResolver: TypeNameClashResolver): Iterable<FunSpec> {
         val normalField = setter.fieldType as? NormalField<*> ?: return emptyList()
-        val type = normalField.type as? MapType ?: return emptyList()
+
+        val type = if (normalField.type is MapType) {
+            normalField.type
+        } else if (normalField.type is OptionalType && normalField.type.innerType is MapType) {
+            normalField.type.innerType
+        } else {
+            return emptyList()
+        }
 
         val leftInnerType = type.keyType
         val rightInnerType = type.valueType

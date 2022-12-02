@@ -25,7 +25,7 @@ data class TypeMetadata(
     }
 }
 
-data class TypeAndOptionality(val type: ReferencedType, val required: Boolean, val kDoc: KDoc)
+data class FieldInfo(val type: ReferencedType, val kDoc: KDoc)
 
 sealed class Type
 
@@ -41,6 +41,8 @@ sealed class ReferencedRootType : ReferencedType() {
 
 sealed class ReferencedType : Type()
 
+data class OptionalType(val innerType: ReferencedType) : ReferencedType()
+
 object AnyType : ReferencedType()
 
 data class ReferencedComplexType(override val metadata: TypeMetadata) : ReferencedRootType() {
@@ -52,7 +54,7 @@ data class ReferencedComplexType(override val metadata: TypeMetadata) : Referenc
 
 data class ReferencedEnumType(override val metadata: TypeMetadata) : ReferencedRootType()
 
-data class ComplexType(override val metadata: TypeMetadata, val fields: Map<String, TypeAndOptionality>) : RootType() {
+data class ComplexType(override val metadata: TypeMetadata, val fields: Map<String, FieldInfo>) : RootType() {
     fun toBuilderTypeName(): ClassName {
         val names = metadata.names(LanguageType.Kotlin)
         return ClassName(names.packageName, names.builderClassName)

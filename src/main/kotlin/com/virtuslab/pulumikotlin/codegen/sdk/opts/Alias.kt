@@ -8,7 +8,6 @@ import com.pulumi.kotlin.ConvertibleToJava
 import com.pulumi.kotlin.GlobalResourceMapper
 import com.pulumi.kotlin.KotlinResource
 import com.pulumi.kotlin.PulumiTagMarker
-import com.pulumi.kotlin.toKotlin
 import com.pulumi.core.Alias as JavaAlias
 
 /**
@@ -30,32 +29,32 @@ class Alias internal constructor(private val javaBackingObject: JavaAlias) : Con
      * The previous urn to alias to. If this is provided, no other properties in this type should be provided.
      */
     val urn: String?
-        get() = javaBackingObject.urn?.toKotlin()
+        get() = javaBackingObject.urn.orElse(null)
 
     /**
      * The previous name of the resource.
      * If empty, the current name of the resource is used.
      */
     val name: Output<String?>?
-        get() = javaBackingObject.name?.toKotlin()
+        get() = javaBackingObject.name.orElse(null)
 
     /**
      * The previous type of the resource. If empty, the current type of the resource is used.
      */
     val type: Output<String?>?
-        get() = javaBackingObject.type?.toKotlin()
+        get() = javaBackingObject.type.orElse(null)
 
     /**
      * The previous stack of the resource. If null, defaults to the value of `Pulumi.IDeployment.StackName`.
      */
     val stack: Output<String?>?
-        get() = javaBackingObject.stack?.toKotlin()
+        get() = javaBackingObject.stack.orElse(null)
 
     /**
      * The previous project of the resource. If null, defaults to the value of `Pulumi.IDeployment.ProjectName`.
      */
     val project: Output<String?>?
-        get() = javaBackingObject.project?.toKotlin()
+        get() = javaBackingObject.project.orElse(null)
 
     /**
      * The previous parent of the resource. If null, the current parent of the resource is used.
@@ -71,7 +70,7 @@ class Alias internal constructor(private val javaBackingObject: JavaAlias) : Con
      * Only specify one of [Alias.parent] or [Alias.parentUrn] or [Alias.noParent].
      */
     val parentUrn: Output<String?>?
-        get() = javaBackingObject.parentUrn?.toKotlin()
+        get() = javaBackingObject.parentUrn.orElse(null)
 
     /**
      * Used to indicate the resource previously had no parent. If `false` this property is ignored.
