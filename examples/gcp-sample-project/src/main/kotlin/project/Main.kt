@@ -1,11 +1,17 @@
 package project
 
 import com.pulumi.Context
+import com.pulumi.gcp.compute.kotlin.ComputeFunctions
 import com.pulumi.gcp.compute.kotlin.instanceResource
 import com.pulumi.kotlin.Pulumi
 
 fun main() {
     Pulumi.run { ctx: Context ->
+        val debianImage = ComputeFunctions.getImage {
+            family("debian-11")
+            project("debian-cloud")
+        }
+
         val instance = instanceResource("gcp-sample-project") {
             args {
                 machineType("e2-micro")
@@ -14,7 +20,7 @@ fun main() {
                 bootDisk {
                     autoDelete(true)
                     initializeParams {
-                        image("debian-cloud/debian-11")
+                        image(debianImage.name)
                     }
                 }
                 networkInterfaces(
