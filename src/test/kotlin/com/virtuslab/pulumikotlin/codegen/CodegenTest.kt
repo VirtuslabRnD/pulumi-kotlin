@@ -195,50 +195,37 @@ class CodegenTest {
             import com.pulumi.core.Either
 
             private const val RECORD_NAME = "record"
-            private const val ZONE_ID = "zoneId"
             
             suspend fun main() {
                 val record = recordResource(RECORD_NAME) {
                     name(RECORD_NAME)
                     args {
-                        aliases(
-                            {
-                                evaluateTargetHealth(true)
-                                name("name")
-                                zoneId(ZONE_ID)
-                            }
-                        )
-                        allowOverwrite(true)
-                        failoverRoutingPolicies(
-                            {
-                                type("type")
-                            }
-                        )
-                        geolocationRoutingPolicies(
-                            {
-                                continent("continent")
-                                country("country")
-                                subdivision("subdivision")
-                            }
-                        )
-                        healthCheckId("healthCheckId")
-                        latencyRoutingPolicies(
-                            {
-                                region("region")
-                            }
-                        )
-                        multivalueAnswerRoutingPolicy(true)
-                        name(RECORD_NAME)
-                        records("records")
-                        setIdentifier("setIdentifier")
-                        ttl(1)
                         type(Either.ofRight(RecordType.AAAA))
-                        weightedRoutingPolicies(
-                            {
-                                weight(1)
-                            }
-                        )
-                        zoneId(ZONE_ID)
+                    }
+                }
+            
+                record.type
+            }
+
+            """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_WITH_ONE_OF, code)
+    }
+
+    @Test
+    fun `aws Either can be invoked using dedicated overloads`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.aws.route53.kotlin.enums.RecordType
+            import com.pulumi.aws.route53.kotlin.recordResource
+
+            private const val RECORD_NAME = "record"
+            
+            suspend fun main() {
+                val record = recordResource(RECORD_NAME) {
+                    name(RECORD_NAME)
+                    args {
+                        type(RecordType.AAAA)
                     }
                 }
             
