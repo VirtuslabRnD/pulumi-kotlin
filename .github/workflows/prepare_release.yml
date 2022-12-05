@@ -48,7 +48,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Publish packages
-        run: ./gradlew publishPulumi${{ matrix.provider.capitalized }}PublicationToGitHubPackagesRepository
+        run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   cleanup:
