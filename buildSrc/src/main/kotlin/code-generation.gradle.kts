@@ -62,6 +62,7 @@ val createTasksForProvider by extra {
                     artifact(tasks[jarTaskName])
                     artifact(tasks[sourcesJarTaskName])
                     artifact(tasks[javadocJarTaskName])
+
                     artifactId = archiveName
                     setVersion(version)
                 }
@@ -218,6 +219,12 @@ fun configurePom(
     implementationDependency: String,
 ) {
     mavenPublication.pom {
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
         withXml {
             val dependenciesNode = asNode().appendNode("dependencies")
             configurations[implementationDependency].dependencies
