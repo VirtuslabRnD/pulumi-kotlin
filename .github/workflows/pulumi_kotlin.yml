@@ -83,4 +83,4 @@ jobs:
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Publish to Maven Local
-        run: ./gradlew publishPulumi${{ matrix.provider.capitalized }}PublicationToMavenLocal
+        run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal
