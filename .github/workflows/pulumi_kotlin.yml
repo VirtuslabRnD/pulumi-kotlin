@@ -71,8 +71,8 @@ jobs:
     name: Publish pulumi-kotlin to Maven Local Repository
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 4
       matrix:
-        max-parallel: 4
         provider: [
           cloudflare, slack, github, random, gcp, google-native, aws, aws-native, azure, azure-native, kubernetes,
           nomad, docker, gitlab, digitalocean
