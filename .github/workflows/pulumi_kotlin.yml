@@ -70,16 +70,17 @@ jobs:
   publish:
     name: Publish pulumi-kotlin to Maven Local Repository
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        max-parallel: 4
+        provider: [
+          cloudflare, slack, github, random, gcp, google-native, aws, aws-native, azure, azure-native, kubernetes,
+          nomad, docker, gitlab, digitalocean
+        ]
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Publish to Maven Local
-        run: |
-          ./gradlew publishToMavenLocal \
-            -x dokkaPulumiCloudflareJavadoc \
-            -x dokkaPulumiGitlabJavadoc \
-            -x dokkaPulumiGithubJavadoc \
-            -x dokkaPulumiNomadJavadoc \
-            -x dokkaPulumiDigitaloceanJavadoc
+        run: ./gradlew publishPulumi${{ matrix.provider.capitalized }}PublicationToMavenLocal

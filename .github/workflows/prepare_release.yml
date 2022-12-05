@@ -35,13 +35,20 @@ jobs:
     needs: tag
     runs-on: ubuntu-latest
     if: ${{ needs.tag.outputs.is_release == 'true' }}
+    strategy:
+      matrix:
+        max-parallel: 4
+        provider: [
+          cloudflare, slack, github, random, gcp, google-native, aws, aws-native, azure, azure-native, kubernetes,
+          nomad, docker, gitlab, digitalocean
+        ]
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Publish packages
-        run: ./gradlew publishAllPublicationsToGitHubPackagesRepository
+        run: ./gradlew publishPulumi${{ matrix.provider.capitalized }}PublicationToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   cleanup:
