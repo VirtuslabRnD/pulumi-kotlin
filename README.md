@@ -6,128 +6,114 @@ Experimental support for Kotlin language in Pulumi.
 
 **Work in progress, expect chaos and terrible code.**
 
-## How to run this locally?
+This repository contains the code used to generate Kotlin wrappers on top of the existing Pulumi Java libraries.
 
-There are two ways:
+## What is possible with Kotlin SDK?
 
-- Run from command line (Gradle).
-    - Example: `./gradlew run --args='--schema-path src/main/resources/schema-aws-classic-subset-for-build.json --output-directory-path output-dir'`.
-- Run from IntelliJ with `Program arguments` properly set.
+More examples can be found [here](https://github.com/VirtuslabRnD/pulumi-kotlin/tree/main/examples).
 
-### Arguments
-
-⚠️ Note: *Use `src/main/resources/schema-aws-classic.json` schema for now. Google or Azure won't work yet.*
-
-- `--schema-path` – path to provider's schema (see section below for how to download it).
-- `--output-directory-path` – path to a directory where the generated code should be stored.
-
-## Schema
-
-### How to download provider's schema?
-
-#### Directly from the repository
-
-Schema is stored in provider's repository, under `provider/cmd/pulumi-resource-{{provider-name}}` path.
-
-For example, to download `pulumi-aws-native`'s schema, open this [link][pulumi-aws-native-schema-link]
-and save the file (Right click 'Download' -> 'Save link as...').
-
-#### Through `pulumi` CLI
-
-⚠️ Warning: This is not recommended ([issue][slash-encoding-issue]). Schemas downloaded this way have `/` encoded
-as `%2F` (in `$ref`).
-
-Use the `pulumi package get-schema` command, for example:
-
-```bash
-pulumi package get-schema 'azure-native' > azure-native-schema.json
-```
-
-### How to compute a subset of some schema?
-
-Run `gradlew computeSchemaSubset` from Gradle or `ComputeSchemaSubsetScript.kt` from IntelliJ.
-
-Example:
-
-```bash
-./gradlew computeSchemaSubset --args="--schema-path=./gcp-schema.json --name=gcp:compute/instance:Instance --context=resource"
-```
-
-## How does it work under the hood?
-
-⚠️ Note: *Remember, this repo is proof of concept, code is not of highest quality and things can quickly change.*
-
-1. The provided schema is deserialized (`step1schemaparse`).
-1. The deserialized schema is converted into intermediate representation – graph of type
-   dependencies (`step2intermediate`).
-1. The intermediate representation is used to generate Kotlin code (`step3codegen`).
-
-    - Code is generated with [KotlinPoet](https://github.com/square/kotlinpoet).
-    - The generated SDK allows to write an idiomatic Kotlin code
-      (see [type-safe builders](https://kotlinlang.org/docs/type-safe-builders.html)).
-    - The generated SDK delegates all the work to Pulumi Java SDK.
-
-## What is possible with Kotlin SDK? (code examples)
+### VM creation on GCP
 
 ```kotlin
-import com.pulumi.aws.acm.kotlin.certificateResource
+import com.pulumi.Context
+import com.pulumi.gcp.compute.kotlin.ComputeFunctions
+import com.pulumi.gcp.compute.kotlin.instanceResource
+import com.pulumi.kotlin.Pulumi
 
-suspend fun main() {
-    val resource1 = certificateResource("name") {
-        args {
-            subjectAlternativeNames("one", "two")
-            validationOptions(
-                {
-                    domainName("whatever")
-                    validationDomain("whatever")
-                },
-                {
-                    domainName("whatever2")
-                    validationDomain("whatever2")
-                }
-            )
-            options {
-                certificateTransparencyLoggingPreference("test")
-            }
+fun main() {
+    Pulumi.run { ctx: Context ->
+        val debianImage = ComputeFunctions.getImage {
+            family("debian-11")
+            project("debian-cloud")
         }
-        opts {
-            protect(true)
-            retainOnDelete(false)
-            ignoreChanges(listOf("validationOptions"))
-        }
-    }
 
-    val resource2 = certificateResource("name2") {
-        args {
-            subjectAlternativeNames(resource1.status.applyValue { listOf(it) })
-            validationOptions(
-                {
-                    domainName(resource1.status)
-                    validationDomain("whatever")
+        instanceResource("gcp-sample-project") {
+            args {
+                machineType("e2-micro")
+                zone("europe-central2-a")
+                tags("foo", "bar")
+                bootDisk {
+                    autoDelete(true)
+                    initializeParams {
+                        image("debian-cloud/debian-11")
+                    }
                 }
-            )
-            options {
-                certificateTransparencyLoggingPreference("test")
+                networkInterfaces(
+                    {
+                        network("default")
+                    },
+                )
+                metadata("foo" to "bar")
+                metadataStartupScript("echo hi > /test.txt")
+                serviceAccount {
+                    scopes("cloud-platform")
+                }
             }
-        }
-        opts {
-            retainOnDelete(true)
-            ignoreChanges(listOf("validationOptions"))
         }
     }
 }
 ```
 
+### Kubernetes deployment
+
+```kotlin
+import com.pulumi.kotlin.Pulumi
+import com.pulumi.kubernetes.apps.v1.kotlin.deploymentResource
+
+fun main() {
+    Pulumi.run { ctx ->
+        val labels = mapOf("app" to "nginx")
+        deploymentResource("nginx") {
+            args {
+                spec {
+                    selector {
+                        matchLabels(labels)
+                    }
+                    replicas(1)
+                    template {
+                        metadata {
+                            labels(labels)
+                        }
+                        spec {
+                            containers(
+                                {
+                                    name("nginx")
+                                    image("nginx")
+                                    ports(
+                                        {
+                                            containerPort(80)
+                                        },
+                                    )
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+## Getting started
+
+1. Create a new Pulumi Java project using the `pulumi new` command.
+2. Replace the Java dependency in `pom.xml` with the corresponding Kotlin dependency (e.g.
+   replace [Pulumi GCP](https://search.maven.org/artifact/com.pulumi/gcp/6.44.0/jar)
+   with [Pulumi Kotlin GCP](https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1738521)). Currently, Pulumi Kotlin
+   libraries are published only on GitHub Packages, which means that you have to authenticate to GitHub in order to
+   attach the dependency (see:
+   [docs](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#installing-a-package)).
+3. Write your code or adapt a Java example into
+   Kotlin ([here](https://github.com/VirtuslabRnD/pulumi-kotlin/blob/main/examples/gcp-sample-project/src/main/kotlin/project/Main.kt)
+   you can find the adaptation of [this](https://www.pulumi.com/registry/packages/gcp/api-docs/compute/instance/) Java
+   example).
+4. Run or preview the project using the `pulumi up` and `pulumi preview` commands.
+: https://github.com/pulumi/pulumi-aws-native/blob/master/provider/cmd/pulumi-resource-aws-native/schema.json
+
 ## Development
 
-Development guidelines can be
-found [here](https://github.com/VirtuslabRnD/jvm-lab/blob/main/README.md#development-standards-for-kotlin-repositories).
-
-[slash-encoding-issue]: https://github.com/VirtuslabRnD/pulumi-kotlin/issues/87
-
-[pulumi-aws-native-schema-link]: https://github.com/pulumi/pulumi-aws-native/blob/master/provider/cmd/pulumi-resource-aws-native/schema.json
-
-## Releasing
+### Releasing
 
 All schema versions used for releasing the libraries are configured in the `src/main/resources/version-config.json`
 file. There are two release paths:
@@ -143,9 +129,9 @@ PR is approved and merged, a GitHub Action will be triggered
 (like [this one](https://github.com/VirtuslabRnD/pulumi-kotlin/actions/runs/3328060887)), which will:
 
 1. Tag the merge commit with the appropriate release versions.
-2. Release the requested libraries to the 
+2. Release the requested libraries to the
    [Maven registry (hosted on GitHub)](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry).
-   The released libraries will be visible in the 
+   The released libraries will be visible in the
    [Packages](https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin) section on GitHub.
 3. Fast-forward the released versions to SNAPSHOT versions and create a PR (
    like [this one](https://github.com/VirtuslabRnD/pulumi-kotlin/pull/99)). Once this PR is approved and merged, the
