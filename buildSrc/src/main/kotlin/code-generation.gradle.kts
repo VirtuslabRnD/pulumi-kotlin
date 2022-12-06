@@ -51,10 +51,10 @@ val createTasksForProvider by extra {
         tasks[generationTaskName].finalizedBy(tasks[formatTaskName])
         tasks[generationTaskName].finalizedBy(tasks[compilationTaskName])
 
-        createJarTask(jarTaskName, generationTaskName, sourceSetName, archiveName)
-        createSourcesJarTask(sourcesJarTaskName, generationTaskName, sourceSetName, archiveName)
+        createJarTask(jarTaskName, generationTaskName, sourceSetName, archiveName, version)
+        createSourcesJarTask(sourcesJarTaskName, generationTaskName, sourceSetName, archiveName, version)
         createJavadocGenerationTask(javadocGenerationTaskName, generationTaskName, archiveName, sourceSetName)
-        createJavadocJarTask(javadocJarTaskName, javadocGenerationTaskName, archiveName)
+        createJavadocJarTask(javadocJarTaskName, javadocGenerationTaskName, archiveName, version)
 
         publishing {
             publications {
@@ -62,7 +62,6 @@ val createTasksForProvider by extra {
                     artifact(tasks[jarTaskName])
                     artifact(tasks[sourcesJarTaskName])
                     artifact(tasks[javadocJarTaskName])
-
                     artifactId = archiveName
                     setVersion(version)
                 }
@@ -145,12 +144,14 @@ fun createJarTask(
     generationTaskName: String,
     sourceSetName: String,
     archiveName: String,
+    version: String,
 ) {
     task<Jar>(jarTaskName) {
         dependsOn(tasks[generationTaskName])
         group = "build"
         from(project.the<SourceSetContainer>()[sourceSetName].output)
         archiveBaseName.set(archiveName)
+        archiveVersion.set(version)
         // This setting is needed to enable building JAR archives with more than 65535 files, e.g. the compiled
         // Google Native schema. See:
         // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html#org.gradle.api.tasks.bundling.Jar:zip64
@@ -163,12 +164,14 @@ fun createSourcesJarTask(
     generationTaskName: String,
     sourceSetName: String,
     archiveName: String,
+    version: String,
 ) {
     task<Jar>(sourcesJarTaskName) {
         dependsOn(tasks[generationTaskName])
         group = "build"
         from(project.the<SourceSetContainer>()[sourceSetName].allSource)
         archiveBaseName.set(archiveName)
+        archiveVersion.set(version)
         archiveClassifier.set("sources")
         // This setting is needed to enable building JAR archives with more than 65535 files. See:
         // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html#org.gradle.api.tasks.bundling.Jar:zip64
@@ -200,12 +203,14 @@ fun createJavadocJarTask(
     javadocJarTaskName: String,
     javadocGenerationTaskName: String,
     archiveName: String,
+    version: String,
 ) {
     task<Jar>(javadocJarTaskName) {
         dependsOn(tasks[javadocGenerationTaskName])
         group = "documentation"
         from(tasks[javadocGenerationTaskName])
         archiveBaseName.set(archiveName)
+        archiveVersion.set(version)
         archiveClassifier.set("javadoc")
         // This setting is needed to enable building JAR archives with more than 65535 files, e.g. Dokka docs for
         // the full GCP schema. See:
