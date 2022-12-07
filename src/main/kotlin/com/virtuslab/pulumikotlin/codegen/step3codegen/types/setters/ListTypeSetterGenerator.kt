@@ -49,8 +49,6 @@ object ListTypeSetterGenerator : SetterGenerator {
                     )
                     .withMappingCode(normalField.mappingCode)
 
-
-
                 listOf(
                     builderPattern(name, listOfLambdas(innerType), kDoc, commonCodeBlock),
                     builderPattern(
