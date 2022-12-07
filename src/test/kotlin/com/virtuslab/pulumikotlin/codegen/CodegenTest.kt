@@ -32,6 +32,7 @@ class CodegenTest {
         "com.pulumi:google-native:0.27.0",
         "com.pulumi:kubernetes:3.22.1",
         "com.pulumi:azure-native:1.85.0",
+        "com.pulumi:google-native:0.27.0",
         "com.google.code.findbugs:jsr305:3.0.2",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4",
         "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
@@ -739,6 +740,31 @@ class CodegenTest {
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_AZURE_NATIVE_SUBSET_WITH_LOWERCASE_RESOURCE, code)
     }
 
+    @Test
+    fun `additional overloads are generated for setters of list Outputs`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.core.Output
+            import com.pulumi.googlenative.compute.v1.kotlin.instanceResource
+            
+            suspend fun main() {
+                instanceResource("instance") {
+                    args {
+                        tags {
+                            items("foo", "bar")
+                            items(listOf("foo", "bar"))
+                            items(Output.of(listOf("foo", "bar")))
+                            items(Output.of("foo"), Output.of("bar"))
+                            items(listOf(Output.of("foo"), Output.of("bar"))) 
+                        }
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_OUTPUT_LIST, code)
+    }
+
     private fun assertGeneratedCodeCompiles(schemaPath: String) {
         assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
     }
@@ -918,3 +944,5 @@ private const val SCHEMA_KUBERNETES_SUBSET_WITH_KOTLIN_KEYWORD_IN_PROPERTY_NAME 
     "schema-kubernetes-3.22.1-subset-with-kotlin-keyword-in-property-name.json"
 private const val SCHEMA_AZURE_NATIVE_SUBSET_WITH_LOWERCASE_RESOURCE =
     "schema-azure-native-1.85.0-subset-with-lowercase-resource.json"
+private const val SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_OUTPUT_LIST =
+    "schema-google-native-0.27.0-subset-with-output-list.json"
