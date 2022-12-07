@@ -1,8 +1,14 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen.types.setters
 
+import com.pulumi.core.Output
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier.SUSPEND
+import com.squareup.kotlinpoet.KModifier.VARARG
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.asClassName
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.ListType
+import com.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Java.Pulumi.outputClass
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.OptionalType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step3codegen.KotlinPoetPatterns.addDocsToBuilderMethod
@@ -19,7 +25,18 @@ object OutputWrappedSetterGenerator : SetterGenerator {
             outputWrappedField.type
         }
 
-        return listOf(
+        val additionalListSetters = when (type) {
+            is ListType -> {
+                listOf(
+                    createVarargOutputSetter(setter, typeNameClashResolver, type),
+                    createOutputListSetter(setter, typeNameClashResolver, type),
+                )
+            }
+
+            else -> emptyList()
+        }
+
+        val basicSetter = listOf(
             FunSpec
                 .builder(setter.name)
                 .addModifiers(SUSPEND)
@@ -28,5 +45,49 @@ object OutputWrappedSetterGenerator : SetterGenerator {
                 .addDocsToBuilderMethod(setter.kDoc, "value")
                 .build(),
         )
+
+        return basicSetter + additionalListSetters
     }
+
+    private fun createOutputListSetter(
+        setter: Setter,
+        typeNameClashResolver: TypeNameClashResolver,
+        innerType: ListType,
+    ) = FunSpec
+        .builder(setter.name)
+        .addModifiers(SUSPEND)
+        .addParameter(
+            "values",
+            List::class.asClassName().parameterizedBy(
+                outputClass().parameterizedBy(
+                    typeNameClashResolver.toTypeName(
+                        innerType.innerType,
+                        Kotlin,
+                    ),
+                ),
+            ),
+        )
+        .addCode("this.%N = %T.all(values)", setter.name, Output::class)
+        .addDocsToBuilderMethod(setter.kDoc, "values")
+        .build()
+
+    private fun createVarargOutputSetter(
+        setter: Setter,
+        typeNameClashResolver: TypeNameClashResolver,
+        innerType: ListType,
+    ) = FunSpec
+        .builder(setter.name)
+        .addModifiers(SUSPEND)
+        .addParameter(
+            "values",
+            outputClass().parameterizedBy(
+                typeNameClashResolver.toTypeName(
+                    innerType.innerType,
+                    Kotlin,
+                ),
+            ),
+            VARARG,
+        )
+        .addCode("this.%N = %T.all(values.asList())", setter.name, Output::class)
+        .build()
 }
