@@ -3,7 +3,7 @@ name: Prepare release
 on:
   push:
     branches:
-      - main
+      - release-tmp
 
 jobs:
   tag:
@@ -100,6 +100,6 @@ jobs:
             ## Description
 
             This PR was triggered automatically after a release. It replaces the released versions with SNAPSHOT versions.
-          base: main
+          base: release-tmp
           branch: prepare-for-next-development-phase
           branch-suffix: short-commit-hash
