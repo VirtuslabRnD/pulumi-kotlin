@@ -42,6 +42,15 @@ object ListTypeSetterGenerator : SetterGenerator {
                     )
                     .withMappingCode(normalField.mappingCode)
 
+                val singleValueCodeBlock = BuilderSettingCodeBlock
+                    .create(
+                        "listOf(%T().applySuspend { argument() }.build())",
+                        innerType.toBuilderTypeName(),
+                    )
+                    .withMappingCode(normalField.mappingCode)
+
+
+
                 listOf(
                     builderPattern(name, listOfLambdas(innerType), kDoc, commonCodeBlock),
                     builderPattern(
@@ -50,6 +59,12 @@ object ListTypeSetterGenerator : SetterGenerator {
                         kDoc,
                         commonCodeBlock,
                         parameterModifiers = listOf(VARARG),
+                    ),
+                    builderPattern(
+                        name,
+                        builderLambda(innerType),
+                        kDoc,
+                        singleValueCodeBlock,
                     ),
                 )
             }

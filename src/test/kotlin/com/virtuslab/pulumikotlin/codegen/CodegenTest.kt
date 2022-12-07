@@ -765,6 +765,26 @@ class CodegenTest {
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_OUTPUT_LIST, code)
     }
 
+    @Test
+    fun `additional single argument overload is generated for lists`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.gcp.compute.kotlin.instanceResource
+            
+            suspend fun main() {
+                instanceResource("instance") {
+                    args {
+                        networkInterfaces {
+                            network("default")
+                        }
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_GOOGLE_CLASSIC_SUBSET_WITH_INSTANCE, code)
+    }
+
     private fun assertGeneratedCodeCompiles(schemaPath: String) {
         assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
     }
@@ -946,3 +966,4 @@ private const val SCHEMA_AZURE_NATIVE_SUBSET_WITH_LOWERCASE_RESOURCE =
     "schema-azure-native-1.85.0-subset-with-lowercase-resource.json"
 private const val SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_OUTPUT_LIST =
     "schema-google-native-0.27.0-subset-with-output-list.json"
+private const val SCHEMA_GOOGLE_CLASSIC_SUBSET_WITH_INSTANCE = "schema-gcp-classic-6.39.0-subset-with-instance.json"
