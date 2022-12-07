@@ -74,22 +74,6 @@ jobs:
           version=$(echo $file_name | sed -e "s/^pulumi-${{ matrix.provider }}-kotlin-//" -e "s/-javadoc.jar$//")
           mkdir -p ./docs/${{ matrix.provider }}/$version
           mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}Javadoc/* ./docs/${{ matrix.provider }}/$version
-      - name: Upload Dokka artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.provider }}
-          path: ./docs/${{ matrix.provider }}
-  publish-docs:
-    name: Publish pulumi-kotlin docs
-    runs-on: ubuntu-latest
-    needs: publish
-    steps:
-      - name: Check out project sources
-        uses: actions/checkout@v3
-      - name: Download Dokka artifacts
-        uses: actions/download-artifact@v3
-        with:
-          path: docs
       - id: auth
         uses: google-github-actions/auth@v1
         with:
