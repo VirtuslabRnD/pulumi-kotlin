@@ -367,15 +367,17 @@ internal class KDocGeneratorTest {
     }
 
     @Test
-    fun `escapes periods in non-code parts of the documentation`() {
+    fun `escapes periods in square brackets`() {
         val description =
             """This would cause compilation issues: [ITU.X690.1994].
+              |But this shouldn't be altered: `com.package.test`.
               |{{% examples %}}
               |## Examples
               |{{% example %}}
               |### Specific example 1
               |```java
               |// The period at the end of this sentence should stay the same.
+              |// This comment also shouldn't change: [ITU.X690.1994].
               |val x = 2 + 2;
               |```
               |{{% /example %}}
@@ -387,11 +389,13 @@ internal class KDocGeneratorTest {
             className,
             description,
             """/**
-              | * This would cause compilation issues: [ITU&#46;X690&#46;1994]&#46;
+              | * This would cause compilation issues: [ITU&#46;X690&#46;1994].
+              | * But this shouldn't be altered: `com.package.test`.
               | * ## Examples
               | * ### Specific example 1
               | * ```java
               | * // The period at the end of this sentence should stay the same.
+              | * // This comment also shouldn't change: [ITU.X690.1994].
               | * val x = 2 + 2;
               | * ```
               | */"""
