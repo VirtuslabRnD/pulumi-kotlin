@@ -17,11 +17,8 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: adopt
-          java-version: 11
+      - name: Set up Maven
+        uses: s4u/setup-maven-action@v1.6.0
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI
@@ -55,11 +52,8 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: adopt
-          java-version: 11
+      - name: Set up Maven
+        uses: s4u/setup-maven-action@v1.6.0
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI
@@ -93,11 +87,8 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: adopt
-          java-version: 11
+      - name: Set up Maven
+        uses: s4u/setup-maven-action@v1.6.0
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI
