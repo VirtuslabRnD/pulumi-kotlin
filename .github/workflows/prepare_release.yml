@@ -41,7 +41,7 @@ jobs:
       matrix:
         provider: [
           cloudflare, slack, github, random, gcp, google-native, aws, aws-native, azure, azure-native, kubernetes,
-          nomad, docker, gitlab, digitalocean
+          nomad, docker, gitlab, digitalocean, alicloud
         ]
     steps:
       - id: provider
