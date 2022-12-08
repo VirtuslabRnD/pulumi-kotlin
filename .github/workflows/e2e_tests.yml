@@ -102,6 +102,8 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
+      - name: Set up Docker
+        uses: docker-practice/actions-setup-docker@master
       - name: Set up Minikube
         uses: medyagh/setup-minikube@master
       - name: Publish Pulumi Kotlin Kubernetes to Maven Local
