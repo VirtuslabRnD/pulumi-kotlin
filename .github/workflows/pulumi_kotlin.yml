@@ -82,4 +82,7 @@ jobs:
           distribution: adopt
           java-version: 11
       - name: Publish to Maven Local
-        run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -x dokkaPulumi${{ matrix.provider }}Javadoc
+        run: |
+          ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal \
+            -x dokkaPulumi${{ matrix.provider }}Javadoc \
+            -x formatKotlinPulumi{{ matrix.provider }}
