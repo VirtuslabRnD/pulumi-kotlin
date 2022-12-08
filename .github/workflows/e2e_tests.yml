@@ -93,6 +93,8 @@ jobs:
           java-version: 11
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
+      - name: Prepare for Docker installation
+        run: mkdir -p /usr/share/keyrings
       - name: Set up Docker
         uses: docker-practice/actions-setup-docker@master
       - name: Set up Minikube
