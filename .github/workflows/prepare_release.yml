@@ -18,8 +18,6 @@ jobs:
           fetch-depth: 2
       - name: Set up Git user
         uses: fregante/setup-git-user@v1
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
       - name: Tag new versions of Pulumi Kotlin (if available)
         run: ./gradlew tagRecentRelease
       - name: Check number of commits
@@ -58,8 +56,6 @@ jobs:
         with:
           distribution: adopt
           java-version: 11
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
       - name: Publish packages
         run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToGitHubPackagesRepository
         env:

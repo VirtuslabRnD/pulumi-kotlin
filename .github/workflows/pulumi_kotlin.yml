@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
       - name: Compile and test code
         id: run-tests
         run: ./gradlew build test -x check
@@ -45,8 +43,6 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
       - name: Run Ktlint
         id: run-ktlint
         run: ./gradlew lintKotlin
@@ -85,7 +81,5 @@ jobs:
         with:
           distribution: adopt
           java-version: 11
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
       - name: Publish to Maven Local
         run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -x dokkaPulumi${{ matrix.provider }}Javadoc
