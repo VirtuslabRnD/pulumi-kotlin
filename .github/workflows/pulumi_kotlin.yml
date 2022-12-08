@@ -85,4 +85,4 @@ jobs:
         run: |
           ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal \
             -x dokkaPulumi${{ matrix.provider }}Javadoc \
-            -x formatKotlinPulumi{{ matrix.provider }}
+            -x formatKotlinPulumi${{ matrix.provider }}
