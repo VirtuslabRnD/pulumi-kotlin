@@ -6,16 +6,22 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   gcp-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin GCP
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+    runs-on: self-hosted
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI
@@ -45,13 +51,15 @@ jobs:
           retention-days: 3
   google-native-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Google Native
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+    runs-on: self-hosted
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI
@@ -81,13 +89,15 @@ jobs:
           retention-days: 3
   kubernetes-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Kubernetes
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+    runs-on: self-hosted
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI

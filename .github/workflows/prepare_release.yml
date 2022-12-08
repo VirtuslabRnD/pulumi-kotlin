@@ -33,8 +33,12 @@ jobs:
   publish:
     name: Publish packages
     needs: tag
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: ${{ needs.tag.outputs.is_release == 'true' }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
     strategy:
       max-parallel: 4
       matrix:
@@ -45,6 +49,11 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Publish packages
@@ -58,6 +67,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      id-token: write
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
