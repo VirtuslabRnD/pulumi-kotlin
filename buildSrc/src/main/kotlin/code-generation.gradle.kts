@@ -53,7 +53,7 @@ val createTasksForProvider by extra {
 
         createJarTask(jarTaskName, generationTaskName, sourceSetName, archiveName, version)
         createSourcesJarTask(sourcesJarTaskName, generationTaskName, sourceSetName, archiveName, version)
-        createJavadocGenerationTask(javadocGenerationTaskName, generationTaskName, archiveName, sourceSetName)
+        createJavadocGenerationTask(javadocGenerationTaskName, generationTaskName, archiveName, sourceSetName, version)
         createJavadocJarTask(javadocJarTaskName, javadocGenerationTaskName, archiveName, version)
 
         publishing {
@@ -184,10 +184,12 @@ fun createJavadocGenerationTask(
     generationTaskName: String,
     archiveName: String,
     sourceSetName: String,
+    version: String,
 ) {
     task<DokkaTask>(javadocGenerationTaskName) {
         dependsOn(tasks[generationTaskName])
         moduleName.set(archiveName)
+        moduleVersion.set(version)
         dokkaSourceSets {
             named("main") {
                 suppress.set(true)
