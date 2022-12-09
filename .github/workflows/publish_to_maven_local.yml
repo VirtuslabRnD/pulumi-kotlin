@@ -1,0 +1,28 @@
+name: Publish pulumi-kotlin to Maven Local
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    name: Publish pulumi-kotlin to Maven Local Repository
+    runs-on: self-hosted
+    strategy:
+      max-parallel: 4
+      matrix:
+        provider: [
+          cloudflare, slack, github, random, gcp, google-native, aws, aws-native, azure, azure-native, kubernetes,
+          nomad, docker, gitlab, digitalocean
+        ]
+    steps:
+      - name: Check out project sources
+        uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
+      - name: Publish to Maven Local
+        run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal
