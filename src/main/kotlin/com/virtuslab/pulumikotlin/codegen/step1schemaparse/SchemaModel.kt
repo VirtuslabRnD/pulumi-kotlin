@@ -140,8 +140,8 @@ object SchemaModel {
 
     @Serializable
     data class StringEnumProperty(
-        val type: PropertyType,
         val enum: List<StringSingleEnum>,
+        override val type: PropertyType,
         override val default: JsonElement? = null,
         override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
@@ -156,7 +156,7 @@ object SchemaModel {
 
     @Serializable
     data class StringProperty(
-        val type: PropertyType = StringType,
+        override val type: PropertyType = StringType,
         override val default: JsonElement? = null,
         override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
@@ -170,7 +170,7 @@ object SchemaModel {
 
     @Serializable
     data class BooleanProperty(
-        val type: PropertyType = BooleanType,
+        override val type: PropertyType = BooleanType,
         override val default: JsonElement? = null,
         override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
@@ -184,7 +184,7 @@ object SchemaModel {
 
     @Serializable
     data class IntegerProperty(
-        val type: PropertyType = IntegerType,
+        override val type: PropertyType = IntegerType,
         override val default: JsonElement? = null,
         override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
@@ -198,7 +198,7 @@ object SchemaModel {
 
     @Serializable
     data class NumberProperty(
-        val type: PropertyType = NumberType,
+        override val type: PropertyType = NumberType,
         override val default: JsonElement? = null,
         override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
@@ -212,8 +212,8 @@ object SchemaModel {
 
     @Serializable
     class ArrayProperty(
-        val type: PropertyType = ArrayType,
         val items: Property,
+        override val type: PropertyType = ArrayType,
         override val default: JsonElement? = null,
         override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
@@ -227,9 +227,9 @@ object SchemaModel {
 
     @Serializable
     data class ReferenceProperty(
-        val type: PropertyType? = null,
         @SerialName("\$ref")
         val ref: SpecificationReference,
+        override val type: PropertyType? = null,
         override val default: JsonElement? = null,
         override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
@@ -267,9 +267,9 @@ object SchemaModel {
 
     @Serializable
     data class OneOfProperty(
-        val type: String? = null,
         val oneOf: List<Property>,
         val discriminator: Discriminator? = null,
+        override val type: PropertyType? = null,
         override val default: JsonElement? = null,
         override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
@@ -283,10 +283,10 @@ object SchemaModel {
 
     @Serializable
     data class ObjectProperty(
-        val type: PropertyType = ObjectType,
         val properties: Map<PropertyName, Property> = emptyMap(),
         val additionalProperties: Property? = null,
         val required: Set<PropertyName> = emptySet(),
+        override val type: PropertyType = ObjectType,
         override val default: JsonElement? = null,
         override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
@@ -301,8 +301,8 @@ object SchemaModel {
 
     @Serializable
     data class MapProperty(
-        val type: PropertyType = ObjectType,
         val additionalProperties: Property,
+        override val type: PropertyType = ObjectType,
         override val default: JsonElement? = null,
         override val defaultInfo: JsonElement? = null,
         override val deprecationMessage: String? = null,
@@ -316,6 +316,7 @@ object SchemaModel {
 
     @Serializable(with = PropertySerializer::class)
     sealed interface Property {
+        val type: PropertyType?
         val default: JsonElement?
         val defaultInfo: JsonElement?
         val deprecationMessage: String?
