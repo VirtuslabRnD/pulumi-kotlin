@@ -65,12 +65,14 @@ jobs:
           version=$(echo $file_name | sed -e "s/^pulumi-${{ matrix.provider }}-kotlin-//" -e "s/-javadoc.jar$//")
           mkdir -p ./docs/${{ matrix.provider }}/$version
           mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}Javadoc/* ./docs/${{ matrix.provider }}/$version
-      - id: auth
+      - name: Authenticate to GCP
+        id: auth
         uses: google-github-actions/auth@v1
         with:
           workload_identity_provider: projects/954450653667/locations/global/workloadIdentityPools/pulumi-kotlin-docs-pool/providers/pulumi-kotlin-docs-provider
           service_account: pulumi-kotlin-docs@jvm-lab.iam.gserviceaccount.com
-      - id: upload-file
+      - name: Upload Dokka artifacts
+        id: upload-file
         uses: google-github-actions/upload-cloud-storage@v1
         with:
           path: ./docs
