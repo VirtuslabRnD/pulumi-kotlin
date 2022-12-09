@@ -61,37 +61,37 @@ import com.pulumi.kotlin.Pulumi
 import com.pulumi.kubernetes.apps.v1.kotlin.deploymentResource
 
 fun main() {
-    Pulumi.run { ctx ->
-        val labels = mapOf("app" to "nginx")
-        deploymentResource("nginx") {
-            args {
-                spec {
-                    selector {
-                        matchLabels(labels)
-                    }
-                    replicas(1)
-                    template {
-                        metadata {
-                            labels(labels)
-                        }
-                        spec {
-                            containers(
-                                {
-                                    name("nginx")
-                                    image("nginx")
-                                    ports(
-                                        {
-                                            containerPort(80)
-                                        },
-                                    )
-                                },
-                            )
-                        }
-                    }
-                }
+   Pulumi.run { ctx ->
+      val labels = mapOf("app" to "nginx")
+      deploymentResource("nginx") {
+         args {
+            spec {
+               selector {
+                  matchLabels(labels)
+               }
+               replicas(1)
+               template {
+                  metadata {
+                     labels(labels)
+                  }
+                  spec {
+                     containers(
+                        {
+                           name("nginx")
+                           image("nginx")
+                           ports(
+                              {
+                                 containerPort(80)
+                              },
+                           )
+                        },
+                     )
+                  }
+               }
             }
-        }
-    }
+         }
+      }
+   }
 }
 ```
 
@@ -110,6 +110,36 @@ fun main() {
    example).
 4. Run or preview the project using the `pulumi up` and `pulumi preview` commands.
 : https://github.com/pulumi/pulumi-aws-native/blob/master/provider/cmd/pulumi-resource-aws-native/schema.json
+
+## Reference
+
+### Supported providers
+
+The table below lists the providers that are currently supported by Pulumi Kotlin. A full list of all Pulumi providers
+can be found [here](https://www.pulumi.com/registry/). These Kotlin libraries serve as a wrapper on top of
+corresponding Java libraries. They follow the same versioning pattern with an additional index, e.g. version `5.16.2.0`
+of Pulumi AWS (Kotlin) is a wrapper on top of Pulumi AWS (Java) `5.16.2`. If the additional index is incremented (e.g.
+to `5.16.2.1`), it means that some updates were made to our generator and that the Kotlin code has been improved, but
+the underlying Java library remained the same.
+
+| name            | Pulumi API docs                                                          | Kotlin package name                        | GitHub Packages repo | Kotlin docs                                                                                | 
+|-----------------|--------------------------------------------------------------------------|--------------------------------------------|----------------------|--------------------------------------------------------------------------------------------|
+| `alicloud`      | [link](https://www.pulumi.com/registry/packages/alicloud/api-docs/)      | `com.virtuslab.pulumi-alicloud-kotlin      | [link](TODO)         | [`3.28.0.0`]()                                                                             |
+| `aws`           | [link](https://www.pulumi.com/registry/packages/aws/api-docs/)           | `com.virtuslab.pulumi-aws-kotlin           | [link](TODO)         | [`5.16.2.0`]()                                                                             |
+| `aws-native`    | [link](https://www.pulumi.com/registry/packages/aws-native/api-docs/)    | `com.virtuslab.pulumi-aws-native-kotlin    | [link](TODO)         | [`0.42.0.0`]()                                                                             |
+| `azure`         | [link](https://www.pulumi.com/registry/packages/azure/api-docs/)         | `com.virtuslab.pulumi-azure-kotlin         | [link](TODO)         | [`5.24.0.0`]()                                                                             |
+| `azure-natice`  | [link](https://www.pulumi.com/registry/packages/azure-native/api-docs/)  | `com.virtuslab.pulumi-azure-native-kotlin  | [link](TODO)         | [`1.87.0.0`]()                                                                             |
+| `cloudflare`    | [link](https://www.pulumi.com/registry/packages/cloudflare/api-docs/)    | `com.virtuslab.pulumi-cloudflare-kotlin    | [link](TODO)         | [`4.12.1.0`]()                                                                             |
+| `digitalocean`  | [link](https://www.pulumi.com/registry/packages/digitalocean/api-docs/)  | `com.virtuslab.pulumi-digitalocean-kotlin  | [link](TODO)         | [`4.16.0.0`]()                                                                             |
+| `docker`        | [link](https://www.pulumi.com/registry/packages/docker/api-docs/)        | `com.virtuslab.pulumi-docker-kotlin        | [link](TODO)         | [`3.5.0.0`]()                                                                              |
+| `gcp`           | [link](https://www.pulumi.com/registry/packages/gcp/api-docs/)           | `com.virtuslab.pulumi-gcp-kotlin           | [link](TODO)         | [`6.43.0.0`]()                                                                             |
+| `github`        | [link](https://www.pulumi.com/registry/packages/github/api-docs/)        | `com.virtuslab.pulumi-github-kotlin        | [link](TODO)         | [`4.17.0.0`](https://storage.googleapis.com/pulumi-kotlin-docs/github/4.17.0.0/index.html) |
+| `gitlab`        | [link](https://www.pulumi.com/registry/packages/gitlab/api-docs/)        | `com.virtuslab.pulumi-gitlab-kotlin        | [link](TODO)         | [`4.9.0.0`]()                                                                              |
+| `google-native` | [link](https://www.pulumi.com/registry/packages/google-native/api-docs/) | `com.virtuslab.pulumi-google-native-kotlin | [link](TODO)         | [`0.27.0.0`]()                                                                             |
+| `kubernetes`    | [link](https://www.pulumi.com/registry/packages/kubernetes/api-docs/)    | `com.virtuslab.pulumi-kubernetes-kotlin    | [link](TODO)         | [`3.22.1.0`]()                                                                             |
+| `nomad`         | [link](https://www.pulumi.com/registry/packages/nomad/api-docs/)         | `com.virtuslab.pulumi-nomad-kotlin         | [link](TODO)         | [`0.3.0.0`]()                                                                              |
+| `random`        | [link](https://www.pulumi.com/registry/packages/random/api-docs/)        | `com.virtuslab.pulumi-random-kotlin        | [link](TODO)         | [`4.6.0.0`]()                                                                              |
+| `slack`         | [link](https://www.pulumi.com/registry/packages/slack/api-docs/)         | `com.virtuslab.pulumi-slack-kotlin         | [link](TODO)         | [`0.3.0.0`]()                                                                              |
 
 ## Development
 
