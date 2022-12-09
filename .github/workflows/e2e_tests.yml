@@ -87,6 +87,8 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
+      - name: Run Minikube
+        run: minikube start --force
       - name: Set up Maven
         uses: s4u/setup-maven-action@v1.6.0
         with:
