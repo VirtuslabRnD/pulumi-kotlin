@@ -18,10 +18,10 @@ internal class KDocGeneratorTest {
     @Test
     fun `does not add line breaks to very long lines`() {
         val description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor " +
-            "incididunt ut labore et dolore magna aliqua Ut enim ad minim veniam, quis nostrud exercitation " +
-            "ullamco laboris nisi ut aliquip ex ea commodo consequat Duis aute irure dolor in reprehenderit " +
-            "in voluptate velit esse cillum dolore eu fugiat nulla pariatur Excepteur sint occaecat cupidatat " +
-            "non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+            "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation " +
+            "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit " +
+            "in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat " +
+            "non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
         val className = "LongLines"
 
         assertKDocContentEquals(
@@ -129,7 +129,7 @@ internal class KDocGeneratorTest {
     fun `removes examples tags`() {
         val description =
             """{{% examples %}}
-              |There are some examples here
+              |There are some examples here.
               |{{% example %}}
               |{{% /example %}}
               |{{% /examples %}}"""
@@ -140,7 +140,7 @@ internal class KDocGeneratorTest {
             className,
             description,
             """/**
-              | * There are some examples here
+              | * There are some examples here.
               | */"""
                 .trimMargin(),
         )
@@ -367,15 +367,17 @@ internal class KDocGeneratorTest {
     }
 
     @Test
-    fun `escapes periods in non-code parts of the documentation`() {
+    fun `escapes periods in square brackets`() {
         val description =
             """This would cause compilation issues: [ITU.X690.1994].
+              |But this shouldn't be altered: `com.package.test`.
               |{{% examples %}}
               |## Examples
               |{{% example %}}
               |### Specific example 1
               |```java
               |// The period at the end of this sentence should stay the same.
+              |// This comment also shouldn't change: [ITU.X690.1994].
               |val x = 2 + 2;
               |```
               |{{% /example %}}
@@ -387,11 +389,13 @@ internal class KDocGeneratorTest {
             className,
             description,
             """/**
-              | * This would cause compilation issues: [ITU&#46;X690&#46;1994]&#46;
+              | * This would cause compilation issues: [ITU&#46;X690&#46;1994].
+              | * But this shouldn't be altered: `com.package.test`.
               | * ## Examples
               | * ### Specific example 1
               | * ```java
               | * // The period at the end of this sentence should stay the same.
+              | * // This comment also shouldn't change: [ITU.X690.1994].
               | * val x = 2 + 2;
               | * ```
               | */"""
