@@ -23,6 +23,7 @@ jobs:
           curl https://rclone.org/install.sh | bash || true
       - name: Configure Rclone
         run: |
+          mkdir -p ~/.config/rclone
           cp .github/workflows/rclone.conf ~/.config/rclone/rclone.conf
           cp .github/workflows/gcp-key.json ~/.config/gcp-key.json
       - name: Download from Google Storage
