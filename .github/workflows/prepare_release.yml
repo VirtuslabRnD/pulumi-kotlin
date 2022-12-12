@@ -74,7 +74,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
       - name: Upload Dokka artifacts
-        run: gcloud storage cp ./docs/${{ matrix.provider }} gs://pulumi-kotlin-docs
+        run: gcloud storage cp ./docs/${{ matrix.provider }} gs://pulumi-kotlin-docs -r
   cleanup:
     name: Clean up after release
     needs: publish
