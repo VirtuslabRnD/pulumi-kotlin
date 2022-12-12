@@ -8,6 +8,7 @@ jobs:
     name: Push docs
     runs-on: self-hosted
     steps:
+      - uses: actions/checkout@v2
 #      - name: Authenticate to GCP
 #        id: auth
 #        uses: google-github-actions/auth@v1
