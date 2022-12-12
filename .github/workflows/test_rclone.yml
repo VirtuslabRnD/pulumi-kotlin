@@ -28,10 +28,13 @@ jobs:
           cp .github/workflows/gcp-key.json ~/.config/gcp-key.json
       - name: Download from Google Storage
         run: |
-          rclone copy rclone-jvm-lab:pulumi-kotlin-docs/aws-native/ aws-native-downloaded/
+          rclone copy rclone-jvm-lab:pulumi-kotlin-docs/some-test-file-mfudala/pulumi-aws-native-kotlin-0.42.0.0-javadoc.zip .
+      - name: Unzip
+        run: |
+          unzip pulumi-aws-native-kotlin-0.42.0.0-javadoc.zip
 
       - name: Re-upload to Google Storage with rclone
         run: |
-          rclone copy aws-native-downloaded/ rclone-jvm-lab:/pulumi-kotlin-docs/mfudala-rclone-tests 
-          
-          
+          id=$(uuid)
+          rclone copy pulumi-aws-native-kotlin-0.42.0.0-javadoc rclone-jvm-lab:/pulumi-kotlin-docs/mfudala-rclone-tests/pulumi-aws-native-kotlin-0.42.0.0-javadoc-$id
+
