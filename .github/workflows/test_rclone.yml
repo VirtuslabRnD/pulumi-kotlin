@@ -18,6 +18,7 @@ jobs:
 #        uses: google-github-actions/setup-gcloud@v1
       - name: Install Rclone
         run: |
+          yum install unzip
           curl https://rclone.org/install.sh | bash
       - name: Configure Rclone
         run: |
