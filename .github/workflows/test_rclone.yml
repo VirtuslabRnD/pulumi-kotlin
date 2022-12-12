@@ -1,4 +1,4 @@
-name: Prepare release
+name: test rclone
 
 on:
   pull_request:
