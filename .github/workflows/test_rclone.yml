@@ -20,7 +20,7 @@ jobs:
       - name: Install Rclone
         run: |
           yum -y install unzip
-          curl https://rclone.org/install.sh | bash
+          curl https://rclone.org/install.sh | bash || true
       - name: Configure Rclone
         run: |
           cp .github/workflows/rclone.conf ~/.config/rclone/rclone.conf
