@@ -66,16 +66,18 @@ jobs:
           version=$(echo $file_name | sed -e "s/^pulumi-${{ matrix.provider }}-kotlin-//" -e "s/-javadoc.jar$//")
           mkdir -p ./docs/${{ matrix.provider }}/$version
           mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}Javadoc/* ./docs/${{ matrix.provider }}/$version
-      - name: Authenticate to GCP
-        id: auth
-        uses: google-github-actions/auth@v1
-        with:
-          workload_identity_provider: projects/954450653667/locations/global/workloadIdentityPools/pulumi-kotlin-docs-pool/providers/pulumi-kotlin-docs-provider
-          service_account: pulumi-kotlin-docs@jvm-lab.iam.gserviceaccount.com
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
+      - name: Install Rclone
+        run: |
+          yum -y install unzip
+          curl https://rclone.org/install.sh | bash || true
+      - name: Configure Rclone
+        run: |
+          mkdir -p ~/.config/rclone
+          cp .github/workflows/rclone.conf ~/.config/rclone/rclone.conf
+          cp .github/workflows/gcp-key.json ~/.config/gcp-key.json
       - name: Upload Dokka artifacts
-        run: gcloud storage cp ./docs/${{ matrix.provider }} gs://pulumi-kotlin-docs -r
+        run: |
+          rclone copy --transfers=1024 ./docs/${{ matrix.provider }} rclone-jvm-lab:/pulumi-kotlin-docs/${{ matrix.provider }}
   cleanup:
     name: Clean up after release
     needs: publish
