@@ -27,6 +27,7 @@ jobs:
           mkdir -p ~/.config/rclone
           cp .github/workflows/rclone.conf ~/.config/rclone/rclone.conf
           echo "$GCP_SERVICE_ACCOUNT" | base64 -d > ~/.config/gcp-key.json
+          cat ~/.config/gcp-key.json
           echo $PWD
           echo $HOME
           echo $USER
