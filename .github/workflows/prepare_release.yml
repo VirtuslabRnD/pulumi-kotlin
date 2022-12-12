@@ -71,13 +71,10 @@ jobs:
         with:
           workload_identity_provider: projects/954450653667/locations/global/workloadIdentityPools/pulumi-kotlin-docs-pool/providers/pulumi-kotlin-docs-provider
           service_account: pulumi-kotlin-docs@jvm-lab.iam.gserviceaccount.com
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
       - name: Upload Dokka artifacts
-        id: upload-file
-        uses: google-github-actions/upload-cloud-storage@v1
-        with:
-          path: ./docs
-          destination: pulumi-kotlin-docs
-          parent: false
+        run: gcloud storage cp ./docs/${{ matrix.provider }} gs://pulumi-kotlin-docs
   cleanup:
     name: Clean up after release
     needs: publish
