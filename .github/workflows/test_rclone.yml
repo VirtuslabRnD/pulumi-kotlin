@@ -18,7 +18,7 @@ jobs:
 #        uses: google-github-actions/setup-gcloud@v1
       - name: Install Rclone
         run: |
-          apt install -y rclone
+          curl https://rclone.org/install.sh | bash
       - name: Configure Rclone
         run: |
           cp .github/workflows/rclone.conf ~/.config/rclone/rclone.conf
