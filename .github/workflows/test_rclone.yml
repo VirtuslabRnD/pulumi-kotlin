@@ -8,18 +8,14 @@ jobs:
     name: Push docs
     runs-on: self-hosted
     steps:
-      - name: Authenticate to GCP
-        id: auth
-        uses: google-github-actions/auth@v1
-        with:
-          workload_identity_provider: projects/954450653667/locations/global/workloadIdentityPools/pulumi-kotlin-docs-pool/providers/pulumi-kotlin-docs-provider
-          service_account: pulumi-kotlin-docs@jvm-lab.iam.gserviceaccount.com
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-      - name: Download from Google Storage
-        run: |
-          gsutil cp gs://pulumi-kotlin-docs/pulumi-kotlin-docs.tar.gz .
-          tar -xzf pulumi-kotlin-docs.tar.gz
+#      - name: Authenticate to GCP
+#        id: auth
+#        uses: google-github-actions/auth@v1
+#        with:
+#          workload_identity_provider: projects/954450653667/locations/global/workloadIdentityPools/pulumi-kotlin-docs-pool/providers/pulumi-kotlin-docs-provider
+#          service_account: pulumi-kotlin-docs@jvm-lab.iam.gserviceaccount.com
+#      - name: Set up Cloud SDK
+#        uses: google-github-actions/setup-gcloud@v1
       - name: Install Rclone
         run: |
           apt install -y rclone
@@ -27,8 +23,12 @@ jobs:
         run: |
           cp .github/workflows/rclone.conf ~/.config/rclone/rclone.conf
           cp .github/workflows/gcp-key.json ~/.config/gcp-key.json
+      - name: Download from Google Storage
+        run: |
+          rclone copy rclone-jvm-lab:pulumi-kotlin-docs/aws-native/ aws-native-downloaded/
+
       - name: Re-upload to Google Storage with rclone
         run: |
-          rclone copy pulumi-kotlin-docs rclone-jvm-lab/pulumi-kotlin-docs/mfudala-rclone-tests 
+          rclone copy aws-native-downloaded/ rclone-jvm-lab:/pulumi-kotlin-docs/mfudala-rclone-tests 
           
           
