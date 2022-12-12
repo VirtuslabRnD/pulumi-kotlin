@@ -19,7 +19,8 @@ jobs:
 #        uses: google-github-actions/setup-gcloud@v1
       - name: Install Rclone
         run: |
-          curl https://rclone.org/install.sh | bash || true
+          curl https://downloads.rclone.org/rclone-current-linux-amd64.zip -o rclone.zip
+          unzip rclone.zip
       - name: Configure Rclone
         run: |
           mkdir -p ~/.config/rclone
@@ -29,7 +30,7 @@ jobs:
           GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       - name: Download from Google Storage
         run: |
-          rclone copy rclone-jvm-lab:pulumi-kotlin-docs/some-test-file-mfudala/pulumi-aws-native-kotlin-0.42.0.0-javadoc.zip .
+          rclone/rclone copy rclone-jvm-lab:pulumi-kotlin-docs/some-test-file-mfudala/pulumi-aws-native-kotlin-0.42.0.0-javadoc.zip .
       - name: Unzip
         run: |
           unzip pulumi-aws-native-kotlin-0.42.0.0-javadoc.zip
@@ -37,5 +38,5 @@ jobs:
       - name: Re-upload to Google Storage with rclone
         run: |
           id=$(echo $RANDOM | md5sum | head -c 20)
-          rclone copy --transfers=1024 pulumi-aws-native-kotlin-0.42.0.0-javadoc rclone-jvm-lab:/pulumi-kotlin-docs/mfudala-rclone-tests/pulumi-aws-native-kotlin-0.42.0.0-javadoc-$id
+          rclone/rclone copy --transfers=1024 pulumi-aws-native-kotlin-0.42.0.0-javadoc rclone-jvm-lab:/pulumi-kotlin-docs/mfudala-rclone-tests/pulumi-aws-native-kotlin-0.42.0.0-javadoc-$id
 
