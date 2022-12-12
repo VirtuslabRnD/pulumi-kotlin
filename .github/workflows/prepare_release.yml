@@ -38,6 +38,7 @@ jobs:
       id-token: write
       packages: write
     strategy:
+      fail-fast: false
       matrix:
         provider: [
           cloudflare, slack, github, random, gcp, google-native, aws, aws-native, azure, azure-native, kubernetes,

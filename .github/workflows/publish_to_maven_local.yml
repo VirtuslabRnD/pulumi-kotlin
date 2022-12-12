@@ -10,6 +10,7 @@ jobs:
     name: Publish pulumi-kotlin to Maven Local Repository
     runs-on: self-hosted
     strategy:
+      fail-fast: false
       matrix:
         provider: [
           cloudflare, slack, github, random, gcp, google-native, aws, aws-native, azure, azure-native, kubernetes,
