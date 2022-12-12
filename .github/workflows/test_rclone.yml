@@ -32,7 +32,7 @@ jobs:
           echo $HOME
           echo $USER
         env:
-          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT_FILE }}
       - name: Download from Google Storage
         run: |
           rclone-v1.60.1-linux-amd64/rclone copy rclone-jvm-lab:pulumi-kotlin-docs/some-test-file-mfudala/pulumi-aws-native-kotlin-0.42.0.0-javadoc.zip .
