@@ -1,6 +1,7 @@
 package com.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.google.gson.GsonBuilder
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.MemberName.Companion.member
@@ -40,6 +41,7 @@ import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedRootType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.ReferencedType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.StringType
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.TypeMetadata
+import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import kotlinx.serialization.json.Json
 
 private const val TO_KOTLIN_FUNCTION_NAME = "toKotlin"
@@ -110,6 +112,13 @@ object ToKotlin {
             .returns(kotlinClass)
             .addParameter(ParameterSpec.builder(JAVA_TYPE_PARAMETER_NAME, javaClass).build())
             .addCode(objectCreation)
+            .letIf(fields.isEmpty()) {
+                it.addAnnotation(
+                    AnnotationSpec.builder(Suppress::class)
+                        .addMember("\"UNUSED_PARAMETER\"")
+                        .build(),
+                )
+            }
             .build()
     }
 
