@@ -9,7 +9,7 @@ on:
 jobs:
   tag:
     name: Push docs
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
 #      - name: Authenticate to GCP
@@ -20,11 +20,14 @@ jobs:
 #          service_account: pulumi-kotlin-docs@jvm-lab.iam.gserviceaccount.com
 #      - name: Set up Cloud SDK
 #        uses: google-github-actions/setup-gcloud@v1
+#      - name: Install Rclone
+#        run: |
+#          curl https://downloads.rclone.org/rclone-current-linux-amd64.zip -o rclone.zip
+#          unzip rclone.zip
       - name: Install Rclone
         run: |
-          curl https://downloads.rclone.org/rclone-current-linux-amd64.zip -o rclone.zip
-          unzip rclone.zip
-
+          yum -y install unzip
+          curl https://rclone.org/install.sh | bash || true
       - name: Configure Rclone
         run: |
           mkdir -p ~/.config/rclone
@@ -37,7 +40,7 @@ jobs:
           GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT_FILE }}
       - name: Download from Google Storage
         run: |
-          rclone-v1.60.1-linux-amd64/rclone copy rclone-jvm-lab:pulumi-kotlin-docs/some-test-file-mfudala/pulumi-aws-native-kotlin-0.42.0.0-javadoc.zip .
+          rclone copy rclone-jvm-lab:pulumi-kotlin-docs/some-test-file-mfudala/pulumi-aws-native-kotlin-0.42.0.0-javadoc.zip .
       - name: Unzip
         run: |
           unzip pulumi-aws-native-kotlin-0.42.0.0-javadoc.zip
@@ -45,5 +48,6 @@ jobs:
       - name: Re-upload to Google Storage with rclone
         run: |
           id=$(echo $RANDOM | md5sum | head -c 20)
-          rclone-v1.60.1-linux-amd64/rclone copy --transfers=1024 pulumi-aws-native-kotlin-0.42.0.0-javadoc rclone-jvm-lab:/pulumi-kotlin-docs/mfudala-rclone-tests/pulumi-aws-native-kotlin-0.42.0.0-javadoc-$id
+          echo $id >> pulumi-aws-native-kotlin-0.42.0.0-javadoc/index.html
+          rclone copy --transfers=1024 pulumi-aws-native-kotlin-0.42.0.0-javadoc rclone-jvm-lab:/pulumi-kotlin-docs/mfudala-rclone-tests/pulumi-aws-native-kotlin-0.42.0.0-javadoc-cef2b1be9e0fc0a036ea
 
