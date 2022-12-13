@@ -88,7 +88,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      id-token: write
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
