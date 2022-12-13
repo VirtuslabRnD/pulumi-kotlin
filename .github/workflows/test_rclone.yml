@@ -45,5 +45,5 @@ jobs:
       - name: Re-upload to Google Storage with rclone
         run: |
           id=$(echo $RANDOM | md5sum | head -c 20)
-          rclone-v1.60.1-linux-amd64/rclone copy --transfers=1024 pulumi-aws-native-kotlin-0.42.0.0-javadoc rclone-jvm-lab:/pulumi-kotlin-docs/mfudala-rclone-tests/pulumi-aws-native-kotlin-0.42.0.0-javadoc-$id > /dev/null 2>&1
+          rclone-v1.60.1-linux-amd64/rclone copy --transfers=1024 pulumi-aws-native-kotlin-0.42.0.0-javadoc rclone-jvm-lab:/pulumi-kotlin-docs/mfudala-rclone-tests/pulumi-aws-native-kotlin-0.42.0.0-javadoc-$id
 
