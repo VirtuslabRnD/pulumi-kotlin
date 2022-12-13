@@ -88,6 +88,10 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         "Optional path to an existing schema subset. " +
             "Functions, types and resources present there will be present in the resulting schema.",
     )
+    private val outputPath: String? by option().help(
+        "Optional path to file, where generated subset should be stored. " +
+            "If not specified, JSON will be pretty printed to stdout.",
+    )
     private val nameAndContexts: List<NameWithContext>
         by option("--name-and-context")
             .transformValues(2) { NameWithContext(it[0], ExposedContext.valueOf(it[1].capitalize()).toContext()) }
@@ -232,7 +236,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
 
         val encodedNewSchema = json.encodeToJsonElement(removeDescriptionFieldIfNeeded(newSchema))
 
-        printStream.println(encodedNewSchema)
+        outputPath?.let { File(it).writeText(encodedNewSchema.toString()) } ?: printStream.println(encodedNewSchema)
     }
 
     private fun <V> extractProperties(map: Map<String, V>, context: Context, propertyExtractor: (V) -> List<Property>) =
