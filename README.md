@@ -157,22 +157,22 @@ the underlying Java library remained the same.
 [pulumi-registry-slack]: https://www.pulumi.com/registry/packages/slack/api-docs/
 
 [//]: # (TODO: Add real links)
-[github-packages-alicloud]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-aws]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-aws-native]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-azure]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-azure-native]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-cloudflare]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-digitalocean]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-docker]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-gcp]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-github]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-gitlab]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-google-native]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-kubernetes]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-nomad]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-random]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
-[github-packages-slack]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-alicloud]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749160
+[github-packages-aws]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749220
+[github-packages-aws-native]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749163
+[github-packages-azure]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749174
+[github-packages-azure-native]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749226
+[github-packages-cloudflare]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749153
+[github-packages-digitalocean]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749151
+[github-packages-docker]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749152
+[github-packages-gcp]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749166
+[github-packages-github]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749154
+[github-packages-gitlab]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749156
+[github-packages-google-native]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749215
+[github-packages-kubernetes]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749161
+[github-packages-nomad]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749157
+[github-packages-random]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749158
+[github-packages-slack]: https://github.com/VirtuslabRnD/pulumi-kotlin/packages/1749159
 
 [docs-alicloud-3.28.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.28.0.0/index.html 
 [docs-github-4.17.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/github/4.17.0.0/index.html
