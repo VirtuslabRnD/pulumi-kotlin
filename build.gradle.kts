@@ -62,6 +62,12 @@ val createGlobalProviderTasks: (List<String>) -> Unit by extra
 schemaMetadata.forEach { createTasksForProvider(it) }
 createGlobalProviderTasks(schemaMetadata.map { it.providerName })
 
+val e2eVersionConfigFile = File(projectDir, "src/main/resources/version-config-e2e.json")
+var e2eSchemaMetadata: List<SchemaMetadata> = getSchemaMetadata(e2eVersionConfigFile)
+val createE2eTasksForProvider: (SchemaMetadata) -> Unit by extra
+
+e2eSchemaMetadata.forEach { createE2eTasksForProvider(it) }
+
 sourceSets {
     create("e2eTest") {
         java {
@@ -141,11 +147,11 @@ publishing {
 }
 
 val publicationsToPublishToGitHub = schemaMetadata
-    .filter { !KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot }
-    .map { "pulumi${it.providerName.capitalized()}" }
+    .filterNot { KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot }
+    .map { "publishPulumi${it.providerName.capitalized()}PublicationToGitHubPackagesRepository" }
 
 tasks.withType<PublishToMavenRepository>().configureEach {
     onlyIf {
-        repository.name == "GitHubPackages" && publicationsToPublishToGitHub.contains(publication.name)
+        repository.name == "GitHubPackages" && publicationsToPublishToGitHub.contains(it.name)
     }
 }
