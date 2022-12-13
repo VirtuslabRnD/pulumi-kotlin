@@ -13,13 +13,11 @@ jobs:
       is_release: ${{ steps.check_number_of_commits.outputs.is_release }}
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 2
       - name: Set up Git user
         uses: fregante/setup-git-user@v1
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
       - name: Tag new versions of Pulumi Kotlin (if available)
         run: ./gradlew tagRecentRelease
       - name: Check number of commits
@@ -33,17 +31,56 @@ jobs:
   publish:
     name: Publish packages
     needs: tag
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: ${{ needs.tag.outputs.is_release == 'true' }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        provider: [
+          cloudflare, slack, github, random, gcp, google-native, aws, aws-native, azure, azure-native, kubernetes,
+          nomad, docker, gitlab, digitalocean
+        ]
     steps:
+      - id: provider
+        uses: ASzc/change-string-case-action@v5
+        with:
+          string: ${{ matrix.provider }}
       - name: Check out project sources
-        uses: actions/checkout@v2
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
       - name: Publish packages
-        run: ./gradlew publishAllPublicationsToGitHubPackagesRepository
+        run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Rename Dokka directory before upload
+        run: |
+          file_name=$(ls ./build/libs/pulumi-${{ matrix.provider }}-*-javadoc.jar | xargs -n 1 basename)
+          version=$(echo $file_name | sed -e "s/^pulumi-${{ matrix.provider }}-kotlin-//" -e "s/-javadoc.jar$//")
+          mkdir -p ./docs/${{ matrix.provider }}/$version
+          mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}Javadoc/* ./docs/${{ matrix.provider }}/$version
+      - name: Install Rclone
+        run: |
+          yum -y install unzip
+          curl https://rclone.org/install.sh | bash || true
+      - name: Configure Rclone
+        run: |
+          mkdir -p ~/.config/rclone
+          cp .github/workflows/rclone.conf ~/.config/rclone/rclone.conf
+          echo "$GCP_SERVICE_ACCOUNT_FILE" > ~/.config/gcp-key.json
+        env:
+          # pulumi-kotlin-docs service account key created manually through GCP UI and added manually to GitHub by @myhau (Michal Fudala)
+          GCP_SERVICE_ACCOUNT_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_FILE }}
+      - name: Upload Dokka artifacts
+        run: |
+          rclone copy --transfers=1024 ./docs/${{ matrix.provider }} rclone-jvm-lab:/pulumi-kotlin-docs/${{ matrix.provider }}
   cleanup:
     name: Clean up after release
     needs: publish
@@ -53,7 +90,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Prepare for next development phase
         run: ./gradlew postRelease
       - name: Create pull request

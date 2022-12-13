@@ -12,9 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v2
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: actions/checkout@v3
       - name: Compile and test code
         id: run-tests
         run: ./gradlew build test -x check
@@ -44,9 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v2
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: actions/checkout@v3
       - name: Run Ktlint
         id: run-ktlint
         run: ./gradlew lintKotlin
@@ -67,19 +63,3 @@ jobs:
           name: detekt-report
           path: ./build/reports/detekt/*.html
           retention-days: 3
-  publish:
-    name: Publish pulumi-kotlin to Maven Local Repository
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out project sources
-        uses: actions/checkout@v2
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
-      - name: Publish to Maven Local
-        run: |
-          ./gradlew publishToMavenLocal \
-            -x dokkaPulumiCloudflareJavadoc \
-            -x dokkaPulumiGitlabJavadoc \
-            -x dokkaPulumiGithubJavadoc \
-            -x dokkaPulumiNomadJavadoc \
-            -x dokkaPulumiDigitaloceanJavadoc

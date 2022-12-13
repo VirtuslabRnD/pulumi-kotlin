@@ -6,18 +6,21 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   gcp-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin GCP
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+    runs-on: self-hosted
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v2
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: actions/checkout@v3
+      - name: Set up Maven
+        uses: s4u/setup-maven-action@v1.6.0
+        with:
+          java-version: 11
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Authenticate to Google Cloud
@@ -29,9 +32,9 @@ jobs:
           workload_identity_provider: 'projects/954450653667/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
           service_account: 'github-actions@jvm-lab.iam.gserviceaccount.com'
       - name: Publish Pulumi Kotlin GCP to Maven Local
-        id: run-gcp-e2e-tests
         run: ./gradlew publishPulumiGcpPublicationToMavenLocal -x formatKotlinPulumiGcp -x dokkaPulumiGcpJavadoc
       - name: Run E2E tests
+        id: run-gcp-e2e-tests
         run: ./gradlew e2eTest --tests GcpE2eTest
         env:
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
@@ -45,15 +48,14 @@ jobs:
           retention-days: 3
   google-native-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Google Native
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+    runs-on: self-hosted
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v2
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: actions/checkout@v3
+      - name: Set up Maven
+        uses: s4u/setup-maven-action@v1.6.0
+        with:
+          java-version: 11
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Authenticate to Google Cloud
@@ -81,23 +83,22 @@ jobs:
           retention-days: 3
   kubernetes-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Kubernetes
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+    runs-on: self-hosted
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v2
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: actions/checkout@v3
+      - name: Start Minikube
+        run: minikube start --force
+      - name: Set up Maven
+        uses: s4u/setup-maven-action@v1.6.0
+        with:
+          java-version: 11
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
-      - name: Set up Minikube
-        uses: medyagh/setup-minikube@master
       - name: Publish Pulumi Kotlin Kubernetes to Maven Local
-        id: run-kubernetes-e2e-tests
         run: ./gradlew publishPulumiKubernetesPublicationToMavenLocal -x formatKotlinPulumiKubernetes -x dokkaPulumiKubernetesJavadoc
       - name: Run E2E tests
+        id: run-kubernetes-e2e-tests
         run: ./gradlew e2eTest --tests KubernetesE2eTest
         env:
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
