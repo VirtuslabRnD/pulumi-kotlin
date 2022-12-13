@@ -120,24 +120,24 @@ of Pulumi AWS (Kotlin) is a wrapper on top of Pulumi AWS (Java) `5.16.2`. If the
 to `5.16.2.1`), it means that some updates were made to our generator and that the Kotlin code has been improved, but
 the underlying Java library remained the same.
 
-| name            | Pulumi API docs                       | Kotlin package name                         | GitHub Packages repo | Kotlin docs                        | 
-|-----------------|---------------------------------------|---------------------------------------------|----------------------|------------------------------------|
-| `alicloud`      | [link][pulumi-registry-alicloud]      | `com.virtuslab.pulumi-alicloud-kotlin`      | [link](TODO)         | [`3.28.0.0`]()                     |
-| `aws`           | [link][pulumi-registry-aws]           | `com.virtuslab.pulumi-aws-kotlin`           | [link](TODO)         | [`5.16.2.0`]()                     |
-| `aws-native`    | [link][pulumi-registry-aws-native]    | `com.virtuslab.pulumi-aws-native-kotlin`    | [link](TODO)         | [`0.42.0.0`]()                     |
-| `azure`         | [link][pulumi-registry-azure]         | `com.virtuslab.pulumi-azure-kotlin`         | [link](TODO)         | [`5.24.0.0`]()                     |
-| `azure-natice`  | [link][pulumi-registry-azure-native]  | `com.virtuslab.pulumi-azure-native-kotlin`  | [link](TODO)         | [`1.87.0.0`]()                     |
-| `cloudflare`    | [link][pulumi-registry-cloudflare]    | `com.virtuslab.pulumi-cloudflare-kotlin`    | [link](TODO)         | [`4.12.1.0`]()                     |
-| `digitalocean`  | [link][pulumi-registry-digitalocean]  | `com.virtuslab.pulumi-digitalocean-kotlin`  | [link](TODO)         | [`4.16.0.0`]()                     |
-| `docker`        | [link][pulumi-registry-docker]        | `com.virtuslab.pulumi-docker-kotlin`        | [link](TODO)         | [`3.5.0.0`]()                      |
-| `gcp`           | [link][pulumi-registry-gcp]           | `com.virtuslab.pulumi-gcp-kotlin`           | [link](TODO)         | [`6.43.0.0`]()                     |
-| `github`        | [link][pulumi-registry-github]        | `com.virtuslab.pulumi-github-kotlin`        | [link](TODO)         | [`4.17.0.0`][docs-github-4.17.0.0] |
-| `gitlab`        | [link][pulumi-registry-gitlab]        | `com.virtuslab.pulumi-gitlab-kotlin`        | [link](TODO)         | [`4.9.0.0`]()                      |
-| `google-native` | [link][pulumi-registry-google-native] | `com.virtuslab.pulumi-google-native-kotlin` | [link](TODO)         | [`0.27.0.0`]()                     |
-| `kubernetes`    | [link][pulumi-registry-kubernetes]    | `com.virtuslab.pulumi-kubernetes-kotlin`    | [link](TODO)         | [`3.22.1.0`]()                     |
-| `nomad`         | [link][pulumi-registry-nomad]         | `com.virtuslab.pulumi-nomad-kotlin`         | [link](TODO)         | [`0.3.0.0`]()                      |
-| `random`        | [link][pulumi-registry-random]        | `com.virtuslab.pulumi-random-kotlin`        | [link](TODO)         | [`4.6.0.0`]()                      |
-| `slack`         | [link][pulumi-registry-slack]         | `com.virtuslab.pulumi-slack-kotlin`         | [link](TODO)         | [`0.3.0.0`]()                      |
+| name            | Pulumi API docs                       | Kotlin package name                         | GitHub Packages repo                  | Kotlin docs                               | 
+|-----------------|---------------------------------------|---------------------------------------------|---------------------------------------|-------------------------------------------|
+| `alicloud`      | [link][pulumi-registry-alicloud]      | `com.virtuslab.pulumi-alicloud-kotlin`      | [link][github-packages-alicloud]      | [`3.28.0.0`][docs-alicloud-3.28.0.0]      |
+| `aws`           | [link][pulumi-registry-aws]           | `com.virtuslab.pulumi-aws-kotlin`           | [link][github-packages-aws]           | [`5.16.2.0`][docs-aws-5.16.2.0]           |
+| `aws-native`    | [link][pulumi-registry-aws-native]    | `com.virtuslab.pulumi-aws-native-kotlin`    | [link][github-packages-aws-native]    | [`0.42.0.0`][docs-aws-native-0.42.0.0]    |
+| `azure`         | [link][pulumi-registry-azure]         | `com.virtuslab.pulumi-azure-kotlin`         | [link][github-packages-azure]         | [`5.24.0.0`][docs-azure-5.24.0.0]         |
+| `azure-natice`  | [link][pulumi-registry-azure-native]  | `com.virtuslab.pulumi-azure-native-kotlin`  | [link][github-packages-azure-native]  | [`1.87.0.0`][docs-azure-native-1.87.0.0]  |
+| `cloudflare`    | [link][pulumi-registry-cloudflare]    | `com.virtuslab.pulumi-cloudflare-kotlin`    | [link][github-packages-cloudflare]    | [`4.12.1.0`][docs-cloudflare-4.12.1.0]    |
+| `digitalocean`  | [link][pulumi-registry-digitalocean]  | `com.virtuslab.pulumi-digitalocean-kotlin`  | [link][github-packages-digitalocean]  | [`4.16.0.0`][docs-digitalocean-4.16.0.0]  |
+| `docker`        | [link][pulumi-registry-docker]        | `com.virtuslab.pulumi-docker-kotlin`        | [link][github-packages-docker]        | [`3.5.0.0`][docs-docker-3.5.0.0]          |
+| `gcp`           | [link][pulumi-registry-gcp]           | `com.virtuslab.pulumi-gcp-kotlin`           | [link][github-packages-gcp]           | [`6.43.0.0`][docs-gcp-6.43.0.0]           |
+| `github`        | [link][pulumi-registry-github]        | `com.virtuslab.pulumi-github-kotlin`        | [link][github-packages-github]        | [`4.17.0.0`][docs-github-4.17.0.0]        |
+| `gitlab`        | [link][pulumi-registry-gitlab]        | `com.virtuslab.pulumi-gitlab-kotlin`        | [link][github-packages-gitlab]        | [`4.9.0.0`][docs-gitlab-4.9.0.0]          |
+| `google-native` | [link][pulumi-registry-google-native] | `com.virtuslab.pulumi-google-native-kotlin` | [link][github-packages-google-native] | [`0.27.0.0`][docs-google-native-0.27.0.0] |
+| `kubernetes`    | [link][pulumi-registry-kubernetes]    | `com.virtuslab.pulumi-kubernetes-kotlin`    | [link][github-packages-kubernetes]    | [`3.22.1.0`][docs-kubernetes-3.22.1.0]    |
+| `nomad`         | [link][pulumi-registry-nomad]         | `com.virtuslab.pulumi-nomad-kotlin`         | [link][github-packages-nomad]         | [`0.3.0.0`][docs-nomad-0.3.0.0]           |
+| `random`        | [link][pulumi-registry-random]        | `com.virtuslab.pulumi-random-kotlin`        | [link][github-packages-random]        | [`4.6.0.0`][docs-random-4.6.0.0]          |
+| `slack`         | [link][pulumi-registry-slack]         | `com.virtuslab.pulumi-slack-kotlin`         | [link][github-packages-slack]         | [`0.3.0.0`][docs-slack-0.3.0.0]           |
 
 [pulumi-registry-alicloud]: https://www.pulumi.com/registry/packages/alicloud/api-docs/
 [pulumi-registry-aws]: https://www.pulumi.com/registry/packages/aws/api-docs/
@@ -156,7 +156,40 @@ the underlying Java library remained the same.
 [pulumi-registry-random]: https://www.pulumi.com/registry/packages/random/api-docs/
 [pulumi-registry-slack]: https://www.pulumi.com/registry/packages/slack/api-docs/
 
+[//]: # (TODO: Add real links)
+[github-packages-alicloud]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-aws]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-aws-native]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-azure]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-azure-native]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-cloudflare]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-digitalocean]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-docker]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-gcp]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-github]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-gitlab]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-google-native]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-kubernetes]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-nomad]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-random]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-packages-slack]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+
+[docs-alicloud-3.28.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.28.0.0/index.html 
 [docs-github-4.17.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/github/4.17.0.0/index.html
+[docs-aws-5.16.2.0]: https://storage.googleapis.com/pulumi-kotlin-docs/aws/5.16.2.0/index.html
+[docs-aws-native-0.42.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/aws-native/0.42.0.0/index.html
+[docs-azure-5.24.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/azure/5.24.0.0/index.html
+[docs-azure-native-1.87.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/azure-native/1.87.0.0/index.html
+[docs-cloudflare-4.12.1.0]: https://storage.googleapis.com/pulumi-kotlin-docs/cloudflare/4.12.1.0/index.html
+[docs-digitalocean-4.16.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/digitalocean/4.16.0.0/index.html
+[docs-docker-3.5.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/docker/3.5.0.0/index.html
+[docs-gcp-6.43.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/gcp/6.43.0.0/index.html
+[docs-gitlab-4.9.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/gitlab/4.9.0.0/index.html
+[docs-google-native-0.27.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/google-native/0.27.0.0/index.html
+[docs-kubernetes-3.22.1.0]: https://storage.googleapis.com/pulumi-kotlin-docs/kubernetes/3.22.1.0/index.html
+[docs-nomad-0.3.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/nomad/0.3.0.0/index.html
+[docs-random-4.6.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/random/4.6.0.0/index.html
+[docs-slack-0.3.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/slack/0.3.0.0/index.html
 
 ## Development
 
