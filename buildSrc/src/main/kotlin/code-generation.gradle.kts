@@ -19,10 +19,11 @@ val commonDependencies = listOf(
     "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
 )
 
+val rootDir = project.rootDir.absolutePath
+val outputDirectory = Paths.get(rootDir, "build", "generated-src").toFile()
+
 val createTasksForProvider by extra {
     fun(schema: SchemaMetadata) {
-        val rootDir = project.rootDir.absolutePath
-        val outputDirectory = Paths.get(rootDir, "build", "generated-src").toFile()
         val providerName = schema.providerName
         val schemaUrl = schema.url
         val version = schema.kotlinVersion
@@ -56,25 +57,62 @@ val createTasksForProvider by extra {
         createJavadocGenerationTask(javadocGenerationTaskName, generationTaskName, archiveName, sourceSetName, version)
         createJavadocJarTask(javadocJarTaskName, javadocGenerationTaskName, archiveName, version)
 
-        publishing {
-            publications {
-                create<MavenPublication>(sourceSetName) {
-                    artifact(tasks[jarTaskName])
-                    artifact(tasks[sourcesJarTaskName])
-                    artifact(tasks[javadocJarTaskName])
-                    artifactId = archiveName
-                    setVersion(version)
-                }
+        configurePublication(
+            sourceSetName,
+            listOf(jarTaskName, sourcesJarTaskName, javadocJarTaskName,),
+            archiveName,
+            version,
+            listOf(sourceSetName, sourcesPublicationName, javadocPublicationName),
+            implementationDependency,
+        )
 
-                publications
-                    .filter { it.name in listOf(sourceSetName, sourcesPublicationName, javadocPublicationName) }
-                    .forEach {
-                        if (it is MavenPublication) {
-                            configurePom(it, implementationDependency)
-                        }
-                    }
+        tasksToDisable.forEach {
+            tasks[it(sourceSetName)].enabled = false
+        }
+
+        val customDependencies = schema.customDependencies + listOf(javaLibraryDependency) + commonDependencies
+        customDependencies.forEach {
+            dependencies {
+                implementationDependency(it)
             }
         }
+    }
+}
+
+val createE2eTasksForProvider by extra {
+    fun(schema: SchemaMetadata) {
+        val providerName = schema.providerName
+        val schemaUrl = schema.url
+        val version = schema.kotlinVersion
+        val javaLibraryDependency = "com.pulumi:$providerName:${schema.javaVersion}"
+
+        val sourceSetName = "pulumi${providerName.capitalized()}E2e"
+        val generationTaskName = "generate${sourceSetName.capitalized()}Sources"
+        val compilationTaskName = "compile${sourceSetName.capitalized()}Kotlin"
+        val jarTaskName = "${sourceSetName}Jar"
+        val implementationDependency = "${sourceSetName}Implementation"
+        val archiveName = "pulumi-$providerName-kotlin"
+        val downloadTaskName = "download${providerName.capitalized()}E2eSchema"
+
+        val schemaDownloadPath =
+            Paths.get(rootDir, "build", "tmp", "schema", "e2e", "$providerName-$version.json").toFile()
+
+        createDownloadTask(downloadTaskName, schemaUrl, schemaDownloadPath)
+        createGenerationTask(generationTaskName, downloadTaskName, schemaDownloadPath, outputDirectory, providerName)
+        createSourceSet(sourceSetName, outputDirectory, providerName)
+
+        tasks[generationTaskName].finalizedBy(tasks[compilationTaskName])
+
+        createJarTask(jarTaskName, generationTaskName, sourceSetName, archiveName, version)
+
+        configurePublication(
+            sourceSetName,
+            listOf(jarTaskName),
+            archiveName,
+            version,
+            listOf(sourceSetName),
+            implementationDependency,
+        )
 
         tasksToDisable.forEach {
             tasks[it(sourceSetName)].enabled = false
@@ -218,6 +256,35 @@ fun createJavadocJarTask(
         // the full GCP schema. See:
         // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html#org.gradle.api.tasks.bundling.Jar:zip64
         isZip64 = true
+    }
+}
+
+fun configurePublication(
+    sourceSetName: String,
+    artifacts: List<String>,
+    archiveName: String,
+    version: String,
+    publicationNames: List<String>,
+    implementationDependency: String,
+) {
+    publishing {
+        publications {
+            create<MavenPublication>(sourceSetName) {
+                artifacts.forEach {
+                    artifact(tasks[it])
+                }
+                artifactId = archiveName
+                setVersion(version)
+            }
+
+            publications
+                .filter { it.name in publicationNames }
+                .forEach {
+                    if (it is MavenPublication) {
+                        configurePom(it, implementationDependency)
+                    }
+                }
+        }
     }
 }
 
