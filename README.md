@@ -1,7 +1,5 @@
 # `pulumi-kotlin`
 
-https://user-images.githubusercontent.com/4415632/192312941-d4893fe1-c896-45c6-84aa-c9e5c3523a9a.mp4
-
 Experimental support for Kotlin language in Pulumi.
 
 **Work in progress, expect chaos and terrible code.**
