@@ -13,14 +13,10 @@ permissions:
 jobs:
   gcp-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin GCP
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
-      - name: Set up Maven
-        uses: s4u/setup-maven-action@v1.6.0
-        with:
-          java-version: 11
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Authenticate to Google Cloud
@@ -48,14 +44,10 @@ jobs:
           retention-days: 3
   google-native-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Google Native
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
-      - name: Set up Maven
-        uses: s4u/setup-maven-action@v1.6.0
-        with:
-          java-version: 11
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Authenticate to Google Cloud
@@ -83,16 +75,12 @@ jobs:
           retention-days: 3
   kubernetes-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Kubernetes
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
       - name: Start Minikube
         run: minikube start --force
-      - name: Set up Maven
-        uses: s4u/setup-maven-action@v1.6.0
-        with:
-          java-version: 11
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Publish Pulumi Kotlin Kubernetes to Maven Local

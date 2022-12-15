@@ -1,2 +1,2 @@
 config:
-  gcp:project: jvm-lab
+  google-native:project: jvm-lab
