@@ -2,8 +2,6 @@
 
 Experimental support for Kotlin language in Pulumi.
 
-**Work in progress, expect chaos and terrible code.**
-
 This repository contains the code used to generate Kotlin wrappers on top of the existing Pulumi Java libraries.
 
 ## What is possible with Kotlin SDK?
