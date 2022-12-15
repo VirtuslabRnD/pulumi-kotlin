@@ -23,7 +23,7 @@ class AzureE2eTest {
         pulumi.initStack()
         pulumi.up("azure:location=westeurope")
 
-        val virtualMachine = getVirtualMachine(pulumi.getStackOutput<PulumiStackOutput>().virtualMachineName)
+        val virtualMachine = getVirtualMachine(pulumi.getStackOutput<PulumiStackOutput>().virtualMachineId)
 
         assertVmExists(virtualMachine)
     }

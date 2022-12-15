@@ -23,7 +23,7 @@ fun getVirtualMachine(virtualMachineId: String): VirtualMachine {
 }
 
 fun assertVmExists(virtualMachine: VirtualMachine) {
-    assertEquals(virtualMachine.size(), VirtualMachineSizeTypes.STANDARD_NC24S_V2)
+    assertEquals(VirtualMachineSizeTypes.BASIC_A0, virtualMachine.size())
 
     val tags: Map<String, String> = virtualMachine.tags()
     assertContains(tags, "foo")
@@ -31,4 +31,4 @@ fun assertVmExists(virtualMachine: VirtualMachine) {
 }
 
 @Serializable
-data class PulumiStackOutput(val virtualMachineName: String)
+data class PulumiStackOutput(val virtualMachineId: String)

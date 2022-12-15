@@ -22,14 +22,14 @@ class AzureNativeE2eTest {
         pulumi.initStack()
         pulumi.up("azure-native:location=westeurope")
 
-        val virtualMachine = getVirtualMachine(pulumi.getStackOutput<PulumiStackOutput>().virtualMachineName)
+        val virtualMachine = getVirtualMachine(pulumi.getStackOutput<PulumiStackOutput>().virtualMachineId)
 
         assertVmExists(virtualMachine)
     }
 
     @AfterTest
     fun cleanupTest() {
-        pulumi.destroy()
-        pulumi.rmStack()
+//        pulumi.destroy()
+//        pulumi.rmStack()
     }
 }

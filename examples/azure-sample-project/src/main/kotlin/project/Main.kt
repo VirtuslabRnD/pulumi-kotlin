@@ -78,6 +78,6 @@ fun main() {
                 tags("foo" to "bar")
             }
         }
-        ctx.export("virtualMachineName", virtualMachine.name)
+        ctx.export("virtualMachineId", virtualMachine.id)
     }
 }

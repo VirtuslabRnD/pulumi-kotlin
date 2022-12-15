@@ -17,7 +17,7 @@
   },
   {
     "providerName": "azure-native",
-    "url": "https://gist.githubusercontent.com/myhau/00414627dd33a2d3dd5293fe1845562f/raw/3616714f80af381fd46f45e47a8bc1684317b166/schema-azure-native-v1.87.0-subset-for-build.json",
+    "url": "https://gist.githubusercontent.com/myhau/00414627dd33a2d3dd5293fe1845562f/raw/76800256b04365af04279af31f377d14c7c6fc84/schema-azure-native-v1.87.0-subset-for-build.json",
     "kotlinVersion": "1.87.0.0-SNAPSHOT",
     "javaVersion": "1.87.0",
     "javaGitTag": "v1.87.0",
