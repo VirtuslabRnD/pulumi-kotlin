@@ -5,7 +5,8 @@
     "kotlinVersion": "4.6.0.0-SNAPSHOT",
     "javaVersion": "4.6.0",
     "javaGitTag": "v4.6.0",
-    "customDependencies": []
+    "customDependencies": [
+    ]
   },
   {
     "providerName": "azure",
@@ -13,7 +14,8 @@
     "kotlinVersion": "5.25.0.0-SNAPSHOT",
     "javaVersion": "5.25.0",
     "javaGitTag": "v5.25.0",
-    "customDependencies": []
+    "customDependencies": [
+    ]
   },
   {
     "providerName": "azure-native",
@@ -21,7 +23,8 @@
     "kotlinVersion": "1.87.0.0-SNAPSHOT",
     "javaVersion": "1.87.0",
     "javaGitTag": "v1.87.0",
-    "customDependencies": []
+    "customDependencies": [
+    ]
   },
   {
     "providerName": "gcp",
@@ -29,7 +32,8 @@
     "kotlinVersion": "6.43.0.0-SNAPSHOT",
     "javaVersion": "6.43.0",
     "javaGitTag": "v6.43.0",
-    "customDependencies": []
+    "customDependencies": [
+    ]
   },
   {
     "providerName": "google-native",
@@ -37,7 +41,8 @@
     "kotlinVersion": "0.27.0.0-SNAPSHOT",
     "javaVersion": "0.27.0",
     "javaGitTag": "v0.27.0",
-    "customDependencies": []
+    "customDependencies": [
+    ]
   },
   {
     "providerName": "kubernetes",
@@ -45,6 +50,7 @@
     "kotlinVersion": "3.22.1.0-SNAPSHOT",
     "javaVersion": "3.22.1",
     "javaGitTag": "v3.22.1",
-    "customDependencies": []
+    "customDependencies": [
+    ]
   }
 ]
