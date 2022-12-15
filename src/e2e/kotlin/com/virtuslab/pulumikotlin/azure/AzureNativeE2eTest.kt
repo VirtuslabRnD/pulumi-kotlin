@@ -35,7 +35,7 @@ class AzureNativeE2eTest {
 
     @AfterTest
     fun cleanupTest() {
-//        pulumi.destroy()
-//        pulumi.rmStack()
+        pulumi.destroy()
+        pulumi.rmStack()
     }
 }

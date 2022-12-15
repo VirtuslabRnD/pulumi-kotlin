@@ -20,8 +20,6 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Publish Pulumi Kotlin Azure to Maven Local
@@ -57,8 +55,6 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v2
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Publish Pulumi Kotlin Azure Native to Maven Local
