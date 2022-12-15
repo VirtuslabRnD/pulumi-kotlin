@@ -11,7 +11,7 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 fun getVirtualMachine(virtualMachineId: String): VirtualMachine {
-    // TODO: parametrize?
+    // The Azure tenant/subscription that is used here belongs to @myhau (Michal Fudala)
     val subscriptionId = "3565bcd1-dd9b-45a8-9d7c-8880aaaa9a9f"
     val tenantId = "1ff3e4bd-41d1-4df2-b776-8d3fcbf77184"
     val computeManager = ComputeManager.authenticate(
