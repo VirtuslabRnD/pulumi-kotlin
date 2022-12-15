@@ -24,23 +24,21 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
-      - name: Authenticate to Azure
-        uses: azure/login@v1
-        id: auth
-        with:
-          # These values were copied from jvm-lab/identity-federation stack's output
-          # The Azure tenant/subscription that is used here belongs to @myhau (Michal Fudala)
-          tenant-id: '1ff3e4bd-41d1-4df2-b776-8d3fcbf77184' # tenant-id output of jvm-lab/identity-federation/dev stack
-          subscription-id: '3565bcd1-dd9b-45a8-9d7c-8880aaaa9a9f' # subscription-id output of jvm-lab/identity-federation/dev stack
-          client-id: '4169b156-839a-48c2-846f-d7c079331c71' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
       - name: Publish Pulumi Kotlin Azure to Maven Local
-        run: ./gradlew publishPulumiAzureE2ePublicationToMavenLocal -x formatKotlinPulumiAzure -x dokkaPulumiAzureJavadoc
+        run: ./gradlew publishPulumiAzureE2ePublicationToMavenLocal
       - name: Publish Pulumi Kotlin Random to Maven Local
-        run: ./gradlew publishPulumiRandomE2ePublicationToMavenLocal -x formatKotlinPulumiRandom -x dokkaPulumiRandomJavadoc
+        run: ./gradlew publishPulumiRandomE2ePublicationToMavenLocal
       - name: Run E2E tests
         id: run-azure-e2e-tests
         run: ./gradlew e2eTest --tests AzureE2eTest
         env:
+          # These values were copied from jvm-lab/identity-federation stack's output
+          # The Azure tenant/subscription that is used here belongs to @myhau (Michal Fudala)
+          ARM_TENANT_ID: '1ff3e4bd-41d1-4df2-b776-8d3fcbf77184' # tenant-id output of jvm-lab/identity-federation/dev stack
+          ARM_SUBSCRIPTION_ID: '3565bcd1-dd9b-45a8-9d7c-8880aaaa9a9f' # subscription-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_ID: '4169b156-839a-48c2-846f-d7c079331c71' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
+
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
       - name: Upload E2E test report
@@ -63,23 +61,21 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
-      - name: Authenticate to Azure
-        uses: azure/login@v1
-        id: auth
-        with:
-          # These values were copied from jvm-lab/identity-federation stack's output
-          # The Azure tenant/subscription that is used here belongs to @myhau (Michal Fudala)
-          tenant-id: '1ff3e4bd-41d1-4df2-b776-8d3fcbf77184' # tenant-id output of jvm-lab/identity-federation/dev stack
-          subscription-id: '3565bcd1-dd9b-45a8-9d7c-8880aaaa9a9f' # subscription-id output of jvm-lab/identity-federation/dev stack
-          client-id: '4169b156-839a-48c2-846f-d7c079331c71' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
       - name: Publish Pulumi Kotlin Azure Native to Maven Local
-        run: ./gradlew publishPulumiAzure-nativeE2ePublicationToMavenLocal -x formatKotlinPulumiAzure-native -x dokkaPulumiAzure-nativeJavadoc
+        run: ./gradlew publishPulumiAzure-nativeE2ePublicationToMavenLocal
       - name: Publish Pulumi Kotlin Random to Maven Local
-        run: ./gradlew publishPulumiRandomE2ePublicationToMavenLocal -x formatKotlinPulumiRandom -x dokkaPulumiRandomJavadoc
+        run: ./gradlew publishPulumiRandomE2ePublicationToMavenLocal
       - name: Run E2E tests
         id: run-azure-native-e2e-tests
         run: ./gradlew e2eTest --tests AzureNativeE2eTest
         env:
+          # These values were copied from jvm-lab/identity-federation stack's output
+          # The Azure tenant/subscription that is used here belongs to @myhau (Michal Fudala)
+          ARM_TENANT_ID: '1ff3e4bd-41d1-4df2-b776-8d3fcbf77184' # tenant-id output of jvm-lab/identity-federation/dev stack
+          ARM_SUBSCRIPTION_ID: '3565bcd1-dd9b-45a8-9d7c-8880aaaa9a9f' # subscription-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_ID: '4169b156-839a-48c2-846f-d7c079331c71' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
+
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
       - name: Upload E2E test report
