@@ -35,7 +35,7 @@ jobs:
           ARM_TENANT_ID: '1ff3e4bd-41d1-4df2-b776-8d3fcbf77184' # tenant-id output of jvm-lab/identity-federation/dev stack
           ARM_SUBSCRIPTION_ID: '3565bcd1-dd9b-45a8-9d7c-8880aaaa9a9f' # subscription-id output of jvm-lab/identity-federation/dev stack
           ARM_CLIENT_ID: '4169b156-839a-48c2-846f-d7c079331c71' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
-          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
 
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
@@ -70,7 +70,7 @@ jobs:
           ARM_TENANT_ID: '1ff3e4bd-41d1-4df2-b776-8d3fcbf77184' # tenant-id output of jvm-lab/identity-federation/dev stack
           ARM_SUBSCRIPTION_ID: '3565bcd1-dd9b-45a8-9d7c-8880aaaa9a9f' # subscription-id output of jvm-lab/identity-federation/dev stack
           ARM_CLIENT_ID: '4169b156-839a-48c2-846f-d7c079331c71' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
-          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
 
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
