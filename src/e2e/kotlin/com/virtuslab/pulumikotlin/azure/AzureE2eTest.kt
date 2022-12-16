@@ -22,11 +22,13 @@ class AzureE2eTest {
         pulumi = Pulumi(fullStackName, rootDirectory)
         pulumi.initStack()
         pulumi.up(
-            "azure:location=westeurope",
-            "azure:tenantId=${System.getenv("ARM_TENANT_ID")}",
-            "azure:subscriptionId=${System.getenv("ARM_SUBSCRIPTION_ID")}",
-            "azure:clientId=${System.getenv("ARM_CLIENT_ID")}",
-            "azure:clientSecret=${System.getenv("ARM_CLIENT_SECRET")}",
+            configOptions = mapOf("azure:location" to "westeurope"),
+            environment = mapOf(
+                "ARM_TENANT_ID" to System.getenv("ARM_TENANT_ID"),
+                "ARM_SUBSCRIPTION_ID" to System.getenv("ARM_SUBSCRIPTION_ID"),
+                "ARM_CLIENT_ID" to System.getenv("ARM_CLIENT_ID"),
+                "ARM_CLIENT_SECRET" to System.getenv("ARM_CLIENT_SECRET"),
+            ),
         )
 
         val virtualMachine = getVirtualMachine(pulumi.getStackOutput<PulumiStackOutput>().virtualMachineId)

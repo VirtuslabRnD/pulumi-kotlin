@@ -24,7 +24,7 @@ class GcpE2eTest {
         // when
         pulumi = Pulumi(fullStackName, rootDirectory)
         pulumi.initStack()
-        pulumi.up("gcp:project=$PROJECT_NAME")
+        pulumi.up("gcp:project" to PROJECT_NAME)
 
         // then
         val instance = getInstance(pulumi.getStackOutput<InstanceTestInstanceStackOutput>().instanceName)
@@ -42,7 +42,7 @@ class GcpE2eTest {
         // when
         pulumi = Pulumi(fullStackName, rootDirectory)
         pulumi.initStack()
-        pulumi.up("gcp:project=$PROJECT_NAME")
+        pulumi.up("gcp:project" to PROJECT_NAME)
 
         // then
         val outputProperties = pulumi.getStackOutput<ProviderTestInstanceStackOutput>()

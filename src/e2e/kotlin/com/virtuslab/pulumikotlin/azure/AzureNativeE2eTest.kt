@@ -21,11 +21,13 @@ class AzureNativeE2eTest {
         pulumi = Pulumi(fullStackName, rootDirectory)
         pulumi.initStack()
         pulumi.up(
-            "azure-native:location=westeurope",
-            "azure-native:tenantId=${System.getenv("ARM_TENANT_ID")}",
-            "azure-native:subscriptionId=${System.getenv("ARM_SUBSCRIPTION_ID")}",
-            "azure-native:clientId=${System.getenv("ARM_CLIENT_ID")}",
-            "azure-native:clientSecret=${System.getenv("ARM_CLIENT_SECRET")}",
+            configOptions = mapOf("azure-native:location" to "westeurope"),
+            environment = mapOf(
+                "ARM_TENANT_ID" to System.getenv("ARM_TENANT_ID"),
+                "ARM_SUBSCRIPTION_ID" to System.getenv("ARM_SUBSCRIPTION_ID"),
+                "ARM_CLIENT_ID" to System.getenv("ARM_CLIENT_ID"),
+                "ARM_CLIENT_SECRET" to System.getenv("ARM_CLIENT_SECRET"),
+            ),
         )
 
         val virtualMachine = getVirtualMachine(pulumi.getStackOutput<PulumiStackOutput>().virtualMachineId)

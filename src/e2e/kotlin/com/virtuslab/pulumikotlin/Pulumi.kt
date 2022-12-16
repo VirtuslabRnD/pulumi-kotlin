@@ -10,9 +10,17 @@ class Pulumi(val fullStackName: String, val rootDirectory: File) {
         runProcess(rootDirectory, "pulumi", "stack", "init", fullStackName)
     }
 
-    fun up(vararg configOptions: String) {
-        val config = configOptions.flatMap { listOf("-c", it) }
-        runProcess(rootDirectory, "pulumi", "up", "-y", "-s", fullStackName, *config.toTypedArray())
+    fun up(configOptions: Map<String, String>, environment: Map<String, String> = emptyMap()) {
+        val config = configOptions.flatMap { (key, value) -> listOf("-c", "$key=$value") }
+        runProcess(
+            rootDirectory,
+            listOf("pulumi", "up", "-y", "-s", fullStackName) + config,
+            environment = environment,
+        )
+    }
+
+    fun up(vararg configOptions: Pair<String, String>) {
+        up(configOptions.toMap())
     }
 
     inline fun <reified T> getStackOutput(): T = Json.decodeFromString(
