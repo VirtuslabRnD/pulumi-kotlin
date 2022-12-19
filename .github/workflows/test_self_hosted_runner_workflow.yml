@@ -1,7 +1,6 @@
 name: Test self hosted runner workflow
 
 on:
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -15,5 +14,9 @@ jobs:
     steps:
       - name: Sleep
         run:
-          RANDOM_NUMBER_BETWEEN_5_AND_60=$(( ( RANDOM % 55 ) + 5 ))
-          sleep $RANDOM_NUMBER_BETWEEN_5_AND_60
+          import time
+          import random
+          sleep_for_seconds = random.randint(5, 120)
+          print(f"Sleeping for {sleep_for_seconds} seconds")
+          time.sleep(sleep_for_seconds)
+        shell: python
