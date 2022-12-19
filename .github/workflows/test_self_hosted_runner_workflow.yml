@@ -5,7 +5,7 @@ on:
 
 jobs:
   just-sleep:
-    name: Sleep for random time (5-60 seconds)
+    name: Sleep for random time (5-120 seconds)
     runs-on: [self-hosted, self-hosted-function, active]
     permissions:
       contents: read
