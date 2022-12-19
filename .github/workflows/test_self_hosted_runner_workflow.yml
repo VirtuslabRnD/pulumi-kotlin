@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Sleep
-        run:
+        run: |
           import time
           import random
           sleep_for_seconds = random.randint(5, 120)
