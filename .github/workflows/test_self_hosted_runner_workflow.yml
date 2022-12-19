@@ -1,0 +1,18 @@
+name: Test self hosted runner workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  just-sleep:
+    name: Sleep for random time (5-60 seconds)
+    runs-on: [self-hosted, self-hosted-function, active]
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Sleep
+        run:
+          RANDOM_NUMBER_BETWEEN_5_AND_60=$(( ( RANDOM % 55 ) + 5 ))
+          sleep $RANDOM_NUMBER_BETWEEN_5_AND_60
