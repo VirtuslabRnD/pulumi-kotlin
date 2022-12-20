@@ -17,6 +17,6 @@ jobs:
           import time
           import random
           sleep_for_seconds = random.randint(5, 120)
-          print("Sleeping for " + sleep_for_seconds + " seconds")
+          print("Sleeping for " + str(sleep_for_seconds) + " seconds")
           time.sleep(sleep_for_seconds)
         shell: python
