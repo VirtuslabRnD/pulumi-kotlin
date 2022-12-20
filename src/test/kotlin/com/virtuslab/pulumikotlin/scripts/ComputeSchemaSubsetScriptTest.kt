@@ -18,9 +18,8 @@ internal class ComputeSchemaSubsetScriptTest {
     @Test
     fun `should find the type itself`() {
         val outputSchema = runComputeSchemaSubsetScript(
-            schemaPath = resolvedAwsClassicSchemaPath(),
-            name = "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
-            context = "type",
+            fullSchemaPath = resolvedAwsClassicSchemaPath(),
+            nameAndContexts = listOf("aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter" to "type"),
         )
 
         val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
@@ -36,9 +35,8 @@ internal class ComputeSchemaSubsetScriptTest {
     @Test
     fun `should find subset when using resource (that references some types)`() {
         val outputSchema = runComputeSchemaSubsetScript(
-            schemaPath = resolvedAwsClassicSchemaPath(),
-            name = "aws:lambda/function:Function",
-            context = "resource",
+            fullSchemaPath = resolvedAwsClassicSchemaPath(),
+            nameAndContexts = listOf("aws:lambda/function:Function" to "resource"),
         )
 
         val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
@@ -62,9 +60,8 @@ internal class ComputeSchemaSubsetScriptTest {
     @Test
     fun `should find subset when using function (that references some types)`() {
         val outputSchema = runComputeSchemaSubsetScript(
-            schemaPath = resolvedAwsClassicSchemaPath(),
-            name = "aws:fsx/getOpenZfsSnapshot:getOpenZfsSnapshot",
-            context = "function",
+            fullSchemaPath = resolvedAwsClassicSchemaPath(),
+            nameAndContexts = listOf("aws:fsx/getOpenZfsSnapshot:getOpenZfsSnapshot" to "function"),
         )
 
         val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
@@ -79,9 +76,8 @@ internal class ComputeSchemaSubsetScriptTest {
     @Test
     fun `should work when using type (that is referenced by some function)`() {
         val outputSchema = runComputeSchemaSubsetScript(
-            schemaPath = resolvedAwsClassicSchemaPath(),
-            name = "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
-            context = "type",
+            fullSchemaPath = resolvedAwsClassicSchemaPath(),
+            nameAndContexts = listOf("aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter" to "type"),
             loadFullParents = "true",
         )
 
@@ -97,9 +93,8 @@ internal class ComputeSchemaSubsetScriptTest {
     @Test
     fun `should work even when there are key conflicts`() {
         val outputSchema = runComputeSchemaSubsetScript(
-            schemaPath = resolve(SCHEMA_PATH_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION),
-            name = "azure-native:network:IPAllocationMethod",
-            context = "type",
+            fullSchemaPath = resolve(SCHEMA_PATH_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION),
+            nameAndContexts = listOf("azure-native:network:IPAllocationMethod" to "type"),
         )
 
         val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
@@ -113,9 +108,8 @@ internal class ComputeSchemaSubsetScriptTest {
     @Test
     fun `should work even when there are recursive references (regression)`() {
         val outputSchema = runComputeSchemaSubsetScript(
-            schemaPath = resolve(SCHEMA_PATH_AZURE_NATIVE_SUBSET_WITH_RECURSION),
-            name = "azure-native:batch:AutoScaleRunResponse",
-            context = "type",
+            fullSchemaPath = resolve(SCHEMA_PATH_AZURE_NATIVE_SUBSET_WITH_RECURSION),
+            nameAndContexts = listOf("azure-native:batch:AutoScaleRunResponse" to "type"),
         )
 
         val decodedOutputSchema = json.decodeFromString<Schema>(outputSchema)
@@ -132,9 +126,8 @@ internal class ComputeSchemaSubsetScriptTest {
     @Test
     fun `should load full parents when --load-full-parents=true`() {
         val outputSchema = runComputeSchemaSubsetScript(
-            schemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE),
-            name = "aws:lambda/FunctionTracingConfig:FunctionTracingConfig",
-            context = "type",
+            fullSchemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE),
+            nameAndContexts = listOf("aws:lambda/FunctionTracingConfig:FunctionTracingConfig" to "type"),
             loadFullParents = "true",
         )
 
@@ -159,9 +152,8 @@ internal class ComputeSchemaSubsetScriptTest {
     @Test
     fun `should shorten descriptions when --shorten-descriptions=true`() {
         val outputSchema = runComputeSchemaSubsetScript(
-            schemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE),
-            name = "aws:lambda/function:Function",
-            context = "resource",
+            fullSchemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE),
+            nameAndContexts = listOf("aws:lambda/function:Function" to "resource"),
             shortenDescriptions = "true",
         )
 
@@ -174,9 +166,8 @@ internal class ComputeSchemaSubsetScriptTest {
     @Test
     fun `should copy provider and its children to the schema if --load-provider-with-children=true`() {
         val outputSchema = runComputeSchemaSubsetScript(
-            schemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_WITH_PROVIDER_AND_SOME_TYPES),
-            name = "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
-            context = "type",
+            fullSchemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_WITH_PROVIDER_AND_SOME_TYPES),
+            nameAndContexts = listOf("aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter" to "type"),
             shortenDescriptions = "true",
             loadProviderWithChildren = "true",
         )
@@ -202,9 +193,8 @@ internal class ComputeSchemaSubsetScriptTest {
     @Test
     fun `should not copy provider and its children to the schema if --load-provider-with-children=false`() {
         val outputSchema = runComputeSchemaSubsetScript(
-            schemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_WITH_PROVIDER_AND_SOME_TYPES),
-            name = "aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter",
-            context = "type",
+            fullSchemaPath = resolve(SCHEMA_PATH_AWS_SUBSET_WITH_PROVIDER_AND_SOME_TYPES),
+            nameAndContexts = listOf("aws:fsx/getOpenZfsSnapshotFilter:getOpenZfsSnapshotFilter" to "type"),
             shortenDescriptions = "true",
             loadProviderWithChildren = "false",
         )
@@ -242,9 +232,8 @@ internal class ComputeSchemaSubsetScriptTest {
 
     @Suppress("LongParameterList")
     private fun runComputeSchemaSubsetScript(
-        schemaPath: String,
-        name: String,
-        context: String,
+        fullSchemaPath: String,
+        nameAndContexts: List<Pair<String, String>>,
         shortenDescriptions: String? = null,
         loadFullParents: String? = null,
         loadProviderWithChildren: String? = null,
@@ -253,13 +242,15 @@ internal class ComputeSchemaSubsetScriptTest {
 
         outputStream.use {
             val regularArguments = listOf(
-                "--schema-path",
-                schemaPath,
-                "--name",
-                name,
-                "--context",
-                context,
+                "--full-schema-path",
+                fullSchemaPath,
             )
+
+            val nameAndContextsToBeFlattened = nameAndContexts
+                .map { (name, context) ->
+                    listOf("--name-and-context", name, context)
+                }
+
             val optionalArgumentsToBeFlattened = listOfNotNull(
                 toListOrNull("--shorten-descriptions", shortenDescriptions),
                 toListOrNull("--load-full-parents", loadFullParents),
@@ -267,7 +258,7 @@ internal class ComputeSchemaSubsetScriptTest {
             )
 
             ComputeSchemaSubsetScript(it).main(
-                regularArguments + optionalArgumentsToBeFlattened.flatten(),
+                regularArguments + (nameAndContextsToBeFlattened + optionalArgumentsToBeFlattened).flatten(),
             )
         }
 

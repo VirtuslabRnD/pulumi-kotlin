@@ -7,8 +7,14 @@ import kotlin.test.fail
 
 const val PROJECT_NAME = "jvm-lab"
 
-fun runProcess(rootDirectory: File, vararg command: String): String {
-    val process = ProcessBuilder(command.asList())
+fun runProcess(rootDirectory: File, vararg command: String, environment: Map<String, String> = emptyMap()) =
+    runProcess(rootDirectory, command.toList(), environment)
+
+fun runProcess(rootDirectory: File, command: List<String>, environment: Map<String, String> = emptyMap()): String {
+    val process = ProcessBuilder(command)
+        .apply {
+            environment().putAll(environment)
+        }
         .directory(rootDirectory)
         .redirectOutput(PIPE)
         .redirectError(INHERIT)

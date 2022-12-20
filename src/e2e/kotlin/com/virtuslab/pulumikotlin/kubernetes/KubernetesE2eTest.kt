@@ -29,7 +29,7 @@ class KubernetesE2eTest {
 
         pulumi = Pulumi(fullStackName, rootDirectory)
         pulumi.initStack()
-        pulumi.up("kubernetes:context=minikube")
+        pulumi.up("kubernetes:context" to "minikube")
 
         val pod = getCreatedPod(pulumi.getStackOutput<PulumiStackOutput>().name)
 

@@ -1,0 +1,3 @@
+name: azure-native-sample-project
+description: A sample Azure Native Kotlin Pulumi program
+runtime: java

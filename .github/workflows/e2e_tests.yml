@@ -11,6 +11,76 @@ permissions:
   id-token: write
 
 jobs:
+  azure-e2e-test:
+    name: Run end-to-end tests of Pulumi Kotlin Azure
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out project sources
+        uses: actions/checkout@v2
+      - name: Set up Pulumi CLI
+        uses: pulumi/setup-pulumi@v2
+      - name: Publish Pulumi Kotlin Azure to Maven Local
+        run: ./gradlew publishPulumiAzureE2ePublicationToMavenLocal
+      - name: Publish Pulumi Kotlin Random to Maven Local
+        run: ./gradlew publishPulumiRandomE2ePublicationToMavenLocal
+      - name: Run E2E tests
+        id: run-azure-e2e-tests
+        run: ./gradlew e2eTest --tests AzureE2eTest
+        env:
+          # These values were copied from jvm-lab/identity-federation stack's output
+          # The Azure tenant/subscription that is used here belongs to @myhau (Michal Fudala)
+          ARM_TENANT_ID: '1ff3e4bd-41d1-4df2-b776-8d3fcbf77184' # tenant-id output of jvm-lab/identity-federation/dev stack
+          ARM_SUBSCRIPTION_ID: '3565bcd1-dd9b-45a8-9d7c-8880aaaa9a9f' # subscription-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_ID: '4169b156-839a-48c2-846f-d7c079331c71' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
+
+          # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
+          PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
+      - name: Upload E2E test report
+        if: ${{ failure() && steps.run-azure-e2e-tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: azure-e2e-test-report
+          path: ./build/reports/tests/e2eTest/*
+          retention-days: 3
+  azure-native-e2e-test:
+    name: Run end-to-end tests of Pulumi Kotlin Azure Native
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out project sources
+        uses: actions/checkout@v2
+      - name: Set up Pulumi CLI
+        uses: pulumi/setup-pulumi@v2
+      - name: Publish Pulumi Kotlin Azure Native to Maven Local
+        run: ./gradlew publishPulumiAzure-nativeE2ePublicationToMavenLocal
+      - name: Publish Pulumi Kotlin Random to Maven Local
+        run: ./gradlew publishPulumiRandomE2ePublicationToMavenLocal
+      - name: Run E2E tests
+        id: run-azure-native-e2e-tests
+        run: ./gradlew e2eTest --tests AzureNativeE2eTest
+        env:
+          # These values were copied from jvm-lab/identity-federation stack's output
+          # The Azure tenant/subscription that is used here belongs to @myhau (Michal Fudala)
+          ARM_TENANT_ID: '1ff3e4bd-41d1-4df2-b776-8d3fcbf77184' # tenant-id output of jvm-lab/identity-federation/dev stack
+          ARM_SUBSCRIPTION_ID: '3565bcd1-dd9b-45a8-9d7c-8880aaaa9a9f' # subscription-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_ID: '4169b156-839a-48c2-846f-d7c079331c71' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
+
+          # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
+          PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
+      - name: Upload E2E test report
+        if: ${{ failure() && steps.run-azure-native-e2e-tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: azure-native-e2e-test-report
+          path: ./build/reports/tests/e2eTest/*
+          retention-days: 3
   gcp-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin GCP
     runs-on: ubuntu-latest

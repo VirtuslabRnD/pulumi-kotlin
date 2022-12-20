@@ -4,10 +4,12 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.RawOption
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.help
+import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.options.transformValues
 import com.github.ajalt.clikt.parameters.types.choice
-import com.github.ajalt.clikt.parameters.types.enum
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.Decoder
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ArrayProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.MapProperty
@@ -19,6 +21,7 @@ import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Reference
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.ReferencingOtherTypesProperty
 import com.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.StringEnumProperty
 import com.virtuslab.pulumikotlin.codegen.step2intermediate.transformKeys
+import com.virtuslab.pulumikotlin.codegen.utils.capitalize
 import com.virtuslab.pulumikotlin.codegen.utils.filterNotNullValues
 import com.virtuslab.pulumikotlin.codegen.utils.letIf
 import com.virtuslab.pulumikotlin.codegen.utils.shorten
@@ -46,29 +49,68 @@ fun main(args: Array<String>) {
 
 private const val HELP =
     """
-        Example invocation:
+        Examples:
+        
+        Create gcp schema subset with gcp:compute/instance:Instance resource:
+        
         ```
         programName \ 
-        --schema-path src/main/resources/schema-aws-classic.json \
-        --name gcp:compute/instance:Instance \
-        --context resource
+        --full-schema-path src/main/resources/schema-gcp-classic.json \
+        --name-and-context gcp:compute/instance:Instance resource
+        ```
+        
+        Update existing gcp schema subset by adding gcp:compute/instance:Instance resource and 
+        gcp:compute/getImage:getImage function: 
+        
+        ```
+        programName \ 
+        --full-schema-path src/main/resources/schema-gcp-classic.json \
+        --existing-schema-subset-path src/test/resources/schema-gcp-classic-6.39.0-subset-lb-ip-ranges.json \
+        --name-and-context gcp:compute/instance:Instance resource \
+        --name-and-context gcp:compute/getImage:getImage function
         ```
     """
 
 class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : CliktCommand(help = HELP) {
 
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+    }
     private val logger = KotlinLogging.logger {}
     private val printStream = PrintStream(outputStream)
 
-    private val schemaPath: String by option().required()
-    private val context: Context by option().enum<ExposedContext>().convert { it.toContext() }.required()
-    private val name: String by option().required()
-    private val shortenDescriptions: Boolean by option().boolean(default = false)
-    private val loadProviderWithChildren: Boolean by option().boolean(default = true)
+    private val fullSchemaPath: String by option().required().help(
+        "Path to the full schema (can be downloaded from provider's GitHub repository, for example: " +
+            "https://github.com/pulumi/pulumi-gcp/blob/master/provider/cmd/pulumi-resource-gcp/schema.json)",
+    )
+    private val existingSchemaSubsetPath: String? by option().help(
+        "Optional path to an existing schema subset. " +
+            "Functions, types and resources present there will be present in the resulting schema.",
+    )
+    private val nameAndContexts: List<NameWithContext>
+        by option("--name-and-context")
+            .transformValues(2) { NameWithContext(it[0], ExposedContext.valueOf(it[1].capitalize()).toContext()) }
+            .multiple()
+            .help(
+                "Specify multiple types/functions/resources to include in the schema subset" +
+                    "For example, to include Instance resource and getImage function, you can pass these: " +
+                    "--name-and-context gcp:compute/instance:Instance resource " +
+                    "--name-and-context gcp:compute/getImage:getImage function",
+            )
+
+    private val shortenDescriptions: Boolean by option().boolean(default = false).help(
+        "Reduce descriptions length (100 characters)",
+    )
+    private val loadProviderWithChildren: Boolean by option().boolean(default = true).help(
+        "Include 'provider' resource in the final schema (and any types it depends on)",
+    )
 
     private val loadFullParentsHelp =
         """
-            Whether to include parents and load parents' references. 
+            Include parents of the given types/resources/functions (--name-and-contexts) 
+            and load any types/resources/functions these parents reference. 
+            
             For example, given this input schema:
             
                 (simplified model, 'B -> {C}' means that 'B has reference to C')
@@ -107,7 +149,8 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
     private val loadFullParents: Boolean by option(help = loadFullParentsHelp).boolean(default = false)
 
     override fun run() {
-        val parsedSchema = Decoder.decode(File(schemaPath).inputStream())
+        val parsedSchema = Decoder.decode(File(fullSchemaPath).inputStream())
+        val parsedExistingSchema = existingSchemaSubsetPath?.let { Decoder.decode(File(it).inputStream()) }
 
         val providerNameWithContext = NameWithContext("pulumi:providers:${parsedSchema.provider}", Provider)
 
@@ -133,38 +176,49 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
             .toMap()
             .lowercaseKeys()
 
-        val chosenKey = NameWithContext(name, context)
+        val propertiesByNameWithContextFromExistingSchema = parsedExistingSchema
+            ?.let { schema ->
+                with(schema) {
+                    types.keys.map { NameWithContext(it, Type) } +
+                        resources.keys.map { NameWithContext(it, Resource) } +
+                        functions.keys.map { NameWithContext(it, Function) }
+                }
+            }
+            .orEmpty()
+
+        val allNamesWithContext = nameAndContexts + propertiesByNameWithContextFromExistingSchema
 
         val childrenByNameWithContext = computeTransitiveClosures(propertiesByNameWithContext).lowercaseKeys()
         val parentsByNameWithContext = inverse(childrenByNameWithContext).lowercaseKeys()
 
-        val childrenOfChosenNameWithContext = childrenByNameWithContext[chosenKey]
-            ?: error("Could not find $name children ($context)")
-        val parentsOfChosenNameWithContextAndTheirChildren = parentsByNameWithContext[chosenKey] ?: run {
-            logger.info("Could not find $name parents ($context)")
-            References.empty()
-        }
-        val childrenOfProvider = childrenByNameWithContext[providerNameWithContext] ?: References.empty()
+        val allTypesThatWereSomehowReferenced = allNamesWithContext.fold(References.empty()) { acc, chosenKey ->
+            val (name, context) = chosenKey
 
-        val allTypesThatWereSomehowReferenced = childrenOfChosenNameWithContext
-            .letIf(loadProviderWithChildren) {
-                it.merge(childrenOfProvider)
+            val childrenOfChosenNameWithContext = childrenByNameWithContext[chosenKey]
+                ?: error("Could not find $name children ($context)")
+            val parentsOfChosenNameWithContextAndTheirChildren = parentsByNameWithContext[chosenKey] ?: run {
+                logger.info("Could not find $name parents ($context)")
+                References.empty()
             }
-            .letIf(loadFullParents) {
-                it.merge(parentsOfChosenNameWithContextAndTheirChildren)
-            }
+            val childrenOfProvider = childrenByNameWithContext[providerNameWithContext] ?: References.empty()
 
-        val json = Json {
-            prettyPrint = true
-            ignoreUnknownKeys = true
+            val allTypesThatWereSomehowReferenced = childrenOfChosenNameWithContext
+                .letIf(loadProviderWithChildren) {
+                    it.merge(childrenOfProvider)
+                }
+                .letIf(loadFullParents) {
+                    it.merge(parentsOfChosenNameWithContextAndTheirChildren)
+                }
+
+            acc.merge(allTypesThatWereSomehowReferenced)
         }
 
-        val noDataLossSchemaModel = json.decodeFromString<NoDataLossSchemaModel>(File(schemaPath).readText())
+        val noDataLossSchemaModel = json.decodeFromString<NoDataLossSchemaModel>(File(fullSchemaPath).readText())
 
         fun <V> getFiltered(map: Map<String, V>, context: Context) =
             map.filterKeys {
                 val key = NameWithContext(it, context)
-                key == chosenKey || allTypesThatWereSomehowReferenced.contains(key)
+                allNamesWithContext.contains(key) || allTypesThatWereSomehowReferenced.contains(key)
             }
 
         val newSchema = with(noDataLossSchemaModel) {

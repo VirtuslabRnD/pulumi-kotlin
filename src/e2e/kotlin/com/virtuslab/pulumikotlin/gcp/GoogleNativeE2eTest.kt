@@ -21,7 +21,7 @@ class GoogleNativeE2eTest {
 
         pulumi = Pulumi(fullStackName, rootDirectory)
         pulumi.initStack()
-        pulumi.up("google-native:project=$PROJECT_NAME")
+        pulumi.up("google-native:project" to PROJECT_NAME)
 
         val instance = getInstance(pulumi.getStackOutput<InstanceTestInstanceStackOutput>().instanceName)
 
