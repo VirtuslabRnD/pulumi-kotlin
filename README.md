@@ -187,31 +187,7 @@ the underlying Java library remained the same.
 [docs-random-4.6.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/random/4.6.0.0/index.html
 [docs-slack-0.3.0.0]: https://storage.googleapis.com/pulumi-kotlin-docs/slack/0.3.0.0/index.html
 
-## Development
+## Further reading
 
-### Releasing
-
-All schema versions used for releasing the libraries are configured in the `src/main/resources/version-config.json`
-file. There are two release paths:
-
-1. If you want update provider schemas and build new versions of the libraries, run the Gradle
-   task `prepareReleaseOfUpdatedSchemas`.
-2. If you want to release a new version of all libraries due to some update in the generator (i.e. the `pulumi-kotlin`
-   codebase), run the Gradle task `prepareReleaseAfterGeneratorUpdate`.
-
-These tasks will create a new commit which updates the versions in `version-config.json` accordingly. Push this commit
-out to a new branch and create a PR (like [this one](https://github.com/VirtuslabRnD/pulumi-kotlin/pull/98)). Once this
-PR is approved and merged, a GitHub Action will be triggered
-(like [this one](https://github.com/VirtuslabRnD/pulumi-kotlin/actions/runs/3328060887)), which will:
-
-1. Tag the merge commit with the appropriate release versions.
-2. Release the requested libraries to the
-   [Maven registry (hosted on GitHub)](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry).
-   The released libraries will be visible in the
-   [Packages](https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin) section on GitHub.
-3. Fast-forward the released versions to SNAPSHOT versions and create a PR (
-   like [this one](https://github.com/VirtuslabRnD/pulumi-kotlin/pull/99)). Once this PR is approved and merged, the
-   release cycle is complete.
-
-In the future, the task `prepareReleaseOfUpdatedSchemas` could be run automatically as a cron job. For now, it will need
-to be run manually by one of the team members.
+* [Code generation and local run details](docs/code-generation.md)
+* [Development guidelines](docs/development-guidelines.md)
