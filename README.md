@@ -176,9 +176,9 @@ Then, add the following repository block to `pom.xml` in the created Pulumi proj
 
 > ℹ️ See [the section below](#supported-providers) section for the full list of supported providers along with docs.
 
-Include provider dependencies like [Google Native]() by copying the `dependency` block
-from [our GitHub Packages page](https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin) and pasting it to
-your `pom.xml`:
+Copy the `dependency` block from [the table below (Supported providers)](#supported-providers) or from 
+[GitHub Packages page for `pulumi-kotlin`](https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin). 
+Then, paste it to your `pom.xml`. For example:
 
  ```xml
 
@@ -189,7 +189,7 @@ your `pom.xml`:
 </dependency>
  ```
 
-Only Kotlin-specific dependency is needed, so you can replace
+Only Kotlin-specific dependency is needed, so you can replace:
 
   ```xml
 
@@ -200,7 +200,7 @@ Only Kotlin-specific dependency is needed, so you can replace
 </dependency>
  ```
 
-with
+with:
 
  ```xml
 
@@ -213,15 +213,16 @@ with
 
 #### 5. Write the code.
 
-For inspiration, see the ["Provisioning a virtual machine on Google Cloud Platform"]() example above (it's from Pulumi
-Java docs for Google Native provider, rewritten to Pulumi Kotlin).
+For inspiration, see the 
+["Provisioning a virtual machine on Google Cloud Platform"](#provisioning-a-virtual-machine-on-google-cloud-platform)
+example above (it's from Pulumi Java docs for Google Native provider, rewritten to Pulumi Kotlin).
 
 Using IntelliJ is heavily recommended as it can guide you through type-safe Kotlin DSLs.
 
 Additionally, there are two sources of documentation:
 
-- Pulumi official docs (example: [Google Native]())
-- Pulumi Kotlin SDK API docs (KDoc) (example: [Google Native]())
+- Pulumi official docs (example for [`google-native`](https://www.pulumi.com/registry/packages/google-native))
+- Kotlin API docs (example for [`google-native`](https://storage.googleapis.com/pulumi-kotlin-docs/google-native/0.27.0.0/index.html))
 
 #### 6. Deploy to the cloud.
 
@@ -539,8 +540,6 @@ that the Kotlin code has been improved, but the underlying Java library remained
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.28.0.0/index.html">link</a></td>
   </tr>
 </table>
-
-## Feedback
 
 ## Giving feedback
 
