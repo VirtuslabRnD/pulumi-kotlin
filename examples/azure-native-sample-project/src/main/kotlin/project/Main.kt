@@ -1,6 +1,5 @@
 package project
 
-import com.pulumi.Context
 import com.pulumi.azurenative.compute.kotlin.enums.CachingTypes.ReadWrite
 import com.pulumi.azurenative.compute.kotlin.enums.DiskCreateOptionTypes.FromImage
 import com.pulumi.azurenative.compute.kotlin.enums.StorageAccountTypes.Standard_LRS
@@ -14,7 +13,7 @@ import com.pulumi.kotlin.Pulumi
 import com.pulumi.random.kotlin.randomPasswordResource
 
 fun main() {
-    Pulumi.run { ctx: Context ->
+    Pulumi.run { ctx ->
         val resourceGroup = resourceGroupResource("azure-native-sample-project") {
             args {}
         }

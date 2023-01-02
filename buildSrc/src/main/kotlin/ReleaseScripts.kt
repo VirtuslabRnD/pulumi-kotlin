@@ -12,6 +12,13 @@ import io.ktor.http.appendPathSegments
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.logging.KtorSimpleLogger
 import kotlinx.coroutines.runBlocking
+import kotlinx.html.a
+import kotlinx.html.stream.appendHTML
+import kotlinx.html.table
+import kotlinx.html.td
+import kotlinx.html.th
+import kotlinx.html.tr
+import kotlinx.html.unsafe
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -63,6 +70,28 @@ data class KotlinVersion(val javaVersion: Semver, val kotlinMinor: Int, val isSn
             )
         }
     }
+
+    fun nextSnapshot() =
+        if (isSnapshot) {
+            this
+        } else {
+            KotlinVersion(
+                javaVersion,
+                kotlinMinor + 1,
+                isSnapshot = true,
+            )
+        }
+
+    fun previousRelease() =
+        if (isSnapshot) {
+            KotlinVersion(
+                javaVersion,
+                kotlinMinor - 1,
+                isSnapshot = false,
+            )
+        } else {
+            this
+        }
 
     override fun toString(): String {
         val javaVersionWithoutPostfix = javaVersion.withClearedPreReleaseAndBuild().toString()
@@ -180,21 +209,83 @@ fun replaceReleasedVersionsWithSnapshots(gitDirectory: File, versionConfigFile: 
 
     val updatedSchemas = schemas.map {
         val oldKotlinVersion = KotlinVersion.fromVersionString(it.kotlinVersion)
-        if (oldKotlinVersion.isSnapshot) {
-            it
-        } else {
-            val newKotlinVersion = KotlinVersion(
-                oldKotlinVersion.javaVersion,
-                oldKotlinVersion.kotlinMinor + 1,
-                isSnapshot = true,
-            )
-            it.copy(kotlinVersion = newKotlinVersion.toString())
-        }
+        it.copy(kotlinVersion = oldKotlinVersion.nextSnapshot().toString())
     }
 
     versionConfigFile.writeText("${json.encodeToString(updatedSchemas)}\n")
 
     commitChangesInFile(gitDirectory, versionConfigFile, "Prepare for next development phase")
+}
+
+fun generateLatestVersionsMarkdownTable(versionConfigFile: File) {
+    val schemas = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
+
+    System.out.appendHTML().table {
+        tr {
+            th { +"Name" }
+            th { +"Version" }
+            th {
+                +"Maven artifact ("
+                a(href = "#3-add-github-packages-maven-repository") {
+                    +"read this first"
+                }
+                +")"
+            }
+            th { +"GitHub Packages" }
+            th { +"Pulumi official docs" }
+            th { +"Kotlin API docs" }
+        }
+        schemas.forEach {
+            tr {
+                val previousReleaseVersion = KotlinVersion.fromVersionString(it.kotlinVersion)
+                    .previousRelease()
+                    .toString()
+                val mavenArtifactBlock = """
+                       | 
+                       | 
+                       |```xml
+                       |<dependency>
+                       |     <groupId>com.virtuslab</groupId>
+                       |     <artifactId>pulumi-${it.providerName}-kotlin</artifactId>
+                       |     <version>$previousReleaseVersion</version>
+                       |</dependency>
+                       |```
+                       | 
+                       | 
+                    """.trimMargin()
+                val githubPackagesUrl = "https://github.com/orgs/VirtuslabRnD/packages?tab=packages&q=${it.providerName}"
+                val pulumiOfficialDocsUrl = "https://www.pulumi.com/registry/packages/${it.providerName}"
+                val kotlinKDocUrl = "https://storage.googleapis.com/pulumi-kotlin-docs/${it.providerName}/${previousReleaseVersion}/index.html"
+
+                td {
+                    +it.providerName
+                }
+                td {
+                    +previousReleaseVersion
+                }
+                td {
+                    unsafe {
+                        +mavenArtifactBlock
+                    }
+                }
+                td {
+                    a(githubPackagesUrl) {
+                        +"link"
+                    }
+                }
+                td {
+                    a(pulumiOfficialDocsUrl) {
+                        +"link"
+                    }
+                }
+                td {
+                    a(kotlinKDocUrl) {
+                        +"link"
+                    }
+                }
+            }
+        }
+    }
 }
 
 fun tagRecentReleases(gitDirectory: File, versionConfigFile: File) {

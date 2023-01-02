@@ -5,38 +5,32 @@ import com.pulumi.kubernetes.apps.v1.kotlin.deploymentResource
 
 fun main() {
     Pulumi.run { ctx ->
-        val labels = mapOf("app" to "nginx")
         val deployment = deploymentResource("nginx") {
             args {
                 spec {
                     selector {
-                        matchLabels(labels)
+                        matchLabels("app" to "nginx")
                     }
                     replicas(1)
                     template {
                         metadata {
-                            labels(labels)
+                            labels("app" to "nginx")
                         }
                         spec {
-                            containers(
-                                {
-                                    name("nginx")
-                                    image("nginx")
-                                    ports(
-                                        {
-                                            containerPort(80)
-                                        },
-                                    )
-                                },
-                            )
+                            containers {
+                                name("nginx")
+                                image("nginx")
+                                ports {
+                                    containerPort(80)
+                                }
+                            }
                         }
                     }
                 }
             }
         }
 
-        val name = deployment.metadata
-            ?.applyValue { it.name.orEmpty() }
+        val name = deployment.metadata?.applyValue { it.name.orEmpty() }
 
         ctx.export("name", name)
     }

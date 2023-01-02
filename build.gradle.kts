@@ -136,6 +136,13 @@ tasks.register<Task>("postRelease") {
     }
 }
 
+tasks.register<Task>("latestVersionsMarkdownTable") {
+    group = "releaseManagement"
+    doLast {
+        generateLatestVersionsMarkdownTable(versionConfigFile)
+    }
+}
+
 publishing {
     repositories {
         maven {

@@ -1,6 +1,5 @@
 package project
 
-import com.pulumi.Context
 import com.pulumi.azure.compute.kotlin.virtualMachineResource
 import com.pulumi.azure.core.kotlin.resourceGroupResource
 import com.pulumi.azure.network.kotlin.networkInterfaceResource
@@ -10,7 +9,7 @@ import com.pulumi.kotlin.Pulumi
 import com.pulumi.random.kotlin.randomPasswordResource
 
 fun main() {
-    Pulumi.run { ctx: Context ->
+    Pulumi.run { ctx ->
         val resourceGroup = resourceGroupResource("azure-sample-project") {
             args {}
         }
@@ -33,13 +32,11 @@ fun main() {
         val mainNetworkInterface = networkInterfaceResource("network-interface") {
             args {
                 resourceGroupName(resourceGroup.name)
-                ipConfigurations(
-                    {
-                        name("testconfiguration1")
-                        subnetId(internalSubnet.id)
-                        privateIpAddressAllocation("Dynamic")
-                    },
-                )
+                ipConfigurations {
+                    name("testconfiguration1")
+                    subnetId(internalSubnet.id)
+                    privateIpAddressAllocation("Dynamic")
+                }
             }
         }
 
@@ -53,7 +50,7 @@ fun main() {
         val virtualMachine = virtualMachineResource("virtual-machine") {
             args {
                 resourceGroupName(resourceGroup.name)
-                networkInterfaceIds(mainNetworkInterface.id.applyValue { listOf(it) })
+                networkInterfaceIds(mainNetworkInterface.id)
                 vmSize("Basic_A0")
                 storageImageReference {
                     publisher("Canonical")
