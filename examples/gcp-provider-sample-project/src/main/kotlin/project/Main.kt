@@ -70,11 +70,9 @@ private suspend fun createInstanceWithProvider(resourceName: String, provider: P
                     image("debian-cloud/debian-11")
                 }
             }
-            networkInterfaces(
-                {
-                    network("default")
-                },
-            )
+            networkInterfaces {
+                network("default")
+            }
             metadata("foo" to "bar")
             metadataStartupScript("echo hi > /test.txt")
             serviceAccount {

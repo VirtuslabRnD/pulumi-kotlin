@@ -1,12 +1,11 @@
 package project
 
-import com.pulumi.Context
 import com.pulumi.gcp.compute.kotlin.ComputeFunctions
 import com.pulumi.gcp.compute.kotlin.instanceResource
 import com.pulumi.kotlin.Pulumi
 
 fun main() {
-    Pulumi.run { ctx: Context ->
+    Pulumi.run { ctx ->
         val debianImage = ComputeFunctions.getImage {
             family("debian-11")
             project("debian-cloud")
@@ -23,11 +22,9 @@ fun main() {
                         image(debianImage.name)
                     }
                 }
-                networkInterfaces(
-                    {
-                        network("default")
-                    },
-                )
+                networkInterfaces {
+                    network("default")
+                }
                 metadata("foo" to "bar")
                 metadataStartupScript("echo hi > /test.txt")
                 serviceAccount {
@@ -35,6 +32,7 @@ fun main() {
                 }
             }
         }
+
         ctx.export("instanceName", instance.name)
     }
 }
