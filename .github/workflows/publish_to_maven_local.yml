@@ -8,7 +8,7 @@ on:
 jobs:
   publish:
     name: Publish pulumi-kotlin to Maven Local Repository
-    runs-on: self-hosted
+    runs-on: [self-hosted, active]
     strategy:
       fail-fast: false
       matrix:
