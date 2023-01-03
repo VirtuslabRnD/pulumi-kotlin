@@ -31,7 +31,7 @@ jobs:
   publish:
     name: Publish packages
     needs: tag
-    runs-on: self-hosted
+    runs-on: [self-hosted, active]
     if: ${{ needs.tag.outputs.is_release == 'true' }}
     permissions:
       contents: read
