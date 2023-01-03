@@ -1,0 +1,22 @@
+name: Test self hosted runner workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  just-sleep:
+    name: Sleep for random time (5-120 seconds)
+    runs-on: [self-hosted, self-hosted-function, active]
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Sleep
+        run: |
+          import time
+          import random
+          sleep_for_seconds = random.randint(5, 120)
+          print("Sleeping for " + str(sleep_for_seconds) + " seconds")
+          time.sleep(sleep_for_seconds)
+        shell: python
