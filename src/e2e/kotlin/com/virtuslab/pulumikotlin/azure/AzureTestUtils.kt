@@ -29,7 +29,7 @@ fun getVirtualMachine(virtualMachineId: String): VirtualMachine {
 }
 
 fun assertVmExists(virtualMachine: VirtualMachine) {
-    assertEquals(VirtualMachineSizeTypes.BASIC_A0, virtualMachine.size())
+    assertEquals(VirtualMachineSizeTypes.STANDARD_B1S, virtualMachine.size())
 
     val tags: Map<String, String> = virtualMachine.tags()
     assertContains(tags, "foo")
