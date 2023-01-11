@@ -23,7 +23,7 @@ the code and integrating with the Pulumi ecosystem.
 
 ## Code examples
 
-> ℹ️ You can find more examples [here](https://github.com/VirtuslabRnD/pulumi-kotlin/tree/main/examples).
+> ℹ️ You can find more examples [here][pulumi-kotlin-code-examples].
 
 ### Provisioning a virtual machine on Google Cloud Platform
 
@@ -116,14 +116,12 @@ fun main() {
 ## Getting started
 
 > ⚠️ This guide is Maven-specific. Adapting these examples to your Gradle project shouldn't be hard. Vote
-> on [#197](https://github.com/VirtuslabRnD/pulumi-kotlin/issues/197) in case Gradle-specific guide would be useful for
-> you.
+on [#197][pulumi-kotlin-issue-197] in case Gradle-specific guide would be useful for you.
 
 #### 1. Install Pulumi.
 
-To install the latest Pulumi release, run the following (see
-full [installation instructions](https://www.pulumi.com/docs/reference/install/?utm_campaign=pulumi-pulumi-github-repo&utm_source=github.com&utm_medium=getting-started-install)
-for additional installation options):
+To install the latest Pulumi release, run the following 
+(see full [installation instructions][pulumi-installation-guide] for additional installation options):
 
 ```bash
 $ curl -fsSL https://get.pulumi.com/ | sh
@@ -143,11 +141,11 @@ $ pulumi new aws-java
 #### 3. Add GitHub Packages Maven repository.
 
 > ℹ️ GitHub Packages Maven registry requires
-> authentication, [even for public repos](https://github.com/orgs/community/discussions/25979). We will eventually get
+> authentication, [even for public repos][github-maven-public-repos-discussion]. We will eventually get
 > rid
 > of this uneccessary step by storing all the artifacts in Maven Central.
 
-Generate [GitHub personal access token](https://github.com/settings/tokens/new) with `read:packages` scope and
+Generate [GitHub personal access token][github-new-access-token] with `read:packages` scope and
 include `server` in your `~/.m2/settings.xml` file:
 
 ```xml
@@ -156,7 +154,7 @@ include `server` in your `~/.m2/settings.xml` file:
     <server>
         <id>github-pulumi-kotlin</id>
         <username>{{your-github-username}}</username>
-        <password>{{your-github-personal-access_token}}</password>
+        <password>{{your-github-personal-access-token}}</password>
     </server>
 </servers>
 ```
@@ -177,7 +175,7 @@ Then, add the following repository block to `pom.xml` in the created Pulumi proj
 > ℹ️ See [the section below](#supported-providers) section for the full list of supported providers along with docs.
 
 Copy the `dependency` block from [the table below (Supported providers)](#supported-providers) or from 
-[GitHub Packages page for `pulumi-kotlin`](https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin). 
+[GitHub Packages page for `pulumi-kotlin`][github-packages-pulumi-kotlin]. 
 Then, paste it to your `pom.xml`. For example:
 
  ```xml
@@ -211,18 +209,35 @@ with:
 </dependency>
  ```
 
-#### 5. Write the code.
+#### 5. Read the docs.
 
-For inspiration, see the 
-["Provisioning a virtual machine on Google Cloud Platform"](#provisioning-a-virtual-machine-on-google-cloud-platform)
-example above (it's from Pulumi Java docs for Google Native provider, rewritten to Pulumi Kotlin).
+> ⚠️ For now, docs viewable in your text editor (and Kotlin API docs hosted [here][google-native-kdoc]) 
+> only include Java SDK example snippets. 
 
 Using IntelliJ is heavily recommended as it can guide you through type-safe Kotlin DSLs.
 
 Additionally, there are two sources of documentation:
 
-- Pulumi official docs (example for [`google-native`](https://www.pulumi.com/registry/packages/google-native))
-- Kotlin API docs (example for [`google-native`](https://storage.googleapis.com/pulumi-kotlin-docs/google-native/0.27.0.0/index.html))
+- Pulumi official docs (example for [`google-native`][google-native-registry-docs])
+- Kotlin API docs (example for [`google-native`][google-native-kdoc])
+
+#### 6. Write the code.
+
+Write the code that describes your resources: 
+
+```kotlin
+import com.pulumi.kotlin.Pulumi
+
+fun main() {
+  Pulumi.run { ctx ->
+    // your resources
+  }
+}
+```
+
+For inspiration, see the
+["Provisioning a virtual machine on Google Cloud Platform"](#provisioning-a-virtual-machine-on-google-cloud-platform)
+example above (it's from Pulumi Java docs for Google Native provider, rewritten to Pulumi Kotlin).
 
 #### 6. Deploy to the cloud.
 
@@ -231,7 +246,7 @@ Run `pulumi up`. This provisions all cloud resources declared in your code.
 ## Supported providers
 
 The table below lists the providers that are currently supported by Pulumi Kotlin SDK. A full list of all Pulumi
-providers can be found [here](https://www.pulumi.com/registry/).
+providers can be found [here][pulumi-registry].
 
 These Kotlin libraries serve as a wrapper on top of corresponding Java libraries.
 
@@ -545,12 +560,27 @@ that the Kotlin code has been improved, but the underlying Java library remained
 
 Pulumi Kotlin SDK is a proof of concept, **we really need feedback before moving on**.
 
-- Create [an issue in this repo](https://github.com/VirtuslabRnD/pulumi-kotlin/issues) or express your opinion in the
-  existing ["Support for idiomatic Kotlin"](https://github.com/pulumi/pulumi-java/issues/544) issue.
-- Start a thread on [#java channel](https://pulumi-community.slack.com/archives/C03DPAY96NB) (Pulumi community Slack).
-- Book a meeting [through Calendly](https://calendly.com/michalfudala/kotlin-sdk-for-pulumi-feedback) and let's talk!
+- Create [an issue in this repo][issues-pulumi-kotlin] or express your opinion in the
+  existing ["Support for idiomatic Kotlin"][support-for-idiomatic-kotlin-issue] issue.
+- Start a thread on [#java channel][pulumi-slack-java-channel] (Pulumi community Slack).
+- Book a meeting [through Calendly][calendly-feedback-meeting] and let's talk!
 
 ## Development docs
 
 - [Code generation and local run details](docs/code-generation.md)
 - [Development guidelines](docs/development-guidelines.md)
+
+
+[github-packages-pulumi-kotlin]: https://github.com/orgs/VirtuslabRnD/packages?repo_name=pulumi-kotlin
+[github-maven-public-repos-discussion]: https://github.com/orgs/community/discussions/25979
+[pulumi-kotlin-code-examples]: https://github.com/VirtuslabRnD/pulumi-kotlin/tree/main/examples
+[pulumi-kotlin-issue-197]: https://github.com/VirtuslabRnD/pulumi-kotlin/issues/197
+[pulumi-installation-guide]: https://www.pulumi.com/docs/reference/install/?utm_campaign=pulumi-pulumi-github-repo&utm_source=github.com&utm_medium=getting-started-install
+[github-new-access-token]: https://github.com/settings/tokens/new
+[google-native-kdoc]: https://storage.googleapis.com/pulumi-kotlin-docs/google-native/0.27.0.0/index.html
+[google-native-registry-docs]: https://www.pulumi.com/registry/packages/google-native
+[pulumi-registry]: https://www.pulumi.com/registry
+[issues-pulumi-kotlin]: https://github.com/VirtuslabRnD/pulumi-kotlin/issues
+[support-for-idiomatic-kotlin-issue]: https://github.com/pulumi/pulumi-java/issues/544
+[pulumi-slack-java-channel]: https://pulumi-community.slack.com/archives/C03DPAY96NB
+[calendly-feedback-meeting]: https://calendly.com/michalfudala/kotlin-sdk-for-pulumi-feedback
