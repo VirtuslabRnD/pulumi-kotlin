@@ -30,12 +30,12 @@ jobs:
         id: run-azure-e2e-tests
         run: ./gradlew e2eTest --tests AzureE2eTest
         env:
-          # These values were copied from jvm-lab/identity-federation/jplewa-test-2 stack's output
+          # These values were copied from jvm-lab/identity-federation/dev stack's output
           # The Azure tenant/subscription that is used here belongs to @jplewa (Julia Plewa)
-          ARM_TENANT_ID: 'd09acba4-fb14-464d-851a-44a7cf8a064d' # tenant-id output of jvm-lab/identity-federation/jplewa-test-2 stack
-          ARM_SUBSCRIPTION_ID: '46170faf-ef0a-4e4a-af7e-4bf4206045a3' # subscription-id output of jvm-lab/identity-federation/jplewa-test-2 stack
-          ARM_CLIENT_ID: 'd64a493a-c885-4f84-9bee-7faed0df2578' # service-principal-client-id output of jvm-lab/identity-federation/jplewa-test-2 stack
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET_2 }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
+          ARM_TENANT_ID: 'd09acba4-fb14-464d-851a-44a7cf8a064d' # tenant-id output of jvm-lab/identity-federation/dev stack
+          ARM_SUBSCRIPTION_ID: '46170faf-ef0a-4e4a-af7e-4bf4206045a3' # subscription-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_ID: 'e4e7a816-ca21-4527-9a57-f5ac641002f2' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
 
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
@@ -65,12 +65,12 @@ jobs:
         id: run-azure-native-e2e-tests
         run: ./gradlew e2eTest --tests AzureNativeE2eTest
         env:
-          # These values were copied from jvm-lab/identity-federation/jplewa-test-2 stack's output
+          # These values were copied from jvm-lab/identity-federation/dev stack's output
           # The Azure tenant/subscription that is used here belongs to @jplewa (Julia Plewa)
-          ARM_TENANT_ID: 'd09acba4-fb14-464d-851a-44a7cf8a064d' # tenant-id output of jvm-lab/identity-federation/jplewa-test-2 stack
-          ARM_SUBSCRIPTION_ID: '46170faf-ef0a-4e4a-af7e-4bf4206045a3' # subscription-id output of jvm-lab/identity-federation/jplewa-test-2 stack
-          ARM_CLIENT_ID: 'd64a493a-c885-4f84-9bee-7faed0df2578' # service-principal-client-id output of jvm-lab/identity-federation/jplewa-test-2 stack
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET_2 }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
+          ARM_TENANT_ID: 'd09acba4-fb14-464d-851a-44a7cf8a064d' # tenant-id output of jvm-lab/identity-federation/dev stack
+          ARM_SUBSCRIPTION_ID: '46170faf-ef0a-4e4a-af7e-4bf4206045a3' # subscription-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_ID: 'e4e7a816-ca21-4527-9a57-f5ac641002f2' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
 
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
