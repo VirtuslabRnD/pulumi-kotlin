@@ -30,11 +30,11 @@ jobs:
         id: run-azure-e2e-tests
         run: ./gradlew e2eTest --tests AzureE2eTest
         env:
-          # These values were copied from jvm-lab/identity-federation stack's output
-          # The Azure tenant/subscription that is used here belongs to @myhau (Michal Fudala)
-          ARM_TENANT_ID: '1ff3e4bd-41d1-4df2-b776-8d3fcbf77184' # tenant-id output of jvm-lab/identity-federation/dev stack
-          ARM_SUBSCRIPTION_ID: '3565bcd1-dd9b-45a8-9d7c-8880aaaa9a9f' # subscription-id output of jvm-lab/identity-federation/dev stack
-          ARM_CLIENT_ID: '4169b156-839a-48c2-846f-d7c079331c71' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
+          # These values were copied from jvm-lab/identity-federation/dev stack's output
+          # The Azure tenant/subscription that is used here belongs to VirtusLab
+          ARM_TENANT_ID: 'd09acba4-fb14-464d-851a-44a7cf8a064d' # tenant-id output of jvm-lab/identity-federation/dev stack
+          ARM_SUBSCRIPTION_ID: '46170faf-ef0a-4e4a-af7e-4bf4206045a3' # subscription-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_ID: 'e4e7a816-ca21-4527-9a57-f5ac641002f2' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
 
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)
@@ -65,11 +65,11 @@ jobs:
         id: run-azure-native-e2e-tests
         run: ./gradlew e2eTest --tests AzureNativeE2eTest
         env:
-          # These values were copied from jvm-lab/identity-federation stack's output
-          # The Azure tenant/subscription that is used here belongs to @myhau (Michal Fudala)
-          ARM_TENANT_ID: '1ff3e4bd-41d1-4df2-b776-8d3fcbf77184' # tenant-id output of jvm-lab/identity-federation/dev stack
-          ARM_SUBSCRIPTION_ID: '3565bcd1-dd9b-45a8-9d7c-8880aaaa9a9f' # subscription-id output of jvm-lab/identity-federation/dev stack
-          ARM_CLIENT_ID: '4169b156-839a-48c2-846f-d7c079331c71' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
+          # These values were copied from jvm-lab/identity-federation/dev stack's output
+          # The Azure tenant/subscription that is used here belongs to VirtusLab
+          ARM_TENANT_ID: 'd09acba4-fb14-464d-851a-44a7cf8a064d' # tenant-id output of jvm-lab/identity-federation/dev stack
+          ARM_SUBSCRIPTION_ID: '46170faf-ef0a-4e4a-af7e-4bf4206045a3' # subscription-id output of jvm-lab/identity-federation/dev stack
+          ARM_CLIENT_ID: 'e4e7a816-ca21-4527-9a57-f5ac641002f2' # service-principal-client-id output of jvm-lab/identity-federation/dev stack
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_CLIENT_SECRET }} # This could be done by OIDC, but it's not supported by Pulumi yet (see https://github.com/VirtuslabRnD/pulumi-kotlin/issues/195)
 
           # Pulumi personal access token manually added to `pulumi-kotlin` repo by @myhau (Michal Fudala)

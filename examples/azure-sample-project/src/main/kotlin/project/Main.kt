@@ -51,7 +51,7 @@ fun main() {
             args {
                 resourceGroupName(resourceGroup.name)
                 networkInterfaceIds(mainNetworkInterface.id)
-                vmSize("Basic_A0")
+                vmSize("Standard_B1s")
                 storageImageReference {
                     publisher("Canonical")
                     offer("UbuntuServer")

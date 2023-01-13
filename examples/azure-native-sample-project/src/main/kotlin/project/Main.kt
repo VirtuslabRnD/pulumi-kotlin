@@ -3,7 +3,7 @@ package project
 import com.pulumi.azurenative.compute.kotlin.enums.CachingTypes.ReadWrite
 import com.pulumi.azurenative.compute.kotlin.enums.DiskCreateOptionTypes.FromImage
 import com.pulumi.azurenative.compute.kotlin.enums.StorageAccountTypes.Standard_LRS
-import com.pulumi.azurenative.compute.kotlin.enums.VirtualMachineSizeTypes.Basic_A0
+import com.pulumi.azurenative.compute.kotlin.enums.VirtualMachineSizeTypes.Standard_B1s
 import com.pulumi.azurenative.compute.kotlin.virtualMachineResource
 import com.pulumi.azurenative.network.kotlin.networkInterfaceResource
 import com.pulumi.azurenative.network.kotlin.subnetResource
@@ -64,7 +64,7 @@ fun main() {
                     }
                 }
                 hardwareProfile {
-                    vmSize(Basic_A0)
+                    vmSize(Standard_B1s)
                 }
                 storageProfile {
                     imageReference {
