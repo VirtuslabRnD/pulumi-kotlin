@@ -172,7 +172,7 @@ Then, add the following repository block to `pom.xml` in the created Pulumi proj
 
 #### 4. Add new or replace existing dependencies.
 
-> ℹ️ See [the section below](#supported-providers) section for the full list of supported providers along with docs.
+> ℹ️ See [the section below](#supported-providers) for the full list of supported providers along with docs.
 
 Copy the `dependency` block from [the table below (Supported providers)](#supported-providers) or from 
 [GitHub Packages page for `pulumi-kotlin`][github-packages-pulumi-kotlin]. 
