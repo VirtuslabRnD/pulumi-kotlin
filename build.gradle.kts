@@ -146,22 +146,22 @@ tasks.register<Task>("latestVersionsMarkdownTable") {
 publishing {
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/VirtuslabRnD/pulumi-kotlin")
+            name = "MavenCentral"
+            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = System.getenv("OSSRH_USERNAME")
+                password = System.getenv("OSSRH_PASSWORD")
             }
         }
     }
 }
 
-val publicationsToPublishToGitHub = schemaMetadata
+val publicationsToPublishToMavenCentral = schemaMetadata
     .filterNot { KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot }
-    .map { "publishPulumi${it.providerName.capitalized()}PublicationToGitHubPackagesRepository" }
+    .map { "publishPulumi${it.providerName.capitalized()}PublicationToMavenCentralRepository" }
 
 tasks.withType<PublishToMavenRepository>().configureEach {
     onlyIf {
-        repository.name == "GitHubPackages" && publicationsToPublishToGitHub.contains(it.name)
+        repository.name == "MavenCentral" && publicationsToPublishToMavenCentral.contains(it.name)
     }
 }
