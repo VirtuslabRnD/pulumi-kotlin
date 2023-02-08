@@ -19,7 +19,7 @@ style:
   ExplicitCollectionElementAccessMethod:
     active: true
   MagicNumber:
-    excludes: [ "**/test/**" , "**/e2e/**", "**/com/virtuslab/pulumikotlin/scripts/*" ]
+    excludes: [ "**/test/**" , "**/e2e/**", "**/org/virtuslab/pulumikotlin/scripts/*" ]
   UnusedImports:
     active: true
   UseDataClass:

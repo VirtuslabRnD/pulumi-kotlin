@@ -161,7 +161,7 @@ fun createGenerationTask(
         dependsOn(tasks[downloadTaskName])
         classpath = project.sourceSets["main"].runtimeClasspath
         group = "generation"
-        mainClass.set("com.virtuslab.pulumikotlin.codegen.MainKt")
+        mainClass.set("org.virtuslab.pulumikotlin.codegen.MainKt")
         setArgsString(
             "--schema-path $schemaDownloadPath " +
                 "--output-directory-path ${File(outputDirectory, providerName)}",

@@ -245,7 +245,7 @@ fun generateLatestVersionsMarkdownTable(versionConfigFile: File) {
                        | 
                        |```xml
                        |<dependency>
-                       |     <groupId>com.virtuslab</groupId>
+                       |     <groupId>org.virtuslab</groupId>
                        |     <artifactId>pulumi-${it.providerName}-kotlin</artifactId>
                        |     <version>$previousReleaseVersion</version>
                        |</dependency>

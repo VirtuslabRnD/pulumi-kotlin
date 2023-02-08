@@ -9,7 +9,7 @@ plugins {
     id("code-generation")
 }
 
-group = "com.virtuslab"
+group = "org.virtuslab"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -49,7 +49,7 @@ tasks.test {
 }
 
 application {
-    mainClass.set("com.virtuslab.pulumikotlin.codegen.MainKt")
+    mainClass.set("org.virtuslab.pulumikotlin.codegen.MainKt")
 }
 
 tasks.withType<Jar> {
@@ -90,7 +90,7 @@ tasks.register<Test>("e2eTest") {
 
 tasks.register<JavaExec>("computeSchemaSubset") {
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("com.virtuslab.pulumikotlin.scripts.ComputeSchemaSubsetScriptKt")
+    mainClass.set("org.virtuslab.pulumikotlin.scripts.ComputeSchemaSubsetScriptKt")
 }
 
 kotlinter {
