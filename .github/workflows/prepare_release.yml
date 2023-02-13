@@ -52,15 +52,12 @@ jobs:
         with:
           distribution: adopt
           java-version: 11
-      - name: Save GPG secret key to a file
-        run: echo ${{ secrets.GPG_SECRET_KEY }} > secret-key.gpg
       - name: Publish packages
         run: |
           ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenCentralRepository \
             -Psigning.enabled=true \
-            -Psigning.keyId=${{ secrets.GPG_KEY_ID }} \
-            -Psigning.password=${{ secrets.GPG_PASSWORD }} \
-            -Psigning.secretKeyRingFile=secret-key.gpg
+            -Psigning.key=${{ secrets.GPG_KEY }} \
+            -Psigning.key.password=${{ secrets.GPG_KEY_PASSWORD }}
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}

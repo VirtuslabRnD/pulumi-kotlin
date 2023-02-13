@@ -165,3 +165,14 @@ tasks.withType<PublishToMavenRepository>().configureEach {
         repository.name == "MavenCentral" && publicationsToPublishToMavenCentral.contains(it.name)
     }
 }
+
+val enableSigning = (findProperty("signing.enabled") as String).toBoolean()
+
+if (enableSigning) {
+    val signingKey: String = findProperty("signing.key") as String
+    val signingKeyPassword: String = findProperty("signing.key.password") as String
+
+    signing {
+        useInMemoryPgpKeys(signingKey, signingKeyPassword)
+    }
+}
