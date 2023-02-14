@@ -289,21 +289,21 @@ that the Kotlin code has been improved, but the underlying Java library remained
   </tr>
   <tr>
     <td>random</td>
-    <td>4.6.0.0</td>
+    <td>4.9.0.0-alpha.1659029910+e3dd1924</td>
     <td> 
 
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-random-kotlin</artifactId>
-     <version>4.6.0.0</version>
+     <version>4.9.0.0-alpha.1659029910+e3dd1924</version>
 </dependency>
 ```
 
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-random-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/random">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/random/4.6.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/random/4.9.0.0-alpha.1659029910+e3dd1924/index.html">link</a></td>
   </tr>
   <tr>
     <td>gcp</td>
