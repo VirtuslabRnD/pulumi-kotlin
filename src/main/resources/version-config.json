@@ -28,10 +28,10 @@
   },
   {
     "providerName": "random",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.6.0/provider/cmd/pulumi-resource-random/schema.json",
-    "kotlinVersion": "4.6.0.1-SNAPSHOT",
-    "javaVersion": "4.6.0",
-    "javaGitTag": "v4.6.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/e3dd1924/provider/cmd/pulumi-resource-random/schema.json",
+    "kotlinVersion": "4.9.0.0-alpha.1659029910+e3dd1924",
+    "javaVersion": "4.9.0-alpha.1659029910+e3dd1924",
+    "javaGitTag": "e3dd1924",
     "customDependencies": [
     ]
   },
