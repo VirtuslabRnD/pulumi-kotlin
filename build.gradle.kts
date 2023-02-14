@@ -147,10 +147,10 @@ publishing {
     repositories {
         maven {
             name = "MavenCentral"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
             credentials {
-                username = System.getenv("OSSRH_USERNAME")
-                password = System.getenv("OSSRH_PASSWORD")
+                username = findTypedProperty("sonatype.username")
+                password = findTypedProperty("sonatype.password")
             }
         }
     }
@@ -166,13 +166,15 @@ tasks.withType<PublishToMavenRepository>().configureEach {
     }
 }
 
-val enableSigning = (findProperty("signing.enabled") as String).toBoolean()
+val enableSigning = findTypedProperty<String>("signing.enabled").toBoolean()
 
 if (enableSigning) {
-    val signingKey: String = findProperty("signing.key") as String
-    val signingKeyPassword: String = findProperty("signing.key.password") as String
+    val signingKey: String = findTypedProperty("signing.key")
+    val signingKeyPassword: String = findTypedProperty("signing.key.password")
 
     signing {
         useInMemoryPgpKeys(signingKey, signingKeyPassword)
     }
 }
+
+inline fun <reified T> findTypedProperty(propertyString: String): T = findProperty(propertyString) as T

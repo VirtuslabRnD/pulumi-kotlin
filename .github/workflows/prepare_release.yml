@@ -57,10 +57,9 @@ jobs:
           ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenCentralRepository \
             -Psigning.enabled=true \
             -Psigning.key=${{ secrets.GPG_KEY }} \
-            -Psigning.key.password=${{ secrets.GPG_KEY_PASSWORD }}
-        env:
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+            -Psigning.key.password=${{ secrets.GPG_KEY_PASSWORD }} \
+            -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
+            -Psonatype.password=${{ secrets.SONATYPE_PASSWORD }}
       - name: Rename Dokka directory before upload
         run: |
           file_name=$(ls ./build/libs/pulumi-${{ matrix.provider }}-*-javadoc.jar | xargs -n 1 basename)
