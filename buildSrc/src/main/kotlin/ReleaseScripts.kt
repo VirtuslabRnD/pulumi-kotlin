@@ -224,18 +224,13 @@ fun generateLatestVersionsMarkdownTable(versionConfigFile: File) {
         tr {
             th { +"Name" }
             th { +"Version" }
-            th {
-                +"Maven artifact ("
-                a(href = "#3-add-github-packages-maven-repository") {
-                    +"read this first"
-                }
-                +")"
-            }
-            th { +"GitHub Packages" }
+            th { +"Maven artifact" }
+            th { +"Maven Central" }
             th { +"Pulumi official docs" }
             th { +"Kotlin API docs" }
         }
         schemas.forEach {
+            val providerName = it.providerName
             tr {
                 val previousReleaseVersion = KotlinVersion.fromVersionString(it.kotlinVersion)
                     .previousRelease()
@@ -246,19 +241,19 @@ fun generateLatestVersionsMarkdownTable(versionConfigFile: File) {
                        |```xml
                        |<dependency>
                        |     <groupId>org.virtuslab</groupId>
-                       |     <artifactId>pulumi-${it.providerName}-kotlin</artifactId>
+                       |     <artifactId>pulumi-$providerName-kotlin</artifactId>
                        |     <version>$previousReleaseVersion</version>
                        |</dependency>
                        |```
                        | 
                        | 
-                    """.trimMargin()
-                val githubPackagesUrl = "https://github.com/orgs/VirtuslabRnD/packages?tab=packages&q=${it.providerName}"
-                val pulumiOfficialDocsUrl = "https://www.pulumi.com/registry/packages/${it.providerName}"
-                val kotlinKDocUrl = "https://storage.googleapis.com/pulumi-kotlin-docs/${it.providerName}/${previousReleaseVersion}/index.html"
+                """.trimMargin()
+                val githubPackagesUrl = "https://search.maven.org/artifact/org.virtuslab/pulumi-$providerName-kotlin"
+                val pulumiOfficialDocsUrl = "https://www.pulumi.com/registry/packages/$providerName"
+                val kotlinKDocUrl = "https://storage.googleapis.com/pulumi-kotlin-docs/$providerName/$previousReleaseVersion/index.html"
 
                 td {
-                    +it.providerName
+                    +providerName
                 }
                 td {
                     +previousReleaseVersion
