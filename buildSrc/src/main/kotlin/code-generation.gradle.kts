@@ -8,6 +8,7 @@ plugins {
     `maven-publish`
     id("org.jetbrains.dokka")
     id("de.undercouch.download")
+    signing
 }
 
 val tasksToDisable: List<(String) -> String> = listOf(
@@ -59,11 +60,12 @@ val createTasksForProvider by extra {
 
         configurePublication(
             sourceSetName,
-            listOf(jarTaskName, sourcesJarTaskName, javadocJarTaskName,),
+            listOf(jarTaskName, sourcesJarTaskName, javadocJarTaskName),
             archiveName,
             version,
             listOf(sourceSetName, sourcesPublicationName, javadocPublicationName),
             implementationDependency,
+            providerName,
         )
 
         tasksToDisable.forEach {
@@ -112,6 +114,7 @@ val createE2eTasksForProvider by extra {
             version,
             listOf(sourceSetName),
             implementationDependency,
+            providerName,
         )
 
         tasksToDisable.forEach {
@@ -158,7 +161,7 @@ fun createGenerationTask(
         dependsOn(tasks[downloadTaskName])
         classpath = project.sourceSets["main"].runtimeClasspath
         group = "generation"
-        mainClass.set("com.virtuslab.pulumikotlin.codegen.MainKt")
+        mainClass.set("org.virtuslab.pulumikotlin.codegen.MainKt")
         setArgsString(
             "--schema-path $schemaDownloadPath " +
                 "--output-directory-path ${File(outputDirectory, providerName)}",
@@ -266,7 +269,9 @@ fun configurePublication(
     version: String,
     publicationNames: List<String>,
     implementationDependency: String,
+    providerName: String,
 ) {
+    val enableSigning = (findProperty("signing.enabled") as String).toBoolean()
     publishing {
         publications {
             create<MavenPublication>(sourceSetName) {
@@ -281,7 +286,12 @@ fun configurePublication(
                 .filter { it.name in publicationNames }
                 .forEach {
                     if (it is MavenPublication) {
-                        configurePom(it, implementationDependency)
+                        configurePom(it, implementationDependency, providerName, version)
+                        if (enableSigning) {
+                            signing {
+                                sign(it)
+                            }
+                        }
                     }
                 }
         }
@@ -291,14 +301,54 @@ fun configurePublication(
 fun configurePom(
     mavenPublication: MavenPublication,
     implementationDependency: String,
+    providerName: String,
+    version: String,
 ) {
     mavenPublication.pom {
+        name.set("Pulumi ${providerName.capitalized()} Kotlin")
+        description.set(
+            "Build cloud applications and infrastructure by combining the safety and reliability of infrastructure " +
+                "as code with the power of the Kotlin programming language.",
+        )
+        url.set("https://github.com/VirtuslabRnD/pulumi-kotlin")
+        inceptionYear.set("2022")
+
+        issueManagement {
+            system.set("GitHub")
+            url.set("https://github.com/VirtuslabRnD/pulumi-kotlin/issues")
+        }
+
         licenses {
             license {
                 name.set("The Apache License, Version 2.0")
                 url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
             }
         }
+
+        developers {
+            developer {
+                name.set("Dariusz Dzikon")
+                email.set("ddzikon@virtuslab.com")
+                organization.set("VirtusLab")
+            }
+            developer {
+                name.set("Michal Fudala")
+                email.set("mfudala@virtuslab.com")
+                organization.set("VirtusLab")
+            }
+            developer {
+                name.set("Julia Plewa")
+                email.set("jplewa@virtuslab.com")
+                organization.set("VirtusLab")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/VirtuslabRnD/pulumi-kotlin/tree/$providerName/v$version")
+            connection.set("scm:git:git://github.com/VirtuslabRnD/pulumi-kotlin.git")
+            developerConnection.set("scm:git:ssh://github.com:VirtuslabRnD/pulumi-kotlin.git")
+        }
+
         withXml {
             val dependenciesNode = asNode().appendNode("dependencies")
             configurations[implementationDependency].dependencies

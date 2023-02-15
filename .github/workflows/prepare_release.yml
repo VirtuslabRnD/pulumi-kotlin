@@ -29,14 +29,10 @@ jobs:
       - name: Push tags
         run: git push --tags
   publish:
-    name: Publish packages
+    name: Publish packages to Maven Central
     needs: tag
     runs-on: [self-hosted, active]
     if: ${{ needs.tag.outputs.is_release == 'true' }}
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -57,9 +53,13 @@ jobs:
           distribution: adopt
           java-version: 11
       - name: Publish packages
-        run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToGitHubPackagesRepository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenCentralRepository \
+            -Psigning.enabled=true \
+            -Psigning.key=${{ secrets.GPG_KEY }} \
+            -Psigning.key.password=${{ secrets.GPG_KEY_PASSWORD }} \
+            -Psonatype.username=${{ secrets.SONATYPE_USERNAME }} \
+            -Psonatype.password=${{ secrets.SONATYPE_PASSWORD }}
       - name: Rename Dokka directory before upload
         run: |
           file_name=$(ls ./build/libs/pulumi-${{ matrix.provider }}-*-javadoc.jar | xargs -n 1 basename)

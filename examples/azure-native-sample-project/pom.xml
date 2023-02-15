@@ -25,12 +25,12 @@
             <version>0.6.0</version>
         </dependency>
         <dependency>
-            <groupId>com.virtuslab</groupId>
+            <groupId>org.virtuslab</groupId>
             <artifactId>pulumi-azure-native-kotlin</artifactId>
             <version>1.87.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.virtuslab</groupId>
+            <groupId>org.virtuslab</groupId>
             <artifactId>pulumi-random-kotlin</artifactId>
             <version>4.6.0.0-SNAPSHOT</version>
         </dependency>
