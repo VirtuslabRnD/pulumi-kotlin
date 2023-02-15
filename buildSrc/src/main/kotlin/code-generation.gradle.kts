@@ -306,7 +306,10 @@ fun configurePom(
 ) {
     mavenPublication.pom {
         name.set("Pulumi ${providerName.capitalized()} Kotlin")
-        description.set("The Pulumi ${providerName.capitalized()} Kotlin SDK")
+        description.set(
+            "Build cloud applications and infrastructure by combining the safety and reliability of infrastructure " +
+                "as code with the power of the Kotlin programming language.",
+        )
         url.set("https://github.com/VirtuslabRnD/pulumi-kotlin")
         inceptionYear.set("2022")
 
@@ -329,7 +332,7 @@ fun configurePom(
                 organization.set("VirtusLab")
             }
             developer {
-                name.set("Michał Fudała")
+                name.set("Michal Fudala")
                 email.set("mfudala@virtuslab.com")
                 organization.set("VirtusLab")
             }
