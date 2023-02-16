@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization") version "1.7.20"
     id("org.jmailen.kotlinter") version "3.12.0"
-    id("io.gitlab.arturbosch.detekt") version "1.21.0"
+    id("io.gitlab.arturbosch.detekt") version "1.22.0"
     id("code-generation")
 }
 
@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.pulumi:pulumi:0.6.0")
+    implementation("com.pulumi:pulumi:0.7.1")
 
     implementation("com.squareup:kotlinpoet:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
@@ -27,21 +27,21 @@ dependencies {
 
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
 
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("ch.qos.logback:logback-classic:1.4.5")
 
-    implementation("com.google.code.gson:gson:2.10")
+    implementation("com.google.code.gson:gson:2.10.1")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
     testImplementation(kotlin("test"))
-    testImplementation("com.google.cloud:google-cloud-compute:1.15.0")
-    testImplementation("com.azure:azure-identity:1.7.1")
-    testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.21.0")
+    testImplementation("com.google.cloud:google-cloud-compute:1.20.0")
+    testImplementation("com.azure:azure-identity:1.8.0")
+    testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.23.0")
 
-    testImplementation("io.kubernetes:client-java:16.0.2")
-    testImplementation("io.mockk:mockk:1.13.2")
-    testImplementation("io.github.cdklabs:projen:0.65.42")
+    testImplementation("io.kubernetes:client-java:17.0.1")
+    testImplementation("io.mockk:mockk:1.13.4")
+    testImplementation("io.github.cdklabs:projen:0.67.54")
 }
 
 tasks.test {
