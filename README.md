@@ -150,7 +150,7 @@ Copy the `dependency` block from [the table below (Supported providers)](#suppor
 <dependency>
     <groupId>org.virtuslab</groupId>
     <artifactId>pulumi-google-native-kotlin</artifactId>
-    <version>0.27.0.0</version>
+    <version>0.28.0.1</version>
 </dependency>
  ```
 
@@ -161,7 +161,7 @@ Only Kotlin-specific dependency is needed, so you can replace:
 <dependency>
     <groupId>com.pulumi</groupId>
     <artifactId>aws</artifactId>
-    <version>5.16.2</version>
+    <version>5.29.1</version>
 </dependency>
  ```
 
@@ -172,7 +172,7 @@ with:
 <dependency>
     <groupId>org.virtuslab</groupId>
     <artifactId>pulumi-aws-kotlin</artifactId>
-    <version>5.16.2.0</version>
+    <version>5.29.1.1</version>
 </dependency>
  ```
 
