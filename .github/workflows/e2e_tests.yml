@@ -24,9 +24,9 @@ jobs:
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Publish Pulumi Kotlin Azure to Maven Local
-        run: ./gradlew publishPulumiAzureE2ePublicationToMavenLocal
+        run: ./gradlew publishPulumiAzureE2ePublicationToMavenLocal -q
       - name: Publish Pulumi Kotlin Random to Maven Local
-        run: ./gradlew publishPulumiRandomE2ePublicationToMavenLocal
+        run: ./gradlew publishPulumiRandomE2ePublicationToMavenLocal -q
       - name: Run E2E tests
         id: run-azure-e2e-tests
         run: ./gradlew e2eTest --tests AzureE2eTest
@@ -59,9 +59,9 @@ jobs:
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Publish Pulumi Kotlin Azure Native to Maven Local
-        run: ./gradlew publishPulumiAzure-nativeE2ePublicationToMavenLocal
+        run: ./gradlew publishPulumiAzure-nativeE2ePublicationToMavenLocal -q
       - name: Publish Pulumi Kotlin Random to Maven Local
-        run: ./gradlew publishPulumiRandomE2ePublicationToMavenLocal
+        run: ./gradlew publishPulumiRandomE2ePublicationToMavenLocal -q
       - name: Run E2E tests
         id: run-azure-native-e2e-tests
         run: ./gradlew e2eTest --tests AzureNativeE2eTest
@@ -99,7 +99,7 @@ jobs:
           workload_identity_provider: 'projects/954450653667/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
           service_account: 'github-actions@jvm-lab.iam.gserviceaccount.com'
       - name: Publish Pulumi Kotlin GCP to Maven Local
-        run: ./gradlew publishPulumiGcpE2ePublicationToMavenLocal
+        run: ./gradlew publishPulumiGcpE2ePublicationToMavenLocal -q
       - name: Run E2E tests
         id: run-gcp-e2e-tests
         run: ./gradlew e2eTest --tests GcpE2eTest
@@ -130,7 +130,7 @@ jobs:
           workload_identity_provider: 'projects/954450653667/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
           service_account: 'github-actions@jvm-lab.iam.gserviceaccount.com'
       - name: Publish Pulumi Kotlin Google Native to Maven Local
-        run: ./gradlew publishPulumiGoogle-nativeE2ePublicationToMavenLocal
+        run: ./gradlew publishPulumiGoogle-nativeE2ePublicationToMavenLocal -q
       - name: Run E2E tests
         id: run-google-native-e2e-tests
         run: ./gradlew e2eTest --tests GoogleNativeE2eTest
@@ -155,7 +155,7 @@ jobs:
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Publish Pulumi Kotlin Kubernetes to Maven Local
-        run: ./gradlew publishPulumiKubernetesE2ePublicationToMavenLocal
+        run: ./gradlew publishPulumiKubernetesE2ePublicationToMavenLocal -q
       - name: Run E2E tests
         id: run-kubernetes-e2e-tests
         run: ./gradlew e2eTest --tests KubernetesE2eTest

@@ -4,7 +4,7 @@ plugins {
     application
     kotlin("jvm")
     kotlin("plugin.serialization") version "1.7.20"
-    id("org.jmailen.kotlinter") version "3.12.0"
+    id("org.jmailen.kotlinter") version "3.14.0"
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
     id("code-generation")
 }

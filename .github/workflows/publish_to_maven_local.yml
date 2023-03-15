@@ -26,4 +26,4 @@ jobs:
           distribution: adopt
           java-version: 11
       - name: Publish to Maven Local
-        run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -Dorg.gradle.daemon=false
+        run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
