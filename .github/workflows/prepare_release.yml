@@ -61,7 +61,8 @@ jobs:
             -Psigning.key.password="${{ secrets.GPG_KEY_PASSWORD }}" \
             -Psonatype.username="${{ secrets.SONATYPE_USERNAME }}" \
             -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}" \
-            -Dorg.gradle.daemon=false
+            -Dorg.gradle.daemon=false \
+            -q
       - name: Rename Dokka directory before upload
         run: |
           file_name=$(ls ./build/libs/pulumi-${{ matrix.provider }}-*-javadoc.jar | xargs -n 1 basename)
