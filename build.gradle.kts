@@ -27,8 +27,6 @@ dependencies {
 
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
 
-    implementation("org.virtuslab:pulumi-google-native-kotlin:0.28.0.1")
-
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("ch.qos.logback:logback-classic:1.4.5")
 
