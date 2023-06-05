@@ -225,6 +225,7 @@ fun generateLatestVersionsMarkdownTable(versionConfigFile: File) {
             th { +"Name" }
             th { +"Version" }
             th { +"Maven artifact" }
+            th { +"Gradle artifact" }
             th { +"Maven Central" }
             th { +"Pulumi official docs" }
             th { +"Kotlin API docs" }
@@ -248,6 +249,15 @@ fun generateLatestVersionsMarkdownTable(versionConfigFile: File) {
                        | 
                        | 
                 """.trimMargin()
+                val gradleArtifactBlock = """
+                       | 
+                       | 
+                       |```kt
+                       |implementation("org.virtuslab:pulumi-$providerName-kotlin:$previousReleaseVersion")
+                       |```
+                       | 
+                       | 
+                """.trimMargin()
                 val githubPackagesUrl = "https://search.maven.org/artifact/org.virtuslab/pulumi-$providerName-kotlin"
                 val pulumiOfficialDocsUrl = "https://www.pulumi.com/registry/packages/$providerName"
                 val kotlinKDocUrl = "https://storage.googleapis.com/pulumi-kotlin-docs/$providerName/$previousReleaseVersion/index.html"
@@ -261,6 +271,11 @@ fun generateLatestVersionsMarkdownTable(versionConfigFile: File) {
                 td {
                     unsafe {
                         +mavenArtifactBlock
+                    }
+                }
+                td {
+                    unsafe {
+                        +gradleArtifactBlock
                     }
                 }
                 td {

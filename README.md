@@ -115,9 +115,6 @@ fun main() {
 
 ## Getting started
 
-> ⚠️ This guide is Maven-specific. Adapting these examples to your Gradle project shouldn't be hard. Vote
-on [#197][pulumi-kotlin-issue-197] in case Gradle-specific guide would be useful for you.
-
 #### 1. Install Pulumi.
 
 To install the latest Pulumi release, run the following 
@@ -131,50 +128,82 @@ $ curl -fsSL https://get.pulumi.com/ | sh
 
 > ⚠️ There are no Kotlin-specific templates for `pulumi new` yet. You need to use Java templates (e.g. `aws-java`).
 
-To create a new Pulumi project, you need to use the `pulumi new` command:
+To create a new Pulumi project, you need to use the `pulumi new` command.
+
+##### Maven
 
 ```bash
 $ mkdir pulumi-kotlin-demo && cd pulumi-kotlin-demo
 $ pulumi new aws-java
 ```
 
-#### 3. Add new or replace existing dependencies.
+##### Gradle
+
+```bash
+$ mkdir pulumi-kotlin-demo && cd pulumi-kotlin-demo
+$ pulumi new https://github.com/myhau/pulumi-templates/tree/add-template-for-java-gradle-with-kotlin-dsl/java-gradle-kts
+```
+
+#### 3. Add new or replace existing dependencies
 
 > ℹ️ See [the section below](#supported-providers) for the full list of supported providers along with docs.
+
+##### Maven
 
 Copy the `dependency` block from [the table below (Supported providers)](#supported-providers) and paste it to your 
 `pom.xml`. For example:
 
- ```xml
-
+```xml
 <dependency>
     <groupId>org.virtuslab</groupId>
     <artifactId>pulumi-google-native-kotlin</artifactId>
     <version>0.28.0.1</version>
 </dependency>
- ```
+```
 
-Only Kotlin-specific dependency is needed, so you can replace:
+Any existing Java-specific dependency can be replaced with Kotlin-specific equivalent. For example:
 
-  ```xml
-
+```xml
 <dependency>
     <groupId>com.pulumi</groupId>
     <artifactId>aws</artifactId>
     <version>5.29.1</version>
 </dependency>
- ```
+```
 
-with:
+can be replaced with:
 
- ```xml
+```xml
 
 <dependency>
     <groupId>org.virtuslab</groupId>
     <artifactId>pulumi-aws-kotlin</artifactId>
     <version>5.29.1.1</version>
 </dependency>
- ```
+```
+
+
+##### Gradle
+
+Copy the dependency from [the table below (Supported providers)](#supported-providers) and paste it to your
+`build.gradle.kts`. For example:
+
+```kt
+implementation("org.virtuslab:pulumi-google-native-kotlin:0.28.0.1")
+```
+
+Any existing Java-specific dependency can be replaced with Kotlin-specific equivalent. For example:
+
+```kt
+implementation("com.pulumi.aws:5.29.1")
+```
+
+can be replaced with: 
+
+```kt
+implementation("org.virtuslab.pulumi-aws-kotlin:5.29.1.1")
+```
+
 
 #### 4. Read the docs.
 
@@ -229,6 +258,7 @@ that the Kotlin code has been improved, but the underlying Java library remained
     <th>Name</th>
     <th>Version</th>
     <th>Maven artifact</th>
+    <th>Gradle artifact</th>
     <th>Maven Central</th>
     <th>Pulumi official docs</th>
     <th>Kotlin API docs</th>
@@ -244,6 +274,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
      <artifactId>pulumi-cloudflare-kotlin</artifactId>
      <version>4.15.0.1</version>
 </dependency>
+```
+
+ </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-cloudflare-kotlin:4.15.0.1")
 ```
 
  </td>
@@ -265,6 +302,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
 ```
 
  </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-slack-kotlin:0.3.1.1")
+```
+
+ </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-slack-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/slack">link</a></td>
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/slack/0.3.1.1/index.html">link</a></td>
@@ -280,6 +324,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
      <artifactId>pulumi-github-kotlin</artifactId>
      <version>5.4.0.1</version>
 </dependency>
+```
+
+ </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-github-kotlin:5.4.0.1")
 ```
 
  </td>
@@ -301,6 +352,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
 ```
 
  </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-random-kotlin:4.11.2.1")
+```
+
+ </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-random-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/random">link</a></td>
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/random/4.11.2.1/index.html">link</a></td>
@@ -316,6 +374,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
      <artifactId>pulumi-gcp-kotlin</artifactId>
      <version>6.49.0.1</version>
 </dependency>
+```
+
+ </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-gcp-kotlin:6.49.0.1")
 ```
 
  </td>
@@ -337,6 +402,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
 ```
 
  </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-google-native-kotlin:0.28.0.1")
+```
+
+ </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-google-native-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/google-native">link</a></td>
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/google-native/0.28.0.1/index.html">link</a></td>
@@ -352,6 +424,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
      <artifactId>pulumi-aws-kotlin</artifactId>
      <version>5.29.1.1</version>
 </dependency>
+```
+
+ </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-aws-kotlin:5.29.1.1")
 ```
 
  </td>
@@ -373,6 +452,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
 ```
 
  </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-aws-native-kotlin:0.47.0.1")
+```
+
+ </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-aws-native-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/aws-native">link</a></td>
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws-native/0.47.0.1/index.html">link</a></td>
@@ -388,6 +474,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
      <artifactId>pulumi-azure-kotlin</artifactId>
      <version>5.35.0.1</version>
 </dependency>
+```
+
+ </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-azure-kotlin:5.35.0.1")
 ```
 
  </td>
@@ -409,6 +502,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
 ```
 
  </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-azure-native-kotlin:1.93.0.1")
+```
+
+ </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-azure-native-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/azure-native">link</a></td>
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/azure-native/1.93.0.1/index.html">link</a></td>
@@ -424,6 +524,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
      <artifactId>pulumi-kubernetes-kotlin</artifactId>
      <version>3.24.0.1</version>
 </dependency>
+```
+
+ </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-kubernetes-kotlin:3.24.0.1")
 ```
 
  </td>
@@ -445,6 +552,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
 ```
 
  </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-nomad-kotlin:0.4.0.1")
+```
+
+ </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-nomad-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/nomad">link</a></td>
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/nomad/0.4.0.1/index.html">link</a></td>
@@ -460,6 +574,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
      <artifactId>pulumi-docker-kotlin</artifactId>
      <version>3.6.1.1</version>
 </dependency>
+```
+
+ </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-docker-kotlin:3.6.1.1")
 ```
 
  </td>
@@ -481,6 +602,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
 ```
 
  </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-gitlab-kotlin:4.9.0.2")
+```
+
+ </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-gitlab-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/gitlab">link</a></td>
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gitlab/4.9.0.2/index.html">link</a></td>
@@ -499,6 +627,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
 ```
 
  </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-digitalocean-kotlin:4.18.0.1")
+```
+
+ </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-digitalocean-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/digitalocean">link</a></td>
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/digitalocean/4.18.0.1/index.html">link</a></td>
@@ -514,6 +649,13 @@ that the Kotlin code has been improved, but the underlying Java library remained
      <artifactId>pulumi-alicloud-kotlin</artifactId>
      <version>3.31.0.1</version>
 </dependency>
+```
+
+ </td>
+    <td> 
+
+```kt
+implementation("org.virtuslab:pulumi-alicloud-kotlin:3.31.0.1")
 ```
 
  </td>
