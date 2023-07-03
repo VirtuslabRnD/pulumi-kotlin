@@ -53,7 +53,7 @@ private fun Semver.getGitTag(): String = if (build.isNotEmpty()) build.joinToStr
 data class KotlinVersion(val javaVersion: Semver, val kotlinMinor: Int, val isSnapshot: Boolean) {
     companion object {
         fun fromVersionString(versionString: String): KotlinVersion {
-            val versionStringSegments = "^(\\d+.\\d+.\\d+).(\\d+)(\\-.*\\+[\\w\\d]+)?(\\-SNAPSHOT)?\$"
+            val versionStringSegments = "^(\\d+.\\d+.\\d+).(\\d+)(-.*\\+[\\w\\d]+)?(-SNAPSHOT)?\$"
                 .toRegex()
                 .find(versionString)
                 ?.groupValues
@@ -140,6 +140,9 @@ fun updateProviderSchemas(gitDirectory: File, versionConfigFile: File) {
     validateIfReleaseIsPossible(schemas)
 
     val client = HttpClient(CIO) {
+        engine {
+            requestTimeout = 0
+        }
         install(Logging) {
             level = LogLevel.INFO
         }
@@ -155,7 +158,7 @@ fun updateProviderSchemas(gitDirectory: File, versionConfigFile: File) {
     val tags = getTags(updatedSchemas)
     val commitMessage = "Prepare release\n\n" +
         "This release includes the following versions:\n" +
-        "${tags.joinToString("\n")}"
+        tags.joinToString("\n")
     commitChangesInFile(gitDirectory, versionConfigFile, commitMessage)
 
     client.close()
@@ -366,9 +369,7 @@ private fun verifyUrl(
     client: HttpClient,
     schemaUrl: String,
 ): Boolean = runBlocking {
-    client.head(Url(schemaUrl))
-        .status
-        .equals(HttpStatusCode.OK)
+    client.head(Url(schemaUrl)).status == HttpStatusCode.OK
 }
 
 private fun commitChangesInFile(gitDirectory: File, absoluteFilePath: File, commitMessage: String) {
