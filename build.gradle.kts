@@ -110,8 +110,11 @@ tasks["detekt"].dependsOn(tasks["detektE2eTest"])
 
 tasks.register<Task>("prepareReleaseOfUpdatedSchemas") {
     group = "releaseManagement"
+    val skipUnstableVersions = findBooleanProperty("skipUnstableVersions", defaultValue = false)
+    val fastForwardToMostRecentVersion = findBooleanProperty("fastForwardToMostRecentVersion", defaultValue = false)
+
     doLast {
-        updateProviderSchemas(projectDir, versionConfigFile)
+        updateProviderSchemas(projectDir, versionConfigFile, skipUnstableVersions, fastForwardToMostRecentVersion)
     }
 }
 
@@ -178,3 +181,7 @@ if (enableSigning) {
 }
 
 inline fun <reified T> findTypedProperty(propertyString: String): T = findProperty(propertyString) as T
+
+fun findBooleanProperty(propertyName: String, defaultValue: Boolean) = findTypedProperty<String?>(propertyName)
+    ?.toBoolean()
+    ?: defaultValue

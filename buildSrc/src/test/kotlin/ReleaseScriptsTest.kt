@@ -1,8 +1,8 @@
 import org.apache.commons.lang3.RandomStringUtils
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 import org.semver4j.Semver
 import java.io.File
 import java.nio.file.Files
@@ -104,7 +104,12 @@ class ReleaseScriptsTest {
             beforeUpdateFileName,
         )
 
-        updateProviderSchemas(temporaryGitRepository, temporaryBeforeUpdateFile)
+        updateProviderSchemas(
+            temporaryGitRepository,
+            temporaryBeforeUpdateFile,
+            skipUnstableVersions = false,
+            fastForwardToMostRecentVersion = false,
+        )
 
         assertEquals(
             expectedAfterUpdateFile.readText(),
