@@ -1,7 +1,6 @@
 import org.apache.commons.lang3.RandomStringUtils
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.semver4j.Semver
 import java.io.File
@@ -91,7 +90,6 @@ class ReleaseScriptsTest {
     }
 
     @Test
-    @Disabled("Disabled due to unreliable search.maven.org (https://github.com/VirtuslabRnD/pulumi-kotlin/issues/202)")
     fun `updates provider schema versions`() {
         val temporaryGitRepository = File("build/tmp/provider-update-test-${RandomStringUtils.randomAlphanumeric(10)}")
         val beforeUpdateFileName = "before-schema-update.json"
