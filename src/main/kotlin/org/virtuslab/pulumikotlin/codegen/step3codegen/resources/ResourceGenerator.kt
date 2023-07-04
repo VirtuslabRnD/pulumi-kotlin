@@ -168,9 +168,9 @@ object ResourceGenerator {
                         .mutable(true)
                         .initializer("null")
                         .build(),
-                    PropertySpec.builder("args", argsClassName.copy(nullable = true))
+                    PropertySpec.builder("args", argsClassName)
                         .mutable(true)
-                        .initializer("null")
+                        .initializer("%T()", argsClassName)
                         .build(),
                     PropertySpec.builder("opts", customResourceOptionsClass())
                         .mutable(true)
@@ -195,7 +195,7 @@ object ResourceGenerator {
                             """
                         val builtJavaResource = %T(
                             this.name,
-                            this.args!!.toJava(),
+                            this.args.toJava(),
                             this.opts.toJava()
                         )
                         """,
@@ -236,11 +236,27 @@ object ResourceGenerator {
             .addDeprecationWarningIfAvailable(resourceType.kDoc)
             .build()
 
+        val resourceFunctionWithoutLambda = FunSpec
+            .builder(names.toResourceName(kotlinFlags).decapitalize() + "Resource")
+            .returns(resourceClassName)
+            .addParameter("name", STRING)
+            .addStatement("val builder = %T()", resourceBuilderClassName)
+            .addStatement("builder.name(name)")
+            .addStatement("return builder.build()")
+            .addDocs(
+                """@see [${resourceType.name.name}].
+                  |@param name The _unique_ name of the resulting resource."""
+                    .trimMargin(),
+            )
+            .addDeprecationWarningIfAvailable(resourceType.kDoc)
+            .build()
+
         fileSpecBuilder
             .addType(resourceBuilderClass)
             .addType(resourceClass)
             .addType(resourceMapperTypeSpec)
             .addFunction(resourceFunction)
+            .addFunction(resourceFunctionWithoutLambda)
     }
 
     private fun determineSuperclass(resourceType: ResourceType): KClass<*> {
