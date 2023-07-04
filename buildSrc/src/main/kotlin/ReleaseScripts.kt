@@ -1,6 +1,7 @@
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
@@ -29,6 +30,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.semver4j.Semver
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 val logger = KtorSimpleLogger("release-management")
 
@@ -53,7 +55,7 @@ private fun Semver.getGitTag(): String = if (build.isNotEmpty()) build.joinToStr
 data class KotlinVersion(val javaVersion: Semver, val kotlinMinor: Int, val isSnapshot: Boolean) {
     companion object {
         fun fromVersionString(versionString: String): KotlinVersion {
-            val versionStringSegments = "^(\\d+.\\d+.\\d+).(\\d+)(-.*\\+\\w+)?(-SNAPSHOT)?\$"
+            val versionStringSegments = """^(\d+\.\d+\.\d+)\.(\d+)(-.*\+\w+)?(-SNAPSHOT)?$"""
                 .toRegex()
                 .find(versionString)
                 ?.groupValues
@@ -137,7 +139,7 @@ fun updateGeneratorVersion(gitDirectory: File, versionConfigFile: File) {
 fun updateProviderSchemas(
     gitDirectory: File,
     versionConfigFile: File,
-    skipUnstableVersions: Boolean,
+    skipPreReleaseVersions: Boolean,
     fastForwardToMostRecentVersion: Boolean,
 ) {
     val schemas = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
@@ -146,7 +148,11 @@ fun updateProviderSchemas(
 
     val client = HttpClient(CIO) {
         engine {
-            requestTimeout = 0
+            requestTimeout = TimeUnit.MINUTES.toMillis(1)
+        }
+        install(HttpRequestRetry) {
+            retryOnServerErrors(maxRetries = 5)
+            exponentialDelay()
         }
         install(Logging) {
             level = LogLevel.INFO
@@ -156,7 +162,7 @@ fun updateProviderSchemas(
         }
     }
 
-    val updatedSchemas = fetchUpdatedSchemas(schemas, client, skipUnstableVersions, fastForwardToMostRecentVersion)
+    val updatedSchemas = fetchUpdatedSchemas(schemas, client, skipPreReleaseVersions, fastForwardToMostRecentVersion)
 
     versionConfigFile.writeText("${json.encodeToString(updatedSchemas)}\n")
 
@@ -172,7 +178,7 @@ fun updateProviderSchemas(
 private fun fetchUpdatedSchemas(
     schemas: List<SchemaMetadata>,
     client: HttpClient,
-    skipUnstableVersions: Boolean,
+    skipPreReleaseVersions: Boolean,
     fastForwardToMostRecentVersion: Boolean,
 ): List<SchemaMetadata> {
     return schemas.map { oldSchema ->
@@ -183,7 +189,7 @@ private fun fetchUpdatedSchemas(
             providerName,
             ComparableVersion(oldSchema.javaVersion),
             KotlinVersion.fromVersionString(oldSchema.kotlinVersion),
-            skipUnstableVersions,
+            skipPreReleaseVersions,
         )
             .map {
                 val newKotlinVersion = KotlinVersion(it, kotlinMinor = 0, isSnapshot = false)
@@ -324,14 +330,14 @@ private fun fetchVersions(
     provider: String,
     since: ComparableVersion,
     kotlinVersion: KotlinVersion,
-    skipUnstableVersions: Boolean,
+    skipPreReleaseVersions: Boolean,
 ): List<Semver> = runBlocking {
     fetchAllPagesSince(client, provider, since)
         .asSequence()
         .filter { it > since || (kotlinVersion.isSnapshot && kotlinVersion.kotlinMinor == 0 && it == since) }
         .map { Semver(it.toString()) }
         .sorted()
-        .filterNot { skipUnstableVersions && it.preRelease.isNotEmpty() }
+        .filter { if (skipPreReleaseVersions) it.preRelease.isEmpty() else true }
         .toList()
 }
 

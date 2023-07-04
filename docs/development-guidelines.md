@@ -16,7 +16,12 @@ All schema versions used for releasing the libraries are configured in the `src/
 file. There are two release paths:
 
 1. If you want to update provider schemas and build new versions of the libraries, run the Gradle
-   task `prepareReleaseOfUpdatedSchemas`.
+   task `prepareReleaseOfUpdatedSchemas`. This task accepts two boolean arguments:
+  - `skipPreReleaseVersions` - setting this to `true` will skip versions like `4.10.0-alpha.1674847484+ffd6999e` 
+  (**note**: non-stable versions of the format `0.y.z` will not be skipped),
+  - `fastForwardToMostRecentVersion` - if multiple new versions have appeared since our last release 
+  (e.g. `4.13.0`, `4.14.0`, `4.15.0`), setting this to `true` will force `prepareReleaseOfUpdatedSchemas` to use 
+  the most recent one (`4.15.0`).
 2. If you want to release a new version of all libraries due to some update in the generator (i.e. the `pulumi-kotlin`
    codebase), run the Gradle task `prepareReleaseAfterGeneratorUpdate`.
 

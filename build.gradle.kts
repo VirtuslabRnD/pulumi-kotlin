@@ -110,11 +110,11 @@ tasks["detekt"].dependsOn(tasks["detektE2eTest"])
 
 tasks.register<Task>("prepareReleaseOfUpdatedSchemas") {
     group = "releaseManagement"
-    val skipUnstableVersions = findBooleanProperty("skipUnstableVersions", defaultValue = false)
+    val skipPreReleaseVersions = findBooleanProperty("skipPreReleaseVersions", defaultValue = false)
     val fastForwardToMostRecentVersion = findBooleanProperty("fastForwardToMostRecentVersion", defaultValue = false)
 
     doLast {
-        updateProviderSchemas(projectDir, versionConfigFile, skipUnstableVersions, fastForwardToMostRecentVersion)
+        updateProviderSchemas(projectDir, versionConfigFile, skipPreReleaseVersions, fastForwardToMostRecentVersion)
     }
 }
 

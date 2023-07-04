@@ -107,7 +107,7 @@ class ReleaseScriptsTest {
         updateProviderSchemas(
             temporaryGitRepository,
             temporaryBeforeUpdateFile,
-            skipUnstableVersions = false,
+            skipPreReleaseVersions = false,
             fastForwardToMostRecentVersion = false,
         )
 

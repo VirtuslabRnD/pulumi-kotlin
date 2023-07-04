@@ -2,6 +2,7 @@ package project
 
 import com.pulumi.azurenative.compute.kotlin.enums.CachingTypes.ReadWrite
 import com.pulumi.azurenative.compute.kotlin.enums.DiskCreateOptionTypes.FromImage
+import com.pulumi.azurenative.compute.kotlin.enums.DiskDeleteOptionTypes
 import com.pulumi.azurenative.compute.kotlin.enums.StorageAccountTypes.Standard_LRS
 import com.pulumi.azurenative.compute.kotlin.enums.VirtualMachineSizeTypes.Standard_B1s
 import com.pulumi.azurenative.compute.kotlin.virtualMachineResource
@@ -80,6 +81,7 @@ fun main() {
                         managedDisk {
                             storageAccountType(Standard_LRS)
                         }
+                        deleteOption(DiskDeleteOptionTypes.Delete)
                     }
                 }
                 osProfile {
