@@ -48,6 +48,11 @@ jobs:
           string: ${{ matrix.provider }}
       - name: Check out project sources
         uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
       - name: Publish packages
         run: |
           ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenCentralRepository \

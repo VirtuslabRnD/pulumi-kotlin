@@ -27,6 +27,11 @@ jobs:
           branch_name=${{ github.event.pull_request.head.ref }}
           if [[ $branch_name =~ prepare-release.* ]]; then is_release=true; else is_release=false; fi
           echo "is_release=$is_release" >> $GITHUB_OUTPUT
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
       - name: Publish to Maven Local
         if: ${{ steps.check_branch_name.outputs.is_release == 'true' }} || ${{ github.event.action == 'workflow_dispatch' }} || ${{ github.event.action == 'push' }}
         run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
