@@ -341,10 +341,10 @@ object IntermediateRepresentationGenerator {
             is MapProperty -> MapType(StringType, innerTypeMapper(property.additionalProperties))
             is OneOfProperty -> {
                 val innerTypes = property.oneOf.map { innerTypeMapper(it) }
-                val isFilledWithStringsOnly = innerTypes.all { it is StringType }
+                val isFilledWithOneType = innerTypes.toSet().size == 1
 
-                if (isFilledWithStringsOnly) {
-                    StringType
+                if (isFilledWithOneType) {
+                    innerTypes.first()
                 } else if (innerTypes.size == 2) {
                     EitherType(innerTypes[0], innerTypes[1])
                 } else {
