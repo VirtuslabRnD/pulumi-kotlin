@@ -164,6 +164,10 @@ fun updateProviderSchemas(
 
     val updatedSchemas = fetchUpdatedSchemas(schemas, client, skipPreReleaseVersions, fastForwardToMostRecentVersion)
 
+    if (updatedSchemas == schemas) {
+        return
+    }
+    
     versionConfigFile.writeText("${json.encodeToString(updatedSchemas)}\n")
 
     val tags = getTags(updatedSchemas)

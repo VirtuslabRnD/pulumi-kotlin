@@ -20,7 +20,7 @@ jobs:
       id-token: write
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Publish Pulumi Kotlin Azure to Maven Local
@@ -55,7 +55,7 @@ jobs:
       id-token: write
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Publish Pulumi Kotlin Azure Native to Maven Local
