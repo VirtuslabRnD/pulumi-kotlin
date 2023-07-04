@@ -243,8 +243,9 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         outputPath?.let { File(it).writeText(encodedNewSchema.toString()) } ?: printStream.println(encodedNewSchema)
     }
 
+    @Suppress("HttpUrlsUsage")
     private fun fetchSchemaInputStream(): InputStream =
-        if (fullSchemaPath.startsWith("http")) {
+        if (fullSchemaPath.startsWith("http://") || fullSchemaPath.startsWith("https://")) {
             URL(fullSchemaPath).openStream()
         } else {
             File(fullSchemaPath).inputStream()
