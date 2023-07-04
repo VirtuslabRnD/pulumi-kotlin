@@ -1,6 +1,5 @@
 package org.virtuslab.pulumikotlin.codegen.step1schemaparse
 
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.RawFullProviderSchema
 import org.virtuslab.pulumikotlin.codegen.step1schemaparse.SchemaModel.Schema
