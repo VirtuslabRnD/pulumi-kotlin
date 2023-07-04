@@ -1,0 +1,62 @@
+name: Update schemas
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-schemas:
+    name: Update schemas
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out project sources
+        uses: actions/checkout@v3
+      - name: Set up Git user
+        uses: fregante/setup-git-user@v2
+      - name: Get the id of last commit
+        id: get_id_of_last_commit
+        run: |
+          echo "last_commit=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+      - name: Prepare release
+        run: ./gradlew prepareReleaseOfUpdatedSchemas
+      - name: Check for commit
+        id: check_for_commit
+        run: |
+          previous_last_commit=${{ steps.get_id_of_last_commit.outputs.last_commit }}
+          current_last_commit=$(git rev-parse HEAD)
+          if [[ "previous_last_commit" == "$current_last_commit" ]]; then found_new_versions=false; else found_new_versions=true; fi
+          echo "found_new_versions=$found_new_versions" >> $GITHUB_OUTPUT
+      - name: Get PR description
+        id: get_pr_description
+        if: ${{ steps.check_for_commit.outputs.found_new_versions == 'true' }}
+        run: |
+          commit_message=$(git log --format=%b -n 1 HEAD)
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "description<<$EOF" >> $GITHUB_OUTPUT
+          echo "$commit_message" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+      - uses: tibdex/github-app-token@c2055a00597a80f713b78b1650e8d3418f4d9a65
+        id: generate-token
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v5
+        if: ${{ steps.check_for_commit.outputs.found_new_versions == 'true' }}
+        with:
+          title: Prepare release
+          body: |
+            ## Task
+
+            Resolves: None
+
+            ## Description
+            ${{ steps.get_pr_description.outputs.description }}
+          base: main
+          branch: prepare-release
+          branch-suffix: short-commit-hash
+          token: ${{ steps.generate-token.outputs.token }}
