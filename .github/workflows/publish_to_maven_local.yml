@@ -33,5 +33,5 @@ jobs:
           distribution: adopt
           java-version: 11
       - name: Publish to Maven Local
-        if: ${{ steps.check_branch_name.outputs.is_release == 'true' }} || ${{ github.event.action == 'workflow_dispatch' }} || ${{ github.event.action == 'push' }}
+        if: ${{ steps.check_branch_name.outputs.is_release == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
         run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
