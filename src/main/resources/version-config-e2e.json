@@ -1,55 +1,55 @@
 [
   {
     "providerName": "random",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.6.0/provider/cmd/pulumi-resource-random/schema.json",
-    "kotlinVersion": "4.6.0.0-SNAPSHOT",
-    "javaVersion": "4.6.0",
-    "javaGitTag": "v4.6.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.13.2/provider/cmd/pulumi-resource-random/schema.json",
+    "kotlinVersion": "4.13.2.0-SNAPSHOT",
+    "javaVersion": "4.13.2",
+    "javaGitTag": "v4.13.2",
     "customDependencies": [
     ]
   },
   {
     "providerName": "azure",
-    "url": "https://gist.githubusercontent.com/myhau/cab21c752afb0f7c8e9c8deec82c7c65/raw/850a299b7226547e70df986b096b8d38ef6ebe6d/schema-azure-classic-v5.25.0-subset-for-build.json",
-    "kotlinVersion": "5.25.0.0-SNAPSHOT",
-    "javaVersion": "5.25.0",
-    "javaGitTag": "v5.25.0",
+    "url": "https://gist.githubusercontent.com/jplewa/0897e9ca654d1f029f37162ce8ccba7f/raw/cf5f0801f2c03765316978cf4055be34340346bb/schema-azure-v5.44.1-subset-for-build.json",
+    "kotlinVersion": "5.44.1.0-SNAPSHOT",
+    "javaVersion": "5.44.1",
+    "javaGitTag": "v5.44.1",
     "customDependencies": [
     ]
   },
   {
     "providerName": "azure-native",
-    "url": "https://gist.githubusercontent.com/myhau/00414627dd33a2d3dd5293fe1845562f/raw/76800256b04365af04279af31f377d14c7c6fc84/schema-azure-native-v1.87.0-subset-for-build.json",
-    "kotlinVersion": "1.87.0.0-SNAPSHOT",
-    "javaVersion": "1.87.0",
-    "javaGitTag": "v1.87.0",
+    "url": "https://gist.githubusercontent.com/jplewa/cea43edd61c3284b29c037cd094e0e77/raw/f32ad6c02c8b90efcea1ae10a84a2d92951bab17/schema-azure-native-v1.103.0-subset-for-build.json",
+    "kotlinVersion": "1.103.0.0-SNAPSHOT",
+    "javaVersion": "1.103.0",
+    "javaGitTag": "v1.103.0",
     "customDependencies": [
     ]
   },
   {
     "providerName": "gcp",
-    "url": "https://gist.githubusercontent.com/myhau/0aa5e4a2a18ea6ae194abd824440e558/raw/6d01f8b7165a0a515eceee9924c0ffc9dd86fbae/schema-gcp-classic-v6.43.0-subset-for-build.json",
-    "kotlinVersion": "6.43.0.0-SNAPSHOT",
-    "javaVersion": "6.43.0",
-    "javaGitTag": "v6.43.0",
+    "url": "https://gist.githubusercontent.com/jplewa/0988583befa715aedcde660feae81002/raw/4cc4ace69b244a3c552071f90e7662e5abb7e91e/schema-gcp-v6.59.0-subset-for-build.json",
+    "kotlinVersion": "6.59.0.0-SNAPSHOT",
+    "javaVersion": "6.59.0",
+    "javaGitTag": "v6.59.0",
     "customDependencies": [
     ]
   },
   {
     "providerName": "google-native",
-    "url": "https://gist.githubusercontent.com/jplewa/73836b04be29884b0b02872843f9136a/raw/ee064931b6cae0bdb3c7ac0adf83e1c019c5fa79/schema-google-native-v0.27.0-subset-for-build.json",
-    "kotlinVersion": "0.27.0.0-SNAPSHOT",
-    "javaVersion": "0.27.0",
-    "javaGitTag": "v0.27.0",
+    "url": "https://gist.githubusercontent.com/jplewa/544b1de415bca905cee9f135c119089e/raw/5b29ca08103a0c00dccfcacb834637853bc56241/schema-google-native-v0.31.0-subset-for-build.json",
+    "kotlinVersion": "0.31.0.0-SNAPSHOT",
+    "javaVersion": "0.31.0",
+    "javaGitTag": "v0.31.0",
     "customDependencies": [
     ]
   },
   {
     "providerName": "kubernetes",
-    "url": "https://gist.githubusercontent.com/jplewa/deddde072fd7b018aac1609772eda28a/raw/7e92997aa7fc2e972cf81662b65b749aaf5b8358/schema-kubernetes-v.3.22.1-subset-for-build.json",
-    "kotlinVersion": "3.22.1.0-SNAPSHOT",
-    "javaVersion": "3.22.1",
-    "javaGitTag": "v3.22.1",
+    "url": "https://gist.githubusercontent.com/jplewa/1d396426206698b29a884b5d85391ee3/raw/cfc2220d07524c9f99e5be14928f91819323ea80/schema-kubernetes-v3.30.1-subset-for-build.json",
+    "kotlinVersion": "3.30.1.0-SNAPSHOT",
+    "javaVersion": "3.30.1",
+    "javaGitTag": "v3.30.1",
     "customDependencies": [
     ]
   }

@@ -230,7 +230,6 @@ internal class CustomResourceOptionsTest {
                     "custom timeouts - delete",
                 )
             },
-
         )
     }
 

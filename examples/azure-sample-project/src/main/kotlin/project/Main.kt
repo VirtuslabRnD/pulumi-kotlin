@@ -73,6 +73,7 @@ fun main() {
                     disablePasswordAuthentication(false)
                 }
                 tags("foo" to "bar")
+                deleteOsDiskOnTermination(true)
             }
         }
         ctx.export("virtualMachineId", virtualMachine.id)

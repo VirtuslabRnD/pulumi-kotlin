@@ -24,7 +24,7 @@ class CodegenTest {
     private val logger = KotlinLogging.logger {}
 
     private val dependencies = listOf(
-        "com.pulumi:pulumi:0.6.0",
+        "com.pulumi:pulumi:0.9.4",
         "com.pulumi:aws:5.16.2",
         "com.pulumi:gcp:6.38.0",
         "com.pulumi:slack:0.3.0",
@@ -34,11 +34,11 @@ class CodegenTest {
         "com.pulumi:azure-native:1.85.0",
         "com.pulumi:google-native:0.27.0",
         "com.google.code.findbugs:jsr305:3.0.2",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
-        "com.google.code.gson:gson:2.10",
-        "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1",
-        "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.4.1",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.2",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.2",
+        "com.google.code.gson:gson:2.10.1",
+        "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.5.1",
+        "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.5.1",
     )
 
     private lateinit var testInfo: TestInfo

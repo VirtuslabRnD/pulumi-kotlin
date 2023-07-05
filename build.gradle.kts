@@ -17,31 +17,31 @@ repositories {
 }
 
 dependencies {
-    implementation("com.pulumi:pulumi:0.7.1")
+    implementation("com.pulumi:pulumi:0.9.4")
 
-    implementation("com.squareup:kotlinpoet:1.12.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
+    implementation("com.squareup:kotlinpoet:1.14.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.2")
 
-    implementation("com.github.ajalt.clikt:clikt:3.5.0")
+    implementation("com.github.ajalt.clikt:clikt:3.5.4")
 
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10")
 
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    implementation("ch.qos.logback:logback-classic:1.4.5")
+    implementation("ch.qos.logback:logback-classic:1.4.8")
 
     implementation("com.google.code.gson:gson:2.10.1")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
-    testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.5.0")
     testImplementation(kotlin("test"))
-    testImplementation("com.google.cloud:google-cloud-compute:1.20.0")
-    testImplementation("com.azure:azure-identity:1.8.0")
-    testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.23.0")
+    testImplementation("com.google.cloud:google-cloud-compute:1.30.0")
+    testImplementation("com.azure:azure-identity:1.9.1")
+    testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.28.0")
 
-    testImplementation("io.kubernetes:client-java:17.0.1")
-    testImplementation("io.mockk:mockk:1.13.4")
-    testImplementation("io.github.cdklabs:projen:0.67.54")
+    testImplementation("io.kubernetes:client-java:18.0.0")
+    testImplementation("io.mockk:mockk:1.13.5")
+    testImplementation("io.github.cdklabs:projen:0.71.120")
 }
 
 tasks.test {
@@ -110,8 +110,11 @@ tasks["detekt"].dependsOn(tasks["detektE2eTest"])
 
 tasks.register<Task>("prepareReleaseOfUpdatedSchemas") {
     group = "releaseManagement"
+    val skipPreReleaseVersions = findBooleanProperty("skipPreReleaseVersions", defaultValue = false)
+    val fastForwardToMostRecentVersion = findBooleanProperty("fastForwardToMostRecentVersion", defaultValue = false)
+
     doLast {
-        updateProviderSchemas(projectDir, versionConfigFile)
+        updateProviderSchemas(projectDir, versionConfigFile, skipPreReleaseVersions, fastForwardToMostRecentVersion)
     }
 }
 
@@ -178,3 +181,7 @@ if (enableSigning) {
 }
 
 inline fun <reified T> findTypedProperty(propertyString: String): T = findProperty(propertyString) as T
+
+fun findBooleanProperty(propertyName: String, defaultValue: Boolean) = findTypedProperty<String?>(propertyName)
+    ?.toBoolean()
+    ?: defaultValue

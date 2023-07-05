@@ -11,7 +11,6 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.transformValues
 import com.github.ajalt.clikt.parameters.types.choice
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -40,8 +39,11 @@ import org.virtuslab.pulumikotlin.scripts.Context.Provider
 import org.virtuslab.pulumikotlin.scripts.Context.Resource
 import org.virtuslab.pulumikotlin.scripts.Context.Type
 import java.io.File
+import java.io.InputStream
 import java.io.OutputStream
 import java.io.PrintStream
+import java.net.URL
+import java.nio.charset.StandardCharsets
 
 fun main(args: Array<String>) {
     ComputeSchemaSubsetScript().main(args)
@@ -81,7 +83,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
     private val printStream = PrintStream(outputStream)
 
     private val fullSchemaPath: String by option().required().help(
-        "Path to the full schema (can be downloaded from provider's GitHub repository, for example: " +
+        "Path or URL to the full schema (can be downloaded from provider's GitHub repository, for example: " +
             "https://github.com/pulumi/pulumi-gcp/blob/master/provider/cmd/pulumi-resource-gcp/schema.json)",
     )
     private val existingSchemaSubsetPath: String? by option().help(
@@ -153,7 +155,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
     private val loadFullParents: Boolean by option(help = loadFullParentsHelp).boolean(default = false)
 
     override fun run() {
-        val parsedSchema = Decoder.decode(File(fullSchemaPath).inputStream())
+        val parsedSchema = Decoder.decode(fetchSchemaInputStream())
         val parsedExistingSchema = existingSchemaSubsetPath?.let { Decoder.decode(File(it).inputStream()) }
 
         val providerNameWithContext = NameWithContext("pulumi:providers:${parsedSchema.provider}", Provider)
@@ -217,7 +219,9 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
             acc.merge(allTypesThatWereSomehowReferenced)
         }
 
-        val noDataLossSchemaModel = json.decodeFromString<NoDataLossSchemaModel>(File(fullSchemaPath).readText())
+        val noDataLossSchemaModel = json.decodeFromString<NoDataLossSchemaModel>(
+            String(fetchSchemaInputStream().readAllBytes(), StandardCharsets.UTF_8),
+        )
 
         fun <V> getFiltered(map: Map<String, V>, context: Context) =
             map.filterKeys {
@@ -230,7 +234,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
                 provider = if (loadProviderWithChildren) provider else null,
                 types = getFiltered(types, Type),
                 resources = getFiltered(resources, Resource),
-                functions = getFiltered(functions, Function),
+                functions = functions?.let { getFiltered(it, Function) },
             )
         }
 
@@ -238,6 +242,14 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
 
         outputPath?.let { File(it).writeText(encodedNewSchema.toString()) } ?: printStream.println(encodedNewSchema)
     }
+
+    @Suppress("HttpUrlsUsage")
+    private fun fetchSchemaInputStream(): InputStream =
+        if (fullSchemaPath.startsWith("http://") || fullSchemaPath.startsWith("https://")) {
+            URL(fullSchemaPath).openStream()
+        } else {
+            File(fullSchemaPath).inputStream()
+        }
 
     private fun <V> extractProperties(map: Map<String, V>, context: Context, propertyExtractor: (V) -> List<Property>) =
         map
@@ -350,7 +362,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
 
         return schemaModel.copy(
             types = schemaModel.types.mapValues { removeDescriptionField(it.value) },
-            functions = schemaModel.functions.mapValues { removeDescriptionField(it.value) },
+            functions = schemaModel.functions?.mapValues { removeDescriptionField(it.value) },
             resources = schemaModel.resources.mapValues { removeDescriptionField(it.value) },
         )
     }
@@ -390,7 +402,7 @@ private data class NoDataLossSchemaModel(
     val provider: JsonElement? = null,
     val types: Map<String, JsonElement>,
     val resources: Map<String, JsonElement>,
-    val functions: Map<String, JsonElement>,
+    val functions: Map<String, JsonElement>? = null,
 )
 
 private typealias Name = String
