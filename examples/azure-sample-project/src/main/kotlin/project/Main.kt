@@ -10,9 +10,7 @@ import com.pulumi.random.kotlin.randomPasswordResource
 
 fun main() {
     Pulumi.run { ctx ->
-        val resourceGroup = resourceGroupResource("azure-sample-project") {
-            args {}
-        }
+        val resourceGroup = resourceGroupResource("azure-sample-project")
 
         val mainVirtualNetwork = virtualNetworkResource("virtual-network") {
             args {
