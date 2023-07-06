@@ -19,7 +19,7 @@ jobs:
         run: |
           echo "last_commit=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       - name: Prepare release
-        run: ./gradlew prepareReleaseOfUpdatedSchemas
+        run: ./gradlew prepareReleaseOfUpdatedSchemas -PskipPreReleaseVersions=true -PfastForwardToMostRecentVersion=false
       - name: Check for commit
         id: check_for_commit
         run: |

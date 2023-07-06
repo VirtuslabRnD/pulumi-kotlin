@@ -86,7 +86,6 @@ jobs:
           rclone copy --transfers=1024 ./docs/${{ matrix.provider }} rclone-jvm-lab:/pulumi-kotlin-docs/${{ matrix.provider }}
   cleanup:
     name: Clean up after release
-    needs: publish
     runs-on: ubuntu-latest
     permissions:
       contents: write
