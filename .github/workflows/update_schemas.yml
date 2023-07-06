@@ -9,9 +9,6 @@ jobs:
   update-schemas:
     name: Update schemas
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
