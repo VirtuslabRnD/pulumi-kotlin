@@ -11,7 +11,7 @@ jobs:
   publish:
     name: Publish pulumi-kotlin to Maven Local Repository
     runs-on: [ self-hosted, active ]
-    if: ${{ startsWith(github.head_ref, 'prepare-release') || github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
+    if: ${{ startsWith(github.head_ref, 'test-auto-schema')  || startsWith(github.head_ref, 'prepare-release') || github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
     strategy:
       fail-fast: false
       matrix:
