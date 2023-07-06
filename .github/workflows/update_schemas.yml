@@ -35,6 +35,7 @@ jobs:
         if: ${{ steps.check_for_commit.outputs.found_new_versions == 'true' }}
         run: |
           commit_message=$(git log --format=%b -n 1 HEAD)
+          # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-a-multiline-string
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "description<<$EOF" >> $GITHUB_OUTPUT
           echo "$commit_message" >> $GITHUB_OUTPUT
