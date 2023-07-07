@@ -11,7 +11,7 @@ jobs:
   publish:
     name: Publish pulumi-kotlin to Maven Local Repository
     runs-on: [ self-hosted, active ]
-    if: ${{ startsWith(github.head_ref, 'prepare-release') || github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
+    if: ${{ startsWith(github.head_ref, 'prepare-release') || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       fail-fast: false
       matrix:
@@ -27,5 +27,33 @@ jobs:
         with:
           distribution: adopt
           java-version: 11
+      - name: Check if publication to Maven Local is necessary
+        id: check-for-release
+        shell: python
+        run: |
+          import os
+          import json
+          with open("src/main/resources/version-config.json") as version_config:
+            schemas = json.load(version_config)
+            version = [schema["kotlinVersion"] for schema in schemas if schema["providerName"] == "${{ matrix.provider }}"][0]
+            is_release = not version.endswith("-SNAPSHOT")
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+              fh.write('is_release=' + str(is_release).lower())
+              print(is_release)
+      - name: Check github event
+        run: echo ${{ github.event_name }}
+      - name: Check first condition
+        if: ${{ startsWith(github.head_ref, 'test-automated-releases') && steps.check-for-release.outputs.is_release == 'true' }}
+        run: echo "First condition true"
+      - name: Check second condition
+        if: ${{ github.event_name == 'push' && steps.check-for-release.outputs.is_release == 'false' }}
+        run: echo "Second condition true"
+      - name: Check third condition
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: echo "Third condition true"
       - name: Publish to Maven Local
         run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
+        if: |
+          (startsWith(github.head_ref, 'prepare-release') && steps.check-for-release.outputs.is_release == 'true') || 
+          (github.event_name == 'push' && steps.check-for-release.outputs.is_release == 'false') || 
+          github.event_name == 'workflow_dispatch'
