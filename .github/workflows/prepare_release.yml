@@ -87,9 +87,6 @@ jobs:
   cleanup:
     name: Clean up after release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
@@ -114,5 +111,4 @@ jobs:
             This PR was triggered automatically after a release. It replaces the released versions with SNAPSHOT versions.
           base: main
           branch: prepare-for-next-development-phase
-          branch-suffix: short-commit-hash
           token: ${{ steps.generate-token.outputs.token }}
