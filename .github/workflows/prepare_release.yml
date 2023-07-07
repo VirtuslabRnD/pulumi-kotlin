@@ -11,7 +11,7 @@ jobs:
     name: Tag release
     runs-on: ubuntu-latest
     outputs:
-      is_release: ${{ steps.check_number_of_tags.outputs.is_release }}
+      is_release: ${{ steps.check-number-of-tags.outputs.is_release }}
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
@@ -22,7 +22,7 @@ jobs:
       - name: Tag new versions of Pulumi Kotlin (if available)
         run: ./gradlew tagRecentRelease
       - name: Check number of tags
-        id: check_number_of_tags
+        id: check-number-of-tags
         run: |
           $number_of_tags=$(git tag --points-at HEAD | wc -l | awk '{print $1}')
           if [[ "$number_of_tags" == "0" ]]; then is_release=false; else is_release=true; fi
