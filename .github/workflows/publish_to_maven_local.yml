@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**.kt'
+      - '**.kts'
+      - '**.properties'
+      - '**.json'
+      - '**.xml'
+      - '**.yml'
   pull_request:
   workflow_dispatch:
 
