@@ -40,6 +40,8 @@ jobs:
             with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
               fh.write('is_release=' + str(is_release).lower())
               print(is_release)
+      - name: Check github event
+        run: echo ${{ github.event_name }}
       - name: Publish to Maven Local
         run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
         if: |
