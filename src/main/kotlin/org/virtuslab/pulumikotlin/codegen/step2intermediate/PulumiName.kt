@@ -18,6 +18,7 @@ data class PulumiName(
     val providerName: String,
     val namespace: List<String>,
     val name: String,
+    val isProvider: Boolean = false,
 ) {
 
     private data class Modifiers(
@@ -178,7 +179,8 @@ data class PulumiName(
         return when (namingFlags.language) {
             Kotlin, Java -> {
                 if (namespace.isEmpty()) {
-                    providerName.capitalize() + "Functions"
+                    val providerPrefix = providerName.split("-").joinToString("") { it.capitalize() }
+                    "${providerPrefix}Functions"
                 } else {
                     namespace.last().replace(".", "_").capitalize() + "Functions"
                 }
@@ -187,7 +189,12 @@ data class PulumiName(
     }
 
     fun toResourceName(namingFlags: NamingFlags): String {
-        return name.capitalize()
+        return if (namingFlags.language == Kotlin && isProvider) {
+            val providerPrefix = providerName.split("-").joinToString("") { it.capitalize() }
+            "${providerPrefix}${name.capitalize()}"
+        } else {
+            name.capitalize()
+        }
     }
 
     fun toClassName(namingFlags: NamingFlags): String {
@@ -248,7 +255,11 @@ data class PulumiName(
     companion object {
         private const val EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN = 3
 
-        fun from(token: String, namingConfiguration: PulumiNamingConfiguration): PulumiName {
+        fun from(
+            token: String,
+            namingConfiguration: PulumiNamingConfiguration,
+            isProvider: Boolean = false,
+        ): PulumiName {
             // token = pkg ":" module ":" member
 
             val segments = token.split(":")
@@ -285,7 +296,7 @@ data class PulumiName(
                 throw InvalidPulumiName(name, namespace)
             }
 
-            return PulumiName(providerName, namespace, name)
+            return PulumiName(namingConfiguration.providerName, namespace, name, isProvider = isProvider)
         }
     }
 }

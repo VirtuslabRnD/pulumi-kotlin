@@ -61,7 +61,8 @@ object IntermediateRepresentationGenerator {
                 createResource(DEFAULT_PROVIDER_TOKEN, schema.provider, context, typeMap, isProvider = true)
         } else {
             createResources(typeMap, context)
-        }.filterNotNull()
+        }
+            .filterNotNull()
 
         return IntermediateRepresentation(
             types = types,
@@ -105,7 +106,8 @@ object IntermediateRepresentationGenerator {
                         deprecationMessage = resource.deprecationMessage,
                     )
                 }
-            }.orEmpty(),
+            }
+                .orEmpty(),
         )
 
         val regularTypes = listOf(
@@ -143,7 +145,7 @@ object IntermediateRepresentationGenerator {
             }
 
         return try {
-            val pulumiName = PulumiName.from(typeToken, context.namingConfiguration)
+            val pulumiName = PulumiName.from(typeToken, context.namingConfiguration, isProvider = isProvider)
             val inputUsageKind = UsageKind(Root, Resource, Input)
             val argumentType =
                 findTypeAsReference<ReferencedComplexType>(
