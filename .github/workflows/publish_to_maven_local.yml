@@ -55,7 +55,7 @@ jobs:
         run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
         if: |
           ${{ 
-            (startsWith(github.head_ref, 'test-automated-releases') && steps.check-for-release.outputs.is_release == 'true') 
-            || (github.event_name == 'push' && steps.check-for-release.outputs.is_release == 'false') 
-            || github.event_name == 'workflow_dispatch'
+            (startsWith(github.head_ref, 'test-automated-releases') && steps.check-for-release.outputs.is_release == 'true') || 
+            (github.event_name == 'push' && steps.check-for-release.outputs.is_release == 'false') || 
+            github.event_name == 'workflow_dispatch'
           }}
