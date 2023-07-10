@@ -11,7 +11,7 @@ jobs:
   publish:
     name: Publish pulumi-kotlin to Maven Local Repository
     runs-on: [ self-hosted, active ]
-    if: ${{ startsWith(github.head_ref, 'prepare-release') || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ startsWith(github.head_ref, 'test-automated-releases') || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       fail-fast: false
       matrix:
@@ -43,7 +43,7 @@ jobs:
         run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
         if: |
           ${{ 
-            (startsWith(github.head_ref, 'prepare-release') && steps.check-for-release.outputs.is_release == 'true') 
+            (startsWith(github.head_ref, 'test-automated-releases') && steps.check-for-release.outputs.is_release == 'true') 
             || (github.event_name == 'push' && steps.check-for-release.outputs.is_release == 'false') 
             || github.event_name == 'workflow_dispatch'
           }}
