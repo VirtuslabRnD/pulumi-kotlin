@@ -46,18 +46,6 @@ jobs:
             is_release = not version.endswith("-SNAPSHOT")
             with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
               fh.write('is_release=' + str(is_release).lower())
-              print(is_release)
-      - name: Check github event
-        run: echo ${{ github.event_name }}
-      - name: Check first condition
-        if: ${{ startsWith(github.head_ref, 'test-automated-releases') && steps.check-for-release.outputs.is_release == 'true' }}
-        run: echo "First condition true"
-      - name: Check second condition
-        if: ${{ github.event_name == 'push' && steps.check-for-release.outputs.is_release == 'false' }}
-        run: echo "Second condition true"
-      - name: Check third condition
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: echo "Third condition true"
       - name: Publish to Maven Local
         run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
         if: |
