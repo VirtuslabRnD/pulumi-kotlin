@@ -14,6 +14,7 @@ import org.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
+import org.virtuslab.pulumikotlin.codegen.utils.DEFAULT_PROVIDER_TOKEN
 import org.virtuslab.pulumikotlin.namingConfigurationWithSlashInModuleFormat
 
 internal class PulumiNameTest {
@@ -27,25 +28,28 @@ internal class PulumiNameTest {
         TypeName(
             "aws:acm/CertificateOptions:CertificateOptions",
             namingConfigurationWithSlashInModuleFormat("aws"),
-            PulumiName("aws", listOf("com", "pulumi", "aws", "acm"), "CertificateOptions"),
+            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
         ),
         ResourceName(
             "aws:acm/certificate:Certificate",
             namingConfigurationWithSlashInModuleFormat("aws"),
-            PulumiName("aws", listOf("com", "pulumi", "aws", "acm"), "Certificate"),
+            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "Certificate", false),
         ),
         FunctionName(
             "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
             namingConfigurationWithSlashInModuleFormat("aws"),
-            PulumiName("aws", listOf("com", "pulumi", "aws", "acmpca"), "getCertificateAuthority"),
+            PulumiName("aws", null, listOf("com", "pulumi"), "acmpca", "getCertificateAuthority", false),
         ),
         LongFunctionName(
             "aws:acmpca/getCertificateAuthorityRevocationConfigurationCrlConfiguration:getCertificateAuthorityRevocationConfigurationCrlConfiguration",
             namingConfigurationWithSlashInModuleFormat("aws"),
             PulumiName(
                 "aws",
-                listOf("com", "pulumi", "aws", "acmpca"),
+                null,
+                listOf("com", "pulumi"),
+                "acmpca",
                 "getCertificateAuthorityRevocationConfigurationCrlConfiguration",
+                false,
             ),
         ),
     }
@@ -65,43 +69,43 @@ internal class PulumiNameTest {
         val expectedPackageWithModifiers: String,
     ) {
         KotlinResourceInput(
-            PulumiName("aws", listOf("com", "pulumi", "aws", "acm"), "CertificateOptions"),
+            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
             NamingFlags(Nested, Resource, Input, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
         KotlinResourceOutput(
-            PulumiName("aws", listOf("com", "pulumi", "aws", "acm"), "CertificateOptions"),
+            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
             NamingFlags(Nested, Resource, Output, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
         KotlinFunctionInput(
-            PulumiName("aws", listOf("com", "pulumi", "aws", "acm"), "CertificateOptions"),
+            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
             NamingFlags(Nested, Function, Input, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
         KotlinFunctionOutput(
-            PulumiName("aws", listOf("com", "pulumi", "aws", "acm"), "CertificateOptions"),
+            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
             NamingFlags(Nested, Function, Output, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
 
         JavaResourceInput(
-            PulumiName("aws", listOf("com", "pulumi", "aws", "acm"), "CertificateOptions"),
+            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
             NamingFlags(Nested, Resource, Input, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
         JavaResourceOutput(
-            PulumiName("aws", listOf("com", "pulumi", "aws", "acm"), "CertificateOptions"),
+            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
             NamingFlags(Nested, Resource, Output, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
         JavaFunctionInput(
-            PulumiName("aws", listOf("com", "pulumi", "aws", "acm"), "CertificateOptions"),
+            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
             NamingFlags(Nested, Function, Input, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
         JavaFunctionOutput(
-            PulumiName("aws", listOf("com", "pulumi", "aws", "acm"), "CertificateOptions"),
+            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
             NamingFlags(Nested, Function, Output, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
@@ -118,7 +122,7 @@ internal class PulumiNameTest {
     }
 
     @Test
-    fun `toFunctionGroupObjectName should return a proper object name when targeting Java`() {
+    fun `function class name is correct when targeting Java`() {
         val name = PulumiName.from(
             "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
             namingConfigurationWithSlashInModuleFormat("aws"),
@@ -130,7 +134,7 @@ internal class PulumiNameTest {
     }
 
     @Test
-    fun `toFunctionGroupObjectName should return a proper object name when targeting Kotlin`() {
+    fun `function class name is correct when targeting Kotlin`() {
         val name = PulumiName.from(
             "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
             namingConfigurationWithSlashInModuleFormat("aws"),
@@ -142,7 +146,97 @@ internal class PulumiNameTest {
     }
 
     @Test
-    fun `toFunctionGroupObjectPackage should return a proper object name when targeting Java`() {
+    fun `function class and package in index namespace are correct for Kotlin`() {
+        val name = PulumiName.from(
+            "aws:index/getElasticIpFilter:getElasticIpFilter",
+            namingConfigurationWithSlashInModuleFormat("aws"),
+        )
+
+        val namingFlags = NamingFlags(Root, Function, Input, Kotlin)
+        val className = name.toFunctionGroupObjectName(namingFlags)
+        val packageName = name.toPackage(namingFlags)
+
+        assertEquals("AwsFunctions", className)
+        assertEquals("com.pulumi.aws.kotlin.inputs", packageName)
+    }
+
+    @Test
+    fun `function class and package in index namespace are correct for Java`() {
+        val name = PulumiName.from(
+            "aws:index/getElasticIpFilter:getElasticIpFilter",
+            namingConfigurationWithSlashInModuleFormat("aws"),
+        )
+
+        val namingFlags = NamingFlags(Root, Function, Input, Java)
+        val className = name.toFunctionGroupObjectName(namingFlags)
+        val packageName = name.toPackage(namingFlags)
+
+        assertEquals("AwsFunctions", className)
+        assertEquals("com.pulumi.aws.inputs", packageName)
+    }
+
+    @Test
+    fun `function class and package in index namespace with dash in provider name are correct for Kotlin`() {
+        val name = PulumiName.from(
+            "equinix-metal:index/getVolumeSnapshotPolicy:getVolumeSnapshotPolicy",
+            namingConfigurationWithSlashInModuleFormat("equinix-metal"),
+        )
+
+        val namingFlags = NamingFlags(Root, Function, Input, Kotlin)
+        val className = name.toFunctionGroupObjectName(namingFlags)
+        val packageName = name.toPackage(namingFlags)
+
+        assertEquals("EquinixMetalFunctions", className)
+        assertEquals("com.pulumi.equinixmetal.kotlin.inputs", packageName)
+    }
+
+    @Test
+    fun `function class and package in index namespace with dash in provider name are correct for Java`() {
+        val name = PulumiName.from(
+            "equinix-metal:index/getVolumeSnapshotPolicy:getVolumeSnapshotPolicy",
+            namingConfigurationWithSlashInModuleFormat("equinix-metal"),
+        )
+
+        val namingFlags = NamingFlags(Root, Function, Input, Java)
+        val className = name.toFunctionGroupObjectName(namingFlags)
+        val packageName = name.toPackage(namingFlags)
+
+        assertEquals("EquinixmetalFunctions", className)
+        assertEquals("com.pulumi.equinixmetal.inputs", packageName)
+    }
+
+    @Test
+    fun `function class and package in index namespace with overridden provider name are correct for Kotlin`() {
+        val name = PulumiName.from(
+            "equinix-metal:index/getVolumeSnapshotPolicy:getVolumeSnapshotPolicy",
+            namingConfigurationWithSlashInModuleFormat("equinix-metal", mapOf("equinix-metal" to "equinixmetal")),
+        )
+
+        val namingFlags = NamingFlags(Root, Function, Input, Kotlin)
+        val className = name.toFunctionGroupObjectName(namingFlags)
+        val packageName = name.toPackage(namingFlags)
+
+        assertEquals("EquinixMetalFunctions", className)
+        assertEquals("com.pulumi.equinixmetal.kotlin.inputs", packageName)
+    }
+
+    @Test
+    fun `function class and package in index namespace with overridden provider name are correct for Java`() {
+        val name = PulumiName.from(
+            "equinix-metal:index/getVolumeSnapshotPolicy:getVolumeSnapshotPolicy",
+            namingConfigurationWithSlashInModuleFormat("equinix-metal", mapOf("equinix-metal" to "equinixmetal")),
+        )
+
+        val namingFlags = NamingFlags(Root, Function, Input, Java)
+        val className = name.toFunctionGroupObjectName(namingFlags)
+        val packageName = name.toPackage(namingFlags)
+
+        assertEquals("EquinixmetalFunctions", className)
+        assertEquals("com.pulumi.equinixmetal.inputs", packageName)
+    }
+
+    @Test
+    fun `function package is correct when targeting Java`() {
         val name = PulumiName.from(
             "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
             namingConfigurationWithSlashInModuleFormat("aws"),
@@ -154,7 +248,7 @@ internal class PulumiNameTest {
     }
 
     @Test
-    fun `toFunctionGroupObjectPackage should return a proper object name when targeting Kotlin`() {
+    fun `function package is correct when targeting Kotlin`() {
         val name = PulumiName.from(
             "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
             namingConfigurationWithSlashInModuleFormat("aws"),
@@ -305,7 +399,12 @@ internal class PulumiNameTest {
         // then
         assertAll(
             { assertEquals("provider", pulumiName.providerName) },
-            { assertEquals(listOf("org", "example", "overrideProvider", "overrideModule"), pulumiName.namespace) },
+            {
+                assertEquals(
+                    listOf("org", "example", "overrideProvider", "overrideModule"),
+                    pulumiName.namespace,
+                )
+            },
             { assertEquals("ObjectName", pulumiName.name) },
         )
     }
@@ -359,5 +458,101 @@ internal class PulumiNameTest {
             "Malformed token $token",
             exception.message,
         )
+    }
+
+    @Test
+    fun `provider class and package are correct when targeting Kotlin`() {
+        val name = PulumiName.from(
+            DEFAULT_PROVIDER_TOKEN,
+            namingConfigurationWithSlashInModuleFormat("aws"),
+            isProvider = true,
+        )
+
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
+        val className = name.toResourceName(namingFlags)
+        val packageName = name.toResourcePackage(namingFlags)
+
+        assertEquals("AwsProvider", className)
+        assertEquals("com.pulumi.aws.kotlin", packageName)
+    }
+
+    @Test
+    fun `provider class and package are correct when targeting Java`() {
+        val name = PulumiName.from(
+            DEFAULT_PROVIDER_TOKEN,
+            namingConfigurationWithSlashInModuleFormat("aws"),
+            isProvider = true,
+        )
+
+        val namingFlags = NamingFlags(Root, Resource, Input, Java)
+        val className = name.toResourceName(namingFlags)
+        val packageName = name.toResourcePackage(namingFlags)
+
+        assertEquals("Provider", className)
+        assertEquals("com.pulumi.aws", packageName)
+    }
+
+    @Test
+    fun `provider class and package with dash in provider name are correct when targeting Kotlin`() {
+        val name = PulumiName.from(
+            DEFAULT_PROVIDER_TOKEN,
+            namingConfigurationWithSlashInModuleFormat("equinix-metal"),
+            isProvider = true,
+        )
+
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
+        val className = name.toResourceName(namingFlags)
+        val packageName = name.toResourcePackage(namingFlags)
+
+        assertEquals("EquinixMetalProvider", className)
+        assertEquals("com.pulumi.equinixmetal.kotlin", packageName)
+    }
+
+    @Test
+    fun `provider class and package with dash in provider name are correct when targeting Java`() {
+        val name = PulumiName.from(
+            DEFAULT_PROVIDER_TOKEN,
+            namingConfigurationWithSlashInModuleFormat("equinix-metal"),
+            isProvider = true,
+        )
+
+        val namingFlags = NamingFlags(Root, Resource, Input, Java)
+        val className = name.toResourceName(namingFlags)
+        val packageName = name.toResourcePackage(namingFlags)
+
+        assertEquals("Provider", className)
+        assertEquals("com.pulumi.equinixmetal", packageName)
+    }
+
+    @Test
+    fun `provider class and package with overriden provider name are correct when targeting Kotlin`() {
+        val name = PulumiName.from(
+            DEFAULT_PROVIDER_TOKEN,
+            namingConfigurationWithSlashInModuleFormat("equinix-metal", mapOf("equinix-metal" to "equinixmetal")),
+            isProvider = true,
+        )
+
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
+        val className = name.toResourceName(namingFlags)
+        val packageName = name.toResourcePackage(namingFlags)
+
+        assertEquals("EquinixMetalProvider", className)
+        assertEquals("com.pulumi.equinixmetal.kotlin", packageName)
+    }
+
+    @Test
+    fun `provider class and package with overriden provider name are correct when targeting Java`() {
+        val name = PulumiName.from(
+            DEFAULT_PROVIDER_TOKEN,
+            namingConfigurationWithSlashInModuleFormat("equinix-metal", mapOf("equinix-metal" to "equinixmetal")),
+            isProvider = true,
+        )
+
+        val namingFlags = NamingFlags(Root, Resource, Input, Java)
+        val className = name.toResourceName(namingFlags)
+        val packageName = name.toResourcePackage(namingFlags)
+
+        assertEquals("Provider", className)
+        assertEquals("com.pulumi.equinixmetal", packageName)
     }
 }

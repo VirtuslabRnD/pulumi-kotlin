@@ -1,0 +1,223 @@
+{
+  "name": "equinix-metal",
+  "meta": {
+    "moduleFormat": "(.*)(?:/[^/]*)"
+  },
+  "config": {
+    "variables": {
+      "authToken": {
+        "type": "string",
+        "description": "The API auth key for API operations.\n"
+      },
+      "maxRetries": {
+        "type": "integer"
+      },
+      "maxRetryWaitSeconds": {
+        "type": "integer"
+      }
+    },
+    "defaults": [
+      "authToken"
+    ]
+  },
+  "language": {
+    "csharp": {
+      "compatibility": "tfbridge20",
+      "namespaces": {
+        "equinix-metal": "EquinixMetal",
+        "index": "index"
+      },
+      "packageReferences": {
+        "Pulumi": "3.*"
+      }
+    },
+    "go": {
+      "generateExtraInputTypes": true,
+      "generateResourceContainerTypes": true,
+      "importBasePath": "github.com/pulumi/pulumi-equinix-metal/sdk/v3/go/equinix"
+    },
+    "nodejs": {
+      "compatibility": "tfbridge20",
+      "dependencies": {
+        "@pulumi/pulumi": "^3.0.0"
+      },
+      "devDependencies": {
+        "@types/mime": "^2.0.0",
+        "@types/node": "^10.0.0"
+      },
+      "disableUnionOutputTypes": true,
+      "packageDescription": "A Pulumi package for creating and managing equinix-metal cloud resources.",
+      "packageName": "",
+      "readme": "> This provider is a derived work of the [Terraform Provider](https://github.com/equinix/terraform-provider-metal)\n> distributed under [MPL 2.0](https://www.mozilla.org/en-US/MPL/2.0/). If you encounter a bug or missing feature,\n> first check the [`pulumi/pulumi-equinix-metal` repo](https://github.com/pulumi/pulumi-equinix-metal/issues); however, if that doesn't turn up anything,\n> please consult the source [`equinix/terraform-provider-metal` repo](https://github.com/equinix/terraform-provider-metal/issues).",
+      "typescriptVersion": ""
+    },
+    "python": {
+      "compatibility": "tfbridge20",
+      "readme": "> This provider is a derived work of the [Terraform Provider](https://github.com/equinix/terraform-provider-metal)\n> distributed under [MPL 2.0](https://www.mozilla.org/en-US/MPL/2.0/). If you encounter a bug or missing feature,\n> first check the [`pulumi/pulumi-equinix-metal` repo](https://github.com/pulumi/pulumi-equinix-metal/issues); however, if that doesn't turn up anything,\n> please consult the source [`equinix/terraform-provider-metal` repo](https://github.com/equinix/terraform-provider-metal/issues).",
+      "requires": {
+        "pulumi": ">=3.0.0,<4.0.0"
+      }
+    }
+  },
+  "provider": {
+    "description": "The provider type for the metal package. By default, resources use package-wide configuration\nsettings, however an explicit `Provider` instance may be created and passed during resource\nconstruction to achieve fine-grained programmatic control over provider settings. See the\n[documentation](https://www.pulumi.com/docs/reference/programming-model/#providers) for more information.\n",
+    "properties": {
+      "authToken": {
+        "type": "string",
+        "description": "The API auth key for API operations.\n"
+      },
+      "maxRetries": {
+        "type": "integer"
+      },
+      "maxRetryWaitSeconds": {
+        "type": "integer"
+      }
+    },
+    "required": [
+      "authToken"
+    ],
+    "inputProperties": {
+      "authToken": {
+        "type": "string",
+        "description": "The API auth key for API operations.\n"
+      },
+      "maxRetries": {
+        "type": "integer"
+      },
+      "maxRetryWaitSeconds": {
+        "type": "integer"
+      }
+    },
+    "requiredInputs": [
+      "authToken"
+    ]
+  },
+  "types": {
+    "equinix-metal:index/getVolumeSnapshotPolicy:getVolumeSnapshotPolicy": {
+      "properties": {
+        "snapshotCount": {
+          "type": "integer",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        },
+        "snapshotFrequency": {
+          "type": "string",
+          "language": {
+            "python": {
+              "mapCase": false
+            }
+          }
+        }
+      },
+      "type": "object",
+      "required": [
+        "snapshotCount",
+        "snapshotFrequency"
+      ],
+      "language": {
+        "nodejs": {
+          "requiredInputs": []
+        }
+      }
+    }
+  },
+  "resources": {},
+  "functions": {
+    "equinix-metal:index/getVolume:getVolume": {
+      "description": "Datasource `equinix-metal.Volume` was removed in version 3.0.0, and the API support was deprecated on June 1st 2021. See https://metal.equinix.com/developers/docs/storage/elastic-block-storage/#elastic-block-storage for more details.\n",
+      "inputs": {
+        "description": "A collection of arguments for invoking getVolume.\n",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "volumeId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "outputs": {
+        "description": "A collection of values returned by getVolume.\n",
+        "properties": {
+          "billingCycle": {
+            "type": "string"
+          },
+          "created": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "deviceIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "facility": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "description": "The provider-assigned unique ID for this managed resource.\n"
+          },
+          "locked": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "plan": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "snapshotPolicies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/types/equinix-metal:index/getVolumeSnapshotPolicy:getVolumeSnapshotPolicy"
+            }
+          },
+          "state": {
+            "type": "string"
+          },
+          "updated": {
+            "type": "string"
+          },
+          "volumeId": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "billingCycle",
+          "created",
+          "description",
+          "deviceIds",
+          "facility",
+          "locked",
+          "name",
+          "plan",
+          "projectId",
+          "size",
+          "snapshotPolicies",
+          "state",
+          "updated",
+          "volumeId",
+          "id"
+        ]
+      }
+    }
+  }
+}

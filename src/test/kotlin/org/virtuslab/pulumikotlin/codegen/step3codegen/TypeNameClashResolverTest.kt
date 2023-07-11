@@ -195,7 +195,7 @@ internal class TypeNameClashResolverTest {
     }
 
     private fun createMetadata(name: String, depth: Depth, subject: Subject, direction: Direction) = TypeMetadata(
-        PulumiName("provider", listOf("some", "package"), name),
+        PulumiName("package", null, listOf("some"), null, name, true),
         UsageKind(depth, subject, direction),
         KDoc(null, null),
     )

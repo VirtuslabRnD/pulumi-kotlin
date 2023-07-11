@@ -77,12 +77,13 @@ object IntermediateRepresentationGenerator {
         fun <V> createTypes(
             map: Map<String, V>,
             usageKind: UsageKind? = null,
+            isProvider: Boolean = false,
             propertyExtractor: (V) -> RootTypeProperty?,
         ) = map
             .mapValues { propertyExtractor(it.value) }
             .filterNotNullValues()
             .flatMap { (name, value) ->
-                createRootTypes(context, name, value, listOfNotNull(usageKind))
+                createRootTypes(context, name, value, listOfNotNull(usageKind), isProvider)
             }
 
         val syntheticTypes = listOf(
@@ -99,6 +100,7 @@ object IntermediateRepresentationGenerator {
                 createTypes(
                     mapOf(DEFAULT_PROVIDER_TOKEN to schema.provider),
                     UsageKind(Root, Resource, Input),
+                    isProvider = true,
                 ) { resource ->
                     ObjectProperty(
                         properties = resource.inputProperties,
@@ -119,7 +121,7 @@ object IntermediateRepresentationGenerator {
 
     private fun createResources(types: Map<TypeKey, RootType>, context: Context): List<ResourceType> {
         return context.schema.resources.mapNotNull { (typeToken, resource) ->
-            createResource(typeToken, resource, context, types)
+            createResource(typeToken, resource, context, types, isProvider = false)
         }
     }
 
@@ -128,7 +130,7 @@ object IntermediateRepresentationGenerator {
         resource: SchemaModel.Resource,
         context: Context,
         types: Map<TypeKey, RootType>,
-        isProvider: Boolean = false,
+        isProvider: Boolean,
     ): ResourceType? {
         val resultFields = resource.properties
             .letIf(isProvider, ::filterStringProperties)
@@ -162,7 +164,7 @@ object IntermediateRepresentationGenerator {
     private fun createFunctions(types: Map<TypeKey, RootType>, context: Context): List<FunctionType> {
         return context.schema.functions.mapNotNull { (typeName, function) ->
             try {
-                val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
+                val pulumiName = PulumiName.from(typeName, context.namingConfiguration, isProvider = false)
 
                 val inputUsageKind = UsageKind(Root, Function, Input)
                 val argumentType = findTypeOrEmptyComplexType(
@@ -203,6 +205,7 @@ object IntermediateRepresentationGenerator {
         typeName: String,
         rootType: RootTypeProperty,
         forcedUsageKinds: List<UsageKind> = emptyList(),
+        isProvider: Boolean,
     ): List<RootType> {
         val usages = forcedUsageKinds.ifEmpty {
             val allUsagesForTypeName = context.referenceFinder.getUsages(typeName)
@@ -216,7 +219,7 @@ object IntermediateRepresentationGenerator {
         }
 
         try {
-            val pulumiName = PulumiName.from(typeName, context.namingConfiguration)
+            val pulumiName = PulumiName.from(typeName, context.namingConfiguration, isProvider)
             return usages.map { usage ->
                 when (rootType) {
                     is ObjectProperty -> ComplexType(
@@ -304,7 +307,7 @@ object IntermediateRepresentationGenerator {
         } else if (context.referencedStringTypesResolver.shouldGenerateStringType(referencedTypeName)) {
             StringType
         } else {
-            val pulumiName = PulumiName.from(referencedTypeName, context.namingConfiguration)
+            val pulumiName = PulumiName.from(referencedTypeName, context.namingConfiguration, isProvider = false)
             when (context.referenceFinder.resolve(referencedTypeName)) {
                 is ObjectProperty -> ReferencedComplexType(
                     TypeMetadata(pulumiName, usageKind, getKDoc(property)),
@@ -398,8 +401,11 @@ object IntermediateRepresentationGenerator {
                 name = with(name) {
                     PulumiName(
                         providerName.lowercase(),
-                        namespace.map { it.lowercase() },
+                        providerNameOverride?.lowercase(),
+                        baseNamespace.map { it.lowercase() },
+                        moduleName?.lowercase(),
                         name.lowercase(),
+                        isProvider = isProvider,
                     )
                 },
             )

@@ -1,73 +1,73 @@
 {
-    "name": "gcp",
-    "meta": {
-        "moduleFormat": "(.*)(?:/[^/]*)"
-    },
-    "resources": {
-    },
-    "functions": {
-        "gcp:compute/getLBIPRanges:getLBIPRanges": {
-            "inputs": null,
-            "outputs": {
-                "type": "object",
-                "properties": {
-                    "httpSslTcpInternals": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "description": null,
-                            "willReplaceOnChanges": false,
-                            "deprecationMessage": null,
-                            "language": null,
-                            "default": null
-                        },
-                        "willReplaceOnChanges": false,
-                        "deprecationMessage": null,
-                        "description": "The IP ranges used for health checks when **HTTP(S), SSL proxy, TCP proxy, and Internal load balancing** is used\n",
-                        "language": null,
-                        "default": null
-                    },
-                    "id": {
-                        "type": "string",
-                        "description": "The provider-assigned unique ID for this managed resource.\n",
-                        "willReplaceOnChanges": false,
-                        "deprecationMessage": null,
-                        "language": null,
-                        "default": null
-                    },
-                    "networks": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "description": null,
-                            "willReplaceOnChanges": false,
-                            "deprecationMessage": null,
-                            "language": null,
-                            "default": null
-                        },
-                        "willReplaceOnChanges": false,
-                        "deprecationMessage": null,
-                        "description": "The IP ranges used for health checks when **Network load balancing** is used\n",
-                        "language": null,
-                        "default": null
-                    }
-                },
-                "deprecationMessage": null,
-                "willReplaceOnChanges": false,
-                "additionalProperties": null,
-                "required": [
-                    "httpSslTcpInternals",
-                    "networks",
-                    "id"
-                ],
-                "description": "A collection of values returned by getLBIPRanges.\n",
-                "language": null,
-                "default": null
+  "name": "gcp",
+  "meta": {
+    "moduleFormat": "(.*)(?:/[^/]*)"
+  },
+  "resources": {
+  },
+  "functions": {
+    "gcp:compute/getLBIPRanges:getLBIPRanges": {
+      "inputs": null,
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "httpSslTcpInternals": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": null,
+              "willReplaceOnChanges": false,
+              "deprecationMessage": null,
+              "language": null,
+              "default": null
             },
+            "willReplaceOnChanges": false,
             "deprecationMessage": null,
-            "description": "Use this data source to access IP ranges in your firewall rules.\n\nhttps://cloud.google.com/compute/docs/load-balancing/health-checks#health_check_source_ips_and_firewall_rules\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as gcp from \"@pulumi/gcp\";\n\nconst ranges = gcp.compute.getLBIPRanges({});\nconst lb = new gcp.compute.Firewall(\"lb\", {\n    network: google_compute_network.main.name,\n    allows: [{\n        protocol: \"tcp\",\n        ports: [\"80\"],\n    }],\n    sourceRanges: ranges.then(ranges => ranges.networks),\n    targetTags: [\"InstanceBehindLoadBalancer\"],\n});\n```\n```python\nimport pulumi\nimport pulumi_gcp as gcp\n\nranges = gcp.compute.get_lbip_ranges()\nlb = gcp.compute.Firewall(\"lb\",\n    network=google_compute_network[\"main\"][\"name\"],\n    allows=[gcp.compute.FirewallAllowArgs(\n        protocol=\"tcp\",\n        ports=[\"80\"],\n    )],\n    source_ranges=ranges.networks,\n    target_tags=[\"InstanceBehindLoadBalancer\"])\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Gcp = Pulumi.Gcp;\n\nreturn await Deployment.RunAsync(() => \n{\n    var ranges = Gcp.Compute.GetLBIPRanges.Invoke();\n\n    var lb = new Gcp.Compute.Firewall(\"lb\", new()\n    {\n        Network = google_compute_network.Main.Name,\n        Allows = new[]\n        {\n            new Gcp.Compute.Inputs.FirewallAllowArgs\n            {\n                Protocol = \"tcp\",\n                Ports = new[]\n                {\n                    \"80\",\n                },\n            },\n        },\n        SourceRanges = ranges.Apply(getLBIPRangesResult => getLBIPRangesResult.Networks),\n        TargetTags = new[]\n        {\n            \"InstanceBehindLoadBalancer\",\n        },\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp/compute\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\tranges, err := compute.GetLBIPRanges(ctx, nil, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = compute.NewFirewall(ctx, \"lb\", &compute.FirewallArgs{\n\t\t\tNetwork: pulumi.Any(google_compute_network.Main.Name),\n\t\t\tAllows: compute.FirewallAllowArray{\n\t\t\t\t&compute.FirewallAllowArgs{\n\t\t\t\t\tProtocol: pulumi.String(\"tcp\"),\n\t\t\t\t\tPorts: pulumi.StringArray{\n\t\t\t\t\t\tpulumi.String(\"80\"),\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t\tSourceRanges: interface{}(ranges.Networks),\n\t\t\tTargetTags: pulumi.StringArray{\n\t\t\t\tpulumi.String(\"InstanceBehindLoadBalancer\"),\n\t\t\t},\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.gcp.compute.ComputeFunctions;\nimport com.pulumi.gcp.compute.Firewall;\nimport com.pulumi.gcp.compute.FirewallArgs;\nimport com.pulumi.gcp.compute.inputs.FirewallAllowArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        final var ranges = ComputeFunctions.getLBIPRanges();\n\n        var lb = new Firewall(\"lb\", FirewallArgs.builder()        \n            .network(google_compute_network.main().name())\n            .allows(FirewallAllowArgs.builder()\n                .protocol(\"tcp\")\n                .ports(\"80\")\n                .build())\n            .sourceRanges(ranges.applyValue(getLBIPRangesResult -> getLBIPRangesResult.networks()))\n            .targetTags(\"InstanceBehindLoadBalancer\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  lb:\n    type: gcp:compute:Firewall\n    properties:\n      network: ${google_compute_network.main.name}\n      allows:\n        - protocol: tcp\n          ports:\n            - 80\n      sourceRanges: ${ranges.networks}\n      targetTags:\n        - InstanceBehindLoadBalancer\nvariables:\n  ranges:\n    Fn::Invoke:\n      Function: gcp:compute:getLBIPRanges\n      Arguments: {}\n```\n{{% /example %}}\n{{% /examples %}}"
-        }
-    },
-    "types": {
+            "description": "The IP ranges used for health checks when **HTTP(S), SSL proxy, TCP proxy, and Internal load balancing** is used\n",
+            "language": null,
+            "default": null
+          },
+          "id": {
+            "type": "string",
+            "description": "The provider-assigned unique ID for this managed resource.\n",
+            "willReplaceOnChanges": false,
+            "deprecationMessage": null,
+            "language": null,
+            "default": null
+          },
+          "networks": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": null,
+              "willReplaceOnChanges": false,
+              "deprecationMessage": null,
+              "language": null,
+              "default": null
+            },
+            "willReplaceOnChanges": false,
+            "deprecationMessage": null,
+            "description": "The IP ranges used for health checks when **Network load balancing** is used\n",
+            "language": null,
+            "default": null
+          }
+        },
+        "deprecationMessage": null,
+        "willReplaceOnChanges": false,
+        "additionalProperties": null,
+        "required": [
+          "httpSslTcpInternals",
+          "networks",
+          "id"
+        ],
+        "description": "A collection of values returned by getLBIPRanges.\n",
+        "language": null,
+        "default": null
+      },
+      "deprecationMessage": null,
+      "description": "Use this data source to access IP ranges in your firewall rules.\n\nhttps://cloud.google.com/compute/docs/load-balancing/health-checks#health_check_source_ips_and_firewall_rules\n\n{{% examples %}}\n## Example Usage\n{{% example %}}\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as gcp from \"@pulumi/gcp\";\n\nconst ranges = gcp.compute.getLBIPRanges({});\nconst lb = new gcp.compute.Firewall(\"lb\", {\n    network: google_compute_network.main.name,\n    allows: [{\n        protocol: \"tcp\",\n        ports: [\"80\"],\n    }],\n    sourceRanges: ranges.then(ranges => ranges.networks),\n    targetTags: [\"InstanceBehindLoadBalancer\"],\n});\n```\n```python\nimport pulumi\nimport pulumi_gcp as gcp\n\nranges = gcp.compute.get_lbip_ranges()\nlb = gcp.compute.Firewall(\"lb\",\n    network=google_compute_network[\"main\"][\"name\"],\n    allows=[gcp.compute.FirewallAllowArgs(\n        protocol=\"tcp\",\n        ports=[\"80\"],\n    )],\n    source_ranges=ranges.networks,\n    target_tags=[\"InstanceBehindLoadBalancer\"])\n```\n```csharp\nusing System.Collections.Generic;\nusing Pulumi;\nusing Gcp = Pulumi.Gcp;\n\nreturn await Deployment.RunAsync(() => \n{\n    var ranges = Gcp.Compute.GetLBIPRanges.Invoke();\n\n    var lb = new Gcp.Compute.Firewall(\"lb\", new()\n    {\n        Network = google_compute_network.Main.Name,\n        Allows = new[]\n        {\n            new Gcp.Compute.Inputs.FirewallAllowArgs\n            {\n                Protocol = \"tcp\",\n                Ports = new[]\n                {\n                    \"80\",\n                },\n            },\n        },\n        SourceRanges = ranges.Apply(getLBIPRangesResult => getLBIPRangesResult.Networks),\n        TargetTags = new[]\n        {\n            \"InstanceBehindLoadBalancer\",\n        },\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp/compute\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\tranges, err := compute.GetLBIPRanges(ctx, nil, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = compute.NewFirewall(ctx, \"lb\", &compute.FirewallArgs{\n\t\t\tNetwork: pulumi.Any(google_compute_network.Main.Name),\n\t\t\tAllows: compute.FirewallAllowArray{\n\t\t\t\t&compute.FirewallAllowArgs{\n\t\t\t\t\tProtocol: pulumi.String(\"tcp\"),\n\t\t\t\t\tPorts: pulumi.StringArray{\n\t\t\t\t\t\tpulumi.String(\"80\"),\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t\tSourceRanges: interface{}(ranges.Networks),\n\t\t\tTargetTags: pulumi.StringArray{\n\t\t\t\tpulumi.String(\"InstanceBehindLoadBalancer\"),\n\t\t\t},\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.gcp.compute.ComputeFunctions;\nimport com.pulumi.gcp.compute.Firewall;\nimport com.pulumi.gcp.compute.FirewallArgs;\nimport com.pulumi.gcp.compute.inputs.FirewallAllowArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        final var ranges = ComputeFunctions.getLBIPRanges();\n\n        var lb = new Firewall(\"lb\", FirewallArgs.builder()        \n            .network(google_compute_network.main().name())\n            .allows(FirewallAllowArgs.builder()\n                .protocol(\"tcp\")\n                .ports(\"80\")\n                .build())\n            .sourceRanges(ranges.applyValue(getLBIPRangesResult -> getLBIPRangesResult.networks()))\n            .targetTags(\"InstanceBehindLoadBalancer\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  lb:\n    type: gcp:compute:Firewall\n    properties:\n      network: ${google_compute_network.main.name}\n      allows:\n        - protocol: tcp\n          ports:\n            - 80\n      sourceRanges: ${ranges.networks}\n      targetTags:\n        - InstanceBehindLoadBalancer\nvariables:\n  ranges:\n    Fn::Invoke:\n      Function: gcp:compute:getLBIPRanges\n      Arguments: {}\n```\n{{% /example %}}\n{{% /examples %}}"
     }
+  },
+  "types": {
+  }
 }
