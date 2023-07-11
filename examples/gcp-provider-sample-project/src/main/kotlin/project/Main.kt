@@ -1,9 +1,9 @@
 package project
 
 import com.pulumi.core.Output
-import com.pulumi.gcp.compute.kotlin.instanceResource
+import com.pulumi.gcp.compute.kotlin.instance
 import com.pulumi.gcp.kotlin.Provider
-import com.pulumi.gcp.kotlin.providerResource
+import com.pulumi.gcp.kotlin.provider
 import com.pulumi.kotlin.Pulumi
 
 private val commonTags = listOf("gcp-provider-sample-project", "foo", "bar")
@@ -51,7 +51,7 @@ fun main() {
 }
 
 private suspend fun createProvider(resourceName: String, projectName: String, region: String, zone: String) =
-    providerResource(resourceName) {
+    provider(resourceName) {
         args {
             project(projectName)
             region(region)
@@ -60,7 +60,7 @@ private suspend fun createProvider(resourceName: String, projectName: String, re
     }
 
 private suspend fun createInstanceWithProvider(resourceName: String, provider: Provider, tags: List<String>) =
-    instanceResource(resourceName) {
+    instance(resourceName) {
         args {
             machineType("e2-micro")
             tags(tags)

@@ -1,11 +1,11 @@
 package project
 
-import com.pulumi.googlenative.compute.v1.kotlin.instanceResource
+import com.pulumi.googlenative.compute.v1.kotlin.instance
 import com.pulumi.kotlin.Pulumi
 
 fun main() {
     Pulumi.run { ctx ->
-        val instance = instanceResource("google-native-sample-project") {
+        val instance = instance("google-native-sample-project") {
             args {
                 machineType("e2-micro")
                 zone("europe-central2-a")

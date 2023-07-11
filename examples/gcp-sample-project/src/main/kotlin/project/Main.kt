@@ -1,7 +1,7 @@
 package project
 
 import com.pulumi.gcp.compute.kotlin.ComputeFunctions
-import com.pulumi.gcp.compute.kotlin.instanceResource
+import com.pulumi.gcp.compute.kotlin.instance
 import com.pulumi.kotlin.Pulumi
 
 fun main() {
@@ -11,7 +11,7 @@ fun main() {
             project("debian-cloud")
         }
 
-        val instance = instanceResource("gcp-sample-project") {
+        val instance = instance("gcp-sample-project") {
             args {
                 machineType("e2-micro")
                 zone("europe-central2-a")
