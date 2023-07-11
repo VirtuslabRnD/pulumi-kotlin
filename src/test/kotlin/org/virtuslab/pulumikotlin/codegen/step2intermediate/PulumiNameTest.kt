@@ -304,7 +304,7 @@ internal class PulumiNameTest {
 
         // then
         assertAll(
-            { assertEquals("overrideProvider", pulumiName.providerName) },
+            { assertEquals("provider", pulumiName.providerName) },
             { assertEquals(listOf("org", "example", "overrideProvider", "overrideModule"), pulumiName.namespace) },
             { assertEquals("ObjectName", pulumiName.name) },
         )
