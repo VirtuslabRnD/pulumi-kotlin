@@ -247,6 +247,7 @@ class CodegenTest {
     fun `aws provider resource can be created`() {
         // language=kotlin
         val code = """
+            import com.pulumi.aws.kotlin.awsProvider
             import com.pulumi.aws.acm.kotlin.certificate
             import com.pulumi.aws.kotlin.provider
             
@@ -260,7 +261,7 @@ class CodegenTest {
                     }
                     opts {
                         provider(
-                            provider("custom-aws-provider") {
+                            awsProvider("custom-aws-provider") {
                                 args {
                                     accessKey("123")
                                     assumeRoleWithWebIdentity {
