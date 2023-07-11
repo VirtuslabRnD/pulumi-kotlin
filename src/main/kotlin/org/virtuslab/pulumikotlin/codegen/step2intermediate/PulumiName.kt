@@ -179,8 +179,7 @@ data class PulumiName(
         return when (namingFlags.language) {
             Kotlin, Java -> {
                 if (namespace.isEmpty()) {
-                    val providerPrefix = providerName.split("-").joinToString("") { it.capitalize() }
-                    "${providerPrefix}Functions"
+                    "${getProviderPrefix()}Functions"
                 } else {
                     namespace.last().replace(".", "_").capitalize() + "Functions"
                 }
@@ -190,8 +189,7 @@ data class PulumiName(
 
     fun toResourceName(namingFlags: NamingFlags): String {
         return if (namingFlags.language == Kotlin && isProvider) {
-            val providerPrefix = providerName.split("-").joinToString("") { it.capitalize() }
-            "${providerPrefix}${name.capitalize()}"
+            "${getProviderPrefix()}${name.capitalize()}"
         } else {
             name.capitalize()
         }
@@ -218,6 +216,8 @@ data class PulumiName(
             Java -> name.decapitalize() + "Plain" // TODO: improve
         }
     }
+
+    private fun getProviderPrefix() = providerName.split("-").joinToString("") { it.capitalize() }
 
     private fun packageToString(packageList: List<String>): String {
         return packageList.joinToString(".")
