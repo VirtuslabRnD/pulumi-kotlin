@@ -5,19 +5,19 @@ import com.pulumi.azurenative.compute.kotlin.enums.DiskCreateOptionTypes.FromIma
 import com.pulumi.azurenative.compute.kotlin.enums.DiskDeleteOptionTypes
 import com.pulumi.azurenative.compute.kotlin.enums.StorageAccountTypes.Standard_LRS
 import com.pulumi.azurenative.compute.kotlin.enums.VirtualMachineSizeTypes.Standard_B1s
-import com.pulumi.azurenative.compute.kotlin.virtualMachineResource
-import com.pulumi.azurenative.network.kotlin.networkInterfaceResource
-import com.pulumi.azurenative.network.kotlin.subnetResource
-import com.pulumi.azurenative.network.kotlin.virtualNetworkResource
-import com.pulumi.azurenative.resources.kotlin.resourceGroupResource
+import com.pulumi.azurenative.compute.kotlin.virtualMachine
+import com.pulumi.azurenative.network.kotlin.networkInterface
+import com.pulumi.azurenative.network.kotlin.subnet
+import com.pulumi.azurenative.network.kotlin.virtualNetwork
+import com.pulumi.azurenative.resources.kotlin.resourceGroup
 import com.pulumi.kotlin.Pulumi
-import com.pulumi.random.kotlin.randomPasswordResource
+import com.pulumi.random.kotlin.randomPassword
 
 fun main() {
     Pulumi.run { ctx ->
-        val resourceGroup = resourceGroupResource("azure-native-sample-project")
+        val resourceGroup = resourceGroup("azure-native-sample-project")
 
-        val mainVirtualNetwork = virtualNetworkResource("virtual-network") {
+        val mainVirtualNetwork = virtualNetwork("virtual-network") {
             args {
                 resourceGroupName(resourceGroup.name)
                 addressSpace {
@@ -26,7 +26,7 @@ fun main() {
             }
         }
 
-        val internalSubnet = subnetResource("internal-subnet") {
+        val internalSubnet = subnet("internal-subnet") {
             args {
                 resourceGroupName(resourceGroup.name)
                 virtualNetworkName(mainVirtualNetwork.name)
@@ -34,7 +34,7 @@ fun main() {
             }
         }
 
-        val mainNetworkInterface = networkInterfaceResource("network-interface") {
+        val mainNetworkInterface = networkInterface("network-interface") {
             args {
                 resourceGroupName(resourceGroup.name)
                 ipConfigurations {
@@ -47,14 +47,14 @@ fun main() {
             }
         }
 
-        val randomAdminPassword = randomPasswordResource("random-admin-password") {
+        val randomAdminPassword = randomPassword("random-admin-password") {
             args {
                 length(20)
                 special(true)
             }
         }
 
-        val virtualMachine = virtualMachineResource("virtual-machine") {
+        val virtualMachine = virtualMachine("virtual-machine") {
             args {
                 resourceGroupName(resourceGroup.name)
                 networkProfile {

@@ -52,10 +52,10 @@ class CodegenTest {
     fun `aws resource can be created`() {
         // language=kotlin
         val code = """
-           import com.pulumi.aws.acm.kotlin.certificateResource
+           import com.pulumi.aws.acm.kotlin.certificate
             
            suspend fun main() {
-               certificateResource("name") {
+               certificate("name") {
                    args {
                        subjectAlternativeNames("one", "two")
                        validationOptions(
@@ -88,10 +88,10 @@ class CodegenTest {
     fun `aws resource can be created and its outputs can be used to create another aws resource`() {
         // language=kotlin
         val code = """
-            import com.pulumi.aws.acm.kotlin.certificateResource
+            import com.pulumi.aws.acm.kotlin.certificate
             
             suspend fun main() {
-                val resource1 = certificateResource("name") {
+                val resource1 = certificate("name") {
                     args {
                         subjectAlternativeNames("one", "two")
                         validationOptions(
@@ -115,7 +115,7 @@ class CodegenTest {
                     }
                 }
 
-                val resource2 = certificateResource("name") {
+                val resource2 = certificate("name") {
                     args {
                         subjectAlternativeNames(resource1.status.applyValue { listOf(it) })
                         validationOptions(
@@ -192,13 +192,13 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.aws.route53.kotlin.enums.RecordType
-            import com.pulumi.aws.route53.kotlin.recordResource
+            import com.pulumi.aws.route53.kotlin.record
             import com.pulumi.core.Either
 
             private const val RECORD_NAME = "record"
             
             suspend fun main() {
-                val record = recordResource(RECORD_NAME) {
+                val record = record(RECORD_NAME) {
                     name(RECORD_NAME)
                     args {
                         type(Either.ofRight(RecordType.AAAA))
@@ -218,12 +218,12 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.aws.route53.kotlin.enums.RecordType
-            import com.pulumi.aws.route53.kotlin.recordResource
+            import com.pulumi.aws.route53.kotlin.record
 
             private const val RECORD_NAME = "record"
             
             suspend fun main() {
-                val record = recordResource(RECORD_NAME) {
+                val record = record(RECORD_NAME) {
                     name(RECORD_NAME)
                     args {
                         type(RecordType.AAAA)
@@ -247,11 +247,11 @@ class CodegenTest {
     fun `aws provider resource can be created`() {
         // language=kotlin
         val code = """
-            import com.pulumi.aws.acm.kotlin.certificateResource
-            import com.pulumi.aws.kotlin.providerResource
+            import com.pulumi.aws.acm.kotlin.certificate
+            import com.pulumi.aws.kotlin.provider
             
             suspend fun main() {
-                certificateResource("name") {
+                certificate("name") {
                     args {
                         subjectAlternativeNames("one", "two")
                         options {
@@ -260,7 +260,7 @@ class CodegenTest {
                     }
                     opts {
                         provider(
-                            providerResource("custom-aws-provider") {
+                            provider("custom-aws-provider") {
                                 args {
                                     accessKey("123")
                                     assumeRoleWithWebIdentity {
@@ -282,10 +282,10 @@ class CodegenTest {
     fun `test medium-sized google cloud schema (without asset or archive types)`() {
         // language=kotlin
         val code = """
-            import com.pulumi.gcp.appengine.kotlin.applicationUrlDispatchRulesResource
+            import com.pulumi.gcp.appengine.kotlin.applicationUrlDispatchRules
             
             suspend fun main() {
-                applicationUrlDispatchRulesResource("resource-name") {
+                applicationUrlDispatchRules("resource-name") {
                     args {
                         project("example-project")
                         dispatchRules(
@@ -310,10 +310,10 @@ class CodegenTest {
     fun `type-safe resource builder cannot be directly constructed`() {
         // language=kotlin
         val code = """
-            import com.pulumi.gcp.appengine.kotlin.ApplicationUrlDispatchRulesResourceBuilder
+            import com.pulumi.gcp.appengine.kotlin.ApplicationUrlDispatchRulesBuilder
             
             suspend fun main() {
-                ApplicationUrlDispatchRulesResourceBuilder()
+                ApplicationUrlDispatchRulesBuilder()
             }
         """
 
@@ -324,10 +324,10 @@ class CodegenTest {
     fun `build from type-safe resource builder cannot be called directly`() {
         // language=kotlin
         val code = """
-            import com.pulumi.gcp.appengine.kotlin.ApplicationUrlDispatchRulesResourceBuilder
+            import com.pulumi.gcp.appengine.kotlin.ApplicationUrlDispatchRulesBuilder
             
             suspend fun main() {
-                val builder: ApplicationUrlDispatchRulesResourceBuilder = null!!
+                val builder: ApplicationUrlDispatchRulesBuilder = null!!
                 builder.build()
             }
         """
@@ -368,10 +368,10 @@ class CodegenTest {
     fun `nested type-safe builder should not allow parent type-safe builder's method calls`() {
         // language=kotlin
         val code = """
-            import com.pulumi.gcp.appengine.kotlin.applicationUrlDispatchRulesResource
+            import com.pulumi.gcp.appengine.kotlin.applicationUrlDispatchRules
             
             suspend fun main() {
-                applicationUrlDispatchRulesResource("resource-name") {
+                applicationUrlDispatchRules("resource-name") {
                     args {
                         project("example-project")
                         dispatchRules(
@@ -408,10 +408,10 @@ class CodegenTest {
     fun `slack resources from index namespace can be created`() {
         // language=kotlin
         val code = """
-            import com.pulumi.slack.kotlin.conversationResource
+            import com.pulumi.slack.kotlin.conversation
 
             suspend fun main() {
-                conversationResource("conversationName") {
+                conversation("conversationName") {
                     args {
                         topic("conversationTopic")
                     }
@@ -438,10 +438,10 @@ class CodegenTest {
             import com.pulumi.asset.FileArchive
             import com.pulumi.asset.RemoteArchive
             import com.pulumi.asset.StringAsset
-            import com.pulumi.aws.lambda.kotlin.functionResource
+            import com.pulumi.aws.lambda.kotlin.function
 
             suspend fun main() {
-                functionResource("function") {
+                function("function") {
                     args {
                         code(
                             AssetArchive(
@@ -465,10 +465,10 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.asset.StringAsset
-            import com.pulumi.aws.s3.kotlin.bucketObjectResource   
+            import com.pulumi.aws.s3.kotlin.bucketObject   
 
             suspend fun main() {
-                bucketObjectResource("bucketObjectResource") {
+                bucketObject("bucketObjectResource") {
                     args {
                         source(StringAsset("Hello world!"))
                     }
@@ -484,10 +484,10 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.asset.FileArchive
-            import com.pulumi.aws.s3.kotlin.bucketObjectResource   
+            import com.pulumi.aws.s3.kotlin.bucketObject   
 
             suspend fun main() {
-                bucketObjectResource("bucketObjectResource") {
+                bucketObject("bucketObjectResource") {
                     args {
                         source(FileArchive("./folder"))
                     }
@@ -581,7 +581,6 @@ class CodegenTest {
             import kotlinx.serialization.json.JsonObject
             import kotlinx.serialization.json.JsonPrimitive
 
-
             suspend fun main() {
                 CustomResourceSubresources(
                     status = JsonObject(
@@ -612,11 +611,11 @@ class CodegenTest {
     fun `type with dollar sign in parameter name is generated`() {
         // language=kotlin
         val code = """
-            import com.pulumi.kubernetes.apiextensions.v1.kotlin.customResourceDefinitionPatchResource
+            import com.pulumi.kubernetes.apiextensions.v1.kotlin.customResourceDefinitionPatch
 
 
             suspend fun main() {
-                customResourceDefinitionPatchResource("name") {
+                customResourceDefinitionPatch("name") {
                     args {
                         spec {
                             versions(
@@ -642,11 +641,11 @@ class CodegenTest {
     fun `type with java keyword in parameter name is generated`() {
         // language=kotlin
         val code = """
-            import com.pulumi.kubernetes.core.v1.kotlin.limitRangeResource
+            import com.pulumi.kubernetes.core.v1.kotlin.limitRange
 
 
             suspend fun main() {
-                limitRangeResource("name") {
+                limitRange("name") {
                     args {
                         spec {
                             limits(
@@ -667,11 +666,11 @@ class CodegenTest {
     fun `type with kotlin keyword in parameter name is generated`() {
         // language=kotlin
         val code = """
-            import com.pulumi.kubernetes.autoscaling.v2.kotlin.horizontalPodAutoscalerResource
+            import com.pulumi.kubernetes.autoscaling.v2.kotlin.horizontalPodAutoscaler
 
 
             suspend fun main() {
-                horizontalPodAutoscalerResource("name") {
+                horizontalPodAutoscaler("name") {
                     args {
                         spec {
                             metrics(
@@ -701,12 +700,11 @@ class CodegenTest {
     fun `resource with lowercase name is generated`() {
         // language=kotlin
         val code = """
-            import com.pulumi.azurenative.aadiam.kotlin.azureADMetricResource
+            import com.pulumi.azurenative.aadiam.kotlin.azureADMetric
             import com.pulumi.azurenative.aadiam.kotlin.AzureADMetric
 
-
             suspend fun main() {
-                val resource: AzureADMetric = azureADMetricResource("name") {
+                val resource: AzureADMetric = azureADMetric("name") {
                     args {
                         location("location")
                     }
@@ -721,13 +719,13 @@ class CodegenTest {
     fun `id, pulumiResourceName, pulumiResourceType, pulumiChildResources and urn methods should be present`() {
         // language=kotlin
         val code = """
-            import com.pulumi.azurenative.aadiam.kotlin.azureADMetricResource
+            import com.pulumi.azurenative.aadiam.kotlin.azureADMetric
             import com.pulumi.azurenative.aadiam.kotlin.AzureADMetric
             import com.pulumi.core.Output
             import com.pulumi.kotlin.KotlinResource
 
             suspend fun main() {
-                val resource: AzureADMetric = azureADMetricResource("name") {}
+                val resource: AzureADMetric = azureADMetric("name") {}
 
                 val id: Output<String> = resource.id
                 val pulumiResourceName: String = resource.pulumiResourceName
@@ -745,10 +743,10 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.core.Output
-            import com.pulumi.googlenative.compute.v1.kotlin.instanceResource
+            import com.pulumi.googlenative.compute.v1.kotlin.instance
             
             suspend fun main() {
-                instanceResource("instance") {
+                instance("instance") {
                     args {
                         tags {
                             items("foo", "bar")
@@ -769,10 +767,10 @@ class CodegenTest {
     fun `additional single argument overload is generated for lists`() {
         // language=kotlin
         val code = """
-            import com.pulumi.gcp.compute.kotlin.instanceResource
+            import com.pulumi.gcp.compute.kotlin.instance
             
             suspend fun main() {
-                instanceResource("instance") {
+                instance("instance") {
                     args {
                         networkInterfaces {
                             network("default")

@@ -212,7 +212,7 @@ object ResourceGenerator {
             .build()
 
         val resourceFunction = FunSpec
-            .builder(names.toResourceName(kotlinFlags).decapitalize() + "Resource")
+            .builder(names.toResourceName(kotlinFlags).decapitalize())
             .addModifiers(KModifier.SUSPEND)
             .returns(resourceClassName)
             .addParameter("name", STRING)
@@ -237,7 +237,7 @@ object ResourceGenerator {
             .build()
 
         val resourceFunctionWithoutLambda = FunSpec
-            .builder(names.toResourceName(kotlinFlags).decapitalize() + "Resource")
+            .builder(names.toResourceName(kotlinFlags).decapitalize())
             .returns(resourceClassName)
             .addParameter("name", STRING)
             .addStatement("val builder = %T()", resourceBuilderClassName)

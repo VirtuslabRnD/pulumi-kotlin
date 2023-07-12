@@ -1,11 +1,11 @@
 package project
 
 import com.pulumi.kotlin.Pulumi
-import com.pulumi.kubernetes.apps.v1.kotlin.deploymentResource
+import com.pulumi.kubernetes.apps.v1.kotlin.deployment
 
 fun main() {
     Pulumi.run { ctx ->
-        val deployment = deploymentResource("nginx") {
+        val deployment = deployment("nginx") {
             args {
                 spec {
                     selector {
