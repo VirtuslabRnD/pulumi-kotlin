@@ -28,12 +28,12 @@ the code and integrating with the Pulumi ecosystem.
 ### Provisioning a virtual machine on Google Cloud Platform
 
 ```kotlin
-import com.pulumi.googlenative.compute.v1.kotlin.instanceResource
+import com.pulumi.googlenative.compute.v1.kotlin.instance
 import com.pulumi.kotlin.Pulumi
 
 fun main() {
     Pulumi.run { ctx ->
-        val instance = instanceResource("google-native-sample-project") {
+        val instance = instance("google-native-sample-project") {
             args {
                 machineType("e2-micro")
                 zone("europe-central2-a")
@@ -77,11 +77,11 @@ fun main() {
 
 ```kotlin
 import com.pulumi.kotlin.Pulumi
-import com.pulumi.kubernetes.apps.v1.kotlin.deploymentResource
+import com.pulumi.kubernetes.apps.v1.kotlin.deployment
 
 fun main() {
     Pulumi.run { ctx ->
-        val deployment = deploymentResource("nginx") {
+        val deployment = deployment("nginx") {
             args {
                 spec {
                     selector {
