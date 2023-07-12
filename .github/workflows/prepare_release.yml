@@ -24,7 +24,7 @@ jobs:
       - name: Check number of tags
         id: check-number-of-tags
         run: |
-          $number_of_tags=$(git tag --points-at HEAD | wc -l | awk '{print $1}')
+          number_of_tags=$(git tag --points-at HEAD | wc -l | awk '{print $1}')
           if [[ "$number_of_tags" == "0" ]]; then is_release=false; else is_release=true; fi
           echo "is_release=$is_release" >> $GITHUB_OUTPUT
       - name: Push tags

@@ -1,4 +1,4 @@
-name: Publish pulumi-kotlin to Maven Local
+name: Test pulumi-kotlin generated code by publishing to Maven Local repository
 
 on:
   push:
@@ -11,6 +11,8 @@ on:
       - '**.json'
       - '**.xml'
       - '**.yml'
+      - '**.yaml'
+      - '**.conf'
   pull_request:
   workflow_dispatch:
 

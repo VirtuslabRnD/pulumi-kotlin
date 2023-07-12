@@ -23,18 +23,18 @@ jobs:
         id: get-id-of-last-commit
         run: echo "last_commit=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       - name: Prepare release
-        if: ${{ steps.find-existing-pull-request.outputs.number == null }}
+        if: ${{ steps.find-existing-pull-request.outputs.number == '' }}
         run: ./gradlew prepareReleaseOfUpdatedSchemas -PskipPreReleaseVersions=true -PfastForwardToMostRecentVersion=false
       - name: Check for commit
-        if: ${{ steps.find-existing-pull-request.outputs.number == null }}        
+        if: ${{ steps.find-existing-pull-request.outputs.number == '' }}        
         id: check-for-commit
         run: |
           previous_last_commit=${{ steps.get-id-of-last-commit.outputs.last_commit }}
           current_last_commit=$(git rev-parse HEAD)
-          if [[ "previous_last_commit" == "$current_last_commit" ]]; then found_new_versions=false; else found_new_versions=true; fi
+          if [[ "$previous_last_commit" == "$current_last_commit" ]]; then found_new_versions=false; else found_new_versions=true; fi
           echo "found_new_versions=$found_new_versions" >> $GITHUB_OUTPUT
       - name: Get PR description
-        if: ${{ steps.find-existing-pull-request.outputs.number == null && steps.check-for-commit.outputs.found_new_versions == 'true' }}        
+        if: ${{ steps.find-existing-pull-request.outputs.number == '' && steps.check-for-commit.outputs.found_new_versions == 'true' }}        
         id: get-pr-description
         run: |
           commit_message=$(git log --format=%b -n 1 HEAD)
@@ -45,14 +45,14 @@ jobs:
           echo "$EOF" >> $GITHUB_OUTPUT
       - name: Generate GitHub app token
         uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92 # v1.8.0
-        if: ${{ steps.find-existing-pull-request.outputs.number == null && steps.check-for-commit.outputs.found_new_versions == 'true' }}
+        if: ${{ steps.find-existing-pull-request.outputs.number == '' && steps.check-for-commit.outputs.found_new_versions == 'true' }}
         id: generate-token
         with:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.APP_PRIVATE_KEY }}
       - name: Create pull request
         uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5.0.2
-        if: ${{ steps.find-existing-pull-request.outputs.number == null && steps.check-for-commit.outputs.found_new_versions == 'true' }}
+        if: ${{ steps.find-existing-pull-request.outputs.number == '' && steps.check-for-commit.outputs.found_new_versions == 'true' }}
         with:
           title: Prepare release
           body: |
