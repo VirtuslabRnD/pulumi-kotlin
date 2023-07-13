@@ -13,6 +13,7 @@ import org.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import org.virtuslab.pulumikotlin.codegen.utils.capitalize
 import org.virtuslab.pulumikotlin.codegen.utils.decapitalize
+import org.virtuslab.pulumikotlin.codegen.utils.lowercase
 
 data class PulumiName(
     val providerName: String,
@@ -199,6 +200,16 @@ data class PulumiName(
             "${getProviderPrefix(namingFlags.language)}${name.capitalize()}"
         } else {
             name.capitalize()
+        }
+    }
+
+    fun toResourceFunctionName(namingFlags: NamingFlags): String {
+        val resourceName = toResourceName(namingFlags)
+        val numberOfCaps = resourceName.takeWhile { it.isUpperCase() }.count()
+        return if (numberOfCaps > 1) {
+            resourceName.lowercase(numberOfCaps - 1)
+        } else {
+            resourceName.decapitalize()
         }
     }
 
