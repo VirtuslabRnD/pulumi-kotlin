@@ -45,7 +45,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
            import com.pulumi.aws.acm.kotlin.certificate
-            
+
            suspend fun main() {
                certificate("name") {
                    args {
@@ -81,7 +81,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.aws.acm.kotlin.certificate
-            
+
             suspend fun main() {
                 val resource1 = certificate("name") {
                     args {
@@ -137,7 +137,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.aws.acmpca.kotlin.AcmpcaFunctions.getCertificateAuthority
-            
+
             suspend fun main() {
                 val cert = getCertificateAuthority(arn = "www.wp.pl", tags = mapOf("a" to "b"))
 
@@ -153,7 +153,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.aws.acmpca.kotlin.AcmpcaFunctions.getCertificateAuthority
-            
+
             suspend fun main() {
                 val cert = getCertificateAuthority {
                     arn("www.wp.pl")
@@ -188,7 +188,7 @@ class CodegenTest {
             import com.pulumi.core.Either
 
             private const val RECORD_NAME = "record"
-            
+
             suspend fun main() {
                 val record = record(RECORD_NAME) {
                     name(RECORD_NAME)
@@ -199,7 +199,6 @@ class CodegenTest {
             
                 record.type
             }
-
             """
 
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_WITH_ONE_OF, code)
@@ -213,7 +212,7 @@ class CodegenTest {
             import com.pulumi.aws.route53.kotlin.record
 
             private const val RECORD_NAME = "record"
-            
+
             suspend fun main() {
                 val record = record(RECORD_NAME) {
                     name(RECORD_NAME)
@@ -241,7 +240,7 @@ class CodegenTest {
         val code = """
             import com.pulumi.aws.kotlin.awsProvider
             import com.pulumi.aws.acm.kotlin.certificate
-            
+
             suspend fun main() {
                 certificate("name") {
                     args {
@@ -275,7 +274,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.gcp.appengine.kotlin.applicationUrlDispatchRules
-            
+
             suspend fun main() {
                 applicationUrlDispatchRules("resource-name") {
                     args {
@@ -303,7 +302,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.gcp.appengine.kotlin.ApplicationUrlDispatchRulesBuilder
-            
+
             suspend fun main() {
                 ApplicationUrlDispatchRulesBuilder()
             }
@@ -317,7 +316,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.gcp.appengine.kotlin.ApplicationUrlDispatchRulesBuilder
-            
+
             suspend fun main() {
                 val builder: ApplicationUrlDispatchRulesBuilder = null!!
                 builder.build()
@@ -332,7 +331,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.gcp.appengine.kotlin.inputs.ApplicationUrlDispatchRulesDispatchRuleArgsBuilder
-            
+
             suspend fun main() {
                 ApplicationUrlDispatchRulesDispatchRuleArgsBuilder()
             }
@@ -346,7 +345,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.gcp.appengine.kotlin.inputs.ApplicationUrlDispatchRulesDispatchRuleArgsBuilder
-            
+
             suspend fun main() {
                 val builder: ApplicationUrlDispatchRulesDispatchRuleArgsBuilder = null!!
                 builder.build()
@@ -361,7 +360,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.gcp.appengine.kotlin.applicationUrlDispatchRules
-            
+
             suspend fun main() {
                 applicationUrlDispatchRules("resource-name") {
                     args {
@@ -540,7 +539,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.googlenative.cloudbuild.v1.inputs.StorageSourceArgs
-            
+
             suspend fun main() { 
                 StorageSourceArgs.builder()
                     .`object`("object")
@@ -556,7 +555,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.googlenative.accesscontextmanager.v1.kotlin.Accesscontextmanager_v1Functions
-            
+
             suspend fun main() {
                 Accesscontextmanager_v1Functions.getAccessLevel { 
                     accessLevelFormat("format")
@@ -621,7 +620,6 @@ class CodegenTest {
         val code = """
             import com.pulumi.kubernetes.apiextensions.v1.kotlin.customResourceDefinitionPatch
 
-
             suspend fun main() {
                 customResourceDefinitionPatch("name") {
                     args {
@@ -651,7 +649,6 @@ class CodegenTest {
         val code = """
             import com.pulumi.kubernetes.core.v1.kotlin.limitRange
 
-
             suspend fun main() {
                 limitRange("name") {
                     args {
@@ -675,7 +672,6 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.kubernetes.autoscaling.v2.kotlin.horizontalPodAutoscaler
-
 
             suspend fun main() {
                 horizontalPodAutoscaler("name") {
@@ -752,7 +748,7 @@ class CodegenTest {
         val code = """
             import com.pulumi.core.Output
             import com.pulumi.googlenative.compute.v1.kotlin.instance
-            
+
             suspend fun main() {
                 instance("instance") {
                     args {
@@ -776,7 +772,7 @@ class CodegenTest {
         // language=kotlin
         val code = """
             import com.pulumi.gcp.compute.kotlin.instance
-            
+
             suspend fun main() {
                 instance("instance") {
                     args {
@@ -789,6 +785,24 @@ class CodegenTest {
         """
 
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_GOOGLE_CLASSIC_SUBSET_WITH_INSTANCE, code)
+    }
+
+    @Test
+    fun `a proparly decapitalized function name is generated for resources whose names start with an acronym`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.gcp.projects.kotlin.iamMember
+
+            suspend fun main() {
+                iamMember("member") {
+                    args {
+                        member("member")
+                    }
+                }
+            }
+        """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_GOOGLE_CLASSIC_WITH_ACRONYM, code)
     }
 
     private fun assertGeneratedCodeCompiles(testSchema: TestSchema) {
@@ -1042,4 +1056,8 @@ private val SCHEMA_GOOGLE_CLASSIC_SUBSET_WITH_INSTANCE = TestSchema(
 private val SCHEMA_EQUINIX_METAL_WITH_INDEX = TestSchema(
     "schema-equinix-metal-3.3.0-alpha-with-index.json",
     "com.pulumi:equinix-metal:3.3.0-alpha.1687671105+a2a938cd",
+)
+private val SCHEMA_GOOGLE_CLASSIC_WITH_ACRONYM = TestSchema(
+    "schema-gcp-classic-6.59.0-with-acronym-in-resource-name.json",
+    "com.pulumi:gcp:6.59.0",
 )
