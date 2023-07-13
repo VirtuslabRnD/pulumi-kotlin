@@ -54,7 +54,7 @@ jobs:
         uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5.0.2
         if: ${{ steps.find-existing-pull-request.outputs.number == '' && steps.check-for-commit.outputs.found_new_versions == 'true' }}
         with:
-          title: Prepare release
+          title: Release provider libraries
           body: |
             ## Task
 
