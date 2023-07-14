@@ -86,7 +86,9 @@ jobs:
           rclone copy --transfers=1024 ./docs/${{ matrix.provider }} rclone-jvm-lab:/pulumi-kotlin-docs/${{ matrix.provider }}
   cleanup:
     name: Clean up after release
+    needs: tag
     runs-on: ubuntu-latest
+    if: ${{ needs.tag.outputs.is_release == 'true' }}    
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
