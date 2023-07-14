@@ -23,14 +23,14 @@ data class PulumiName(
     val isProvider: Boolean,
 ) {
     val namespace: List<String>
-        get() = (
-            baseNamespace +
-                (providerNameOverride ?: providerName) +
-                moduleName
-            )
-            .filterNotNull()
-            .filter { it.isNotBlank() }
-            .map { it.replace("-", "") }
+        get() {
+            val effectiveProviderName = (providerNameOverride ?: providerName)
+            val namespaceSections = baseNamespace + effectiveProviderName + moduleName
+            return namespaceSections
+                .filterNotNull()
+                .filter { it.isNotBlank() }
+                .map { it.replace("-", "") }
+        }
 
     private data class Modifiers(
         val nameSuffix: String,
