@@ -106,3 +106,13 @@ object Pulumi {
         }
     }
 }
+
+/**
+ * Append a value wrapped in an [Output] to exported stack outputs.
+ * <p>
+ * This method mutates the context internal state.
+ * @param name name of the [Output]
+ * @param value the value to be wrapped in [Output]
+ * @return the current [Context]
+ */
+fun Context.export(name: String, value: Any): Context = export(name, Output.of(value))
