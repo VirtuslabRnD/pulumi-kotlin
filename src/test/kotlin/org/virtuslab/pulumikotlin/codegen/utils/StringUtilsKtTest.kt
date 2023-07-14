@@ -27,6 +27,11 @@ internal class StringUtilsKtTest {
         assertEquals("word", "Word".decapitalize())
     }
 
+    @Test
+    fun `should turn the expected number of character lowercase`() {
+        assertEquals("sslCertificate", "SSLCertificate".lowercaseBefore(3))
+    }
+
     @Suppress("unused")
     enum class ShortenTestCase(
         val inputString: String,
