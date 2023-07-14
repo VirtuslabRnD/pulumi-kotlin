@@ -4,7 +4,16 @@ This project creates an Nginx deployment using the Pulumi Kotlin Kubernetes SDK.
 
 ## How to run
 
+**See the
+[Kubernetes: Installation & Configuration](https://www.pulumi.com/registry/packages/kubernetes/installation-configuration/)
+page in Pulumi Registry for the official documentation.**
+
+
 1. Install Pulumi (see: [docs](https://www.pulumi.com/docs/install/)).
+   ```bash
+   # on MacOS
+   brew install pulumi/tap/pulumi
+   ```
 2. Log in to your Pulumi account (see: [docs](https://www.pulumi.com/docs/cli/commands/pulumi_login/)).
    ```bash
    pulumi login
@@ -12,6 +21,10 @@ This project creates an Nginx deployment using the Pulumi Kotlin Kubernetes SDK.
 3. Provision a Kubernetes cluster (for test purposes this can be done
    using [Minikube](https://minikube.sigs.k8s.io/docs/start/)).
 4. Install kubectl (see: [docs](https://kubernetes.io/docs/tasks/tools/)).
+   ```bash
+   # on MacOS
+   brew install kubectl
+   ```
 5. Set up Kubernetes authentication
    (see: [docs](https://www.pulumi.com/registry/packages/kubernetes/installation-configuration/#setup)). **Note**: when
    using Minikube, you can use the default configuration and skip this step.
@@ -33,6 +46,6 @@ This project creates an Nginx deployment using the Pulumi Kotlin Kubernetes SDK.
    ```
 9. Don't forget to delete the created resources and stack.
    ```bash
-   pulumi down
+   pulumi destroy
    pulumi stack rm <stack-name>
    ```
