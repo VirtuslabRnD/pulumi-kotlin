@@ -11,17 +11,17 @@ plugins {
     signing
 }
 
-val tasksToDisable: List<(String) -> String> = listOf(
-    { sourceSetName: String -> "lintKotlin${sourceSetName.capitalized()}" },
-)
+val tasksToDisable: List<(String) -> String> = listOf { sourceSetName: String ->
+    "lintKotlin${sourceSetName.capitalized()}"
+}
 
 val commonDependencies = listOf(
     "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1",
     "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
 )
 
-val rootDir = project.rootDir.absolutePath
-val outputDirectory = Paths.get(rootDir, "build", "generated-src").toFile()
+val rootDir: String = project.rootDir.absolutePath
+val outputDirectory: File = Paths.get(rootDir, "build", "generated-src").toFile()
 
 val createTasksForProvider by extra {
     fun(schema: SchemaMetadata) {
@@ -30,7 +30,7 @@ val createTasksForProvider by extra {
         val version = schema.kotlinVersion
         val javaLibraryDependency = "com.pulumi:$providerName:${schema.javaVersion}"
 
-        val sourceSetName = "pulumi${providerName.capitalized()}"
+        val sourceSetName = "pulumi${schema.versionedProvider.capitalized()}"
         val generationTaskName = "generate${sourceSetName.capitalized()}Sources"
         val compilationTaskName = "compile${sourceSetName.capitalized()}Kotlin"
         val jarTaskName = "${sourceSetName}Jar"
@@ -42,13 +42,13 @@ val createTasksForProvider by extra {
         val javadocJarTaskName = "dokka${sourceSetName.capitalized()}JavadocJar"
         val sourcesPublicationName = "${sourceSetName}Sources"
         val javadocPublicationName = "${sourceSetName}Javadoc"
-        val downloadTaskName = "download${providerName.capitalized()}Schema"
+        val downloadTaskName = "download${schema.versionedProvider.capitalized()}Schema"
 
-        val schemaDownloadPath = Paths.get(rootDir, "build", "tmp", "schema", "$providerName-$version.json").toFile()
+        val schemaDownloadPath = Paths.get(rootDir, "build", "tmp", "schema", "${schema.versionedProvider}-$version.json").toFile()
 
         createDownloadTask(downloadTaskName, schemaUrl, schemaDownloadPath)
-        createGenerationTask(generationTaskName, downloadTaskName, schemaDownloadPath, outputDirectory, providerName)
-        createSourceSet(sourceSetName, outputDirectory, providerName)
+        createGenerationTask(generationTaskName, downloadTaskName, schemaDownloadPath, outputDirectory, schema.versionedProvider)
+        createSourceSet(sourceSetName, outputDirectory, schema.versionedProvider)
 
         tasks[generationTaskName].finalizedBy(tasks[formatTaskName])
         tasks[generationTaskName].finalizedBy(tasks[compilationTaskName])
@@ -131,9 +131,9 @@ val createE2eTasksForProvider by extra {
 }
 
 val createGlobalProviderTasks by extra {
-    fun(providerNames: List<String>) {
+    fun(schemas: List<SchemaMetadata>) {
         task("generatePulumiSources") {
-            dependsOn(providerNames.map { tasks["generatePulumi${it.capitalized()}Sources"] })
+            dependsOn(schemas.map { tasks["generatePulumi${it.versionedProvider.capitalized()}Sources"] })
             group = "generation"
         }
     }
@@ -321,7 +321,7 @@ fun configurePom(
         licenses {
             license {
                 name.set("The Apache License, Version 2.0")
-                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
             }
         }
 

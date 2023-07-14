@@ -60,10 +60,10 @@ val versionConfigFile = File(projectDir, "src/main/resources/version-config.json
 var schemaMetadata: List<SchemaMetadata> = getSchemaMetadata(versionConfigFile)
 
 val createTasksForProvider: (SchemaMetadata) -> Unit by extra
-val createGlobalProviderTasks: (List<String>) -> Unit by extra
+val createGlobalProviderTasks: (List<SchemaMetadata>) -> Unit by extra
 
 schemaMetadata.forEach { createTasksForProvider(it) }
-createGlobalProviderTasks(schemaMetadata.map { it.providerName })
+createGlobalProviderTasks(schemaMetadata)
 
 val e2eVersionConfigFile = File(projectDir, "src/main/resources/version-config-e2e.json")
 var e2eSchemaMetadata: List<SchemaMetadata> = getSchemaMetadata(e2eVersionConfigFile)
@@ -161,7 +161,7 @@ publishing {
 
 val publicationsToPublishToMavenCentral = schemaMetadata
     .filterNot { KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot }
-    .map { "publishPulumi${it.providerName.capitalized()}PublicationToMavenCentralRepository" }
+    .map { "publishPulumi${it.versionedProvider.capitalized()}PublicationToMavenCentralRepository" }
 
 tasks.withType<PublishToMavenRepository>().configureEach {
     onlyIf {

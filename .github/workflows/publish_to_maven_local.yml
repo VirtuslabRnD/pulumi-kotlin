@@ -25,8 +25,8 @@ jobs:
       fail-fast: false
       matrix:
         provider: [
-          cloudflare, slack, github, random, gcp, google-native, aws, aws-native, azure, azure-native, kubernetes,
-          nomad, docker, gitlab, digitalocean, alicloud
+          cloudflare4, cloudflare5, slack0, github5, random4, gcp6, google-native0, aws5, aws-native0, azure5,
+          azure-native1, kubernetes3, nomad0, docker3, docker4, gitlab4, gitlab5, gitlab6, digitalocean4, alicloud3
         ]
     steps:
       - name: Check out project sources
