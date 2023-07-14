@@ -8,7 +8,7 @@ fun String.capitalize() =
 fun String.decapitalize() =
     replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
-fun String.lowercase(n: Int) = take(n).lowercase() + drop(n)
+fun String.lowercaseBefore(index: Int) = take(index).lowercase() + drop(index)
 
 /**
  * Example:
