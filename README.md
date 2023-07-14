@@ -66,6 +66,95 @@ fun main() {
 }
 ```
 
+### Provisioning a virtual machine on Azure
+```kotlin
+import com.pulumi.azurenative.compute.kotlin.enums.CachingTypes.ReadWrite
+import com.pulumi.azurenative.compute.kotlin.enums.DiskCreateOptionTypes.FromImage
+import com.pulumi.azurenative.compute.kotlin.enums.DiskDeleteOptionTypes
+import com.pulumi.azurenative.network.kotlin.enums.IPAllocationMethod.Dynamic
+import com.pulumi.azurenative.compute.kotlin.enums.StorageAccountTypes.Standard_LRS
+import com.pulumi.azurenative.compute.kotlin.enums.VirtualMachineSizeTypes.Standard_B1s
+import com.pulumi.azurenative.compute.kotlin.virtualMachine
+import com.pulumi.azurenative.network.kotlin.networkInterface
+import com.pulumi.azurenative.network.kotlin.subnet
+import com.pulumi.azurenative.network.kotlin.virtualNetwork
+import com.pulumi.azurenative.resources.kotlin.resourceGroup
+import com.pulumi.kotlin.Pulumi
+
+fun main() {
+    Pulumi.run { ctx ->
+        val resourceGroup = resourceGroup("azure-native-sample-vm")
+
+        val mainVirtualNetwork = virtualNetwork("virtual-network") {
+            args {
+                resourceGroupName(resourceGroup.name)
+                addressSpace {
+                    addressPrefixes("10.0.0.0/16")
+                }
+            }
+        }
+
+        val internalSubnet = subnet("internal-subnet") {
+            args {
+                resourceGroupName(resourceGroup.name)
+                virtualNetworkName(mainVirtualNetwork.name)
+                addressPrefix("10.0.2.0/24")
+            }
+        }
+
+        val mainNetworkInterface = networkInterface("network-interface") {
+            args {
+                resourceGroupName(resourceGroup.name)
+                ipConfigurations {
+                    name("testconfiguration1")
+                    subnet {
+                        id(internalSubnet.id)
+                    }
+                    privateIPAllocationMethod(Dynamic)
+                }
+            }
+        }
+
+        val virtualMachine = virtualMachine("virtual-machine") {
+            args {
+                resourceGroupName(resourceGroup.name)
+                networkProfile {
+                    networkInterfaces {
+                        id(mainNetworkInterface.id)
+                    }
+                }
+                hardwareProfile {
+                    vmSize(Standard_B1s)
+                }
+                storageProfile {
+                    imageReference {
+                        publisher("Canonical")
+                        offer("UbuntuServer")
+                        sku("16.04-LTS")
+                        version("latest")
+                    }
+                    osDisk {
+                        name("myosdisk1")
+                        caching(ReadWrite)
+                        createOption(FromImage)
+                        managedDisk {
+                            storageAccountType(Standard_LRS)
+                        }
+                        deleteOption(DiskDeleteOptionTypes.Delete)
+                    }
+                }
+                osProfile {
+                    computerName("hostname")
+                    adminUsername("testadmin")
+                    adminPassword("testpassword")
+                }
+            }
+        }
+        ctx.export("virtualMachineId", virtualMachine.id)
+    }
+}
+```
+
 ### Creating a Kubernetes deployment
 
 ```kotlin
