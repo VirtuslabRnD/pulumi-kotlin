@@ -48,12 +48,26 @@ jobs:
           string: ${{ matrix.provider }}
       - name: Check out project sources
         uses: actions/checkout@v3
+      - name: Check if publication to Maven Central is necessary
+        id: check-for-release
+        shell: python
+        run: |
+          import os
+          import json
+          with open("src/main/resources/version-config.json") as version_config:
+            schemas = json.load(version_config)
+            version = [schema["kotlinVersion"] for schema in schemas if schema["providerName"] == "${{ matrix.provider }}"][0]
+            is_release = not version.endswith("-SNAPSHOT")
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+              fh.write('is_release=' + str(is_release).lower())        
       - name: Set up Java
+        if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         uses: actions/setup-java@v3
         with:
           distribution: adopt
           java-version: 11
       - name: Publish packages
+        if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
           ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenCentralRepository \
             -Psigning.enabled=true \
@@ -64,16 +78,19 @@ jobs:
             -Dorg.gradle.daemon=false \
             -q
       - name: Rename Dokka directory before upload
+        if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
           file_name=$(ls ./build/libs/pulumi-${{ matrix.provider }}-*-javadoc.jar | xargs -n 1 basename)
           version=$(echo $file_name | sed -e "s/^pulumi-${{ matrix.provider }}-kotlin-//" -e "s/-javadoc.jar$//")
           mkdir -p ./docs/${{ matrix.provider }}/$version
           mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}Javadoc/* ./docs/${{ matrix.provider }}/$version
       - name: Install Rclone
+        if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
           yum -y install unzip
           curl https://rclone.org/install.sh | bash || true
       - name: Configure Rclone
+        if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
           mkdir -p ~/.config/rclone
           cp .github/workflows/rclone.conf ~/.config/rclone/rclone.conf
@@ -82,6 +99,7 @@ jobs:
           # pulumi-kotlin-docs service account key created manually through GCP UI and added manually to GitHub by @myhau (Michal Fudala)
           GCP_SERVICE_ACCOUNT_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_FILE }}
       - name: Upload Dokka artifacts
+        if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
           rclone copy --transfers=1024 ./docs/${{ matrix.provider }} rclone-jvm-lab:/pulumi-kotlin-docs/${{ matrix.provider }}
   cleanup:
@@ -92,6 +110,8 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
+      - name: Set up Git user
+        uses: fregante/setup-git-user@v2        
       - name: Prepare for next development phase
         run: ./gradlew postRelease
       - uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92 # v1.8.0
