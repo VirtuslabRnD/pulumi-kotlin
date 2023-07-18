@@ -70,7 +70,7 @@ fun main() {
 ```kotlin
 import com.pulumi.azurenative.compute.kotlin.enums.CachingTypes.ReadWrite
 import com.pulumi.azurenative.compute.kotlin.enums.DiskCreateOptionTypes.FromImage
-import com.pulumi.azurenative.compute.kotlin.enums.DiskDeleteOptionTypes
+import com.pulumi.azurenative.compute.kotlin.enums.DiskDeleteOptionTypes.Delete
 import com.pulumi.azurenative.network.kotlin.enums.IPAllocationMethod.Dynamic
 import com.pulumi.azurenative.compute.kotlin.enums.StorageAccountTypes.Standard_LRS
 import com.pulumi.azurenative.compute.kotlin.enums.VirtualMachineSizeTypes.Standard_B1s
@@ -140,7 +140,7 @@ fun main() {
                         managedDisk {
                             storageAccountType(Standard_LRS)
                         }
-                        deleteOption(DiskDeleteOptionTypes.Delete)
+                        deleteOption(Delete)
                     }
                 }
                 osProfile {
@@ -150,6 +150,7 @@ fun main() {
                 }
             }
         }
+
         ctx.export("virtualMachineId", virtualMachine.id)
     }
 }
