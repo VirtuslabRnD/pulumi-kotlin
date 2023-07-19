@@ -525,7 +525,7 @@ internal class PulumiNameTest {
     }
 
     @Test
-    fun `provider class and package with overriden provider name are correct when targeting Kotlin`() {
+    fun `provider class and package with overridden provider name are correct when targeting Kotlin`() {
         val name = PulumiName.from(
             DEFAULT_PROVIDER_TOKEN,
             namingConfigurationWithSlashInModuleFormat("equinix-metal", mapOf("equinix-metal" to "equinixmetal")),
@@ -541,7 +541,7 @@ internal class PulumiNameTest {
     }
 
     @Test
-    fun `provider class and package with overriden provider name are correct when targeting Java`() {
+    fun `provider class and package with overridden provider name are correct when targeting Java`() {
         val name = PulumiName.from(
             DEFAULT_PROVIDER_TOKEN,
             namingConfigurationWithSlashInModuleFormat("equinix-metal", mapOf("equinix-metal" to "equinixmetal")),
@@ -554,5 +554,50 @@ internal class PulumiNameTest {
 
         assertEquals("Provider", className)
         assertEquals("com.pulumi.equinixmetal", packageName)
+    }
+
+    @Test
+    fun `a resource function name is decapitalized correctly`() {
+        // given
+        val token = "provider:module:OrganizationPolicy"
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
+
+        // when
+        val pulumiName = PulumiName.from(token, namingConfiguration)
+        val namingFlags = NamingFlags(Root, Resource, Input, Java)
+        val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
+
+        // then
+        assertEquals("organizationPolicy", resourceFunctionName)
+    }
+
+    @Test
+    fun `a resource function name starting with a three-letter acronym is decapitalized correctly`() {
+        // given
+        val token = "provider:module:IAMBinding"
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
+
+        // when
+        val pulumiName = PulumiName.from(token, namingConfiguration)
+        val namingFlags = NamingFlags(Root, Resource, Input, Java)
+        val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
+
+        // then
+        assertEquals("iamBinding", resourceFunctionName)
+    }
+
+    @Test
+    fun `a resource function name starting with a two-letter acronym and number is decapitalized correctly`() {
+        // given
+        val token = "provider:module:EC2Fleet"
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
+
+        // when
+        val pulumiName = PulumiName.from(token, namingConfiguration)
+        val namingFlags = NamingFlags(Root, Resource, Input, Java)
+        val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
+
+        // then
+        assertEquals("eC2Fleet", resourceFunctionName)
     }
 }
