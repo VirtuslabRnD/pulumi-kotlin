@@ -205,8 +205,10 @@ data class PulumiName(
 
     fun toResourceFunctionName(namingFlags: NamingFlags): String {
         val resourceName = toResourceName(namingFlags)
-        val numberOfCaps = resourceName.takeWhile { it.isUpperCase() }.count()
-        return if (numberOfCaps > 1) {
+        val numberOfCaps = resourceName.takeWhile { it.isUpperCase() || it.isDigit() }.count()
+        return if (numberOfCaps == resourceName.length) {
+            resourceName.lowercase()
+        } else if (numberOfCaps > 1) {
             resourceName.lowercaseBefore(numberOfCaps - 1)
         } else {
             resourceName.decapitalize()

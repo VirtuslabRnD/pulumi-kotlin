@@ -587,6 +587,21 @@ internal class PulumiNameTest {
     }
 
     @Test
+    fun `a resource function name that is a three-letter acronym is decapitalized correctly`() {
+        // given
+        val token = "provider:module:CRL"
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
+
+        // when
+        val pulumiName = PulumiName.from(token, namingConfiguration)
+        val namingFlags = NamingFlags(Root, Resource, Input, Java)
+        val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
+
+        // then
+        assertEquals("crl", resourceFunctionName)
+    }
+
+    @Test
     fun `a resource function name starting with a two-letter acronym and number is decapitalized correctly`() {
         // given
         val token = "provider:module:EC2Fleet"
@@ -598,6 +613,6 @@ internal class PulumiNameTest {
         val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
 
         // then
-        assertEquals("eC2Fleet", resourceFunctionName)
+        assertEquals("ec2Fleet", resourceFunctionName)
     }
 }
