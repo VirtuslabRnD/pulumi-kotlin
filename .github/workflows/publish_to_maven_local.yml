@@ -44,7 +44,13 @@ jobs:
           import json
           with open("src/main/resources/version-config.json") as version_config:
             schemas = json.load(version_config)
-            version = [schema["kotlinVersion"] for schema in schemas if schema["providerName"] == "${{ matrix.provider }}"][0]
+            versions = [
+              schema["kotlinVersion"]
+              for schema
+              in schemas
+              if schema["providerName"] + schema["kotlinVersion"].split(".")[0]  == "${{ matrix.provider }}"
+            ]
+            version = versions[0]
             is_release = not version.endswith("-SNAPSHOT")
             with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
               fh.write('is_release=' + str(is_release).lower())
