@@ -204,6 +204,7 @@ data class PulumiName(
     }
 
     fun toResourceFunctionName(namingFlags: NamingFlags): String {
+        require(namingFlags.language == Kotlin)
         val resourceName = toResourceName(namingFlags)
         val numberOfCaps = resourceName.takeWhile { it.isUpperCase() || it.isDigit() }.count()
         return if (numberOfCaps == resourceName.length) {

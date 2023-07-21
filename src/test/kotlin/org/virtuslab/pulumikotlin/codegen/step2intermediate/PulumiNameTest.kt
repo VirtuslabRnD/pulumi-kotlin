@@ -564,11 +564,26 @@ internal class PulumiNameTest {
 
         // when
         val pulumiName = PulumiName.from(token, namingConfiguration)
-        val namingFlags = NamingFlags(Root, Resource, Input, Java)
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
         val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
 
         // then
         assertEquals("organizationPolicy", resourceFunctionName)
+    }
+
+    @Test
+    fun `a resource function name starting with a two-letter acronym is decapitalized correctly`() {
+        // given
+        val token = "provider:module:VMwareCluster"
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
+
+        // when
+        val pulumiName = PulumiName.from(token, namingConfiguration)
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
+        val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
+
+        // then
+        assertEquals("vMwareCluster", resourceFunctionName)
     }
 
     @Test
@@ -579,7 +594,7 @@ internal class PulumiNameTest {
 
         // when
         val pulumiName = PulumiName.from(token, namingConfiguration)
-        val namingFlags = NamingFlags(Root, Resource, Input, Java)
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
         val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
 
         // then
@@ -594,7 +609,7 @@ internal class PulumiNameTest {
 
         // when
         val pulumiName = PulumiName.from(token, namingConfiguration)
-        val namingFlags = NamingFlags(Root, Resource, Input, Java)
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
         val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
 
         // then
@@ -609,7 +624,7 @@ internal class PulumiNameTest {
 
         // when
         val pulumiName = PulumiName.from(token, namingConfiguration)
-        val namingFlags = NamingFlags(Root, Resource, Input, Java)
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
         val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
 
         // then

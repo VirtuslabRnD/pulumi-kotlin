@@ -28,8 +28,23 @@ internal class StringUtilsKtTest {
     }
 
     @Test
-    fun `should turn the expected number of character lowercase`() {
-        assertEquals("sslCertificate", "SSLCertificate".lowercaseBefore(3))
+    fun `should do nothing when trying to turn all characters before index=0 lowercase`() {
+        assertEquals("ABCD", "ABCD".lowercaseBefore(index = 0))
+    }
+
+    @Test
+    fun `should turn all characters before index=1 lowercase`() {
+        assertEquals("aBCD", "ABCD".lowercaseBefore(index = 1))
+    }
+
+    @Test
+    fun `should turn all characters before index=3 lowercase`() {
+        assertEquals("abcD", "ABCD".lowercaseBefore(index = 3))
+    }
+
+    @Test
+    fun `should turn all characters before index=4 to lower case in a string with 4 characters`() {
+        assertEquals("abcd", "ABCD".lowercaseBefore(index = 4))
     }
 
     @Suppress("unused")
