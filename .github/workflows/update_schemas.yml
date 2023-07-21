@@ -18,7 +18,9 @@ jobs:
         with:
           branch: prepare-release
       - name: Set up Git user
-        uses: fregante/setup-git-user@v2
+        run: |
+          git config --global user.name "pulumi-kotlin[bot]"
+          git config --global user.email "138587440+pulumi-kotlin[bot]@users.noreply.github.com"
       - name: Get the id of last commit
         id: get-id-of-last-commit
         run: echo "last_commit=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
@@ -26,7 +28,7 @@ jobs:
         if: ${{ steps.find-existing-pull-request.outputs.number == '' }}
         run: ./gradlew prepareReleaseOfUpdatedSchemas -PskipPreReleaseVersions=true -PfastForwardToMostRecentVersion=false
       - name: Check for commit
-        if: ${{ steps.find-existing-pull-request.outputs.number == '' }}        
+        if: ${{ steps.find-existing-pull-request.outputs.number == '' }}
         id: check-for-commit
         run: |
           previous_last_commit=${{ steps.get-id-of-last-commit.outputs.last_commit }}
@@ -34,7 +36,7 @@ jobs:
           if [[ "$previous_last_commit" == "$current_last_commit" ]]; then found_new_versions=false; else found_new_versions=true; fi
           echo "found_new_versions=$found_new_versions" >> $GITHUB_OUTPUT
       - name: Get PR description
-        if: ${{ steps.find-existing-pull-request.outputs.number == '' && steps.check-for-commit.outputs.found_new_versions == 'true' }}        
+        if: ${{ steps.find-existing-pull-request.outputs.number == '' && steps.check-for-commit.outputs.found_new_versions == 'true' }}
         id: get-pr-description
         run: |
           commit_message=$(git log --format=%b -n 1 HEAD)
