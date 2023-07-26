@@ -287,9 +287,9 @@ internal class ComputeSchemaSubsetScriptTest {
 }
 
 private const val SCHEMA_PATH_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION =
-    "src/test/resources/schema-azure-native-3.44.2-subset-with-ip-allocation.json"
+    "src/test/resources/schema-azure-native-1.104.0-subset-with-ip-allocation.json"
 private const val SCHEMA_PATH_AZURE_NATIVE_SUBSET_WITH_RECURSION =
-    "src/test/resources/schema-azure-native-3.44.2-subset-with-recursion.json"
+    "src/test/resources/schema-azure-native-1.104.0-subset-with-recursion.json"
 private const val SCHEMA_PATH_AWS_SUBSET_FOR_COMPUTE =
     "src/test/resources/schema-aws-classic-5.16.2-subset-for-compute-schema-subset-script-test.json"
 private const val SCHEMA_PATH_AWS_SUBSET_WITH_PROVIDER_AND_SOME_TYPES =

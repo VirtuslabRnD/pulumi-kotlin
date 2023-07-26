@@ -25,14 +25,6 @@ class CodegenTest {
 
     private val dependencies = listOf(
         "com.pulumi:pulumi:0.9.4",
-        "com.pulumi:aws:5.16.2",
-        "com.pulumi:gcp:6.38.0",
-        "com.pulumi:slack:0.3.0",
-        "com.pulumi:github:4.17.0",
-        "com.pulumi:google-native:0.27.0",
-        "com.pulumi:kubernetes:3.22.1",
-        "com.pulumi:azure-native:1.85.0",
-        "com.pulumi:google-native:0.27.0",
         "com.google.code.findbugs:jsr305:3.0.2",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.2",
         "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.2",
@@ -247,8 +239,8 @@ class CodegenTest {
     fun `aws provider resource can be created`() {
         // language=kotlin
         val code = """
+            import com.pulumi.aws.kotlin.awsProvider
             import com.pulumi.aws.acm.kotlin.certificate
-            import com.pulumi.aws.kotlin.provider
             
             suspend fun main() {
                 certificate("name") {
@@ -260,7 +252,7 @@ class CodegenTest {
                     }
                     opts {
                         provider(
-                            provider("custom-aws-provider") {
+                            awsProvider("custom-aws-provider") {
                                 args {
                                     accessKey("123")
                                     assumeRoleWithWebIdentity {
@@ -402,6 +394,22 @@ class CodegenTest {
             """
 
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_AWS_CLASSIC_SUBSET_WITH_INDEX, code)
+    }
+
+    @Test
+    fun `equinix-metal functions from index namespace can be invoked`() {
+        // language=kotlin
+        val code = """
+            import com.pulumi.equinixmetal.kotlin.EquinixMetalFunctions
+
+            suspend fun main() {
+                EquinixMetalFunctions.getVolume {
+                    name("volume")
+                }
+            }
+            """
+
+        assertGeneratedCodeAndSourceFileCompile(SCHEMA_EQUINIX_METAL_WITH_INDEX, code)
     }
 
     @Test
@@ -783,21 +791,24 @@ class CodegenTest {
         assertGeneratedCodeAndSourceFileCompile(SCHEMA_GOOGLE_CLASSIC_SUBSET_WITH_INSTANCE, code)
     }
 
-    private fun assertGeneratedCodeCompiles(schemaPath: String) {
-        assertGeneratedCodeAndSourceFilesCompile(schemaPath, emptyMap())
+    private fun assertGeneratedCodeCompiles(testSchema: TestSchema) {
+        assertGeneratedCodeAndSourceFilesCompile(testSchema, emptyMap())
     }
 
-    private fun assertGeneratedCodeAndSourceFileCompile(schemaPath: String, sourceFile: String) {
-        assertGeneratedCodeAndSourceFilesCompile(schemaPath, mapOf("Main.kt" to sourceFile))
+    private fun assertGeneratedCodeAndSourceFileCompile(testSchema: TestSchema, sourceFile: String) {
+        assertGeneratedCodeAndSourceFilesCompile(testSchema, mapOf("Main.kt" to sourceFile))
     }
 
-    private fun assertGeneratedCodeAndSourceFileDoNotCompile(schemaPath: String, sourceFile: String) {
-        assertGeneratedCodeAndSourceFilesDoNotCompile(schemaPath, mapOf("Main.kt" to sourceFile))
+    private fun assertGeneratedCodeAndSourceFileDoNotCompile(testSchema: TestSchema, sourceFile: String) {
+        assertGeneratedCodeAndSourceFilesDoNotCompile(testSchema, mapOf("Main.kt" to sourceFile))
     }
 
-    private fun assertGeneratedCodeAndSourceFilesDoNotCompile(schemaPath: String, sourceFiles: Map<String, String>) {
+    private fun assertGeneratedCodeAndSourceFilesDoNotCompile(
+        testSchema: TestSchema,
+        sourceFiles: Map<String, String>,
+    ) {
         val compilationResult =
-            generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles, ejectIfStatusIsNot = COMPILATION_ERROR)
+            generateCodeAndCompileAsSeparateModules(testSchema, sourceFiles, ejectIfStatusIsNot = COMPILATION_ERROR)
 
         if (compilationResult.exitCode == COMPILATION_ERROR) {
             logger.info("Code did not compile (as expected). Encountered problems:\n${compilationResult.messages}")
@@ -809,9 +820,9 @@ class CodegenTest {
         )
     }
 
-    private fun assertGeneratedCodeAndSourceFilesCompile(schemaPath: String, sourceFiles: Map<String, String>) {
+    private fun assertGeneratedCodeAndSourceFilesCompile(testSchema: TestSchema, sourceFiles: Map<String, String>) {
         val compilationResult =
-            generateCodeAndCompileAsSeparateModules(schemaPath, sourceFiles, ejectIfStatusIsNot = OK)
+            generateCodeAndCompileAsSeparateModules(testSchema, sourceFiles, ejectIfStatusIsNot = OK)
 
         assertEquals(
             OK,
@@ -858,18 +869,18 @@ class CodegenTest {
      *
      */
     private fun generateCodeAndCompileAsSeparateModules(
-        schemaPath: String,
+        testSchema: TestSchema,
         sourceFiles: Map<String, String>,
         ejectIfStatusIsNot: KotlinCompilation.ExitCode = COMPILATION_ERROR,
     ): AggregateCompilationResult {
-        val outputDirectory = Codegen.codegen(loadResource("/$schemaPath"))
+        val outputDirectory = Codegen.codegen(loadResource("/${testSchema.path}"))
         val generatedSourceFiles = readFilesRecursively(outputDirectory)
             .map { (fileName, contents) -> SourceFile.kotlin(fileName, contents) }
 
         val additionalSourceFiles = sourceFiles
             .map { (fileName, source) -> SourceFile.new(fileName, source.trimIndent()) }
 
-        val classPathWithDependencies = dependencies.map { downloadedDependency(it) }
+        val classPathWithDependencies = (dependencies + testSchema.dependency).map { downloadedDependency(it) }
 
         val compilationForGeneratedCode = KotlinCompilation().apply {
             sources = generatedSourceFiles
@@ -930,38 +941,105 @@ class CodegenTest {
     }
 }
 
-private const val SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE = "schema-gcp-classic-subset-medium-size.json"
-private const val SCHEMA_GCP_CLASSIC_SUBSET_LB_IP_RANGES = "schema-gcp-classic-6.39.0-subset-lb-ip-ranges.json"
-private const val SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE = "schema-aws-classic-subset-small-size.json"
-private const val SCHEMA_AWS_CLASSIC_SUBSET_BIG_SIZE = "schema-aws-classic-subset-big-size.json"
-private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ONE_OF = "schema-aws-classic-5.15.0-subset-with-one-of.json"
-private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ARCHIVE = "schema-aws-classic-5.16.2-subset-with-archive.json"
-private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ASSET = "schema-aws-classic-5.16.2-subset-with-asset.json"
-private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_INDEX = "schema-aws-classic-5.15.2-subset-with-index.json"
-private const val SCHEMA_AWS_CLASSIC_SUBSET_WITH_PROVIDER_AND_CERTIFICATE =
-    "schema-aws-classic-5.16.2-subset-with-certificate-and-provider.json"
-private const val SCHEMA_SLACK_SUBSET_WITH_INDEX = "schema-slack-0.3.0-subset-with-index.json"
-private const val SCHEMA_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION =
-    "schema-azure-native-3.44.2-subset-with-ip-allocation.json"
-private const val SCHEMA_GITHUB_SUBSET_WITH_NAME_COLLISION = "schema-github-4.17.0-subset-with-name-collision.json"
-private const val SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_INVALID_NAME =
-    "schema-google-native-0.27.0-subset-with-invalid-name.json"
-private const val SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_KEYWORD_TYPE_PROPERTY =
-    "schema-google-native-0.27.0-subset-with-keyword-type-property.json"
-private const val SCHEMA_GOOGLE_NATIVE_SUBSET_NAMESPACE_WITH_SLASH =
-    "schema-google-native-0.27.0-subset-namespace-with-slash.json"
-private const val SCHEMA_GOOGLE_NATIVE_SUBSET_TYPE_WITH_NO_PROPERTIES =
-    "schema-google-native-0.27.0-subset-type-with-no-properties.json"
-private const val SCHEMA_KUBERNETES_SUBSET_WITH_JSON = "schema-kubernetes-3.22.1-subset-with-json.json"
-private const val SCHEMA_KUBERNETES_SUBSET_WITH_IS_OVERLAY = "schema-kubernetes-3.22.1-subset-with-is-overlay.json"
-private const val SCHEMA_KUBERNETES_SUBSET_WITH_DOLLAR_IN_PROPERTY_NAME =
-    "schema-kubernetes-3.22.1-subset-with-dollar-in-property-name.json"
-private const val SCHEMA_KUBERNETES_SUBSET_WITH_JAVA_KEYWORD_IN_PROPERTY_NAME =
-    "schema-kubernetes-3.22.1-subset-with-java-keyword-in-property-name.json"
-private const val SCHEMA_KUBERNETES_SUBSET_WITH_KOTLIN_KEYWORD_IN_PROPERTY_NAME =
-    "schema-kubernetes-3.22.1-subset-with-kotlin-keyword-in-property-name.json"
-private const val SCHEMA_AZURE_NATIVE_SUBSET_WITH_LOWERCASE_RESOURCE =
-    "schema-azure-native-1.85.0-subset-with-lowercase-resource.json"
-private const val SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_OUTPUT_LIST =
-    "schema-google-native-0.27.0-subset-with-output-list.json"
-private const val SCHEMA_GOOGLE_CLASSIC_SUBSET_WITH_INSTANCE = "schema-gcp-classic-6.39.0-subset-with-instance.json"
+data class TestSchema(val path: String, val dependency: String)
+
+private val SCHEMA_GCP_CLASSIC_SUBSET_MEDIUM_SIZE = TestSchema(
+    "schema-gcp-classic-subset-medium-size.json",
+    "com.pulumi:gcp:6.38.0", // unsure which version this was generated from
+)
+private val SCHEMA_GCP_CLASSIC_SUBSET_LB_IP_RANGES = TestSchema(
+    "schema-gcp-classic-6.39.0-subset-lb-ip-ranges.json",
+    "com.pulumi:gcp:6.39.0",
+)
+private val SCHEMA_AWS_CLASSIC_SUBSET_SMALL_SIZE = TestSchema(
+    "schema-aws-classic-subset-small-size.json",
+    "com.pulumi:aws:5.16.2", // unsure which version this was generated from
+)
+private val SCHEMA_AWS_CLASSIC_SUBSET_BIG_SIZE = TestSchema(
+    "schema-aws-classic-subset-big-size.json",
+    "com.pulumi:aws:5.16.2", // unsure which version this was generated from
+)
+private val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ONE_OF = TestSchema(
+    "schema-aws-classic-5.15.0-subset-with-one-of.json",
+    "com.pulumi:aws:5.15.0",
+)
+private val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ARCHIVE = TestSchema(
+    "schema-aws-classic-5.16.2-subset-with-archive.json",
+    "com.pulumi:aws:5.16.2",
+)
+private val SCHEMA_AWS_CLASSIC_SUBSET_WITH_ASSET = TestSchema(
+    "schema-aws-classic-5.16.2-subset-with-asset.json",
+    "com.pulumi:aws:5.16.2",
+)
+private val SCHEMA_AWS_CLASSIC_SUBSET_WITH_INDEX = TestSchema(
+    "schema-aws-classic-5.15.0-subset-with-index.json",
+    "com.pulumi:aws:5.15.0",
+)
+private val SCHEMA_AWS_CLASSIC_SUBSET_WITH_PROVIDER_AND_CERTIFICATE = TestSchema(
+    "schema-aws-classic-5.16.2-subset-with-certificate-and-provider.json",
+    "com.pulumi:aws:5.16.2",
+)
+private val SCHEMA_SLACK_SUBSET_WITH_INDEX = TestSchema(
+    "schema-slack-0.3.0-subset-with-index.json",
+    "com.pulumi:slack:0.3.0",
+)
+private val SCHEMA_AZURE_NATIVE_SUBSET_WITH_IP_ALLOCATION = TestSchema(
+    "schema-azure-native-1.104.0-subset-with-ip-allocation.json",
+    "com.pulumi:azure-native:1.104.0",
+)
+private val SCHEMA_GITHUB_SUBSET_WITH_NAME_COLLISION = TestSchema(
+    "schema-github-4.17.0-subset-with-name-collision.json",
+    "com.pulumi:github:4.17.0",
+)
+private val SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_INVALID_NAME = TestSchema(
+    "schema-google-native-0.27.0-subset-with-invalid-name.json",
+    "com.pulumi:google-native:0.27.0",
+)
+private val SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_KEYWORD_TYPE_PROPERTY = TestSchema(
+    "schema-google-native-0.27.0-subset-with-keyword-type-property.json",
+    "com.pulumi:google-native:0.27.0",
+)
+private val SCHEMA_GOOGLE_NATIVE_SUBSET_NAMESPACE_WITH_SLASH = TestSchema(
+    "schema-google-native-0.27.0-subset-namespace-with-slash.json",
+    "com.pulumi:google-native:0.27.0",
+)
+private val SCHEMA_GOOGLE_NATIVE_SUBSET_TYPE_WITH_NO_PROPERTIES = TestSchema(
+    "schema-google-native-0.27.0-subset-type-with-no-properties.json",
+    "com.pulumi:google-native:0.27.0",
+)
+private val SCHEMA_KUBERNETES_SUBSET_WITH_JSON = TestSchema(
+    "schema-kubernetes-3.22.1-subset-with-json.json",
+    "com.pulumi:kubernetes:3.22.1",
+)
+private val SCHEMA_KUBERNETES_SUBSET_WITH_IS_OVERLAY = TestSchema(
+    "schema-kubernetes-3.22.1-subset-with-is-overlay.json",
+    "com.pulumi:kubernetes:3.22.1",
+)
+private val SCHEMA_KUBERNETES_SUBSET_WITH_DOLLAR_IN_PROPERTY_NAME = TestSchema(
+    "schema-kubernetes-3.22.1-subset-with-dollar-in-property-name.json",
+    "com.pulumi:kubernetes:3.22.1",
+)
+private val SCHEMA_KUBERNETES_SUBSET_WITH_JAVA_KEYWORD_IN_PROPERTY_NAME = TestSchema(
+    "schema-kubernetes-3.22.1-subset-with-java-keyword-in-property-name.json",
+    "com.pulumi:kubernetes:3.22.1",
+)
+private val SCHEMA_KUBERNETES_SUBSET_WITH_KOTLIN_KEYWORD_IN_PROPERTY_NAME = TestSchema(
+    "schema-kubernetes-3.22.1-subset-with-kotlin-keyword-in-property-name.json",
+    "com.pulumi:kubernetes:3.22.1",
+)
+private val SCHEMA_AZURE_NATIVE_SUBSET_WITH_LOWERCASE_RESOURCE = TestSchema(
+    "schema-azure-native-1.85.0-subset-with-lowercase-resource.json",
+    "com.pulumi:azure-native:1.85.0",
+)
+private val SCHEMA_GOOGLE_NATIVE_SUBSET_WITH_OUTPUT_LIST = TestSchema(
+    "schema-google-native-0.27.0-subset-with-output-list.json",
+    "com.pulumi:google-native:0.27.0",
+)
+private val SCHEMA_GOOGLE_CLASSIC_SUBSET_WITH_INSTANCE = TestSchema(
+    "schema-gcp-classic-6.39.0-subset-with-instance.json",
+    "com.pulumi:gcp:6.39.0",
+)
+private val SCHEMA_EQUINIX_METAL_WITH_INDEX = TestSchema(
+    "schema-equinix-metal-3.3.0-alpha-with-index.json",
+    "com.pulumi:equinix-metal:3.3.0-alpha.1687671105+a2a938cd",
+)

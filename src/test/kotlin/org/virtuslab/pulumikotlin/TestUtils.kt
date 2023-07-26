@@ -15,14 +15,15 @@ internal fun <T> extractOutputValue(output: Output<T>?): T? {
     return value
 }
 
-internal fun <T> concat(iterableOfIterables: Iterable<Iterable<T>>?): List<T> =
-    iterableOfIterables?.flatten().orEmpty()
-
-internal fun <T> concat(vararg iterables: Iterable<T>?): List<T> =
-    concat(iterables.filterNotNull().asIterable())
-
-internal fun namingConfigurationWithSlashInModuleFormat(providerName: String) =
-    PulumiNamingConfiguration.create(providerName = providerName, moduleFormat = "(.*)(?:/[^/]*)")
+internal fun namingConfigurationWithSlashInModuleFormat(
+    providerName: String,
+    packageOverrides: Map<String, String> = emptyMap(),
+) =
+    PulumiNamingConfiguration.create(
+        providerName = providerName,
+        moduleFormat = "(.*)(?:/[^/]*)",
+        packageOverrides = packageOverrides,
+    )
 
 private fun messagePrefix(message: String?) = if (message == null) "" else "$message. "
 

@@ -16,9 +16,21 @@ import org.virtuslab.pulumikotlin.codegen.utils.decapitalize
 
 data class PulumiName(
     val providerName: String,
-    val namespace: List<String>,
+    val providerNameOverride: String?,
+    val baseNamespace: List<String>,
+    val moduleName: String?,
     val name: String,
+    val isProvider: Boolean,
 ) {
+    val namespace: List<String>
+        get() {
+            val effectiveProviderName = (providerNameOverride ?: providerName)
+            val namespaceSections = baseNamespace + effectiveProviderName + moduleName
+            return namespaceSections
+                .filterNotNull()
+                .filter { it.isNotBlank() }
+                .map { it.replace("-", "") }
+        }
 
     private data class Modifiers(
         val nameSuffix: String,
@@ -175,19 +187,19 @@ data class PulumiName(
     }
 
     fun toFunctionGroupObjectName(namingFlags: NamingFlags): String {
-        return when (namingFlags.language) {
-            Kotlin, Java -> {
-                if (namespace.isEmpty()) {
-                    providerName.capitalize() + "Functions"
-                } else {
-                    namespace.last().replace(".", "_").capitalize() + "Functions"
-                }
-            }
+        return if (moduleName != null) {
+            moduleName.replace(".", "_").capitalize() + "Functions"
+        } else {
+            getProviderPrefix(namingFlags.language).replace(".", "_").capitalize() + "Functions"
         }
     }
 
     fun toResourceName(namingFlags: NamingFlags): String {
-        return name.capitalize()
+        return if (namingFlags.language == Kotlin && isProvider) {
+            "${getProviderPrefix(namingFlags.language)}${name.capitalize()}"
+        } else {
+            name.capitalize()
+        }
     }
 
     fun toClassName(namingFlags: NamingFlags): String {
@@ -209,6 +221,14 @@ data class PulumiName(
         return when (namingFlags.language) {
             Kotlin -> name.decapitalize()
             Java -> name.decapitalize() + "Plain" // TODO: improve
+        }
+    }
+
+    private fun getProviderPrefix(languageType: LanguageType): String {
+        val splitProviderName = providerName.split("-")
+        return when (languageType) {
+            Kotlin -> splitProviderName.joinToString("") { it.capitalize() }
+            Java -> splitProviderName.joinToString("").capitalize()
         }
     }
 
@@ -248,44 +268,57 @@ data class PulumiName(
     companion object {
         private const val EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN = 3
 
-        fun from(token: String, namingConfiguration: PulumiNamingConfiguration): PulumiName {
+        fun from(
+            token: String,
+            namingConfiguration: PulumiNamingConfiguration,
+            isProvider: Boolean = false,
+        ): PulumiName {
             // token = pkg ":" module ":" member
 
             val segments = token.split(":")
 
             require(segments.size == EXPECTED_NUMBER_OF_SEGMENTS_IN_TOKEN) { "Malformed token $token" }
 
-            fun substituteWithOverride(name: String) = namingConfiguration.packageOverrides[name] ?: name
+            fun substituteWithOverride(name: String) = namingConfiguration.packageOverrides[name]
 
             val module = when (segments[1]) {
-                "providers" -> ""
+                "providers" -> null
                 else -> {
                     val moduleMatches = namingConfiguration.moduleFormatRegex.matchEntire(segments[1])
                         ?.groupValues
                         .orEmpty()
 
                     if (moduleMatches.size < 2 || moduleMatches[1].startsWith("index")) {
-                        ""
+                        null
                     } else {
                         moduleMatches[1]
                     }
                 }
             }
 
-            val providerName = substituteWithOverride(namingConfiguration.providerName)
-            val moduleName = substituteWithOverride(module)
-
-            val namespace = (namingConfiguration.baseNamespace + providerName + moduleName)
-                .filter { it.isNotBlank() }
-                .map { it.replace("-", "") }
+            val providerNameOverride = substituteWithOverride(namingConfiguration.providerName)
+            val moduleName = module?.let { substituteWithOverride(it) } ?: module
 
             val name = segments[2]
 
             if (name.contains("/")) {
+                val namespace = (
+                    namingConfiguration.baseNamespace +
+                        (providerNameOverride ?: namingConfiguration.providerName) +
+                        moduleName
+                    )
+                    .filterNotNull()
                 throw InvalidPulumiName(name, namespace)
             }
 
-            return PulumiName(providerName, namespace, name)
+            return PulumiName(
+                namingConfiguration.providerName,
+                providerNameOverride,
+                namingConfiguration.baseNamespace,
+                moduleName,
+                name,
+                isProvider,
+            )
         }
     }
 }

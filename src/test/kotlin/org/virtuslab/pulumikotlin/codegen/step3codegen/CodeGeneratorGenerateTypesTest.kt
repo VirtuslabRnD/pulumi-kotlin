@@ -24,7 +24,7 @@ internal class CodeGeneratorGenerateTypesTest {
     fun `generated kotlin files for some handcrafted types should compile`() {
         val firstType = ComplexType(
             TypeMetadata(
-                PulumiName("aws", listOf("aws"), "FirstType"),
+                PulumiName("aws", null, emptyList(), null, "FirstType", false),
                 UsageKind(Nested, Resource, Input),
                 KDoc(null, null),
             ),
@@ -38,7 +38,7 @@ internal class CodeGeneratorGenerateTypesTest {
         )
         val secondType = ComplexType(
             TypeMetadata(
-                PulumiName("aws", listOf("aws"), "SecondType"),
+                PulumiName("aws", null, emptyList(), "aws", "SecondType", false),
                 UsageKind(Nested, Resource, Input),
                 KDoc(null, null),
             ),
