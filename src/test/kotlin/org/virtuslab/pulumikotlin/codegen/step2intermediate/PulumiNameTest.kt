@@ -16,6 +16,7 @@ import org.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import org.virtuslab.pulumikotlin.codegen.utils.DEFAULT_PROVIDER_TOKEN
 import org.virtuslab.pulumikotlin.namingConfigurationWithSlashInModuleFormat
+import org.virtuslab.pulumikotlin.pulumiName
 
 internal class PulumiNameTest {
 
@@ -28,17 +29,17 @@ internal class PulumiNameTest {
         TypeName(
             "aws:acm/CertificateOptions:CertificateOptions",
             namingConfigurationWithSlashInModuleFormat("aws"),
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
         ),
         ResourceName(
             "aws:acm/certificate:Certificate",
             namingConfigurationWithSlashInModuleFormat("aws"),
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "Certificate", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "Certificate"),
         ),
         FunctionName(
             "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
             namingConfigurationWithSlashInModuleFormat("aws"),
-            PulumiName("aws", null, listOf("com", "pulumi"), "acmpca", "getCertificateAuthority", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acmpca", "getCertificateAuthority"),
         ),
         LongFunctionName(
             "aws:acmpca/getCertificateAuthorityRevocationConfigurationCrlConfiguration:getCertificateAuthorityRevocationConfigurationCrlConfiguration",
@@ -69,43 +70,43 @@ internal class PulumiNameTest {
         val expectedPackageWithModifiers: String,
     ) {
         KotlinResourceInput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Resource, Input, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
         KotlinResourceOutput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Resource, Output, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
         KotlinFunctionInput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Function, Input, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
         KotlinFunctionOutput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Function, Output, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
 
         JavaResourceInput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Resource, Input, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
         JavaResourceOutput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Resource, Output, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
         JavaFunctionInput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Function, Input, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
         JavaFunctionOutput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Function, Output, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),

@@ -4,6 +4,7 @@ import com.pulumi.core.Output
 import io.github.cdklabs.projen.java.JavaProject
 import io.github.cdklabs.projen.java.JavaProjectOptions
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiName
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiNamingConfiguration
 import java.io.File
 import java.time.LocalDateTime
@@ -24,6 +25,9 @@ internal fun namingConfigurationWithSlashInModuleFormat(
         moduleFormat = "(.*)(?:/[^/]*)",
         packageOverrides = packageOverrides,
     )
+
+internal fun pulumiName(providerName: String, baseNamespace: List<String>, moduleName: String, name: String) =
+    PulumiName(providerName, null, baseNamespace, moduleName, name, false)
 
 private fun messagePrefix(message: String?) = if (message == null) "" else "$message. "
 
