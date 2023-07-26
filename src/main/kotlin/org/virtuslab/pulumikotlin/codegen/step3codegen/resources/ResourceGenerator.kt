@@ -31,7 +31,6 @@ import org.virtuslab.pulumikotlin.codegen.step3codegen.TypeNameClashResolver
 import org.virtuslab.pulumikotlin.codegen.step3codegen.addDeprecationWarningIfAvailable
 import org.virtuslab.pulumikotlin.codegen.step3codegen.addDocs
 import org.virtuslab.pulumikotlin.codegen.step3codegen.addDocsIfAvailable
-import org.virtuslab.pulumikotlin.codegen.utils.decapitalize
 import org.virtuslab.pulumikotlin.codegen.utils.letIf
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
@@ -212,7 +211,7 @@ object ResourceGenerator {
             .build()
 
         val resourceFunction = FunSpec
-            .builder(names.toResourceName(kotlinFlags).decapitalize())
+            .builder(names.toResourceFunctionName(kotlinFlags))
             .addModifiers(KModifier.SUSPEND)
             .returns(resourceClassName)
             .addParameter("name", STRING)
@@ -237,7 +236,7 @@ object ResourceGenerator {
             .build()
 
         val resourceFunctionWithoutLambda = FunSpec
-            .builder(names.toResourceName(kotlinFlags).decapitalize())
+            .builder(names.toResourceFunctionName(kotlinFlags))
             .returns(resourceClassName)
             .addParameter("name", STRING)
             .addStatement("val builder = %T()", resourceBuilderClassName)

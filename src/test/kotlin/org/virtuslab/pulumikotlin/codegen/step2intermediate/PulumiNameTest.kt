@@ -16,6 +16,7 @@ import org.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Function
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.Subject.Resource
 import org.virtuslab.pulumikotlin.codegen.utils.DEFAULT_PROVIDER_TOKEN
 import org.virtuslab.pulumikotlin.namingConfigurationWithSlashInModuleFormat
+import org.virtuslab.pulumikotlin.pulumiName
 
 internal class PulumiNameTest {
 
@@ -28,17 +29,17 @@ internal class PulumiNameTest {
         TypeName(
             "aws:acm/CertificateOptions:CertificateOptions",
             namingConfigurationWithSlashInModuleFormat("aws"),
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
         ),
         ResourceName(
             "aws:acm/certificate:Certificate",
             namingConfigurationWithSlashInModuleFormat("aws"),
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "Certificate", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "Certificate"),
         ),
         FunctionName(
             "aws:acmpca/getCertificateAuthority:getCertificateAuthority",
             namingConfigurationWithSlashInModuleFormat("aws"),
-            PulumiName("aws", null, listOf("com", "pulumi"), "acmpca", "getCertificateAuthority", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acmpca", "getCertificateAuthority"),
         ),
         LongFunctionName(
             "aws:acmpca/getCertificateAuthorityRevocationConfigurationCrlConfiguration:getCertificateAuthorityRevocationConfigurationCrlConfiguration",
@@ -69,43 +70,43 @@ internal class PulumiNameTest {
         val expectedPackageWithModifiers: String,
     ) {
         KotlinResourceInput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Resource, Input, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
         KotlinResourceOutput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Resource, Output, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
         KotlinFunctionInput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Function, Input, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
         KotlinFunctionOutput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Function, Output, Kotlin, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.kotlin.enums",
         ),
 
         JavaResourceInput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Resource, Input, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
         JavaResourceOutput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Resource, Output, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
         JavaFunctionInput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Function, Input, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
         JavaFunctionOutput(
-            PulumiName("aws", null, listOf("com", "pulumi"), "acm", "CertificateOptions", false),
+            pulumiName("aws", listOf("com", "pulumi"), "acm", "CertificateOptions"),
             NamingFlags(Nested, Function, Output, Java, GeneratedClass.EnumClass),
             "com.pulumi.aws.acm.enums",
         ),
@@ -525,7 +526,7 @@ internal class PulumiNameTest {
     }
 
     @Test
-    fun `provider class and package with overriden provider name are correct when targeting Kotlin`() {
+    fun `provider class and package with overridden provider name are correct when targeting Kotlin`() {
         val name = PulumiName.from(
             DEFAULT_PROVIDER_TOKEN,
             namingConfigurationWithSlashInModuleFormat("equinix-metal", mapOf("equinix-metal" to "equinixmetal")),
@@ -541,7 +542,7 @@ internal class PulumiNameTest {
     }
 
     @Test
-    fun `provider class and package with overriden provider name are correct when targeting Java`() {
+    fun `provider class and package with overridden provider name are correct when targeting Java`() {
         val name = PulumiName.from(
             DEFAULT_PROVIDER_TOKEN,
             namingConfigurationWithSlashInModuleFormat("equinix-metal", mapOf("equinix-metal" to "equinixmetal")),
@@ -554,5 +555,80 @@ internal class PulumiNameTest {
 
         assertEquals("Provider", className)
         assertEquals("com.pulumi.equinixmetal", packageName)
+    }
+
+    @Test
+    fun `a resource function name is decapitalized correctly`() {
+        // given
+        val token = "provider:module:OrganizationPolicy"
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
+
+        // when
+        val pulumiName = PulumiName.from(token, namingConfiguration)
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
+        val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
+
+        // then
+        assertEquals("organizationPolicy", resourceFunctionName)
+    }
+
+    @Test
+    fun `a resource function name starting with a two-letter acronym is decapitalized correctly`() {
+        // given
+        val token = "provider:module:VMwareCluster"
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
+
+        // when
+        val pulumiName = PulumiName.from(token, namingConfiguration)
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
+        val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
+
+        // then
+        assertEquals("vMwareCluster", resourceFunctionName)
+    }
+
+    @Test
+    fun `a resource function name starting with a three-letter acronym is decapitalized correctly`() {
+        // given
+        val token = "provider:module:IAMBinding"
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
+
+        // when
+        val pulumiName = PulumiName.from(token, namingConfiguration)
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
+        val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
+
+        // then
+        assertEquals("iamBinding", resourceFunctionName)
+    }
+
+    @Test
+    fun `a resource function name that is a three-letter acronym is decapitalized correctly`() {
+        // given
+        val token = "provider:module:CRL"
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
+
+        // when
+        val pulumiName = PulumiName.from(token, namingConfiguration)
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
+        val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
+
+        // then
+        assertEquals("crl", resourceFunctionName)
+    }
+
+    @Test
+    fun `a resource function name starting with a two-letter acronym and number is decapitalized correctly`() {
+        // given
+        val token = "provider:module:EC2Fleet"
+        val namingConfiguration = PulumiNamingConfiguration.create(providerName = "provider")
+
+        // when
+        val pulumiName = PulumiName.from(token, namingConfiguration)
+        val namingFlags = NamingFlags(Root, Resource, Input, Kotlin)
+        val resourceFunctionName = pulumiName.toResourceFunctionName(namingFlags)
+
+        // then
+        assertEquals("ec2Fleet", resourceFunctionName)
     }
 }

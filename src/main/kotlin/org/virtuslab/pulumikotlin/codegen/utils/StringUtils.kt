@@ -8,6 +8,8 @@ fun String.capitalize() =
 fun String.decapitalize() =
     replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
+fun String.lowercaseBefore(index: Int) = take(index).lowercase() + drop(index)
+
 /**
  * Example:
  * ```kt

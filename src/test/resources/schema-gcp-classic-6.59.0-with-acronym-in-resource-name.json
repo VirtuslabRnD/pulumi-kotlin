@@ -1,0 +1,1595 @@
+{
+  "name": "gcp",
+  "meta": {
+    "moduleFormat": "(.*)(?:/[^/]*)"
+  },
+  "config": {
+    "variables": {
+      "accessApprovalCustomEndpoint": {
+        "type": "string"
+      },
+      "accessContextManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "accessToken": {
+        "type": "string"
+      },
+      "activeDirectoryCustomEndpoint": {
+        "type": "string"
+      },
+      "alloydbCustomEndpoint": {
+        "type": "string"
+      },
+      "apiGatewayCustomEndpoint": {
+        "type": "string"
+      },
+      "apigeeCustomEndpoint": {
+        "type": "string"
+      },
+      "apikeysCustomEndpoint": {
+        "type": "string"
+      },
+      "appEngineCustomEndpoint": {
+        "type": "string"
+      },
+      "artifactRegistryCustomEndpoint": {
+        "type": "string"
+      },
+      "assuredWorkloadsCustomEndpoint": {
+        "type": "string"
+      },
+      "batching": {
+        "$ref": "#/types/gcp:config/batching:batching"
+      },
+      "beyondcorpCustomEndpoint": {
+        "type": "string"
+      },
+      "bigQueryCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryAnalyticsHubCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryConnectionCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryDataTransferCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryDatapolicyCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryReservationCustomEndpoint": {
+        "type": "string"
+      },
+      "bigtableCustomEndpoint": {
+        "type": "string"
+      },
+      "billingCustomEndpoint": {
+        "type": "string"
+      },
+      "billingProject": {
+        "type": "string"
+      },
+      "binaryAuthorizationCustomEndpoint": {
+        "type": "string"
+      },
+      "certificateManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudAssetCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudBillingCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudBuildCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudBuildWorkerPoolCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudFunctionsCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudIdentityCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudIdsCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudIotCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudResourceManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudRunCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudRunV2CustomEndpoint": {
+        "type": "string"
+      },
+      "cloudSchedulerCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudTasksCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudbuildv2CustomEndpoint": {
+        "type": "string"
+      },
+      "clouddeployCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudfunctions2CustomEndpoint": {
+        "type": "string"
+      },
+      "composerCustomEndpoint": {
+        "type": "string"
+      },
+      "computeCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAnalysisCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAttachedCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAwsCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAzureCustomEndpoint": {
+        "type": "string"
+      },
+      "containerCustomEndpoint": {
+        "type": "string"
+      },
+      "credentials": {
+        "type": "string"
+      },
+      "dataCatalogCustomEndpoint": {
+        "type": "string"
+      },
+      "dataFusionCustomEndpoint": {
+        "type": "string"
+      },
+      "dataLossPreventionCustomEndpoint": {
+        "type": "string"
+      },
+      "databaseMigrationServiceCustomEndpoint": {
+        "type": "string"
+      },
+      "dataflowCustomEndpoint": {
+        "type": "string"
+      },
+      "dataformCustomEndpoint": {
+        "type": "string"
+      },
+      "dataplexCustomEndpoint": {
+        "type": "string"
+      },
+      "dataprocCustomEndpoint": {
+        "type": "string"
+      },
+      "dataprocMetastoreCustomEndpoint": {
+        "type": "string"
+      },
+      "datastoreCustomEndpoint": {
+        "type": "string"
+      },
+      "datastreamCustomEndpoint": {
+        "type": "string"
+      },
+      "deploymentManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "dialogflowCustomEndpoint": {
+        "type": "string"
+      },
+      "dialogflowCxCustomEndpoint": {
+        "type": "string"
+      },
+      "disableGooglePartnerName": {
+        "type": "boolean"
+      },
+      "dnsCustomEndpoint": {
+        "type": "string"
+      },
+      "documentAiCustomEndpoint": {
+        "type": "string"
+      },
+      "essentialContactsCustomEndpoint": {
+        "type": "string"
+      },
+      "eventarcCustomEndpoint": {
+        "type": "string"
+      },
+      "filestoreCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseDatabaseCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseHostingCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseStorageCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaserulesCustomEndpoint": {
+        "type": "string"
+      },
+      "firestoreCustomEndpoint": {
+        "type": "string"
+      },
+      "gameServicesCustomEndpoint": {
+        "type": "string"
+      },
+      "gkeBackupCustomEndpoint": {
+        "type": "string"
+      },
+      "gkeHubCustomEndpoint": {
+        "type": "string"
+      },
+      "gkehubFeatureCustomEndpoint": {
+        "type": "string"
+      },
+      "gkeonpremCustomEndpoint": {
+        "type": "string"
+      },
+      "googlePartnerName": {
+        "type": "string"
+      },
+      "healthcareCustomEndpoint": {
+        "type": "string"
+      },
+      "iam2CustomEndpoint": {
+        "type": "string"
+      },
+      "iamBetaCustomEndpoint": {
+        "type": "string"
+      },
+      "iamCredentialsCustomEndpoint": {
+        "type": "string"
+      },
+      "iamCustomEndpoint": {
+        "type": "string"
+      },
+      "iamWorkforcePoolCustomEndpoint": {
+        "type": "string"
+      },
+      "iapCustomEndpoint": {
+        "type": "string"
+      },
+      "identityPlatformCustomEndpoint": {
+        "type": "string"
+      },
+      "impersonateServiceAccount": {
+        "type": "string"
+      },
+      "impersonateServiceAccountDelegates": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "kmsCustomEndpoint": {
+        "type": "string"
+      },
+      "loggingCustomEndpoint": {
+        "type": "string"
+      },
+      "memcacheCustomEndpoint": {
+        "type": "string"
+      },
+      "mlEngineCustomEndpoint": {
+        "type": "string"
+      },
+      "monitoringCustomEndpoint": {
+        "type": "string"
+      },
+      "networkConnectivityCustomEndpoint": {
+        "type": "string"
+      },
+      "networkManagementCustomEndpoint": {
+        "type": "string"
+      },
+      "networkSecurityCustomEndpoint": {
+        "type": "string"
+      },
+      "networkServicesCustomEndpoint": {
+        "type": "string"
+      },
+      "notebooksCustomEndpoint": {
+        "type": "string"
+      },
+      "orgPolicyCustomEndpoint": {
+        "type": "string"
+      },
+      "osConfigCustomEndpoint": {
+        "type": "string"
+      },
+      "osLoginCustomEndpoint": {
+        "type": "string"
+      },
+      "privatecaCustomEndpoint": {
+        "type": "string"
+      },
+      "project": {
+        "type": "string",
+        "defaultInfo": {
+          "environment": [
+            "GOOGLE_PROJECT",
+            "GOOGLE_CLOUD_PROJECT",
+            "GCLOUD_PROJECT",
+            "CLOUDSDK_CORE_PROJECT"
+          ]
+        }
+      },
+      "pubsubCustomEndpoint": {
+        "type": "string"
+      },
+      "pubsubLiteCustomEndpoint": {
+        "type": "string"
+      },
+      "recaptchaEnterpriseCustomEndpoint": {
+        "type": "string"
+      },
+      "redisCustomEndpoint": {
+        "type": "string"
+      },
+      "region": {
+        "type": "string",
+        "defaultInfo": {
+          "environment": [
+            "GOOGLE_REGION",
+            "GCLOUD_REGION",
+            "CLOUDSDK_COMPUTE_REGION"
+          ]
+        }
+      },
+      "requestReason": {
+        "type": "string"
+      },
+      "requestTimeout": {
+        "type": "string"
+      },
+      "resourceManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "resourceManagerV3CustomEndpoint": {
+        "type": "string"
+      },
+      "runtimeConfigCustomEndpoint": {
+        "type": "string"
+      },
+      "runtimeconfigCustomEndpoint": {
+        "type": "string"
+      },
+      "scopes": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "secretManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "securityCenterCustomEndpoint": {
+        "type": "string"
+      },
+      "securityScannerCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceDirectoryCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceManagementCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceNetworkingCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceUsageCustomEndpoint": {
+        "type": "string"
+      },
+      "sourceRepoCustomEndpoint": {
+        "type": "string"
+      },
+      "spannerCustomEndpoint": {
+        "type": "string"
+      },
+      "sqlCustomEndpoint": {
+        "type": "string"
+      },
+      "storageCustomEndpoint": {
+        "type": "string"
+      },
+      "storageTransferCustomEndpoint": {
+        "type": "string"
+      },
+      "tagsCustomEndpoint": {
+        "type": "string"
+      },
+      "tagsLocationCustomEndpoint": {
+        "type": "string"
+      },
+      "tpuCustomEndpoint": {
+        "type": "string"
+      },
+      "userProjectOverride": {
+        "type": "boolean"
+      },
+      "vertexAiCustomEndpoint": {
+        "type": "string"
+      },
+      "vmwareengineCustomEndpoint": {
+        "type": "string"
+      },
+      "vpcAccessCustomEndpoint": {
+        "type": "string"
+      },
+      "workflowsCustomEndpoint": {
+        "type": "string"
+      },
+      "workstationsCustomEndpoint": {
+        "type": "string"
+      },
+      "zone": {
+        "type": "string",
+        "defaultInfo": {
+          "environment": [
+            "GOOGLE_ZONE",
+            "GCLOUD_ZONE",
+            "CLOUDSDK_COMPUTE_ZONE"
+          ]
+        }
+      }
+    }
+  },
+  "language": {
+    "csharp": {
+      "compatibility": "tfbridge20",
+      "namespaces": {
+        "accessapproval": "AccessApproval",
+        "accesscontextmanager": "AccessContextManager",
+        "activedirectory": "ActiveDirectory",
+        "alloydb": "Alloydb",
+        "apigateway": "ApiGateway",
+        "apigee": "Apigee",
+        "appengine": "AppEngine",
+        "artifactregistry": "ArtifactRegistry",
+        "assuredworkloads": "AssuredWorkloads",
+        "beyondcorp": "Beyondcorp",
+        "bigquery": "BigQuery",
+        "bigqueryanalyticshub": "BigQueryAnalyticsHub",
+        "bigquerydatapolicy": "BigQueryDataPolicy",
+        "bigtable": "BigTable",
+        "billing": "Billing",
+        "binaryauthorization": "BinaryAuthorization",
+        "certificateauthority": "CertificateAuthority",
+        "certificatemanager": "CertificateManager",
+        "cloudasset": "CloudAsset",
+        "cloudbuild": "CloudBuild",
+        "cloudbuildv2": "CloudBuildV2",
+        "clouddeploy": "CloudDeploy",
+        "cloudfunctions": "CloudFunctions",
+        "cloudfunctionsv2": "CloudFunctionsV2",
+        "cloudidentity": "CloudIdentity",
+        "cloudids": "CloudIds",
+        "cloudrun": "CloudRun",
+        "cloudrunv2": "CloudRunV2",
+        "cloudscheduler": "CloudScheduler",
+        "cloudtasks": "CloudTasks",
+        "composer": "Composer",
+        "compute": "Compute",
+        "container": "Container",
+        "containeranalysis": "ContainerAnalysis",
+        "databasemigrationservice": "DatabaseMigrationService",
+        "datacatalog": "DataCatalog",
+        "dataflow": "Dataflow",
+        "dataform": "Dataform",
+        "datafusion": "DataFusion",
+        "dataloss": "DataLoss",
+        "dataplex": "DataPlex",
+        "dataproc": "Dataproc",
+        "datastore": "Datastore",
+        "datastream": "Datastream",
+        "deploymentmanager": "DeploymentManager",
+        "diagflow": "Diagflow",
+        "dns": "Dns",
+        "endpoints": "Endpoints",
+        "essentialcontacts": "EssentialContacts",
+        "eventarc": "Eventarc",
+        "filestore": "Filestore",
+        "firebase": "Firebase",
+        "firebaserules": "Firebaserules",
+        "firestore": "Firestore",
+        "folder": "Folder",
+        "gameservices": "GameServices",
+        "gcp": "Gcp",
+        "gkebackup": "GkeBackup",
+        "gkehub": "GkeHub",
+        "gkeonprem": "GkeOnPrem",
+        "healthcare": "Healthcare",
+        "iam": "Iam",
+        "iap": "Iap",
+        "identityplatform": "IdentityPlatform",
+        "iot": "Iot",
+        "kms": "Kms",
+        "logging": "Logging",
+        "memcache": "Memcache",
+        "ml": "ML",
+        "monitoring": "Monitoring",
+        "networkconnectivity": "NetworkConnectivity",
+        "networkmanagement": "NetworkManagement",
+        "networksecurity": "NetworkSecurity",
+        "networkservices": "NetworkServices",
+        "notebooks": "Notebooks",
+        "organizations": "Organizations",
+        "orgpolicy": "OrgPolicy",
+        "osconfig": "OsConfig",
+        "oslogin": "OsLogin",
+        "projects": "Projects",
+        "pubsub": "PubSub",
+        "recaptcha": "Recaptcha",
+        "redis": "Redis",
+        "resourcemanager": "ResourceManager",
+        "runtimeconfig": "RuntimeConfig",
+        "secretmanager": "SecretManager",
+        "securitycenter": "SecurityCenter",
+        "serviceAccount": "ServiceAccount",
+        "servicedirectory": "ServiceDirectory",
+        "servicenetworking": "ServiceNetworking",
+        "serviceusage": "ServiceUsage",
+        "sourcerepo": "SourceRepo",
+        "spanner": "Spanner",
+        "sql": "Sql",
+        "storage": "Storage",
+        "tags": "Tags",
+        "tpu": "Tpu",
+        "vertex": "Vertex",
+        "vmwareengine": "VMwareEngine",
+        "vpcaccess": "VpcAccess",
+        "workflows": "Workflows",
+        "workstations": "Workstations"
+      },
+      "packageReferences": {
+        "Pulumi": "3.*"
+      }
+    },
+    "go": {
+      "generateExtraInputTypes": true,
+      "generateResourceContainerTypes": true,
+      "importBasePath": "github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp"
+    },
+    "nodejs": {
+      "compatibility": "tfbridge20",
+      "dependencies": {
+        "@pulumi/pulumi": "^3.0.0",
+        "@types/express": "^4.16.0",
+        "read-package-json": "^2.0.13"
+      },
+      "devDependencies": {
+        "@types/node": "^10.0.0"
+      },
+      "disableUnionOutputTypes": true,
+      "packageDescription": "A Pulumi package for creating and managing Google Cloud Platform resources.",
+      "packageName": "",
+      "readme": "> This provider is a derived work of the [Terraform Provider](https://github.com/hashicorp/terraform-provider-google-beta)\n> distributed under [MPL 2.0](https://www.mozilla.org/en-US/MPL/2.0/). If you encounter a bug or missing feature,\n> first check the [`pulumi-gcp` repo](https://github.com/pulumi/pulumi-gcp/issues); however, if that doesn't turn up anything,\n> please consult the source [`terraform-provider-google-beta` repo](https://github.com/hashicorp/terraform-provider-google-beta/issues).",
+      "typescriptVersion": ""
+    },
+    "python": {
+      "compatibility": "tfbridge20",
+      "readme": "> This provider is a derived work of the [Terraform Provider](https://github.com/hashicorp/terraform-provider-google-beta)\n> distributed under [MPL 2.0](https://www.mozilla.org/en-US/MPL/2.0/). If you encounter a bug or missing feature,\n> first check the [`pulumi-gcp` repo](https://github.com/pulumi/pulumi-gcp/issues); however, if that doesn't turn up anything,\n> please consult the source [`terraform-provider-google-beta` repo](https://github.com/hashicorp/terraform-provider-google-beta/issues).",
+      "requires": {
+        "pulumi": ">=3.0.0,<4.0.0"
+      }
+    }
+  },
+  "provider": {
+    "description": "The provider type for the google-beta package. By default, resources use package-wide configuration\nsettings, however an explicit `Provider` instance may be created and passed during resource\nconstruction to achieve fine-grained programmatic control over provider settings. See the\n[documentation](https://www.pulumi.com/docs/reference/programming-model/#providers) for more information.\n",
+    "properties": {
+      "accessApprovalCustomEndpoint": {
+        "type": "string"
+      },
+      "accessContextManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "accessToken": {
+        "type": "string"
+      },
+      "activeDirectoryCustomEndpoint": {
+        "type": "string"
+      },
+      "alloydbCustomEndpoint": {
+        "type": "string"
+      },
+      "apiGatewayCustomEndpoint": {
+        "type": "string"
+      },
+      "apigeeCustomEndpoint": {
+        "type": "string"
+      },
+      "apikeysCustomEndpoint": {
+        "type": "string"
+      },
+      "appEngineCustomEndpoint": {
+        "type": "string"
+      },
+      "artifactRegistryCustomEndpoint": {
+        "type": "string"
+      },
+      "assuredWorkloadsCustomEndpoint": {
+        "type": "string"
+      },
+      "batching": {
+        "$ref": "#/types/gcp:index/ProviderBatching:ProviderBatching"
+      },
+      "beyondcorpCustomEndpoint": {
+        "type": "string"
+      },
+      "bigQueryCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryAnalyticsHubCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryConnectionCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryDataTransferCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryDatapolicyCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryReservationCustomEndpoint": {
+        "type": "string"
+      },
+      "bigtableCustomEndpoint": {
+        "type": "string"
+      },
+      "billingCustomEndpoint": {
+        "type": "string"
+      },
+      "billingProject": {
+        "type": "string"
+      },
+      "binaryAuthorizationCustomEndpoint": {
+        "type": "string"
+      },
+      "certificateManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudAssetCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudBillingCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudBuildCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudBuildWorkerPoolCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudFunctionsCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudIdentityCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudIdsCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudIotCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudResourceManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudRunCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudRunV2CustomEndpoint": {
+        "type": "string"
+      },
+      "cloudSchedulerCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudTasksCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudbuildv2CustomEndpoint": {
+        "type": "string"
+      },
+      "clouddeployCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudfunctions2CustomEndpoint": {
+        "type": "string"
+      },
+      "composerCustomEndpoint": {
+        "type": "string"
+      },
+      "computeCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAnalysisCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAttachedCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAwsCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAzureCustomEndpoint": {
+        "type": "string"
+      },
+      "containerCustomEndpoint": {
+        "type": "string"
+      },
+      "credentials": {
+        "type": "string"
+      },
+      "dataCatalogCustomEndpoint": {
+        "type": "string"
+      },
+      "dataFusionCustomEndpoint": {
+        "type": "string"
+      },
+      "dataLossPreventionCustomEndpoint": {
+        "type": "string"
+      },
+      "databaseMigrationServiceCustomEndpoint": {
+        "type": "string"
+      },
+      "dataflowCustomEndpoint": {
+        "type": "string"
+      },
+      "dataformCustomEndpoint": {
+        "type": "string"
+      },
+      "dataplexCustomEndpoint": {
+        "type": "string"
+      },
+      "dataprocCustomEndpoint": {
+        "type": "string"
+      },
+      "dataprocMetastoreCustomEndpoint": {
+        "type": "string"
+      },
+      "datastoreCustomEndpoint": {
+        "type": "string"
+      },
+      "datastreamCustomEndpoint": {
+        "type": "string"
+      },
+      "deploymentManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "dialogflowCustomEndpoint": {
+        "type": "string"
+      },
+      "dialogflowCxCustomEndpoint": {
+        "type": "string"
+      },
+      "disableGooglePartnerName": {
+        "type": "boolean"
+      },
+      "dnsCustomEndpoint": {
+        "type": "string"
+      },
+      "documentAiCustomEndpoint": {
+        "type": "string"
+      },
+      "essentialContactsCustomEndpoint": {
+        "type": "string"
+      },
+      "eventarcCustomEndpoint": {
+        "type": "string"
+      },
+      "filestoreCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseDatabaseCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseHostingCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseStorageCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaserulesCustomEndpoint": {
+        "type": "string"
+      },
+      "firestoreCustomEndpoint": {
+        "type": "string"
+      },
+      "gameServicesCustomEndpoint": {
+        "type": "string"
+      },
+      "gkeBackupCustomEndpoint": {
+        "type": "string"
+      },
+      "gkeHubCustomEndpoint": {
+        "type": "string"
+      },
+      "gkehubFeatureCustomEndpoint": {
+        "type": "string"
+      },
+      "gkeonpremCustomEndpoint": {
+        "type": "string"
+      },
+      "googlePartnerName": {
+        "type": "string"
+      },
+      "healthcareCustomEndpoint": {
+        "type": "string"
+      },
+      "iam2CustomEndpoint": {
+        "type": "string"
+      },
+      "iamBetaCustomEndpoint": {
+        "type": "string"
+      },
+      "iamCredentialsCustomEndpoint": {
+        "type": "string"
+      },
+      "iamCustomEndpoint": {
+        "type": "string"
+      },
+      "iamWorkforcePoolCustomEndpoint": {
+        "type": "string"
+      },
+      "iapCustomEndpoint": {
+        "type": "string"
+      },
+      "identityPlatformCustomEndpoint": {
+        "type": "string"
+      },
+      "impersonateServiceAccount": {
+        "type": "string"
+      },
+      "impersonateServiceAccountDelegates": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "kmsCustomEndpoint": {
+        "type": "string"
+      },
+      "loggingCustomEndpoint": {
+        "type": "string"
+      },
+      "memcacheCustomEndpoint": {
+        "type": "string"
+      },
+      "mlEngineCustomEndpoint": {
+        "type": "string"
+      },
+      "monitoringCustomEndpoint": {
+        "type": "string"
+      },
+      "networkConnectivityCustomEndpoint": {
+        "type": "string"
+      },
+      "networkManagementCustomEndpoint": {
+        "type": "string"
+      },
+      "networkSecurityCustomEndpoint": {
+        "type": "string"
+      },
+      "networkServicesCustomEndpoint": {
+        "type": "string"
+      },
+      "notebooksCustomEndpoint": {
+        "type": "string"
+      },
+      "orgPolicyCustomEndpoint": {
+        "type": "string"
+      },
+      "osConfigCustomEndpoint": {
+        "type": "string"
+      },
+      "osLoginCustomEndpoint": {
+        "type": "string"
+      },
+      "privatecaCustomEndpoint": {
+        "type": "string"
+      },
+      "project": {
+        "type": "string"
+      },
+      "pubsubCustomEndpoint": {
+        "type": "string"
+      },
+      "pubsubLiteCustomEndpoint": {
+        "type": "string"
+      },
+      "recaptchaEnterpriseCustomEndpoint": {
+        "type": "string"
+      },
+      "redisCustomEndpoint": {
+        "type": "string"
+      },
+      "region": {
+        "type": "string"
+      },
+      "requestReason": {
+        "type": "string"
+      },
+      "requestTimeout": {
+        "type": "string"
+      },
+      "resourceManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "resourceManagerV3CustomEndpoint": {
+        "type": "string"
+      },
+      "runtimeConfigCustomEndpoint": {
+        "type": "string"
+      },
+      "runtimeconfigCustomEndpoint": {
+        "type": "string"
+      },
+      "scopes": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "secretManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "securityCenterCustomEndpoint": {
+        "type": "string"
+      },
+      "securityScannerCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceDirectoryCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceManagementCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceNetworkingCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceUsageCustomEndpoint": {
+        "type": "string"
+      },
+      "sourceRepoCustomEndpoint": {
+        "type": "string"
+      },
+      "spannerCustomEndpoint": {
+        "type": "string"
+      },
+      "sqlCustomEndpoint": {
+        "type": "string"
+      },
+      "storageCustomEndpoint": {
+        "type": "string"
+      },
+      "storageTransferCustomEndpoint": {
+        "type": "string"
+      },
+      "tagsCustomEndpoint": {
+        "type": "string"
+      },
+      "tagsLocationCustomEndpoint": {
+        "type": "string"
+      },
+      "tpuCustomEndpoint": {
+        "type": "string"
+      },
+      "userProjectOverride": {
+        "type": "boolean"
+      },
+      "vertexAiCustomEndpoint": {
+        "type": "string"
+      },
+      "vmwareengineCustomEndpoint": {
+        "type": "string"
+      },
+      "vpcAccessCustomEndpoint": {
+        "type": "string"
+      },
+      "workflowsCustomEndpoint": {
+        "type": "string"
+      },
+      "workstationsCustomEndpoint": {
+        "type": "string"
+      },
+      "zone": {
+        "type": "string"
+      }
+    },
+    "inputProperties": {
+      "accessApprovalCustomEndpoint": {
+        "type": "string"
+      },
+      "accessContextManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "accessToken": {
+        "type": "string"
+      },
+      "activeDirectoryCustomEndpoint": {
+        "type": "string"
+      },
+      "alloydbCustomEndpoint": {
+        "type": "string"
+      },
+      "apiGatewayCustomEndpoint": {
+        "type": "string"
+      },
+      "apigeeCustomEndpoint": {
+        "type": "string"
+      },
+      "apikeysCustomEndpoint": {
+        "type": "string"
+      },
+      "appEngineCustomEndpoint": {
+        "type": "string"
+      },
+      "artifactRegistryCustomEndpoint": {
+        "type": "string"
+      },
+      "assuredWorkloadsCustomEndpoint": {
+        "type": "string"
+      },
+      "batching": {
+        "$ref": "#/types/gcp:index/ProviderBatching:ProviderBatching"
+      },
+      "beyondcorpCustomEndpoint": {
+        "type": "string"
+      },
+      "bigQueryCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryAnalyticsHubCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryConnectionCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryDataTransferCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryDatapolicyCustomEndpoint": {
+        "type": "string"
+      },
+      "bigqueryReservationCustomEndpoint": {
+        "type": "string"
+      },
+      "bigtableCustomEndpoint": {
+        "type": "string"
+      },
+      "billingCustomEndpoint": {
+        "type": "string"
+      },
+      "billingProject": {
+        "type": "string"
+      },
+      "binaryAuthorizationCustomEndpoint": {
+        "type": "string"
+      },
+      "certificateManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudAssetCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudBillingCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudBuildCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudBuildWorkerPoolCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudFunctionsCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudIdentityCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudIdsCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudIotCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudResourceManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudRunCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudRunV2CustomEndpoint": {
+        "type": "string"
+      },
+      "cloudSchedulerCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudTasksCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudbuildv2CustomEndpoint": {
+        "type": "string"
+      },
+      "clouddeployCustomEndpoint": {
+        "type": "string"
+      },
+      "cloudfunctions2CustomEndpoint": {
+        "type": "string"
+      },
+      "composerCustomEndpoint": {
+        "type": "string"
+      },
+      "computeCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAnalysisCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAttachedCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAwsCustomEndpoint": {
+        "type": "string"
+      },
+      "containerAzureCustomEndpoint": {
+        "type": "string"
+      },
+      "containerCustomEndpoint": {
+        "type": "string"
+      },
+      "credentials": {
+        "type": "string"
+      },
+      "dataCatalogCustomEndpoint": {
+        "type": "string"
+      },
+      "dataFusionCustomEndpoint": {
+        "type": "string"
+      },
+      "dataLossPreventionCustomEndpoint": {
+        "type": "string"
+      },
+      "databaseMigrationServiceCustomEndpoint": {
+        "type": "string"
+      },
+      "dataflowCustomEndpoint": {
+        "type": "string"
+      },
+      "dataformCustomEndpoint": {
+        "type": "string"
+      },
+      "dataplexCustomEndpoint": {
+        "type": "string"
+      },
+      "dataprocCustomEndpoint": {
+        "type": "string"
+      },
+      "dataprocMetastoreCustomEndpoint": {
+        "type": "string"
+      },
+      "datastoreCustomEndpoint": {
+        "type": "string"
+      },
+      "datastreamCustomEndpoint": {
+        "type": "string"
+      },
+      "deploymentManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "dialogflowCustomEndpoint": {
+        "type": "string"
+      },
+      "dialogflowCxCustomEndpoint": {
+        "type": "string"
+      },
+      "disableGooglePartnerName": {
+        "type": "boolean"
+      },
+      "dnsCustomEndpoint": {
+        "type": "string"
+      },
+      "documentAiCustomEndpoint": {
+        "type": "string"
+      },
+      "essentialContactsCustomEndpoint": {
+        "type": "string"
+      },
+      "eventarcCustomEndpoint": {
+        "type": "string"
+      },
+      "filestoreCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseDatabaseCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseHostingCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaseStorageCustomEndpoint": {
+        "type": "string"
+      },
+      "firebaserulesCustomEndpoint": {
+        "type": "string"
+      },
+      "firestoreCustomEndpoint": {
+        "type": "string"
+      },
+      "gameServicesCustomEndpoint": {
+        "type": "string"
+      },
+      "gkeBackupCustomEndpoint": {
+        "type": "string"
+      },
+      "gkeHubCustomEndpoint": {
+        "type": "string"
+      },
+      "gkehubFeatureCustomEndpoint": {
+        "type": "string"
+      },
+      "gkeonpremCustomEndpoint": {
+        "type": "string"
+      },
+      "googlePartnerName": {
+        "type": "string"
+      },
+      "healthcareCustomEndpoint": {
+        "type": "string"
+      },
+      "iam2CustomEndpoint": {
+        "type": "string"
+      },
+      "iamBetaCustomEndpoint": {
+        "type": "string"
+      },
+      "iamCredentialsCustomEndpoint": {
+        "type": "string"
+      },
+      "iamCustomEndpoint": {
+        "type": "string"
+      },
+      "iamWorkforcePoolCustomEndpoint": {
+        "type": "string"
+      },
+      "iapCustomEndpoint": {
+        "type": "string"
+      },
+      "identityPlatformCustomEndpoint": {
+        "type": "string"
+      },
+      "impersonateServiceAccount": {
+        "type": "string"
+      },
+      "impersonateServiceAccountDelegates": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "kmsCustomEndpoint": {
+        "type": "string"
+      },
+      "loggingCustomEndpoint": {
+        "type": "string"
+      },
+      "memcacheCustomEndpoint": {
+        "type": "string"
+      },
+      "mlEngineCustomEndpoint": {
+        "type": "string"
+      },
+      "monitoringCustomEndpoint": {
+        "type": "string"
+      },
+      "networkConnectivityCustomEndpoint": {
+        "type": "string"
+      },
+      "networkManagementCustomEndpoint": {
+        "type": "string"
+      },
+      "networkSecurityCustomEndpoint": {
+        "type": "string"
+      },
+      "networkServicesCustomEndpoint": {
+        "type": "string"
+      },
+      "notebooksCustomEndpoint": {
+        "type": "string"
+      },
+      "orgPolicyCustomEndpoint": {
+        "type": "string"
+      },
+      "osConfigCustomEndpoint": {
+        "type": "string"
+      },
+      "osLoginCustomEndpoint": {
+        "type": "string"
+      },
+      "privatecaCustomEndpoint": {
+        "type": "string"
+      },
+      "project": {
+        "type": "string",
+        "defaultInfo": {
+          "environment": [
+            "GOOGLE_PROJECT",
+            "GOOGLE_CLOUD_PROJECT",
+            "GCLOUD_PROJECT",
+            "CLOUDSDK_CORE_PROJECT"
+          ]
+        }
+      },
+      "pubsubCustomEndpoint": {
+        "type": "string"
+      },
+      "pubsubLiteCustomEndpoint": {
+        "type": "string"
+      },
+      "recaptchaEnterpriseCustomEndpoint": {
+        "type": "string"
+      },
+      "redisCustomEndpoint": {
+        "type": "string"
+      },
+      "region": {
+        "type": "string",
+        "defaultInfo": {
+          "environment": [
+            "GOOGLE_REGION",
+            "GCLOUD_REGION",
+            "CLOUDSDK_COMPUTE_REGION"
+          ]
+        }
+      },
+      "requestReason": {
+        "type": "string"
+      },
+      "requestTimeout": {
+        "type": "string"
+      },
+      "resourceManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "resourceManagerV3CustomEndpoint": {
+        "type": "string"
+      },
+      "runtimeConfigCustomEndpoint": {
+        "type": "string"
+      },
+      "runtimeconfigCustomEndpoint": {
+        "type": "string"
+      },
+      "scopes": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "secretManagerCustomEndpoint": {
+        "type": "string"
+      },
+      "securityCenterCustomEndpoint": {
+        "type": "string"
+      },
+      "securityScannerCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceDirectoryCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceManagementCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceNetworkingCustomEndpoint": {
+        "type": "string"
+      },
+      "serviceUsageCustomEndpoint": {
+        "type": "string"
+      },
+      "sourceRepoCustomEndpoint": {
+        "type": "string"
+      },
+      "spannerCustomEndpoint": {
+        "type": "string"
+      },
+      "sqlCustomEndpoint": {
+        "type": "string"
+      },
+      "storageCustomEndpoint": {
+        "type": "string"
+      },
+      "storageTransferCustomEndpoint": {
+        "type": "string"
+      },
+      "tagsCustomEndpoint": {
+        "type": "string"
+      },
+      "tagsLocationCustomEndpoint": {
+        "type": "string"
+      },
+      "tpuCustomEndpoint": {
+        "type": "string"
+      },
+      "userProjectOverride": {
+        "type": "boolean"
+      },
+      "vertexAiCustomEndpoint": {
+        "type": "string"
+      },
+      "vmwareengineCustomEndpoint": {
+        "type": "string"
+      },
+      "vpcAccessCustomEndpoint": {
+        "type": "string"
+      },
+      "workflowsCustomEndpoint": {
+        "type": "string"
+      },
+      "workstationsCustomEndpoint": {
+        "type": "string"
+      },
+      "zone": {
+        "type": "string",
+        "defaultInfo": {
+          "environment": [
+            "GOOGLE_ZONE",
+            "GCLOUD_ZONE",
+            "CLOUDSDK_COMPUTE_ZONE"
+          ]
+        }
+      }
+    }
+  },
+  "types": {
+    "gcp:index/ProviderBatching:ProviderBatching": {
+      "properties": {
+        "enableBatching": {
+          "type": "boolean"
+        },
+        "sendAfter": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "gcp:projects/IAMMemberCondition:IAMMemberCondition": {
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.\n\n> **Warning:** This provider considers the `role` and condition contents (`title`+`description`+`expression`) as the\nidentifier for the binding. This means that if any part of the condition is changed out-of-band, the provider will\nconsider it to be an entirely different resource and will treat it as such.\n",
+          "willReplaceOnChanges": true
+        },
+        "expression": {
+          "type": "string",
+          "description": "Textual representation of an expression in Common Expression Language syntax.\n",
+          "willReplaceOnChanges": true
+        },
+        "title": {
+          "type": "string",
+          "description": "A title for the expression, i.e. a short string describing its purpose.\n",
+          "willReplaceOnChanges": true
+        }
+      },
+      "type": "object",
+      "required": [
+        "expression",
+        "title"
+      ]
+    }
+  },
+  "resources": {
+    "gcp:projects/iAMMember:IAMMember": {
+      "description": "Four different resources help you manage your IAM policy for a project. Each of these resources serves a different use case:\n\n* `gcp.projects.IAMPolicy`: Authoritative. Sets the IAM policy for the project and replaces any existing policy already attached.\n* `gcp.projects.IAMBinding`: Authoritative for a given role. Updates the IAM policy to grant a role to a list of members. Other roles within the IAM policy for the project are preserved.\n* `gcp.projects.IAMMember`: Non-authoritative. Updates the IAM policy to grant a role to a new member. Other members for the role for the project are preserved.\n* `gcp.projects.IAMAuditConfig`: Authoritative for a given service. Updates the IAM policy to enable audit logging for the given service.\n\n> **Note:** `gcp.projects.IAMPolicy` **cannot** be used in conjunction with `gcp.projects.IAMBinding`, `gcp.projects.IAMMember`, or `gcp.projects.IAMAuditConfig` or they will fight over what your policy should be.\n\n> **Note:** `gcp.projects.IAMBinding` resources **can be** used in conjunction with `gcp.projects.IAMMember` resources **only if** they do not grant privilege to the same role.\n\n> **Note:** The underlying API method `projects.setIamPolicy` has a lot of constraints which are documented [here](https://cloud.google.com/resource-manager/reference/rest/v1/projects/setIamPolicy). In addition to these constraints, \n   IAM Conditions cannot be used with Basic Roles such as Owner. Violating these constraints will result in the API returning 400 error code so please review these if you encounter errors with this resource.\n\n## google\\_project\\_iam\\_policy\n\n!> **Be careful!** You can accidentally lock yourself out of your project\n   using this resource. Deleting a `gcp.projects.IAMPolicy` removes access\n   from anyone without organization-level access to the project. Proceed with caution.\n   It's not recommended to use `gcp.projects.IAMPolicy` with your provider project\n   to avoid locking yourself out, and it should generally only be used with projects\n   fully managed by this provider. If you do use this resource, it is recommended to **import** the policy before\n   applying the change.\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as gcp from \"@pulumi/gcp\";\n\nconst admin = gcp.organizations.getIAMPolicy({\n    bindings: [{\n        role: \"roles/editor\",\n        members: [\"user:jane@example.com\"],\n    }],\n});\nconst project = new gcp.projects.IAMPolicy(\"project\", {\n    project: \"your-project-id\",\n    policyData: admin.then(admin => admin.policyData),\n});\n```\n```python\nimport pulumi\nimport pulumi_gcp as gcp\n\nadmin = gcp.organizations.get_iam_policy(bindings=[gcp.organizations.GetIAMPolicyBindingArgs(\n    role=\"roles/editor\",\n    members=[\"user:jane@example.com\"],\n)])\nproject = gcp.projects.IAMPolicy(\"project\",\n    project=\"your-project-id\",\n    policy_data=admin.policy_data)\n```\n```csharp\nusing System.Collections.Generic;\nusing System.Linq;\nusing Pulumi;\nusing Gcp = Pulumi.Gcp;\n\nreturn await Deployment.RunAsync(() => \n{\n    var admin = Gcp.Organizations.GetIAMPolicy.Invoke(new()\n    {\n        Bindings = new[]\n        {\n            new Gcp.Organizations.Inputs.GetIAMPolicyBindingInputArgs\n            {\n                Role = \"roles/editor\",\n                Members = new[]\n                {\n                    \"user:jane@example.com\",\n                },\n            },\n        },\n    });\n\n    var project = new Gcp.Projects.IAMPolicy(\"project\", new()\n    {\n        Project = \"your-project-id\",\n        PolicyData = admin.Apply(getIAMPolicyResult => getIAMPolicyResult.PolicyData),\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp/organizations\"\n\t\"github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp/projects\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\tadmin, err := organizations.LookupIAMPolicy(ctx, &organizations.LookupIAMPolicyArgs{\n\t\t\tBindings: []organizations.GetIAMPolicyBinding{\n\t\t\t\t{\n\t\t\t\t\tRole: \"roles/editor\",\n\t\t\t\t\tMembers: []string{\n\t\t\t\t\t\t\"user:jane@example.com\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t}, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = projects.NewIAMPolicy(ctx, \"project\", &projects.IAMPolicyArgs{\n\t\t\tProject:    pulumi.String(\"your-project-id\"),\n\t\t\tPolicyData: *pulumi.String(admin.PolicyData),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.gcp.organizations.OrganizationsFunctions;\nimport com.pulumi.gcp.organizations.inputs.GetIAMPolicyArgs;\nimport com.pulumi.gcp.projects.IAMPolicy;\nimport com.pulumi.gcp.projects.IAMPolicyArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        final var admin = OrganizationsFunctions.getIAMPolicy(GetIAMPolicyArgs.builder()\n            .bindings(GetIAMPolicyBindingArgs.builder()\n                .role(\"roles/editor\")\n                .members(\"user:jane@example.com\")\n                .build())\n            .build());\n\n        var project = new IAMPolicy(\"project\", IAMPolicyArgs.builder()        \n            .project(\"your-project-id\")\n            .policyData(admin.applyValue(getIAMPolicyResult -> getIAMPolicyResult.policyData()))\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  project:\n    type: gcp:projects:IAMPolicy\n    properties:\n      project: your-project-id\n      policyData: ${admin.policyData}\nvariables:\n  admin:\n    fn::invoke:\n      Function: gcp:organizations:getIAMPolicy\n      Arguments:\n        bindings:\n          - role: roles/editor\n            members:\n              - user:jane@example.com\n```\n\nWith IAM Conditions:\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as gcp from \"@pulumi/gcp\";\n\nconst admin = gcp.organizations.getIAMPolicy({\n    bindings: [{\n        condition: {\n            description: \"Expiring at midnight of 2019-12-31\",\n            expression: \"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\",\n            title: \"expires_after_2019_12_31\",\n        },\n        members: [\"user:jane@example.com\"],\n        role: \"roles/compute.admin\",\n    }],\n});\nconst project = new gcp.projects.IAMPolicy(\"project\", {\n    policyData: admin.then(admin => admin.policyData),\n    project: \"your-project-id\",\n});\n```\n```python\nimport pulumi\nimport pulumi_gcp as gcp\n\nadmin = gcp.organizations.get_iam_policy(bindings=[gcp.organizations.GetIAMPolicyBindingArgs(\n    condition=gcp.organizations.GetIAMPolicyBindingConditionArgs(\n        description=\"Expiring at midnight of 2019-12-31\",\n        expression=\"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\",\n        title=\"expires_after_2019_12_31\",\n    ),\n    members=[\"user:jane@example.com\"],\n    role=\"roles/compute.admin\",\n)])\nproject = gcp.projects.IAMPolicy(\"project\",\n    policy_data=admin.policy_data,\n    project=\"your-project-id\")\n```\n```csharp\nusing System.Collections.Generic;\nusing System.Linq;\nusing Pulumi;\nusing Gcp = Pulumi.Gcp;\n\nreturn await Deployment.RunAsync(() => \n{\n    var admin = Gcp.Organizations.GetIAMPolicy.Invoke(new()\n    {\n        Bindings = new[]\n        {\n            new Gcp.Organizations.Inputs.GetIAMPolicyBindingInputArgs\n            {\n                Condition = new Gcp.Organizations.Inputs.GetIAMPolicyBindingConditionInputArgs\n                {\n                    Description = \"Expiring at midnight of 2019-12-31\",\n                    Expression = \"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\",\n                    Title = \"expires_after_2019_12_31\",\n                },\n                Members = new[]\n                {\n                    \"user:jane@example.com\",\n                },\n                Role = \"roles/compute.admin\",\n            },\n        },\n    });\n\n    var project = new Gcp.Projects.IAMPolicy(\"project\", new()\n    {\n        PolicyData = admin.Apply(getIAMPolicyResult => getIAMPolicyResult.PolicyData),\n        Project = \"your-project-id\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp/organizations\"\n\t\"github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp/projects\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\tadmin, err := organizations.LookupIAMPolicy(ctx, &organizations.LookupIAMPolicyArgs{\n\t\t\tBindings: []organizations.GetIAMPolicyBinding{\n\t\t\t\t{\n\t\t\t\t\tCondition: {\n\t\t\t\t\t\tDescription: pulumi.StringRef(\"Expiring at midnight of 2019-12-31\"),\n\t\t\t\t\t\tExpression:  \"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\",\n\t\t\t\t\t\tTitle:       \"expires_after_2019_12_31\",\n\t\t\t\t\t},\n\t\t\t\t\tMembers: []string{\n\t\t\t\t\t\t\"user:jane@example.com\",\n\t\t\t\t\t},\n\t\t\t\t\tRole: \"roles/compute.admin\",\n\t\t\t\t},\n\t\t\t},\n\t\t}, nil)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\t_, err = projects.NewIAMPolicy(ctx, \"project\", &projects.IAMPolicyArgs{\n\t\t\tPolicyData: *pulumi.String(admin.PolicyData),\n\t\t\tProject:    pulumi.String(\"your-project-id\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.gcp.organizations.OrganizationsFunctions;\nimport com.pulumi.gcp.organizations.inputs.GetIAMPolicyArgs;\nimport com.pulumi.gcp.projects.IAMPolicy;\nimport com.pulumi.gcp.projects.IAMPolicyArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        final var admin = OrganizationsFunctions.getIAMPolicy(GetIAMPolicyArgs.builder()\n            .bindings(GetIAMPolicyBindingArgs.builder()\n                .condition(GetIAMPolicyBindingConditionArgs.builder()\n                    .description(\"Expiring at midnight of 2019-12-31\")\n                    .expression(\"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\")\n                    .title(\"expires_after_2019_12_31\")\n                    .build())\n                .members(\"user:jane@example.com\")\n                .role(\"roles/compute.admin\")\n                .build())\n            .build());\n\n        var project = new IAMPolicy(\"project\", IAMPolicyArgs.builder()        \n            .policyData(admin.applyValue(getIAMPolicyResult -> getIAMPolicyResult.policyData()))\n            .project(\"your-project-id\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  project:\n    type: gcp:projects:IAMPolicy\n    properties:\n      policyData: ${admin.policyData}\n      project: your-project-id\nvariables:\n  admin:\n    fn::invoke:\n      Function: gcp:organizations:getIAMPolicy\n      Arguments:\n        bindings:\n          - condition:\n              description: Expiring at midnight of 2019-12-31\n              expression: request.time < timestamp(\"2020-01-01T00:00:00Z\")\n              title: expires_after_2019_12_31\n            members:\n              - user:jane@example.com\n            role: roles/compute.admin\n```\n\n## google\\_project\\_iam\\_binding\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as gcp from \"@pulumi/gcp\";\n\nconst project = new gcp.projects.IAMBinding(\"project\", {\n    members: [\"user:jane@example.com\"],\n    project: \"your-project-id\",\n    role: \"roles/editor\",\n});\n```\n```python\nimport pulumi\nimport pulumi_gcp as gcp\n\nproject = gcp.projects.IAMBinding(\"project\",\n    members=[\"user:jane@example.com\"],\n    project=\"your-project-id\",\n    role=\"roles/editor\")\n```\n```csharp\nusing System.Collections.Generic;\nusing System.Linq;\nusing Pulumi;\nusing Gcp = Pulumi.Gcp;\n\nreturn await Deployment.RunAsync(() => \n{\n    var project = new Gcp.Projects.IAMBinding(\"project\", new()\n    {\n        Members = new[]\n        {\n            \"user:jane@example.com\",\n        },\n        Project = \"your-project-id\",\n        Role = \"roles/editor\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp/projects\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := projects.NewIAMBinding(ctx, \"project\", &projects.IAMBindingArgs{\n\t\t\tMembers: pulumi.StringArray{\n\t\t\t\tpulumi.String(\"user:jane@example.com\"),\n\t\t\t},\n\t\t\tProject: pulumi.String(\"your-project-id\"),\n\t\t\tRole:    pulumi.String(\"roles/editor\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.gcp.projects.IAMBinding;\nimport com.pulumi.gcp.projects.IAMBindingArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var project = new IAMBinding(\"project\", IAMBindingArgs.builder()        \n            .members(\"user:jane@example.com\")\n            .project(\"your-project-id\")\n            .role(\"roles/editor\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  project:\n    type: gcp:projects:IAMBinding\n    properties:\n      members:\n        - user:jane@example.com\n      project: your-project-id\n      role: roles/editor\n```\n\nWith IAM Conditions:\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as gcp from \"@pulumi/gcp\";\n\nconst project = new gcp.projects.IAMBinding(\"project\", {\n    condition: {\n        description: \"Expiring at midnight of 2019-12-31\",\n        expression: \"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\",\n        title: \"expires_after_2019_12_31\",\n    },\n    members: [\"user:jane@example.com\"],\n    project: \"your-project-id\",\n    role: \"roles/container.admin\",\n});\n```\n```python\nimport pulumi\nimport pulumi_gcp as gcp\n\nproject = gcp.projects.IAMBinding(\"project\",\n    condition=gcp.projects.IAMBindingConditionArgs(\n        description=\"Expiring at midnight of 2019-12-31\",\n        expression=\"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\",\n        title=\"expires_after_2019_12_31\",\n    ),\n    members=[\"user:jane@example.com\"],\n    project=\"your-project-id\",\n    role=\"roles/container.admin\")\n```\n```csharp\nusing System.Collections.Generic;\nusing System.Linq;\nusing Pulumi;\nusing Gcp = Pulumi.Gcp;\n\nreturn await Deployment.RunAsync(() => \n{\n    var project = new Gcp.Projects.IAMBinding(\"project\", new()\n    {\n        Condition = new Gcp.Projects.Inputs.IAMBindingConditionArgs\n        {\n            Description = \"Expiring at midnight of 2019-12-31\",\n            Expression = \"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\",\n            Title = \"expires_after_2019_12_31\",\n        },\n        Members = new[]\n        {\n            \"user:jane@example.com\",\n        },\n        Project = \"your-project-id\",\n        Role = \"roles/container.admin\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp/projects\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := projects.NewIAMBinding(ctx, \"project\", &projects.IAMBindingArgs{\n\t\t\tCondition: &projects.IAMBindingConditionArgs{\n\t\t\t\tDescription: pulumi.String(\"Expiring at midnight of 2019-12-31\"),\n\t\t\t\tExpression:  pulumi.String(\"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\"),\n\t\t\t\tTitle:       pulumi.String(\"expires_after_2019_12_31\"),\n\t\t\t},\n\t\t\tMembers: pulumi.StringArray{\n\t\t\t\tpulumi.String(\"user:jane@example.com\"),\n\t\t\t},\n\t\t\tProject: pulumi.String(\"your-project-id\"),\n\t\t\tRole:    pulumi.String(\"roles/container.admin\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.gcp.projects.IAMBinding;\nimport com.pulumi.gcp.projects.IAMBindingArgs;\nimport com.pulumi.gcp.projects.inputs.IAMBindingConditionArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var project = new IAMBinding(\"project\", IAMBindingArgs.builder()        \n            .condition(IAMBindingConditionArgs.builder()\n                .description(\"Expiring at midnight of 2019-12-31\")\n                .expression(\"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\")\n                .title(\"expires_after_2019_12_31\")\n                .build())\n            .members(\"user:jane@example.com\")\n            .project(\"your-project-id\")\n            .role(\"roles/container.admin\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  project:\n    type: gcp:projects:IAMBinding\n    properties:\n      condition:\n        description: Expiring at midnight of 2019-12-31\n        expression: request.time < timestamp(\"2020-01-01T00:00:00Z\")\n        title: expires_after_2019_12_31\n      members:\n        - user:jane@example.com\n      project: your-project-id\n      role: roles/container.admin\n```\n\n## google\\_project\\_iam\\_member\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as gcp from \"@pulumi/gcp\";\n\nconst project = new gcp.projects.IAMMember(\"project\", {\n    member: \"user:jane@example.com\",\n    project: \"your-project-id\",\n    role: \"roles/editor\",\n});\n```\n```python\nimport pulumi\nimport pulumi_gcp as gcp\n\nproject = gcp.projects.IAMMember(\"project\",\n    member=\"user:jane@example.com\",\n    project=\"your-project-id\",\n    role=\"roles/editor\")\n```\n```csharp\nusing System.Collections.Generic;\nusing System.Linq;\nusing Pulumi;\nusing Gcp = Pulumi.Gcp;\n\nreturn await Deployment.RunAsync(() => \n{\n    var project = new Gcp.Projects.IAMMember(\"project\", new()\n    {\n        Member = \"user:jane@example.com\",\n        Project = \"your-project-id\",\n        Role = \"roles/editor\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp/projects\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := projects.NewIAMMember(ctx, \"project\", &projects.IAMMemberArgs{\n\t\t\tMember:  pulumi.String(\"user:jane@example.com\"),\n\t\t\tProject: pulumi.String(\"your-project-id\"),\n\t\t\tRole:    pulumi.String(\"roles/editor\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.gcp.projects.IAMMember;\nimport com.pulumi.gcp.projects.IAMMemberArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var project = new IAMMember(\"project\", IAMMemberArgs.builder()        \n            .member(\"user:jane@example.com\")\n            .project(\"your-project-id\")\n            .role(\"roles/editor\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  project:\n    type: gcp:projects:IAMMember\n    properties:\n      member: user:jane@example.com\n      project: your-project-id\n      role: roles/editor\n```\n\nWith IAM Conditions:\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as gcp from \"@pulumi/gcp\";\n\nconst project = new gcp.projects.IAMMember(\"project\", {\n    condition: {\n        description: \"Expiring at midnight of 2019-12-31\",\n        expression: \"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\",\n        title: \"expires_after_2019_12_31\",\n    },\n    member: \"user:jane@example.com\",\n    project: \"your-project-id\",\n    role: \"roles/firebase.admin\",\n});\n```\n```python\nimport pulumi\nimport pulumi_gcp as gcp\n\nproject = gcp.projects.IAMMember(\"project\",\n    condition=gcp.projects.IAMMemberConditionArgs(\n        description=\"Expiring at midnight of 2019-12-31\",\n        expression=\"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\",\n        title=\"expires_after_2019_12_31\",\n    ),\n    member=\"user:jane@example.com\",\n    project=\"your-project-id\",\n    role=\"roles/firebase.admin\")\n```\n```csharp\nusing System.Collections.Generic;\nusing System.Linq;\nusing Pulumi;\nusing Gcp = Pulumi.Gcp;\n\nreturn await Deployment.RunAsync(() => \n{\n    var project = new Gcp.Projects.IAMMember(\"project\", new()\n    {\n        Condition = new Gcp.Projects.Inputs.IAMMemberConditionArgs\n        {\n            Description = \"Expiring at midnight of 2019-12-31\",\n            Expression = \"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\",\n            Title = \"expires_after_2019_12_31\",\n        },\n        Member = \"user:jane@example.com\",\n        Project = \"your-project-id\",\n        Role = \"roles/firebase.admin\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp/projects\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := projects.NewIAMMember(ctx, \"project\", &projects.IAMMemberArgs{\n\t\t\tCondition: &projects.IAMMemberConditionArgs{\n\t\t\t\tDescription: pulumi.String(\"Expiring at midnight of 2019-12-31\"),\n\t\t\t\tExpression:  pulumi.String(\"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\"),\n\t\t\t\tTitle:       pulumi.String(\"expires_after_2019_12_31\"),\n\t\t\t},\n\t\t\tMember:  pulumi.String(\"user:jane@example.com\"),\n\t\t\tProject: pulumi.String(\"your-project-id\"),\n\t\t\tRole:    pulumi.String(\"roles/firebase.admin\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.gcp.projects.IAMMember;\nimport com.pulumi.gcp.projects.IAMMemberArgs;\nimport com.pulumi.gcp.projects.inputs.IAMMemberConditionArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var project = new IAMMember(\"project\", IAMMemberArgs.builder()        \n            .condition(IAMMemberConditionArgs.builder()\n                .description(\"Expiring at midnight of 2019-12-31\")\n                .expression(\"request.time < timestamp(\\\"2020-01-01T00:00:00Z\\\")\")\n                .title(\"expires_after_2019_12_31\")\n                .build())\n            .member(\"user:jane@example.com\")\n            .project(\"your-project-id\")\n            .role(\"roles/firebase.admin\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  project:\n    type: gcp:projects:IAMMember\n    properties:\n      condition:\n        description: Expiring at midnight of 2019-12-31\n        expression: request.time < timestamp(\"2020-01-01T00:00:00Z\")\n        title: expires_after_2019_12_31\n      member: user:jane@example.com\n      project: your-project-id\n      role: roles/firebase.admin\n```\n\n## google\\_project\\_iam\\_audit\\_config\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as gcp from \"@pulumi/gcp\";\n\nconst project = new gcp.projects.IAMAuditConfig(\"project\", {\n    auditLogConfigs: [\n        {\n            logType: \"ADMIN_READ\",\n        },\n        {\n            exemptedMembers: [\"user:joebloggs@hashicorp.com\"],\n            logType: \"DATA_READ\",\n        },\n    ],\n    project: \"your-project-id\",\n    service: \"allServices\",\n});\n```\n```python\nimport pulumi\nimport pulumi_gcp as gcp\n\nproject = gcp.projects.IAMAuditConfig(\"project\",\n    audit_log_configs=[\n        gcp.projects.IAMAuditConfigAuditLogConfigArgs(\n            log_type=\"ADMIN_READ\",\n        ),\n        gcp.projects.IAMAuditConfigAuditLogConfigArgs(\n            exempted_members=[\"user:joebloggs@hashicorp.com\"],\n            log_type=\"DATA_READ\",\n        ),\n    ],\n    project=\"your-project-id\",\n    service=\"allServices\")\n```\n```csharp\nusing System.Collections.Generic;\nusing System.Linq;\nusing Pulumi;\nusing Gcp = Pulumi.Gcp;\n\nreturn await Deployment.RunAsync(() => \n{\n    var project = new Gcp.Projects.IAMAuditConfig(\"project\", new()\n    {\n        AuditLogConfigs = new[]\n        {\n            new Gcp.Projects.Inputs.IAMAuditConfigAuditLogConfigArgs\n            {\n                LogType = \"ADMIN_READ\",\n            },\n            new Gcp.Projects.Inputs.IAMAuditConfigAuditLogConfigArgs\n            {\n                ExemptedMembers = new[]\n                {\n                    \"user:joebloggs@hashicorp.com\",\n                },\n                LogType = \"DATA_READ\",\n            },\n        },\n        Project = \"your-project-id\",\n        Service = \"allServices\",\n    });\n\n});\n```\n```go\npackage main\n\nimport (\n\t\"github.com/pulumi/pulumi-gcp/sdk/v6/go/gcp/projects\"\n\t\"github.com/pulumi/pulumi/sdk/v3/go/pulumi\"\n)\n\nfunc main() {\n\tpulumi.Run(func(ctx *pulumi.Context) error {\n\t\t_, err := projects.NewIAMAuditConfig(ctx, \"project\", &projects.IAMAuditConfigArgs{\n\t\t\tAuditLogConfigs: projects.IAMAuditConfigAuditLogConfigArray{\n\t\t\t\t&projects.IAMAuditConfigAuditLogConfigArgs{\n\t\t\t\t\tLogType: pulumi.String(\"ADMIN_READ\"),\n\t\t\t\t},\n\t\t\t\t&projects.IAMAuditConfigAuditLogConfigArgs{\n\t\t\t\t\tExemptedMembers: pulumi.StringArray{\n\t\t\t\t\t\tpulumi.String(\"user:joebloggs@hashicorp.com\"),\n\t\t\t\t\t},\n\t\t\t\t\tLogType: pulumi.String(\"DATA_READ\"),\n\t\t\t\t},\n\t\t\t},\n\t\t\tProject: pulumi.String(\"your-project-id\"),\n\t\t\tService: pulumi.String(\"allServices\"),\n\t\t})\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t\treturn nil\n\t})\n}\n```\n```java\npackage generated_program;\n\nimport com.pulumi.Context;\nimport com.pulumi.Pulumi;\nimport com.pulumi.core.Output;\nimport com.pulumi.gcp.projects.IAMAuditConfig;\nimport com.pulumi.gcp.projects.IAMAuditConfigArgs;\nimport com.pulumi.gcp.projects.inputs.IAMAuditConfigAuditLogConfigArgs;\nimport java.util.List;\nimport java.util.ArrayList;\nimport java.util.Map;\nimport java.io.File;\nimport java.nio.file.Files;\nimport java.nio.file.Paths;\n\npublic class App {\n    public static void main(String[] args) {\n        Pulumi.run(App::stack);\n    }\n\n    public static void stack(Context ctx) {\n        var project = new IAMAuditConfig(\"project\", IAMAuditConfigArgs.builder()        \n            .auditLogConfigs(            \n                IAMAuditConfigAuditLogConfigArgs.builder()\n                    .logType(\"ADMIN_READ\")\n                    .build(),\n                IAMAuditConfigAuditLogConfigArgs.builder()\n                    .exemptedMembers(\"user:joebloggs@hashicorp.com\")\n                    .logType(\"DATA_READ\")\n                    .build())\n            .project(\"your-project-id\")\n            .service(\"allServices\")\n            .build());\n\n    }\n}\n```\n```yaml\nresources:\n  project:\n    type: gcp:projects:IAMAuditConfig\n    properties:\n      auditLogConfigs:\n        - logType: ADMIN_READ\n        - exemptedMembers:\n            - user:joebloggs@hashicorp.com\n          logType: DATA_READ\n      project: your-project-id\n      service: allServices\n```\n\n\n## Import\n\nIAM member imports use space-delimited identifiers; the resource in question, the role, and the account.\n\nThis member resource can be imported using the `project_id`, role, and member e.g.\n\n```sh\n $ pulumi import gcp:projects/iAMMember:IAMMember my_project \"your-project-id roles/viewer user:foo@example.com\"\n```\n\n IAM binding imports use space-delimited identifiers; the resource in question and the role.\n\nThis binding resource can be imported using the `project_id` and role, e.g.\n\n```sh\n $ pulumi import gcp:projects/iAMMember:IAMMember my_project \"your-project-id roles/viewer\"\n```\n\n IAM policy imports use the identifier of the resource in question.\n\nThis policy resource can be imported using the `project_id`.\n\n```sh\n $ pulumi import gcp:projects/iAMMember:IAMMember my_project your-project-id\n```\n\n IAM audit config imports use the identifier of the resource in question and the service, e.g.\n\n```sh\n $ pulumi import gcp:projects/iAMMember:IAMMember my_project \"your-project-id foo.googleapis.com\"\n```\n\n -> **Custom Roles**If you're importing a IAM resource with a custom role, make sure to use the\n\nfull name of the custom role, e.g. `[projects/my-project|organizations/my-org]/roles/my-custom-role`. -> **Conditional IAM Bindings**If you're importing a IAM binding with a condition block, make sure\n\n```sh\n $ pulumi import gcp:projects/iAMMember:IAMMember to include the title of condition, e.g. `google_project_iam_binding.my_project \"{{your-project-id}} roles/{{role_id}} condition-title\"`\n```\n\n ",
+      "properties": {
+        "condition": {
+          "$ref": "#/types/gcp:projects/IAMMemberCondition:IAMMemberCondition",
+          "description": "An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.\nStructure is documented below.\n"
+        },
+        "etag": {
+          "type": "string",
+          "description": "(Computed) The etag of the project's IAM policy.\n"
+        },
+        "member": {
+          "type": "string"
+        },
+        "project": {
+          "type": "string",
+          "description": "The project id of the target project. This is not\ninferred from the provider.\n"
+        },
+        "role": {
+          "type": "string",
+          "description": "The role that should be applied. Only one\n`gcp.projects.IAMBinding` can be used per role. Note that custom roles must be of the format\n`[projects|organizations]/{parent-name}/roles/{role-name}`.\n"
+        }
+      },
+      "required": [
+        "etag",
+        "member",
+        "project",
+        "role"
+      ],
+      "inputProperties": {
+        "condition": {
+          "$ref": "#/types/gcp:projects/IAMMemberCondition:IAMMemberCondition",
+          "description": "An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.\nStructure is documented below.\n",
+          "willReplaceOnChanges": true
+        },
+        "member": {
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "project": {
+          "type": "string",
+          "description": "The project id of the target project. This is not\ninferred from the provider.\n",
+          "willReplaceOnChanges": true
+        },
+        "role": {
+          "type": "string",
+          "description": "The role that should be applied. Only one\n`gcp.projects.IAMBinding` can be used per role. Note that custom roles must be of the format\n`[projects|organizations]/{parent-name}/roles/{role-name}`.\n",
+          "willReplaceOnChanges": true
+        }
+      },
+      "requiredInputs": [
+        "member",
+        "project",
+        "role"
+      ],
+      "stateInputs": {
+        "description": "Input properties used for looking up and filtering IAMMember resources.\n",
+        "properties": {
+          "condition": {
+            "$ref": "#/types/gcp:projects/IAMMemberCondition:IAMMemberCondition",
+            "description": "An [IAM Condition](https://cloud.google.com/iam/docs/conditions-overview) for a given binding.\nStructure is documented below.\n",
+            "willReplaceOnChanges": true
+          },
+          "etag": {
+            "type": "string",
+            "description": "(Computed) The etag of the project's IAM policy.\n"
+          },
+          "member": {
+            "type": "string",
+            "willReplaceOnChanges": true
+          },
+          "project": {
+            "type": "string",
+            "description": "The project id of the target project. This is not\ninferred from the provider.\n",
+            "willReplaceOnChanges": true
+          },
+          "role": {
+            "type": "string",
+            "description": "The role that should be applied. Only one\n`gcp.projects.IAMBinding` can be used per role. Note that custom roles must be of the format\n`[projects|organizations]/{parent-name}/roles/{role-name}`.\n",
+            "willReplaceOnChanges": true
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "functions": {}
+}
