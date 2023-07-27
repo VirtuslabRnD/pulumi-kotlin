@@ -1,5 +1,6 @@
+</br>
 <p align="center">
-   <a href="https://virtuslab.com/open-source/"><img width="40" src="https://github.com/VirtuslabRnD/pulumi-kotlin/assets/4415632/01eaed9a-2acc-455c-a2e7-0c945406447c" /></a>
+   <img width="40" src="https://github.com/VirtuslabRnD/pulumi-kotlin/assets/4415632/01eaed9a-2acc-455c-a2e7-0c945406447c" />
 </p>
 
 # Pulumi Kotlin SDK
@@ -786,3 +787,4 @@ Pulumi Kotlin SDK is a proof of concept, **we really need feedback before moving
 <p align="center">
    <a href="https://virtuslab.com/open-source/"><img width="40" src="https://github.com/VirtuslabRnD/pulumi-kotlin/assets/4415632/01eaed9a-2acc-455c-a2e7-0c945406447c" /></a>
 </p>
+</br>
