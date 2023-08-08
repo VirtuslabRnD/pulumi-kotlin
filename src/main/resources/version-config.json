@@ -38,7 +38,7 @@
   {
     "providerName": "gcp",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v6.62.0/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "6.62.0.0",
+    "kotlinVersion": "6.62.0.1-SNAPSHOT",
     "javaVersion": "6.62.0",
     "javaGitTag": "v6.62.0",
     "customDependencies": [
@@ -65,7 +65,7 @@
   {
     "providerName": "aws-native",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v0.71.0/provider/cmd/pulumi-resource-aws-native/schema.json",
-    "kotlinVersion": "0.71.0.0",
+    "kotlinVersion": "0.71.0.1-SNAPSHOT",
     "javaVersion": "0.71.0",
     "javaGitTag": "v0.71.0",
     "customDependencies": [
@@ -74,7 +74,7 @@
   {
     "providerName": "azure",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v5.47.0/provider/cmd/pulumi-resource-azure/schema.json",
-    "kotlinVersion": "5.47.0.0",
+    "kotlinVersion": "5.47.0.1-SNAPSHOT",
     "javaVersion": "5.47.0",
     "javaGitTag": "v5.47.0",
     "customDependencies": [
@@ -128,7 +128,7 @@
   {
     "providerName": "digitalocean",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.21.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
-    "kotlinVersion": "4.21.0.0",
+    "kotlinVersion": "4.21.0.1-SNAPSHOT",
     "javaVersion": "4.21.0",
     "javaGitTag": "v4.21.0",
     "customDependencies": [
