@@ -20,7 +20,7 @@
   {
     "providerName": "github",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v5.16.0/provider/cmd/pulumi-resource-github/schema.json",
-    "kotlinVersion": "5.16.0.0",
+    "kotlinVersion": "5.16.0.1-SNAPSHOT",
     "javaVersion": "5.16.0",
     "javaGitTag": "v5.16.0",
     "customDependencies": [
