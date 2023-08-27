@@ -161,7 +161,7 @@ publishing {
 
 val publicationsToPublishToMavenCentral = schemaMetadata
     .filterNot { KotlinVersion.fromVersionString(it.kotlinVersion).isSnapshot }
-    .map { "publishPulumi${it.versionedProvider.capitalized()}PublicationToMavenCentralRepository" }
+    .map { "publishPulumi${it.versionedProviderName.capitalized()}PublicationToMavenCentralRepository" }
 
 tasks.withType<PublishToMavenRepository>().configureEach {
     onlyIf {

@@ -45,10 +45,8 @@ jobs:
           with open("src/main/resources/version-config.json") as version_config:
             schemas = json.load(version_config)
             versions = [
-              schema["kotlinVersion"]
-              for schema
-              in schemas
-              if schema["providerName"] + schema["kotlinVersion"].split(".")[0]  == "${{ matrix.provider }}"
+              schema["kotlinVersion"] for schema in schemas
+              if schema["providerName"] + schema["kotlinVersion"].split(".")[0] == "${{ matrix.provider }}"
             ]
             version = versions[0]
             is_release = not version.endswith("-SNAPSHOT")

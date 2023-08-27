@@ -30,7 +30,7 @@ val createTasksForProvider by extra {
         val version = schema.kotlinVersion
         val javaLibraryDependency = "com.pulumi:$providerName:${schema.javaVersion}"
 
-        val sourceSetName = "pulumi${schema.versionedProvider.capitalized()}"
+        val sourceSetName = "pulumi${schema.versionedProviderName.capitalized()}"
         val generationTaskName = "generate${sourceSetName.capitalized()}Sources"
         val compilationTaskName = "compile${sourceSetName.capitalized()}Kotlin"
         val jarTaskName = "${sourceSetName}Jar"
@@ -42,13 +42,22 @@ val createTasksForProvider by extra {
         val javadocJarTaskName = "dokka${sourceSetName.capitalized()}JavadocJar"
         val sourcesPublicationName = "${sourceSetName}Sources"
         val javadocPublicationName = "${sourceSetName}Javadoc"
-        val downloadTaskName = "download${schema.versionedProvider.capitalized()}Schema"
+        val downloadTaskName = "download${schema.versionedProviderName.capitalized()}Schema"
 
-        val schemaDownloadPath = Paths.get(rootDir, "build", "tmp", "schema", "${schema.versionedProvider}-$version.json").toFile()
+        val schemaDownloadPath = Paths.get(
+            rootDir, "build", "tmp", "schema", "${schema.versionedProviderName}-$version.json",
+        )
+            .toFile()
 
         createDownloadTask(downloadTaskName, schemaUrl, schemaDownloadPath)
-        createGenerationTask(generationTaskName, downloadTaskName, schemaDownloadPath, outputDirectory, schema.versionedProvider)
-        createSourceSet(sourceSetName, outputDirectory, schema.versionedProvider)
+        createGenerationTask(
+            generationTaskName,
+            downloadTaskName,
+            schemaDownloadPath,
+            outputDirectory,
+            schema.versionedProviderName,
+        )
+        createSourceSet(sourceSetName, outputDirectory, schema.versionedProviderName)
 
         tasks[generationTaskName].finalizedBy(tasks[formatTaskName])
         tasks[generationTaskName].finalizedBy(tasks[compilationTaskName])
@@ -133,7 +142,7 @@ val createE2eTasksForProvider by extra {
 val createGlobalProviderTasks by extra {
     fun(schemas: List<SchemaMetadata>) {
         task("generatePulumiSources") {
-            dependsOn(schemas.map { tasks["generatePulumi${it.versionedProvider.capitalized()}Sources"] })
+            dependsOn(schemas.map { tasks["generatePulumi${it.versionedProviderName.capitalized()}Sources"] })
             group = "generation"
         }
     }
