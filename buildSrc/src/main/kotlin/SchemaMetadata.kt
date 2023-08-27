@@ -11,7 +11,10 @@ data class SchemaMetadata(
     val javaVersion: String,
     val javaGitTag: String,
     val customDependencies: List<String>,
-)
+) {
+    val versionedProviderName: String
+        get() = "$providerName${kotlinVersion.split(".").first()}"
+}
 
 fun SchemaMetadata.getKotlinGitTag() = "$providerName/v$kotlinVersion"
 
