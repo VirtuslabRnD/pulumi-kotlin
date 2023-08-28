@@ -41,7 +41,8 @@ jobs:
       matrix:
         provider: [
           cloudflare4, cloudflare5, slack0, github5, random4, gcp6, google-native0, aws5, aws-native0, azure5,
-          azure-native1, kubernetes3, nomad0, docker3, docker4, gitlab4, gitlab5, gitlab6, digitalocean4, alicloud3
+          azure-native1, azure-native2, kubernetes3, kubernetes4, nomad0, docker3, docker4, gitlab4, gitlab5,
+          gitlab6, digitalocean4, alicloud3
         ]
     steps:
       - id: provider
