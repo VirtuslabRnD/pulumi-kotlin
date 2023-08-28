@@ -1,0 +1,27 @@
+name: Prepare release of SDK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish package to Maven Central
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project sources
+        uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
+      - name: Publish packages
+        run: |
+          ./gradlew publishPulumiKotlinSdkPublicationToMavenCentralRepository \
+            -Psigning.enabled=true \
+            -Psigning.key="${{ secrets.GPG_KEY }}" \
+            -Psigning.key.password="${{ secrets.GPG_KEY_PASSWORD }}" \
+            -Psonatype.username="${{ secrets.SONATYPE_USERNAME }}" \
+            -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}" \
+            -Dorg.gradle.daemon=false \
+            -q
