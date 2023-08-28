@@ -1,4 +1,13 @@
+</br>
+<p align="center">
+   <img width="40" src="https://github.com/VirtuslabRnD/pulumi-kotlin/assets/4415632/01eaed9a-2acc-455c-a2e7-0c945406447c" />
+</p>
+
 # Pulumi Kotlin SDK
+
+<p align="center">
+    <img src="https://github.com/VirtuslabRnD/pulumi-kotlin/assets/4415632/feb4d51e-f223-4a80-a164-ed6cb4500526" />
+</p>
 
 Experimental support for Kotlin language in [Pulumi](https://www.pulumi.com/).
 
@@ -773,3 +782,8 @@ Pulumi Kotlin SDK is a proof of concept, **we really need feedback before moving
 [support-for-idiomatic-kotlin-issue]: https://github.com/pulumi/pulumi-java/issues/544
 [pulumi-slack-java-channel]: https://pulumi-community.slack.com/archives/C03DPAY96NB
 [calendly-feedback-meeting]: https://calendly.com/michalfudala/kotlin-sdk-for-pulumi-feedback
+
+
+<p align="center">
+   <a href="https://virtuslab.com/open-source/"><img width="40" src="https://github.com/VirtuslabRnD/pulumi-kotlin/assets/4415632/01eaed9a-2acc-455c-a2e7-0c945406447c" /></a>
+</p>
