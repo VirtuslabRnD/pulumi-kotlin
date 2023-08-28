@@ -18,17 +18,57 @@ on:
 
 jobs:
   publish:
-    name: Publish pulumi-kotlin to Maven Local Repository
+    name: Publish pulumi-${{ matrix.provider }}-kotlin (${{ matrix.majorVersion }}) to Maven Local Repository
     runs-on: [ self-hosted, active ]
     if: ${{ startsWith(github.head_ref, 'prepare-release') || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       fail-fast: false
       matrix:
-        provider: [
-          cloudflare4, cloudflare5, slack0, github5, random4, gcp6, google-native0, aws5, aws-native0, azure5,
-          azure-native1, azure-native2, kubernetes3, kubernetes4, nomad0, docker3, docker4, gitlab4, gitlab5, 
-          gitlab6, digitalocean4, alicloud3
-        ]
+        include:
+          - provider: cloudflare
+            majorVersion: 4
+          - provider: cloudflare
+            majorVersion: 5
+          - provider: slack
+            majorVersion: 0
+          - provider: github
+            majorVersion: 5
+          - provider: random
+            majorVersion: 4
+          - provider: gcp
+            majorVersion: 6
+          - provider: google-native
+            majorVersion: 0
+          - provider: aws
+            majorVersion: 5
+          - provider: aws-native
+            majorVersion: 0
+          - provider: azure
+            majorVersion: 5
+          - provider: azure-native
+            majorVersion: 1
+          - provider: azure-native
+            majorVersion: 2
+          - provider: kubernetes
+            majorVersion: 3
+          - provider: kubernetes
+            majorVersion: 4
+          - provider: nomad
+            majorVersion: 0
+          - provider: docker
+            majorVersion: 3
+          - provider: docker
+            majorVersion: 4
+          - provider: gitlab
+            majorVersion: 4
+          - provider: gitlab
+            majorVersion: 5
+          - provider: gitlab
+            majorVersion: 6
+          - provider: digitalocean
+            majorVersion: 4
+          - provider: alicloud
+            majorVersion: 3
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
@@ -47,14 +87,15 @@ jobs:
             schemas = json.load(version_config)
             versions = [
               schema["kotlinVersion"] for schema in schemas
-              if schema["providerName"] + schema["kotlinVersion"].split(".")[0] == "${{ matrix.provider }}"
+              if schema["providerName"] == "${{ matrix.provider }}"
+              and schema["kotlinVersion"].split(".")[0] == "${{ matrix.majorVersion }}"
             ]
             version = versions[0]
             is_release = not version.endswith("-SNAPSHOT")
             with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
               fh.write('is_release=' + str(is_release).lower())
       - name: Publish to Maven Local
-        run: ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
+        run: ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.majorVersion }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
         if: |
           (startsWith(github.head_ref, 'prepare-release') && steps.check-for-release.outputs.is_release == 'true') || 
           (github.event_name == 'push' && steps.check-for-release.outputs.is_release == 'false') || 
