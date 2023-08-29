@@ -1,5 +1,6 @@
 package com.pulumi.kotlin.options
 
+import com.pulumi.kotlin.PulumiNullFieldException
 import java.util.Optional
 import com.pulumi.resources.ResourceArgs as JavaResourceArgs
 import com.pulumi.resources.ResourceOptions as JavaResourceOptions
@@ -40,8 +41,10 @@ class ResourceTransformationResultBuilder(
         this.options = value
     }
 
-    @Suppress("UnsafeCallOnNullableType") // NPE calls will be removed in the future https://github.com/VirtuslabRnD/pulumi-kotlin/issues/62
-    internal fun build(): JavaResourceTransformationResult = JavaResourceTransformationResult(args!!, options!!)
+    internal fun build(): JavaResourceTransformationResult = JavaResourceTransformationResult(
+        args ?: throw PulumiNullFieldException("args"),
+        options ?: throw PulumiNullFieldException("options"),
+    )
 }
 
 /**
