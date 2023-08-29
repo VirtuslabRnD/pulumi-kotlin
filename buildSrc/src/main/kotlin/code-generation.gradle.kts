@@ -44,9 +44,7 @@ val createTasksForProvider by extra {
         val javadocPublicationName = "${sourceSetName}Javadoc"
         val downloadTaskName = "download${schema.versionedProviderName.capitalized()}Schema"
 
-        val schemaDownloadPath = Paths.get(
-            rootDir, "build", "tmp", "schema", "${schema.versionedProviderName}-$version.json",
-        )
+        val schemaDownloadPath = Paths.get(rootDir, "build", "tmp", "schema", "${schema.providerName}-$version.json")
             .toFile()
 
         createDownloadTask(downloadTaskName, schemaUrl, schemaDownloadPath)
@@ -106,7 +104,7 @@ val createE2eTasksForProvider by extra {
         val downloadTaskName = "download${schema.versionedProviderName.capitalized()}E2eSchema"
 
         val schemaDownloadPath = Paths.get(
-            rootDir, "build", "tmp", "schema", "e2e", "${schema.versionedProviderName}-$version.json",
+            rootDir, "build", "tmp", "schema", "e2e", "${schema.providerName}-$version.json",
         )
             .toFile()
 
