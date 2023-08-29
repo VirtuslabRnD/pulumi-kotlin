@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "org.virtuslab"
-version = "0.1.0-SNAPSHOT"
+version = "0.9.4.0-SNAPSHOT"
 base.archivesName.set("pulumi-kotlin-sdk")
 
 repositories {
