@@ -32,18 +32,58 @@ jobs:
       - name: Push tags
         run: git push --tags
   publish:
-    name: Publish packages to Maven Central
+    name: Publish pulumi-${{ matrix.provider }}-kotlin (${{ matrix.majorVersion }}) to Maven Central Repository
     needs: tag
     runs-on: [ self-hosted, active ]
     if: ${{ needs.tag.outputs.is_release == 'true' }}
     strategy:
       fail-fast: false
       matrix:
-        provider: [
-          cloudflare4, cloudflare5, slack0, github5, random4, gcp6, google-native0, aws5, aws-native0, azure5,
-          azure-native1, azure-native2, kubernetes3, kubernetes4, nomad0, docker3, docker4, gitlab4, gitlab5,
-          gitlab6, digitalocean4, alicloud3
-        ]
+        include:
+          - provider: cloudflare
+            majorVersion: 4
+          - provider: cloudflare
+            majorVersion: 5
+          - provider: slack
+            majorVersion: 0
+          - provider: github
+            majorVersion: 5
+          - provider: random
+            majorVersion: 4
+          - provider: gcp
+            majorVersion: 6
+          - provider: google-native
+            majorVersion: 0
+          - provider: aws
+            majorVersion: 5
+          - provider: aws-native
+            majorVersion: 0
+          - provider: azure
+            majorVersion: 5
+          - provider: azure-native
+            majorVersion: 1
+          - provider: azure-native
+            majorVersion: 2
+          - provider: kubernetes
+            majorVersion: 3
+          - provider: kubernetes
+            majorVersion: 4
+          - provider: nomad
+            majorVersion: 0
+          - provider: docker
+            majorVersion: 3
+          - provider: docker
+            majorVersion: 4
+          - provider: gitlab
+            majorVersion: 4
+          - provider: gitlab
+            majorVersion: 5
+          - provider: gitlab
+            majorVersion: 6
+          - provider: digitalocean
+            majorVersion: 4
+          - provider: alicloud
+            majorVersion: 3
     steps:
       - id: provider
         uses: ASzc/change-string-case-action@v5
@@ -60,10 +100,9 @@ jobs:
           with open("src/main/resources/version-config.json") as version_config:
             schemas = json.load(version_config)
             versions = [
-              schema["kotlinVersion"]
-              for schema
-              in schemas
-              if schema["providerName"] + schema["kotlinVersion"].split(".")[0]  == "${{ matrix.provider }}"
+              schema["kotlinVersion"] for schema in schemas
+              if schema["providerName"] == "${{ matrix.provider }}" 
+              and schema["kotlinVersion"].split(".")[0] == "${{ matrix.majorVersion }}" 
             ]
             version = versions[0]
             is_release = not version.endswith("-SNAPSHOT")
@@ -78,7 +117,7 @@ jobs:
       - name: Publish packages
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
-          ./gradlew publishPulumi${{ matrix.provider }}PublicationToMavenCentralRepository \
+          ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.majorVersion }}PublicationToMavenCentralRepository \
             -Psigning.enabled=true \
             -Psigning.key="${{ secrets.GPG_KEY }}" \
             -Psigning.key.password="${{ secrets.GPG_KEY_PASSWORD }}" \
@@ -89,10 +128,10 @@ jobs:
       - name: Rename Dokka directory before upload
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
-          file_name=$(ls ./build/libs/pulumi-${{ matrix.provider }}-*-javadoc.jar | xargs -n 1 basename)
+          file_name=$(ls ./build/libs/pulumi-${{ matrix.provider }}-kotlin-${{ matrix.majorVersion }}*-javadoc.jar | xargs -n 1 basename)
           version=$(echo $file_name | sed -e "s/^pulumi-${{ matrix.provider }}-kotlin-//" -e "s/-javadoc.jar$//")
           mkdir -p ./docs/${{ matrix.provider }}/$version
-          mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}Javadoc/* ./docs/${{ matrix.provider }}/$version
+          mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}${{ matrix.majorVersion }}Javadoc/* ./docs/${{ matrix.provider }}/$version
       - name: Install Rclone
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |

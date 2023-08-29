@@ -44,9 +44,7 @@ val createTasksForProvider by extra {
         val javadocPublicationName = "${sourceSetName}Javadoc"
         val downloadTaskName = "download${schema.versionedProviderName.capitalized()}Schema"
 
-        val schemaDownloadPath = Paths.get(
-            rootDir, "build", "tmp", "schema", "${schema.versionedProviderName}-$version.json",
-        )
+        val schemaDownloadPath = Paths.get(rootDir, "build", "tmp", "schema", "${schema.providerName}-$version.json")
             .toFile()
 
         createDownloadTask(downloadTaskName, schemaUrl, schemaDownloadPath)
@@ -97,20 +95,28 @@ val createE2eTasksForProvider by extra {
         val version = schema.kotlinVersion
         val javaLibraryDependency = "com.pulumi:$providerName:${schema.javaVersion}"
 
-        val sourceSetName = "pulumi${providerName.capitalized()}E2e"
+        val sourceSetName = "pulumi${schema.versionedProviderName.capitalized()}E2e"
         val generationTaskName = "generate${sourceSetName.capitalized()}Sources"
         val compilationTaskName = "compile${sourceSetName.capitalized()}Kotlin"
         val jarTaskName = "${sourceSetName}Jar"
         val implementationDependency = "${sourceSetName}Implementation"
         val archiveName = "pulumi-$providerName-kotlin"
-        val downloadTaskName = "download${providerName.capitalized()}E2eSchema"
+        val downloadTaskName = "download${schema.versionedProviderName.capitalized()}E2eSchema"
 
-        val schemaDownloadPath =
-            Paths.get(rootDir, "build", "tmp", "schema", "e2e", "$providerName-$version.json").toFile()
+        val schemaDownloadPath = Paths.get(
+            rootDir, "build", "tmp", "schema", "e2e", "${schema.providerName}-$version.json",
+        )
+            .toFile()
 
         createDownloadTask(downloadTaskName, schemaUrl, schemaDownloadPath)
-        createGenerationTask(generationTaskName, downloadTaskName, schemaDownloadPath, outputDirectory, providerName)
-        createSourceSet(sourceSetName, outputDirectory, providerName)
+        createGenerationTask(
+            generationTaskName,
+            downloadTaskName,
+            schemaDownloadPath,
+            File(outputDirectory, "e2e"),
+            schema.versionedProviderName,
+        )
+        createSourceSet(sourceSetName, File(outputDirectory, "e2e"), schema.versionedProviderName)
 
         tasks[generationTaskName].finalizedBy(tasks[compilationTaskName])
 
