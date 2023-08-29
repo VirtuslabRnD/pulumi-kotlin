@@ -94,17 +94,23 @@ class ReleaseScriptsTest {
         val temporaryGitRepository = File("build/tmp/provider-update-test-${RandomStringUtils.randomAlphanumeric(10)}")
         val beforeUpdateFileName = "before-schema-update.json"
         val afterUpdateFileName = "after-schema-update.json"
+        val beforeUpdateReadme = "README-before-schema-update.md"
+        val afterUpdateReadme = "README-after-schema-update.md"
         val temporaryBeforeUpdateFile = File("$temporaryGitRepository/$beforeUpdateFileName")
         val expectedAfterUpdateFile = File("$RESOURCES/$afterUpdateFileName")
+        val temporaryBeforeReadmeUpdateFile = File("$temporaryGitRepository/$beforeUpdateReadme")
+        val expectedAfterUpdateReadmeFile = File("$RESOURCES/$afterUpdateReadme")
 
-        createRepoWithSingleFile(
+        createRepoWithFiles(
             temporaryGitRepository,
             beforeUpdateFileName,
+            beforeUpdateReadme,
         )
 
         updateProviderSchemas(
             temporaryGitRepository,
             temporaryBeforeUpdateFile,
+            temporaryBeforeReadmeUpdateFile,
             skipPreReleaseVersions = false,
             fastForwardToMostRecentVersion = false,
         )
@@ -113,6 +119,10 @@ class ReleaseScriptsTest {
             expectedAfterUpdateFile.readText(),
             temporaryBeforeUpdateFile.readText(),
         )
+        assertEquals(
+            expectedAfterUpdateReadmeFile.readText(),
+            temporaryBeforeReadmeUpdateFile.readText(),
+        )
     }
 
     @Test
@@ -120,19 +130,28 @@ class ReleaseScriptsTest {
         val temporaryGitRepository = File("build/tmp/generator-update-test-${RandomStringUtils.randomAlphanumeric(10)}")
         val beforeUpdateFileName = "before-generator-update.json"
         val afterUpdateFileName = "after-generator-update.json"
+        val beforeUpdateReadme = "README-before-generator-update.md"
+        val afterUpdateReadme = "README-after-generator-update.md"
         val temporaryBeforeUpdateFile = File("$temporaryGitRepository/$beforeUpdateFileName")
         val expectedAfterUpdateFile = File("$RESOURCES/$afterUpdateFileName")
+        val temporaryBeforeReadmeUpdateFile = File("$temporaryGitRepository/$beforeUpdateReadme")
+        val expectedAfterUpdateReadmeFile = File("$RESOURCES/$afterUpdateReadme")
 
-        createRepoWithSingleFile(
+        createRepoWithFiles(
             temporaryGitRepository,
             beforeUpdateFileName,
+            beforeUpdateReadme,
         )
 
-        updateGeneratorVersion(temporaryGitRepository, temporaryBeforeUpdateFile)
+        updateGeneratorVersion(temporaryGitRepository, temporaryBeforeUpdateFile, temporaryBeforeReadmeUpdateFile)
 
         assertEquals(
             expectedAfterUpdateFile.readText(),
             temporaryBeforeUpdateFile.readText(),
+        )
+        assertEquals(
+            expectedAfterUpdateReadmeFile.readText(),
+            temporaryBeforeReadmeUpdateFile.readText(),
         )
     }
 
@@ -146,7 +165,7 @@ class ReleaseScriptsTest {
         val temporaryBeforeUpdateFile = File("$temporaryGitRepository/$beforeUpdateFileName")
         val expectedAfterUpdateFile = File("$RESOURCES/$afterUpdateFileName")
 
-        createRepoWithSingleFile(
+        createRepoWithFiles(
             temporaryGitRepository,
             beforeUpdateFileName,
         )
@@ -166,7 +185,7 @@ class ReleaseScriptsTest {
         val versionConfigFile = File("$RESOURCES/$versionConfigFileName")
         val temporaryVersionConfigFile = File("$temporaryGitRepository/$versionConfigFileName")
 
-        val git = createRepoWithSingleFile(
+        val git = createRepoWithFiles(
             temporaryGitRepository,
             versionConfigFileName,
         )
@@ -191,23 +210,29 @@ class ReleaseScriptsTest {
         )
     }
 
-    private fun createRepoWithSingleFile(
+    private fun createRepoWithFiles(
         temporaryGitRepository: File,
-        beforeUpdateFileName: String,
-        commitMessage: String = "Add version config",
+        vararg files: String,
     ): Git {
         val repository = FileRepositoryBuilder.create(File(temporaryGitRepository, ".git"))
         repository.create()
 
-        Files.copy(
-            File("$RESOURCES/$beforeUpdateFileName").toPath(),
-            File("$temporaryGitRepository/$beforeUpdateFileName").toPath(),
-        )
+        files.forEach {
+            Files.copy(
+                File("$RESOURCES/$it").toPath(),
+                File("$temporaryGitRepository/$it").toPath(),
+            )
+        }
 
         val git = Git(repository)
-        git.add().addFilepattern(beforeUpdateFileName).call()
+
+        files.fold(git.add()) { add, file ->
+            add.addFilepattern(file)
+        }
+            .call()
+
         git.commit()
-            .setMessage(commitMessage)
+            .setMessage("Add version config")
             .setSign(false)
             .setAllowEmpty(false)
             .call()

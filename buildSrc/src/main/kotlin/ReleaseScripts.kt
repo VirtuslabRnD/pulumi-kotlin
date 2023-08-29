@@ -14,7 +14,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.logging.KtorSimpleLogger
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.a
-import kotlinx.html.stream.appendHTML
+import kotlinx.html.stream.createHTML
 import kotlinx.html.table
 import kotlinx.html.td
 import kotlinx.html.th
@@ -110,7 +110,7 @@ data class KotlinVersion(val javaVersion: Semver, val kotlinMinor: Int, val isSn
     }
 }
 
-fun updateGeneratorVersion(gitDirectory: File, versionConfigFile: File) {
+fun updateGeneratorVersion(gitDirectory: File, versionConfigFile: File, readmeFile: File) {
     val schemas = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
 
     validateIfReleaseIsPossible(schemas)
@@ -131,14 +131,17 @@ fun updateGeneratorVersion(gitDirectory: File, versionConfigFile: File) {
 
     versionConfigFile.writeText("${json.encodeToString(updatedSchemas)}\n")
 
+    updateReadme(readmeFile, versionConfigFile)
+
     val tags = getTags(updatedSchemas)
     val commitMessage = "Prepare release\n\n${tags.joinToString("\n")}"
-    commitChangesInFile(gitDirectory, versionConfigFile, commitMessage)
+    commitChangesInFiles(gitDirectory, commitMessage, versionConfigFile, readmeFile)
 }
 
 fun updateProviderSchemas(
     gitDirectory: File,
     versionConfigFile: File,
+    readmeFile: File,
     skipPreReleaseVersions: Boolean,
     fastForwardToMostRecentVersion: Boolean,
 ) {
@@ -167,14 +170,16 @@ fun updateProviderSchemas(
     if (updatedSchemas == schemas) {
         return
     }
-    
+
     versionConfigFile.writeText("${json.encodeToString(updatedSchemas)}\n")
+
+    updateReadme(readmeFile, versionConfigFile)
 
     val tags = getTags(updatedSchemas)
     val commitMessage = "Prepare release\n\n" +
         "This release includes the following versions:\n" +
         tags.joinToString("\n")
-    commitChangesInFile(gitDirectory, versionConfigFile, commitMessage)
+    commitChangesInFiles(gitDirectory, commitMessage, versionConfigFile, readmeFile)
 
     client.close()
 }
@@ -209,14 +214,28 @@ private fun fetchUpdatedSchemas(
                 )
             }
 
+        val otherVersionsOfProvider = schemas.filter {
+            it.providerName == providerName && it.kotlinVersion != oldSchema.kotlinVersion
+        }
+            .map { Semver(it.javaVersion) }
+
         val newSchema = if (fastForwardToMostRecentVersion) {
-            versions.lastOrNull { validateVersion(client, it, oldSchema, oldJavaVersion) }
+            versions.lastOrNull { validateVersion(client, it, oldSchema, oldJavaVersion, otherVersionsOfProvider) }
         } else {
-            versions.firstOrNull { validateVersion(client, it, oldSchema, oldJavaVersion) }
+            versions.firstOrNull { validateVersion(client, it, oldSchema, oldJavaVersion, otherVersionsOfProvider) }
         }
 
         newSchema ?: oldSchema
     }
+}
+
+private fun updateReadme(readmeFile: File, versionConfigFile: File) {
+    val readme = readmeFile.readText()
+    val newTable = getLatestVersionsMarkdownTable(versionConfigFile)
+    val newReadme = "<table>.*</table>\n".toRegex(setOf(RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL))
+        .replace(readme, newTable)
+
+    readmeFile.writeText(newReadme)
 }
 
 fun replaceReleasedVersionsWithSnapshots(gitDirectory: File, versionConfigFile: File) {
@@ -229,13 +248,12 @@ fun replaceReleasedVersionsWithSnapshots(gitDirectory: File, versionConfigFile: 
 
     versionConfigFile.writeText("${json.encodeToString(updatedSchemas)}\n")
 
-    commitChangesInFile(gitDirectory, versionConfigFile, "Prepare for next development phase")
+    commitChangesInFiles(gitDirectory, "Prepare for next development phase", versionConfigFile)
 }
 
-fun generateLatestVersionsMarkdownTable(versionConfigFile: File) {
+fun getLatestVersionsMarkdownTable(versionConfigFile: File): String {
     val schemas = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
-
-    System.out.appendHTML().table {
+    return createHTML().table {
         tr {
             th { +"Name" }
             th { +"Version" }
@@ -395,6 +413,7 @@ private fun validateVersion(
     newSchema: SchemaMetadata,
     oldSchema: SchemaMetadata,
     oldJavaVersion: Semver,
+    otherVersionsOfProvider: List<Semver>,
 ): Boolean {
     val schemaExists = verifyUrl(client, newSchema.url)
     if (!schemaExists) {
@@ -402,7 +421,9 @@ private fun validateVersion(
     }
     val newJavaVersion = Semver(newSchema.javaVersion)
     val sameMajor = newJavaVersion.major == oldJavaVersion.major
-    if (!sameMajor) {
+    val majorAlreadyInVersionConfig = otherVersionsOfProvider.any { it.major == newJavaVersion.major }
+
+    if (!sameMajor && !majorAlreadyInVersionConfig) {
         logger.warn(
             "Version with major update available: ${newSchema.getKotlinGitTag()}. " +
                 "Current version: ${oldSchema.getKotlinGitTag()}",
@@ -411,12 +432,16 @@ private fun validateVersion(
     return schemaExists && sameMajor
 }
 
-private fun commitChangesInFile(gitDirectory: File, absoluteFilePath: File, commitMessage: String) {
+private fun commitChangesInFiles(gitDirectory: File, commitMessage: String, vararg absoluteFilePaths: File) {
     val git = createGitInstance(gitDirectory)
-    val relativePath = gitDirectory.toPath().relativize(absoluteFilePath.toPath()).toString()
 
-    git.commit()
-        .setOnly(relativePath)
+    val commit = absoluteFilePaths
+        .fold(git.commit()) { commit, file ->
+            val relativePath = gitDirectory.toPath().relativize(file.toPath()).toString()
+            commit.setOnly(relativePath)
+        }
+
+    commit
         .setMessage(commitMessage)
         .setSign(false)
         .setAllowEmpty(false)
