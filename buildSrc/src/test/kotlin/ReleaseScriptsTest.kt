@@ -108,9 +108,9 @@ class ReleaseScriptsTest {
         )
 
         updateProviderSchemas(
-            temporaryGitRepository,
-            temporaryBeforeUpdateFile,
-            temporaryBeforeReadmeUpdateFile,
+            gitDirectory = temporaryGitRepository,
+            versionConfigFile = temporaryBeforeUpdateFile,
+            readmeFile = temporaryBeforeReadmeUpdateFile,
             skipPreReleaseVersions = false,
             fastForwardToMostRecentVersion = false,
         )
@@ -143,7 +143,11 @@ class ReleaseScriptsTest {
             beforeUpdateReadme,
         )
 
-        updateGeneratorVersion(temporaryGitRepository, temporaryBeforeUpdateFile, temporaryBeforeReadmeUpdateFile)
+        updateGeneratorVersion(
+            gitDirectory = temporaryGitRepository,
+            versionConfigFile = temporaryBeforeUpdateFile,
+            readmeFile = temporaryBeforeReadmeUpdateFile,
+        )
 
         assertEquals(
             expectedAfterUpdateFile.readText(),

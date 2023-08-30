@@ -116,11 +116,11 @@ tasks.register<Task>("prepareReleaseOfUpdatedSchemas") {
 
     doLast {
         updateProviderSchemas(
-            projectDir,
-            versionConfigFile,
-            readmeFile,
-            skipPreReleaseVersions,
-            fastForwardToMostRecentVersion,
+            gitDirectory = projectDir,
+            versionConfigFile = versionConfigFile,
+            readmeFile = readmeFile,
+            skipPreReleaseVersions = skipPreReleaseVersions,
+            fastForwardToMostRecentVersion = fastForwardToMostRecentVersion,
         )
     }
 }
@@ -128,7 +128,11 @@ tasks.register<Task>("prepareReleaseOfUpdatedSchemas") {
 tasks.register<Task>("prepareReleaseAfterGeneratorUpdate") {
     group = "releaseManagement"
     doLast {
-        updateGeneratorVersion(projectDir, versionConfigFile, readmeFile)
+        updateGeneratorVersion(
+            gitDirectory = projectDir,
+            versionConfigFile = versionConfigFile,
+            readmeFile = readmeFile,
+        )
     }
 }
 
