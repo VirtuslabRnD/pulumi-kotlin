@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.pulumi:pulumi:0.9.4")
+    implementation("org.virtuslab:pulumi-kotlin:0.9.4.0")
 
     implementation("com.squareup:kotlinpoet:1.14.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
@@ -38,9 +38,7 @@ dependencies {
     testImplementation("com.google.cloud:google-cloud-compute:1.30.0")
     testImplementation("com.azure:azure-identity:1.9.1")
     testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.28.0")
-
     testImplementation("io.kubernetes:client-java:18.0.0")
-    testImplementation("io.mockk:mockk:1.13.5")
     testImplementation("io.github.cdklabs:projen:0.71.120")
 }
 

@@ -6,6 +6,8 @@ plugins {
     `maven-publish`
     id("org.jetbrains.dokka")
     signing
+    id("io.gitlab.arturbosch.detekt")
+    id("org.jmailen.kotlinter")
 }
 
 group = "org.virtuslab"
@@ -19,10 +21,22 @@ repositories {
 dependencies {
     api("com.pulumi:pulumi:0.9.4")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testImplementation("io.mockk:mockk:1.13.5")
+    testImplementation(kotlin("test"))
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+kotlinter {
+    reporters = arrayOf("html", "plain")
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config = files("${rootProject.projectDir}/.detekt-config.yml")
 }
 
 task<Jar>("sourcesJar") {
