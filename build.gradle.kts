@@ -57,6 +57,7 @@ tasks.withType<Jar> {
 }
 
 val versionConfigFile = File(projectDir, "src/main/resources/version-config.json")
+val readmeFile = File(projectDir, "README.md")
 var schemaMetadata: List<SchemaMetadata> = getSchemaMetadata(versionConfigFile)
 
 val createTasksForProvider: (SchemaMetadata) -> Unit by extra
@@ -114,14 +115,24 @@ tasks.register<Task>("prepareReleaseOfUpdatedSchemas") {
     val fastForwardToMostRecentVersion = findBooleanProperty("fastForwardToMostRecentVersion", defaultValue = false)
 
     doLast {
-        updateProviderSchemas(projectDir, versionConfigFile, skipPreReleaseVersions, fastForwardToMostRecentVersion)
+        updateProviderSchemas(
+            gitDirectory = projectDir,
+            versionConfigFile = versionConfigFile,
+            readmeFile = readmeFile,
+            skipPreReleaseVersions = skipPreReleaseVersions,
+            fastForwardToMostRecentVersion = fastForwardToMostRecentVersion,
+        )
     }
 }
 
 tasks.register<Task>("prepareReleaseAfterGeneratorUpdate") {
     group = "releaseManagement"
     doLast {
-        updateGeneratorVersion(projectDir, versionConfigFile)
+        updateGeneratorVersion(
+            gitDirectory = projectDir,
+            versionConfigFile = versionConfigFile,
+            readmeFile = readmeFile,
+        )
     }
 }
 
@@ -142,7 +153,7 @@ tasks.register<Task>("postRelease") {
 tasks.register<Task>("latestVersionsMarkdownTable") {
     group = "releaseManagement"
     doLast {
-        generateLatestVersionsMarkdownTable(versionConfigFile)
+        println(getLatestVersionsMarkdownTable(versionConfigFile))
     }
 }
 
