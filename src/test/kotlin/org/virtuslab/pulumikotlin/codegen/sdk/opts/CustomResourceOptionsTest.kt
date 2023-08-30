@@ -712,7 +712,7 @@ internal class CustomResourceOptionsTest {
         val mockedJavaResource = mockkClass(javaResourceEquivalentToMock)
 
         every {
-            mockedKotlinResource.javaResource
+            mockedKotlinResource.underlyingJavaResource
         } returns mockedJavaResource
 
         mockkObject(GlobalResourceMapper)

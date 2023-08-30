@@ -179,7 +179,7 @@ class AliasBuilder internal constructor(
         if (type != null) javaAliasBuilder.type(type)
         if (stack != null) javaAliasBuilder.stack(stack)
         if (project != null) javaAliasBuilder.project(project)
-        if (parent != null) javaAliasBuilder.parent(parent?.javaResource)
+        if (parent != null) javaAliasBuilder.parent(parent?.underLyingJavaResource)
         if (parentUrn != null) javaAliasBuilder.parentUrn(parentUrn)
 
         val javaAlias = javaAliasBuilder.build()

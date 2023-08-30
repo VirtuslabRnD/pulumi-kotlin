@@ -4,6 +4,7 @@ import com.pulumi.kotlin.KotlinComponentResource
 import com.pulumi.kotlin.KotlinCustomResource
 import com.pulumi.kotlin.KotlinProviderResource
 import com.pulumi.kotlin.KotlinResource
+import com.pulumi.kotlin.options.opts
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -11,6 +12,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.KModifier.INTERNAL
 import com.squareup.kotlinpoet.KModifier.OVERRIDE
 import com.squareup.kotlinpoet.LambdaTypeName
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
@@ -97,7 +99,7 @@ object ResourceGenerator {
                 listOf(
                     PropertySpec.builder(JAVA_RESOURCE_PARAMETER_NAME, javaResourceClassName)
                         .initializer(JAVA_RESOURCE_PARAMETER_NAME)
-                        .addModifiers(OVERRIDE, INTERNAL)
+                        .addModifiers(OVERRIDE)
                         .build(),
                 ),
             )
@@ -137,6 +139,9 @@ object ResourceGenerator {
             .addDocs("@param block The arguments to use to populate this resource's properties.")
             .build()
 
+        requireNotNull(::opts)
+        val optsCreationFunction = MemberName("com.pulumi.kotlin.options", "opts")
+
         val optsFunction = FunSpec
             .builder("opts")
             .addModifiers(KModifier.SUSPEND)
@@ -147,9 +152,7 @@ object ResourceGenerator {
                     returnType = UNIT,
                 ).copy(suspending = true),
             )
-            .addStatement("val builder = %T()", customResourceOptionsBuilderClass())
-            .addStatement("block(builder)")
-            .addStatement("this.opts = builder.build()")
+            .addStatement("this.opts = %M(block)", optsCreationFunction)
             .addDocs("@param block A bag of options that control this resource's behavior.")
             .build()
 
