@@ -1,6 +1,6 @@
 # Test README
 
-<table>
+<table id="pulumi-kotlin-versions-table">
   <tr>
     <th>Name</th>
     <th>Version</th>

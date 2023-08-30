@@ -14,6 +14,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.logging.KtorSimpleLogger
 import kotlinx.coroutines.runBlocking
 import kotlinx.html.a
+import kotlinx.html.id
 import kotlinx.html.stream.createHTML
 import kotlinx.html.table
 import kotlinx.html.td
@@ -232,7 +233,8 @@ private fun fetchUpdatedSchemas(
 private fun updateReadme(readmeFile: File, versionConfigFile: File) {
     val readme = readmeFile.readText()
     val newTable = getLatestVersionsMarkdownTable(versionConfigFile)
-    val newReadme = "<table>.*</table>\n".toRegex(setOf(RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL))
+    val newReadme = "<table id=\"pulumi-kotlin-versions-table\">.*?</table>\n"
+        .toRegex(setOf(RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL))
         .replace(readme, newTable)
 
     readmeFile.writeText(newReadme)
@@ -254,6 +256,7 @@ fun replaceReleasedVersionsWithSnapshots(gitDirectory: File, versionConfigFile: 
 fun getLatestVersionsMarkdownTable(versionConfigFile: File): String {
     val schemas = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
     return createHTML().table {
+        id = "pulumi-kotlin-versions-table"
         tr {
             th { +"Name" }
             th { +"Version" }
