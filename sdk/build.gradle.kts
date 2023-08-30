@@ -66,8 +66,12 @@ publishing {
                 if (it is MavenPublication) {
                     configurePom(it)
                     if ((findProperty("signing.enabled") as String).toBoolean()) {
+                        val signingKey = findProperty("signing.key") as String?
+                        val signingKeyPassword = findProperty("signing.key.password") as String?
+
                         signing {
                             sign(it)
+                            useInMemoryPgpKeys(signingKey, signingKeyPassword)
                         }
                     }
                 }
