@@ -345,6 +345,7 @@ top of version `5.16.2` of Pulumi Java AWS provider.
 If the additional index is incremented (e.g. to `5.16.2.1`), it means that some updates were made to our generator and
 that the Kotlin code has been improved, but the underlying Java library remained the same.
 
+[//]: # (This table is generated automatically during releases, don't alter it manually unless absolutely necessary.)
 <table id="pulumi-kotlin-versions-table">
   <tr>
     <th>Name</th>
