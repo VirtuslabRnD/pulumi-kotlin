@@ -1,1 +1,2 @@
-rootProject.name = "pulumi-kotlin"
+rootProject.name = "pulumi-kotlin-generator"
+include("sdk")

@@ -17,6 +17,19 @@ on:
   workflow_dispatch:
 
 jobs:
+  publish-sdk:
+    name: Publish pulumi-kotlin SDK to Maven Local Repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project sources
+        uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: adopt
+          java-version: 11
+      - name: Publish to Maven Local
+        run: ./gradlew sdk:publishPulumiKotlinSdkPublicationToMavenLocal -Dorg.gradle.daemon=false -q
   publish:
     name: Publish pulumi-${{ matrix.provider }}-kotlin (${{ matrix.majorVersion }}) to Maven Local Repository
     runs-on: [ self-hosted, active ]
