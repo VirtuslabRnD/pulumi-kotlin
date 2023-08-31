@@ -49,7 +49,7 @@ abstract class KotlinResource private constructor(protected open val javaResourc
             }
             .toSet()
 
-    internal abstract val underLyingJavaResource: JavaResource
+    internal abstract val underlyingJavaResource: JavaResource
 
     protected constructor(
         javaResource: JavaResource,
@@ -67,7 +67,7 @@ abstract class KotlinComponentResource protected constructor(
     override val javaResource: JavaComponentResource,
     mapper: ResourceMapper<KotlinResource>,
 ) : KotlinResource(javaResource, mapper) {
-    override val underLyingJavaResource: JavaComponentResource
+    override val underlyingJavaResource: JavaComponentResource
         get() = javaResource
 }
 
@@ -81,7 +81,7 @@ abstract class KotlinCustomResource protected constructor(
 ) : KotlinResource(javaResource, mapper) {
     val id: Output<String>
         get() = javaResource.id()
-    override val underLyingJavaResource: JavaCustomResource
+    override val underlyingJavaResource: JavaCustomResource
         get() = javaResource
 }
 
@@ -93,7 +93,7 @@ abstract class KotlinProviderResource protected constructor(
     override val javaResource: JavaProviderResource,
     mapper: ResourceMapper<KotlinResource>,
 ) : KotlinResource(javaResource, mapper) {
-    override val underLyingJavaResource: JavaProviderResource
+    override val underlyingJavaResource: JavaProviderResource
         get() = javaResource
 }
 

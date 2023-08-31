@@ -139,7 +139,7 @@ object ResourceGenerator {
             .addDocs("@param block The arguments to use to populate this resource's properties.")
             .build()
 
-        requireNotNull(::opts)
+        requireNotNull(::opts) // to ensure compile-time safety
         val optsCreationFunction = MemberName("com.pulumi.kotlin.options", "opts")
 
         val optsFunction = FunSpec
