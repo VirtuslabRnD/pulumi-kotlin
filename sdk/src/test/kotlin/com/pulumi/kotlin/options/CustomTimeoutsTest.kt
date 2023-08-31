@@ -1,6 +1,5 @@
-package org.virtuslab.pulumikotlin.codegen.sdk.opts
+package com.pulumi.kotlin.options
 
-import com.pulumi.kotlin.options.customTimeouts
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals

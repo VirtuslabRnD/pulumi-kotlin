@@ -61,7 +61,7 @@ private fun organizeFilesAccordingToTheirPackage(filesToOrganize: List<File>, ou
     }
 }
 
-internal fun ejectToMavenProject(dependencies: List<String>, directoriesOrFiles: List<File>, testName: String? = null) {
+internal fun ejectToMavenProject(directoriesOrFiles: List<File>, testName: String? = null) {
     val formattedTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss"))
     val preparedTestName = testName?.let {
         val withEscapedChars = it.replace(Regex(" +"), "-").replace(Regex("[^a-zA-Z0-9-]"), "")
@@ -79,7 +79,6 @@ internal fun ejectToMavenProject(dependencies: List<String>, directoriesOrFiles:
             .name(ejectedProjectName)
             .version("1.0.0")
             .projenrcJava(true)
-            .deps(dependencies.map { it.replaceFirst(":", "/").replace(":", "@") })
             .outdir(outputDirectoryBase)
             .build(),
     )

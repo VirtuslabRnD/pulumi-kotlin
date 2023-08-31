@@ -1,13 +1,10 @@
-package org.virtuslab.pulumikotlin.codegen.sdk.opts
+package com.pulumi.kotlin.options
 
 import com.pulumi.core.Output
-import com.pulumi.kotlin.options.alias
-import com.pulumi.kotlin.options.noParent
-import com.pulumi.kotlin.options.withUrn
+import com.pulumi.kotlin.extractOutputValue
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
-import org.virtuslab.pulumikotlin.extractOutputValue
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull

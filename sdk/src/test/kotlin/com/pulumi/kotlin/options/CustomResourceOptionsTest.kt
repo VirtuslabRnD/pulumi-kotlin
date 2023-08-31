@@ -1,16 +1,10 @@
-package org.virtuslab.pulumikotlin.codegen.sdk.opts
+package com.pulumi.kotlin.options
 
 import com.pulumi.core.Output
 import com.pulumi.kotlin.GlobalResourceMapper
 import com.pulumi.kotlin.KotlinProviderResource
 import com.pulumi.kotlin.KotlinResource
-import com.pulumi.kotlin.options.ResourceTransformation
-import com.pulumi.kotlin.options.alias
-import com.pulumi.kotlin.options.customTimeouts
-import com.pulumi.kotlin.options.noParent
-import com.pulumi.kotlin.options.opts
-import com.pulumi.kotlin.options.transformationResult
-import com.pulumi.kotlin.options.withUrn
+import com.pulumi.kotlin.extractOutputValue
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -25,7 +19,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
-import org.virtuslab.pulumikotlin.extractOutputValue
 import kotlin.reflect.KClass
 import kotlin.test.assertContentEquals
 import kotlin.time.Duration.Companion.milliseconds

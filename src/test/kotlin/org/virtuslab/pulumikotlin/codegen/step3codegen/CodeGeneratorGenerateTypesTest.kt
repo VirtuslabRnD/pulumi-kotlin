@@ -76,7 +76,8 @@ internal class CodeGeneratorGenerateTypesTest {
                     sources = sourceFiles
 
                     classpaths = listOf(
-                        artifact("com.pulumi:pulumi:0.6.0"),
+                        artifact("org.virtuslab:pulumi-kotlin:0.9.4.0"),
+                        artifact("com.pulumi:pulumi:0.9.4"),
                         artifact("com.pulumi:aws:5.14.0"),
                         artifact("com.google.code.findbugs:jsr305:3.0.2"),
                         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4"),

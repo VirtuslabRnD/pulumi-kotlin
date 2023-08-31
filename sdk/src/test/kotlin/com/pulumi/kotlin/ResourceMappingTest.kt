@@ -1,10 +1,6 @@
-package org.virtuslab.pulumikotlin.codegen.sdk
+package com.pulumi.kotlin
 
 import com.pulumi.core.Output
-import com.pulumi.kotlin.GlobalResourceMapper
-import com.pulumi.kotlin.KotlinProviderResource
-import com.pulumi.kotlin.KotlinResource
-import com.pulumi.kotlin.ResourceMapper
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -15,7 +11,6 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.virtuslab.pulumikotlin.extractOutputValue
 import java.util.Optional
 import kotlin.reflect.KClass
 import com.pulumi.resources.CustomResource as JavaCustomResource
