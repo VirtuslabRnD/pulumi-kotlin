@@ -23,6 +23,17 @@
             <groupId>org.virtuslab</groupId>
             <artifactId>pulumi-google-native-kotlin</artifactId>
             <version>0.31.0.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.pulumi</groupId>
+                    <artifactId>pulumi</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.pulumi</groupId>
+            <artifactId>pulumi</artifactId>
+            <version>0.9.4</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
