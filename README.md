@@ -253,7 +253,7 @@ Copy the `dependency` block from [the table below (Supported providers)](#suppor
 </dependency>
 ```
 
-Any existing Java-specific dependency can be replaced with Kotlin-specific equivalent. For example:
+Any existing Java-specific dependency can be replaced with its Kotlin-specific equivalent. For example:
 
 ```xml
 <dependency>
@@ -274,6 +274,25 @@ can be replaced with:
 </dependency>
 ```
 
+Similarly, when it comes to the base Pulumi dependency, you can replace this:
+
+```xml
+<dependency>
+    <groupId>com.pulumi</groupId>
+    <artifactId>pulumi</artifactId>
+    <version>0.9.4</version>
+</dependency>
+```
+
+with this:
+
+```xml
+<dependency>
+    <groupId>org.virtuslab</groupId>
+    <artifactId>pulumi-kotlin</artifactId>
+    <version>0.9.4.0</version>
+</dependency>
+```
 
 ##### Gradle
 
@@ -284,7 +303,7 @@ Copy the dependency from [the table below (Supported providers)](#supported-prov
 implementation("org.virtuslab:pulumi-google-native-kotlin:0.31.0.0")
 ```
 
-Any existing Java-specific dependency can be replaced with Kotlin-specific equivalent. For example:
+Any existing Java-specific dependency can be replaced with its Kotlin-specific equivalent. For example:
 
 ```kt
 implementation("com.pulumi.aws:5.42.0")
@@ -296,6 +315,17 @@ can be replaced with:
 implementation("org.virtuslab.pulumi-aws-kotlin:5.42.0.0")
 ```
 
+Similarly, when it comes to the base Pulumi dependency, you can replace this:
+
+```kt
+implementation("com.pulumi:pulumi:0.9.4")
+```
+
+with this:
+
+```kt
+implementation("org.virtuslab:pulumi-kotlin:0.9.4.0")
+```
 
 #### 4. Read the docs.
 
@@ -926,7 +956,7 @@ Pulumi Kotlin SDK is a proof of concept, **we really need feedback before moving
 [pulumi-kotlin-code-examples]: https://github.com/VirtuslabRnD/pulumi-kotlin/tree/main/examples
 [pulumi-kotlin-issue-197]: https://github.com/VirtuslabRnD/pulumi-kotlin/issues/197
 [pulumi-installation-guide]: https://www.pulumi.com/docs/reference/install/?utm_campaign=pulumi-pulumi-github-repo&utm_source=github.com&utm_medium=getting-started-install
-[google-native-kdoc]: https://storage.googleapis.com/pulumi-kotlin-docs/google-native/0.27.0.0/index.html
+[google-native-kdoc]: https://storage.googleapis.com/pulumi-kotlin-docs/google-native/0.31.1.0/index.html
 [google-native-registry-docs]: https://www.pulumi.com/registry/packages/google-native
 [pulumi-registry]: https://www.pulumi.com/registry
 [issues-pulumi-kotlin]: https://github.com/VirtuslabRnD/pulumi-kotlin/issues
