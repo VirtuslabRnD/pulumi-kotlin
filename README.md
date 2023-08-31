@@ -926,7 +926,7 @@ Pulumi Kotlin SDK is a proof of concept, **we really need feedback before moving
 [pulumi-kotlin-code-examples]: https://github.com/VirtuslabRnD/pulumi-kotlin/tree/main/examples
 [pulumi-kotlin-issue-197]: https://github.com/VirtuslabRnD/pulumi-kotlin/issues/197
 [pulumi-installation-guide]: https://www.pulumi.com/docs/reference/install/?utm_campaign=pulumi-pulumi-github-repo&utm_source=github.com&utm_medium=getting-started-install
-[google-native-kdoc]: https://storage.googleapis.com/pulumi-kotlin-docs/google-native/0.27.0.0/index.html
+[google-native-kdoc]: https://storage.googleapis.com/pulumi-kotlin-docs/google-native/0.31.1.0/index.html
 [google-native-registry-docs]: https://www.pulumi.com/registry/packages/google-native
 [pulumi-registry]: https://www.pulumi.com/registry
 [issues-pulumi-kotlin]: https://github.com/VirtuslabRnD/pulumi-kotlin/issues
