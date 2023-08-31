@@ -34,7 +34,7 @@ interface ConvertibleToJava<T> {
  * it cannot be sealed, because generated subclasses will be placed in other packages.
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class KotlinResource private constructor(internal open val javaResource: JavaResource) {
+abstract class KotlinResource private constructor(protected open val javaResource: JavaResource) {
 
     val pulumiResourceName: String
         get() = javaResource.pulumiResourceName()
@@ -52,6 +52,8 @@ abstract class KotlinResource private constructor(internal open val javaResource
             }
             .toSet()
 
+    internal abstract val underlyingJavaResource: JavaResource
+
     protected constructor(
         javaResource: JavaResource,
         mapper: ResourceMapper<KotlinResource>,
@@ -64,31 +66,39 @@ abstract class KotlinResource private constructor(internal open val javaResource
  * Parent class for component resources within Kotlin SDK - equivalent to [JavaComponentResource].
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class KotlinComponentResource private constructor(
+abstract class KotlinComponentResource protected constructor(
     override val javaResource: JavaComponentResource,
     mapper: ResourceMapper<KotlinResource>,
-) : KotlinResource(javaResource, mapper)
+) : KotlinResource(javaResource, mapper) {
+    override val underlyingJavaResource: JavaComponentResource
+        get() = javaResource
+}
 
 /**
  * Parent class for custom resources within Kotlin SDK - equivalent to [JavaCustomResource].
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class KotlinCustomResource internal constructor(
+abstract class KotlinCustomResource protected constructor(
     override val javaResource: JavaCustomResource,
     mapper: ResourceMapper<KotlinResource>,
 ) : KotlinResource(javaResource, mapper) {
     val id: Output<String>
         get() = javaResource.id()
+    override val underlyingJavaResource: JavaCustomResource
+        get() = javaResource
 }
 
 /**
  * Parent class for provider resources within Kotlin SDK - equivalent to [JavaProviderResource].
  */
 @Suppress("UnnecessaryAbstractClass")
-abstract class KotlinProviderResource internal constructor(
+abstract class KotlinProviderResource protected constructor(
     override val javaResource: JavaProviderResource,
     mapper: ResourceMapper<KotlinResource>,
-) : KotlinResource(javaResource, mapper)
+) : KotlinResource(javaResource, mapper) {
+    override val underlyingJavaResource: JavaProviderResource
+        get() = javaResource
+}
 
 object Pulumi {
 
