@@ -10,10 +10,10 @@
   },
   {
     "providerName": "cloudflare",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.8.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
-    "kotlinVersion": "5.8.0.1-SNAPSHOT",
-    "javaVersion": "5.8.0",
-    "javaGitTag": "v5.8.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.9.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
+    "kotlinVersion": "5.9.0.0",
+    "javaVersion": "5.9.0",
+    "javaGitTag": "v5.9.0",
     "customDependencies": [
     ]
   },
@@ -172,10 +172,10 @@
   },
   {
     "providerName": "gitlab",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v6.2.1/provider/cmd/pulumi-resource-gitlab/schema.json",
-    "kotlinVersion": "6.2.1.1-SNAPSHOT",
-    "javaVersion": "6.2.1",
-    "javaGitTag": "v6.2.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v6.3.0/provider/cmd/pulumi-resource-gitlab/schema.json",
+    "kotlinVersion": "6.3.0.0",
+    "javaVersion": "6.3.0",
+    "javaGitTag": "v6.3.0",
     "customDependencies": [
     ]
   },
