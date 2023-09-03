@@ -413,14 +413,14 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:4.16.0.1")
   </tr>
   <tr>
     <td>cloudflare</td>
-    <td>5.8.0.0</td>
+    <td>5.9.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-cloudflare-kotlin</artifactId>
-     <version>5.8.0.0</version>
+     <version>5.9.0.0</version>
 </dependency>
 ```
  
@@ -428,13 +428,13 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:4.16.0.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.8.0.0")
+implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.9.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-cloudflare-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/cloudflare">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/cloudflare/5.8.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/cloudflare/5.9.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>slack</td>
@@ -863,14 +863,14 @@ implementation("org.virtuslab:pulumi-gitlab-kotlin:5.0.2.1")
   </tr>
   <tr>
     <td>gitlab</td>
-    <td>6.2.1.0</td>
+    <td>6.3.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-gitlab-kotlin</artifactId>
-     <version>6.2.1.0</version>
+     <version>6.3.0.0</version>
 </dependency>
 ```
  
@@ -878,13 +878,13 @@ implementation("org.virtuslab:pulumi-gitlab-kotlin:5.0.2.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-gitlab-kotlin:6.2.1.0")
+implementation("org.virtuslab:pulumi-gitlab-kotlin:6.3.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-gitlab-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/gitlab">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gitlab/6.2.1.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gitlab/6.3.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>digitalocean</td>
