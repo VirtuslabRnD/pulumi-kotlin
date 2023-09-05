@@ -155,7 +155,7 @@ fun updateProviderSchemas(
             requestTimeout = TimeUnit.MINUTES.toMillis(1)
         }
         install(HttpRequestRetry) {
-            retryOnServerErrors(maxRetries = 5)
+            maxRetries = 5
             exponentialDelay()
         }
         install(Logging) {
