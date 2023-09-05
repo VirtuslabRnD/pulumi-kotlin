@@ -587,6 +587,31 @@ implementation("org.virtuslab:pulumi-aws-kotlin:5.42.0.1")
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/5.42.0.1/index.html">link</a></td>
   </tr>
   <tr>
+    <td>aws</td>
+    <td>6.0.2.0</td>
+    <td> 
+ 
+```xml
+<dependency>
+     <groupId>org.virtuslab</groupId>
+     <artifactId>pulumi-aws-kotlin</artifactId>
+     <version>6.0.2.0</version>
+</dependency>
+```
+ 
+ </td>
+    <td> 
+ 
+```kt
+implementation("org.virtuslab:pulumi-aws-kotlin:6.0.2.0")
+```
+ 
+ </td>
+    <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-aws-kotlin">link</a></td>
+    <td><a href="https://www.pulumi.com/registry/packages/aws">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/6.0.2.0/index.html">link</a></td>
+  </tr>
+  <tr>
     <td>aws-native</td>
     <td>0.75.0.0</td>
     <td> 
