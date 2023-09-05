@@ -163,6 +163,9 @@ fun createDownloadTask(
     task<Download>(taskName) {
         src(schemaUrl)
         dest(schemaDownloadPath.canonicalPath)
+        connectTimeout(TimeUnit.MINUTES.toMillis(1).toInt())
+        readTimeout(TimeUnit.MINUTES.toMillis(1).toInt())
+        retries(5)
     }
 }
 
