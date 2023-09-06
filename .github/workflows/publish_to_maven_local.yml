@@ -54,6 +54,8 @@ jobs:
             majorVersion: 0
           - provider: aws
             majorVersion: 5
+          - provider: aws
+            majorVersion: 6
           - provider: aws-native
             majorVersion: 0
           - provider: azure
