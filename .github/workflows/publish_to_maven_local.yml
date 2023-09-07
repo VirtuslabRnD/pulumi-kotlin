@@ -110,8 +110,16 @@ jobs:
             with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
               fh.write('is_release=' + str(is_release).lower())
       - name: Publish to Maven Local
+        id: publish-to-maven-local
         run: ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.majorVersion }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
         if: |
           (startsWith(github.head_ref, 'prepare-release') && steps.check-for-release.outputs.is_release == 'true') || 
           (github.event_name == 'push' && steps.check-for-release.outputs.is_release == 'false') || 
           github.event_name == 'workflow_dispatch'
+      - name: Upload buildSrc test report
+        if: ${{ failure() && steps.publish-to-maven-local.outcome == 'failure' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-src-test-report
+          path: ./buildSrc/build/reports/tests/test/*
+          retention-days: 3
