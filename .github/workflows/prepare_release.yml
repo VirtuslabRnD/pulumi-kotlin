@@ -117,6 +117,7 @@ jobs:
           distribution: adopt
           java-version: 11
       - name: Publish packages
+        id: publish-to-maven-central
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
           ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.majorVersion }}PublicationToMavenCentralRepository \
@@ -152,6 +153,13 @@ jobs:
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
           rclone copy --transfers=1024 ./docs/${{ matrix.provider }} rclone-jvm-lab:/pulumi-kotlin-docs/${{ matrix.provider }}
+      - name: Upload buildSrc test report
+        if: ${{ failure() && steps.publish-to-maven-central.outcome == 'failure' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-src-test-report
+          path: ./buildSrc/build/reports/tests/test/*
+          retention-days: 3          
   cleanup:
     name: Clean up after release
     needs: tag
