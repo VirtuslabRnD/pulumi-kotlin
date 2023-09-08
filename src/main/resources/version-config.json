@@ -10,10 +10,10 @@
   },
   {
     "providerName": "cloudflare",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.9.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
-    "kotlinVersion": "5.9.0.1-SNAPSHOT",
-    "javaVersion": "5.9.0",
-    "javaGitTag": "v5.9.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.10.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
+    "kotlinVersion": "5.10.0.0",
+    "javaVersion": "5.10.0",
+    "javaGitTag": "v5.10.0",
     "customDependencies": [
     ]
   },
