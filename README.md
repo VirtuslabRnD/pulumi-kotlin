@@ -488,14 +488,14 @@ implementation("org.virtuslab:pulumi-github-kotlin:5.17.0.0")
   </tr>
   <tr>
     <td>random</td>
-    <td>4.13.3.0</td>
+    <td>4.13.4.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-random-kotlin</artifactId>
-     <version>4.13.3.0</version>
+     <version>4.13.4.0</version>
 </dependency>
 ```
  
@@ -503,13 +503,13 @@ implementation("org.virtuslab:pulumi-github-kotlin:5.17.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-random-kotlin:4.13.3.0")
+implementation("org.virtuslab:pulumi-random-kotlin:4.13.4.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-random-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/random">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/random/4.13.3.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/random/4.13.4.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>gcp</td>
@@ -688,14 +688,14 @@ implementation("org.virtuslab:pulumi-azure-native-kotlin:1.104.0.1")
   </tr>
   <tr>
     <td>azure-native</td>
-    <td>2.7.0.0</td>
+    <td>2.8.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-azure-native-kotlin</artifactId>
-     <version>2.7.0.0</version>
+     <version>2.8.0.0</version>
 </dependency>
 ```
  
@@ -703,13 +703,13 @@ implementation("org.virtuslab:pulumi-azure-native-kotlin:1.104.0.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-azure-native-kotlin:2.7.0.0")
+implementation("org.virtuslab:pulumi-azure-native-kotlin:2.8.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-azure-native-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/azure-native">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/azure-native/2.7.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/azure-native/2.8.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>kubernetes</td>
