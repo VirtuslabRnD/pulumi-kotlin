@@ -488,14 +488,14 @@ implementation("org.virtuslab:pulumi-github-kotlin:5.17.0.0")
   </tr>
   <tr>
     <td>random</td>
-    <td>4.13.4.0</td>
+    <td>4.14.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-random-kotlin</artifactId>
-     <version>4.13.4.0</version>
+     <version>4.14.0.0</version>
 </dependency>
 ```
  
@@ -503,24 +503,24 @@ implementation("org.virtuslab:pulumi-github-kotlin:5.17.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-random-kotlin:4.13.4.0")
+implementation("org.virtuslab:pulumi-random-kotlin:4.14.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-random-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/random">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/random/4.13.4.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/random/4.14.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>gcp</td>
-    <td>6.65.1.0</td>
+    <td>6.66.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-gcp-kotlin</artifactId>
-     <version>6.65.1.0</version>
+     <version>6.66.0.0</version>
 </dependency>
 ```
  
@@ -528,13 +528,13 @@ implementation("org.virtuslab:pulumi-random-kotlin:4.13.4.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-gcp-kotlin:6.65.1.0")
+implementation("org.virtuslab:pulumi-gcp-kotlin:6.66.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-gcp-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/gcp">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gcp/6.65.1.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gcp/6.66.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>google-native</td>
@@ -588,14 +588,14 @@ implementation("org.virtuslab:pulumi-aws-kotlin:5.42.0.1")
   </tr>
   <tr>
     <td>aws</td>
-    <td>6.1.0.0</td>
+    <td>6.2.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-aws-kotlin</artifactId>
-     <version>6.1.0.0</version>
+     <version>6.2.0.0</version>
 </dependency>
 ```
  
@@ -603,13 +603,13 @@ implementation("org.virtuslab:pulumi-aws-kotlin:5.42.0.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-aws-kotlin:6.1.0.0")
+implementation("org.virtuslab:pulumi-aws-kotlin:6.2.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-aws-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/aws">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/6.1.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/6.2.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>aws-native</td>
