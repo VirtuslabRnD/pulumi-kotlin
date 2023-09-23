@@ -28,10 +28,10 @@
   },
   {
     "providerName": "github",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v5.17.0/provider/cmd/pulumi-resource-github/schema.json",
-    "kotlinVersion": "5.17.0.1-SNAPSHOT",
-    "javaVersion": "5.17.0",
-    "javaGitTag": "v5.17.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v5.18.0/provider/cmd/pulumi-resource-github/schema.json",
+    "kotlinVersion": "5.18.0.0",
+    "javaVersion": "5.18.0",
+    "javaGitTag": "v5.18.0",
     "customDependencies": [
     ]
   },
