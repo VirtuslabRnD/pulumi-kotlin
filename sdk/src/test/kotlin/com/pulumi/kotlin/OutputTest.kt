@@ -92,7 +92,7 @@ class OutputTest {
     @Test
     fun `interpolates unknown and secret outputs`() {
         // given
-        val output1 = Output.of("value1")
+        val output1 = OutputInternal(CompletableFuture.completedFuture(OutputData.unknown<String>()))
         val output2 = Output.ofSecret("value2")
         val output3 = OutputInternal(CompletableFuture.completedFuture(OutputData.unknown<String>()))
 
@@ -112,31 +112,6 @@ class OutputTest {
         assertEquals(javaResult.getValue(), result.getValue())
         assertEquals(javaResult.isKnown(), result.isKnown())
         assertEquals(javaResult.isSecret(), result.isSecret())
-    }
-
-    @Test
-    fun `interpolates unknown and secret outputs as not secret if an unknown output appears before a secret output`() {
-        // given
-        val output1 = OutputInternal(CompletableFuture.completedFuture(OutputData.unknown<String>()))
-        val output2 = Output.ofSecret("value2")
-        val output3 = Output.of("value1")
-
-        // when
-        val result = runBlocking {
-            interpolation {
-                "output1: ${+output1}, output2: ${+output2}, output3: ${+output3}"
-            }
-        }
-
-        // then
-        assertEquals(null, result.getValue())
-        assertFalse(result.isKnown())
-        assertFalse(result.isSecret()) // note: this isn't the desired behavior
-
-        val javaResult = Output.format("output1: %s, output2: %s, output3: %s", output1, output2, output3)
-        assertEquals(javaResult.getValue(), result.getValue())
-        assertEquals(javaResult.isKnown(), result.isKnown())
-        assertNotEquals(javaResult.isSecret(), result.isSecret()) // note: this isn't the desired behavior
     }
 
     @Test

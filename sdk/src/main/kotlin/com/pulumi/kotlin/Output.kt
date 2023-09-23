@@ -11,13 +11,13 @@ import java.util.concurrent.CompletableFuture
 object Output {
 
     /**
-     * Use this method to open an [OutputInterpolationContext] in which the unary plus operator can be used on outputs 
+     * Use this method to open an [OutputInterpolationContext] in which the unary plus operator can be used on outputs
      * to interpolate their asynchronous values into an asynchronous string wrapped in an output.
      * ```kotlin
      * val myOutput = Output.of("value")
      * val interpolatedString = interpolate { "The value of this output is: ${+myOutput}" }
      * ```
-     * 
+     *
      * This method is an alternative to the [Output.format] method from Java.
      * ```java
      * Output<String> myOutput = Output.of("value");
@@ -28,20 +28,9 @@ object Output {
      */
     suspend fun interpolation(format: suspend OutputInterpolationContext.() -> String): Output<String> {
         val context = OutputInterpolationContext()
-        return try {
-            val output = Output.of(context.format())
-            if (context.isSecret) {
-                output.asSecret()
-            } else {
-                output
-            }
-        } catch (e: UnknownOutputError) {
-            if (context.isSecret) {
-                unknownOutput<String>().asSecret()
-            } else {
-                unknownOutput()
-            }
-        }
+        val value = context.format()
+        val output = if (context.isKnown) Output.of(value) else unknownOutput()
+        return if (context.isSecret) output.asSecret() else output
     }
 }
 
@@ -50,18 +39,21 @@ object Output {
  *
  * @property isSecret denotes whether any of the interpolated values contain a secret
  */
-class OutputInterpolationContext internal constructor(var isSecret: Boolean = false)  {
+class OutputInterpolationContext internal constructor(
+    var isSecret: Boolean = false,
+    var isKnown: Boolean = true,
+) {
     /**
      * The unary plus operator that can be used on [Output] instances within [OutputInterpolationContext].
      *
      * @return an asynchronous value of the [Output] in question converted to a string with [toString]
      */
-    suspend operator fun <T> Output<T>.unaryPlus(): String {
+    suspend operator fun <T> Output<T>.unaryPlus(): String? {
         return interpolate()
     }
 
     // TODO: decide if we prefer this or the unary plus
-    suspend fun <T> Output<T>.interpolate(): String {
+    suspend fun <T> Output<T>.interpolate(): String? {
         val outputData = (this as OutputInternal<T>)
             .dataAsync
             .await()
@@ -71,12 +63,13 @@ class OutputInterpolationContext internal constructor(var isSecret: Boolean = fa
         if (outputData.isSecret) {
             this@OutputInterpolationContext.isSecret = true
         }
+        if (!outputData.isKnown) {
+            this@OutputInterpolationContext.isKnown = false
+        }
 
-        return value ?: throw UnknownOutputError()
+        return value
     }
 }
-
-private class UnknownOutputError : RuntimeException("Cannot interpolate an output whose value is unknown")
 
 private fun <T> unknownOutput(): Output<T> {
     return OutputInternal(CompletableFuture.completedFuture(OutputData.unknown()))
