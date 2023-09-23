@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class OutputTest {
@@ -43,8 +42,8 @@ class OutputTest {
     fun `interpolates unknown outputs`() {
         // given
         val output1 = Output.of("value1")
-        val output2 = Output.of("value2")
-        val output3 = OutputInternal(CompletableFuture.completedFuture(OutputData.unknown<String>()))
+        val output2 = unknownOutput()
+        val output3 = Output.of("value3")
 
         // when
         val result = runBlocking {
@@ -68,8 +67,8 @@ class OutputTest {
     fun `interpolates secret outputs`() {
         // given
         val output1 = Output.of("value1")
-        val output2 = Output.of("value2")
-        val output3 = Output.ofSecret("value3")
+        val output2 = Output.ofSecret("value2")
+        val output3 = Output.of("value3")
 
         // when
         val result = runBlocking {
@@ -92,9 +91,9 @@ class OutputTest {
     @Test
     fun `interpolates unknown and secret outputs`() {
         // given
-        val output1 = OutputInternal(CompletableFuture.completedFuture(OutputData.unknown<String>()))
+        val output1 = unknownOutput()
         val output2 = Output.ofSecret("value2")
-        val output3 = OutputInternal(CompletableFuture.completedFuture(OutputData.unknown<String>()))
+        val output3 = unknownOutput()
 
         // when
         val result = runBlocking {
@@ -118,9 +117,8 @@ class OutputTest {
     fun `interpolates outputs that are both unknown and secret`() {
         // given
         val output1 = Output.of("value1")
-        val output2 = Output.ofSecret("value2")
-        val output3 =
-            (OutputInternal(CompletableFuture.completedFuture(OutputData.unknown<String>())) as Output<String>).asSecret()
+        val output2 = unknownOutput().asSecret()
+        val output3 = Output.of("value3")
 
         // when
         val result = runBlocking {
@@ -138,6 +136,10 @@ class OutputTest {
         assertEquals(javaResult.getValue(), result.getValue())
         assertEquals(javaResult.isKnown(), result.isKnown())
         assertEquals(javaResult.isSecret(), result.isSecret())
+    }
+
+    private fun unknownOutput(): Output<String> {
+        return OutputInternal(CompletableFuture.completedFuture(OutputData.unknown()))
     }
 
     private fun Output<String>.getValue(): String? {
