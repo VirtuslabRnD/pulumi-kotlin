@@ -28,10 +28,10 @@
   },
   {
     "providerName": "github",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v5.18.0/provider/cmd/pulumi-resource-github/schema.json",
-    "kotlinVersion": "5.18.0.1-SNAPSHOT",
-    "javaVersion": "5.18.0",
-    "javaGitTag": "v5.18.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v5.19.0/provider/cmd/pulumi-resource-github/schema.json",
+    "kotlinVersion": "5.19.0.0",
+    "javaVersion": "5.19.0",
+    "javaGitTag": "v5.19.0",
     "customDependencies": [
     ]
   },
@@ -73,10 +73,10 @@
   },
   {
     "providerName": "aws",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.2.0/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.2.0.1-SNAPSHOT",
-    "javaVersion": "6.2.0",
-    "javaGitTag": "v6.2.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.2.1/provider/cmd/pulumi-resource-aws/schema.json",
+    "kotlinVersion": "6.2.1.0",
+    "javaVersion": "6.2.1",
+    "javaGitTag": "v6.2.1",
     "customDependencies": [
     ]
   },
@@ -127,10 +127,10 @@
   },
   {
     "providerName": "kubernetes",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v4.2.0/provider/cmd/pulumi-resource-kubernetes/schema.json",
-    "kotlinVersion": "4.2.0.1-SNAPSHOT",
-    "javaVersion": "4.2.0",
-    "javaGitTag": "v4.2.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v4.3.0/provider/cmd/pulumi-resource-kubernetes/schema.json",
+    "kotlinVersion": "4.3.0.0",
+    "javaVersion": "4.3.0",
+    "javaGitTag": "v4.3.0",
     "customDependencies": [
     ]
   },
@@ -190,10 +190,10 @@
   },
   {
     "providerName": "digitalocean",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.21.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
-    "kotlinVersion": "4.21.0.2-SNAPSHOT",
-    "javaVersion": "4.21.0",
-    "javaGitTag": "v4.21.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.22.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
+    "kotlinVersion": "4.22.0.0",
+    "javaVersion": "4.22.0",
+    "javaGitTag": "v4.22.0",
     "customDependencies": [
     ]
   },
