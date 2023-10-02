@@ -588,14 +588,14 @@ implementation("org.virtuslab:pulumi-aws-kotlin:5.42.0.1")
   </tr>
   <tr>
     <td>aws</td>
-    <td>6.2.1.0</td>
+    <td>6.3.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-aws-kotlin</artifactId>
-     <version>6.2.1.0</version>
+     <version>6.3.0.0</version>
 </dependency>
 ```
  
@@ -603,13 +603,13 @@ implementation("org.virtuslab:pulumi-aws-kotlin:5.42.0.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-aws-kotlin:6.2.1.0")
+implementation("org.virtuslab:pulumi-aws-kotlin:6.3.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-aws-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/aws">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/6.2.1.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/6.3.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>aws-native</td>
@@ -938,14 +938,14 @@ implementation("org.virtuslab:pulumi-digitalocean-kotlin:4.22.0.0")
   </tr>
   <tr>
     <td>alicloud</td>
-    <td>3.43.1.0</td>
+    <td>3.44.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-alicloud-kotlin</artifactId>
-     <version>3.43.1.0</version>
+     <version>3.44.0.0</version>
 </dependency>
 ```
  
@@ -953,13 +953,13 @@ implementation("org.virtuslab:pulumi-digitalocean-kotlin:4.22.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-alicloud-kotlin:3.43.1.0")
+implementation("org.virtuslab:pulumi-alicloud-kotlin:3.44.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-alicloud-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/alicloud">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.43.1.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.44.0.0/index.html">link</a></td>
   </tr>
 </table>
 
