@@ -588,14 +588,14 @@ implementation("org.virtuslab:pulumi-aws-kotlin:5.42.0.1")
   </tr>
   <tr>
     <td>aws</td>
-    <td>6.4.0.0</td>
+    <td>6.4.1.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-aws-kotlin</artifactId>
-     <version>6.4.0.0</version>
+     <version>6.4.1.0</version>
 </dependency>
 ```
  
@@ -603,13 +603,13 @@ implementation("org.virtuslab:pulumi-aws-kotlin:5.42.0.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-aws-kotlin:6.4.0.0")
+implementation("org.virtuslab:pulumi-aws-kotlin:6.4.1.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-aws-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/aws">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/6.4.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/6.4.1.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>aws-native</td>
@@ -813,14 +813,14 @@ implementation("org.virtuslab:pulumi-docker-kotlin:3.6.1.2")
   </tr>
   <tr>
     <td>docker</td>
-    <td>4.4.2.0</td>
+    <td>4.4.3.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-docker-kotlin</artifactId>
-     <version>4.4.2.0</version>
+     <version>4.4.3.0</version>
 </dependency>
 ```
  
@@ -828,13 +828,13 @@ implementation("org.virtuslab:pulumi-docker-kotlin:3.6.1.2")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-docker-kotlin:4.4.2.0")
+implementation("org.virtuslab:pulumi-docker-kotlin:4.4.3.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-docker-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/docker">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/docker/4.4.2.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/docker/4.4.3.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>gitlab</td>
