@@ -155,7 +155,7 @@
   {
     "providerName": "docker",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-docker/v4.4.2/provider/cmd/pulumi-resource-docker/schema.json",
-    "kotlinVersion": "4.4.2.0",
+    "kotlinVersion": "4.4.2.1-SNAPSHOT",
     "javaVersion": "4.4.2",
     "javaGitTag": "v4.4.2",
     "customDependencies": [
