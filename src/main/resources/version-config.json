@@ -74,7 +74,7 @@
   {
     "providerName": "aws",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.4.1/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.4.1.0",
+    "kotlinVersion": "6.4.1.1-SNAPSHOT",
     "javaVersion": "6.4.1",
     "javaGitTag": "v6.4.1",
     "customDependencies": [
@@ -155,7 +155,7 @@
   {
     "providerName": "docker",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-docker/v4.4.3/provider/cmd/pulumi-resource-docker/schema.json",
-    "kotlinVersion": "4.4.3.0",
+    "kotlinVersion": "4.4.3.1-SNAPSHOT",
     "javaVersion": "4.4.3",
     "javaGitTag": "v4.4.3",
     "customDependencies": [
