@@ -74,7 +74,7 @@
   {
     "providerName": "aws",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.6.0/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.6.0.0",
+    "kotlinVersion": "6.6.0.1-SNAPSHOT",
     "javaVersion": "6.6.0",
     "javaGitTag": "v6.6.0",
     "customDependencies": [
