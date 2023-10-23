@@ -413,14 +413,14 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:4.16.0.1")
   </tr>
   <tr>
     <td>cloudflare</td>
-    <td>5.12.0.0</td>
+    <td>5.13.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-cloudflare-kotlin</artifactId>
-     <version>5.12.0.0</version>
+     <version>5.13.0.0</version>
 </dependency>
 ```
  
@@ -428,13 +428,13 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:4.16.0.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.12.0.0")
+implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.13.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-cloudflare-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/cloudflare">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/cloudflare/5.12.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/cloudflare/5.13.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>slack</td>
@@ -813,14 +813,14 @@ implementation("org.virtuslab:pulumi-docker-kotlin:3.6.1.2")
   </tr>
   <tr>
     <td>docker</td>
-    <td>4.4.3.0</td>
+    <td>4.4.4.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-docker-kotlin</artifactId>
-     <version>4.4.3.0</version>
+     <version>4.4.4.0</version>
 </dependency>
 ```
  
@@ -828,13 +828,13 @@ implementation("org.virtuslab:pulumi-docker-kotlin:3.6.1.2")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-docker-kotlin:4.4.3.0")
+implementation("org.virtuslab:pulumi-docker-kotlin:4.4.4.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-docker-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/docker">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/docker/4.4.3.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/docker/4.4.4.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>gitlab</td>
@@ -938,14 +938,14 @@ implementation("org.virtuslab:pulumi-digitalocean-kotlin:4.22.0.0")
   </tr>
   <tr>
     <td>alicloud</td>
-    <td>3.44.0.0</td>
+    <td>3.44.1.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-alicloud-kotlin</artifactId>
-     <version>3.44.0.0</version>
+     <version>3.44.1.0</version>
 </dependency>
 ```
  
@@ -953,13 +953,13 @@ implementation("org.virtuslab:pulumi-digitalocean-kotlin:4.22.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-alicloud-kotlin:3.44.0.0")
+implementation("org.virtuslab:pulumi-alicloud-kotlin:3.44.1.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-alicloud-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/alicloud">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.44.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.44.1.0/index.html">link</a></td>
   </tr>
 </table>
 
