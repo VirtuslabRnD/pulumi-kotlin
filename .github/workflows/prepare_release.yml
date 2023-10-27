@@ -86,6 +86,8 @@ jobs:
             majorVersion: 4
           - provider: alicloud
             majorVersion: 3
+          - provider: cockroach
+            majorVersion: 0
     steps:
       - id: provider
         uses: ASzc/change-string-case-action@v5

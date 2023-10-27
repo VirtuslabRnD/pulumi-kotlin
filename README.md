@@ -961,6 +961,31 @@ implementation("org.virtuslab:pulumi-alicloud-kotlin:3.44.1.0")
     <td><a href="https://www.pulumi.com/registry/packages/alicloud">link</a></td>
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.44.1.0/index.html">link</a></td>
   </tr>
+  <tr>
+    <td>coackroach</td>
+    <td>0.1.0</td>
+    <td> 
+ 
+```xml
+<dependency>
+     <groupId>org.virtuslab</groupId>
+     <artifactId>pulumi-cockroach-kotlin</artifactId>
+     <version>0.1.0</version>
+</dependency>
+```
+ 
+ </td>
+    <td> 
+ 
+```kt
+implementation("org.virtuslab:pulumi-cockroach-kotlin:0.1.0.0")
+```
+ 
+ </td>
+    <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-cockroach-kotlin">link</a></td>
+    <td><a href="https://www.pulumi.com/registry/packages/cockroach">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/cockroach/0.1.0.0/index.html">link</a></td>
+  </tr>
 </table>
 
 ## Giving feedback

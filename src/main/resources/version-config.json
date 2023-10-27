@@ -205,5 +205,14 @@
     "javaGitTag": "v3.44.1",
     "customDependencies": [
     ]
+  },
+  {
+    "providerName": "cockroach",
+    "url": "https://raw.githubusercontent.com/lbrlabs/pulumi-cockroach/v0.1.0/provider/cmd/pulumi-resource-cockroach/schema.json",
+    "kotlinVersion": "0.1.0.0-SNAPSHOT",
+    "javaVersion": "0.1.0",
+    "javaGitTag": "v0.1.0",
+    "customDependencies": [
+    ]
   }
 ]
