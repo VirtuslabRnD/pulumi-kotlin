@@ -16,6 +16,8 @@ the code and integrating with the Pulumi ecosystem.
 
 ## Navigation
 
+- [Articles and talks](#articles-and-talks)
+
 - [Code examples](#code-examples)
 
 - [Getting started](#getting-started)
@@ -26,9 +28,10 @@ the code and integrating with the Pulumi ecosystem.
 
 - [Development docs](#development-docs)
 
-- How does it work? (will be added soon)
+## Articles and talks
 
-- Challenges & next steps (will be added soon)
+- [Pulumi Kotlin. The missing piece in Kotlin multi-platform](https://medium.com/virtuslab/pulumi-kotlin-9c0cb2d53e1c) by [@jplewa](https://github.com/jplewa)
+- [Infrastructure as code done right with JVM](https://2023.javazone.no/program/444fd903-4857-4591-b0c2-a824ccf5d3af) by [@lbialy](https://github.com/lbialy)
 
 ## Code examples
 
