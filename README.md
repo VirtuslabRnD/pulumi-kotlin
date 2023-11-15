@@ -816,14 +816,14 @@ implementation("org.virtuslab:pulumi-docker-kotlin:3.6.1.2")
   </tr>
   <tr>
     <td>docker</td>
-    <td>4.4.4.0</td>
+    <td>4.4.5.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-docker-kotlin</artifactId>
-     <version>4.4.4.0</version>
+     <version>4.4.5.0</version>
 </dependency>
 ```
  
@@ -831,13 +831,13 @@ implementation("org.virtuslab:pulumi-docker-kotlin:3.6.1.2")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-docker-kotlin:4.4.4.0")
+implementation("org.virtuslab:pulumi-docker-kotlin:4.4.5.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-docker-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/docker">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/docker/4.4.4.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/docker/4.4.5.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>gitlab</td>
