@@ -10,10 +10,10 @@
   },
   {
     "providerName": "cloudflare",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.14.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
-    "kotlinVersion": "5.14.0.1-SNAPSHOT",
-    "javaVersion": "5.14.0",
-    "javaGitTag": "v5.14.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.15.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
+    "kotlinVersion": "5.15.0.0",
+    "javaVersion": "5.15.0",
+    "javaGitTag": "v5.15.0",
     "customDependencies": [
     ]
   },
@@ -73,10 +73,10 @@
   },
   {
     "providerName": "aws",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.8.0/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.8.0.1-SNAPSHOT",
-    "javaVersion": "6.8.0",
-    "javaGitTag": "v6.8.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.9.0/provider/cmd/pulumi-resource-aws/schema.json",
+    "kotlinVersion": "6.9.0.0",
+    "javaVersion": "6.9.0",
+    "javaGitTag": "v6.9.0",
     "customDependencies": [
     ]
   },
@@ -109,10 +109,10 @@
   },
   {
     "providerName": "azure-native",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.17.0/provider/cmd/pulumi-resource-azure-native/schema.json",
-    "kotlinVersion": "2.17.0.1-SNAPSHOT",
-    "javaVersion": "2.17.0",
-    "javaGitTag": "v2.17.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.18.0/provider/cmd/pulumi-resource-azure-native/schema.json",
+    "kotlinVersion": "2.18.0.0",
+    "javaVersion": "2.18.0",
+    "javaGitTag": "v2.18.0",
     "customDependencies": [
     ]
   },
@@ -181,10 +181,10 @@
   },
   {
     "providerName": "gitlab",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v6.5.0/provider/cmd/pulumi-resource-gitlab/schema.json",
-    "kotlinVersion": "6.5.0.1-SNAPSHOT",
-    "javaVersion": "6.5.0",
-    "javaGitTag": "v6.5.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v6.6.0/provider/cmd/pulumi-resource-gitlab/schema.json",
+    "kotlinVersion": "6.6.0.0",
+    "javaVersion": "6.6.0",
+    "javaGitTag": "v6.6.0",
     "customDependencies": [
     ]
   },
