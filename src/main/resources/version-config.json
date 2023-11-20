@@ -190,10 +190,10 @@
   },
   {
     "providerName": "digitalocean",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.23.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
-    "kotlinVersion": "4.23.0.1-SNAPSHOT",
-    "javaVersion": "4.23.0",
-    "javaGitTag": "v4.23.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.24.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
+    "kotlinVersion": "4.24.0.0",
+    "javaVersion": "4.24.0",
+    "javaGitTag": "v4.24.0",
     "customDependencies": [
     ]
   },
