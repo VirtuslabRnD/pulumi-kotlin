@@ -38,7 +38,7 @@
   {
     "providerName": "random",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.15.0/provider/cmd/pulumi-resource-random/schema.json",
-    "kotlinVersion": "4.15.0.0",
+    "kotlinVersion": "4.15.0.1-SNAPSHOT",
     "javaVersion": "4.15.0",
     "javaGitTag": "v4.15.0",
     "customDependencies": [
@@ -74,7 +74,7 @@
   {
     "providerName": "aws",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.13.2/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.13.2.0",
+    "kotlinVersion": "6.13.2.1-SNAPSHOT",
     "javaVersion": "6.13.2",
     "javaGitTag": "v6.13.2",
     "customDependencies": [
