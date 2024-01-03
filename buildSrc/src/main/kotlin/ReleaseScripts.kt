@@ -56,11 +56,11 @@ private fun Semver.getGitTag(): String = if (build.isNotEmpty()) build.joinToStr
 data class KotlinVersion(val javaVersion: Semver, val kotlinMinor: Int, val isSnapshot: Boolean) {
     companion object {
         fun fromVersionString(versionString: String): KotlinVersion {
-            val versionStringSegments = """^(\d+\.\d+\.\d+)\.(\d+)(-.*\+\w+)?(-SNAPSHOT)?$"""
+            val versionStringSegments = """^(\d+\.\d+\.\d+)\.(\d+)(-.*?)??(-SNAPSHOT)?$"""
                 .toRegex()
                 .find(versionString)
                 ?.groupValues
-                ?: error("Invalid version string")
+                ?: error("Invalid version string '$versionString'")
 
             val javaVersion = versionStringSegments[1]
             val kotlinMinor = versionStringSegments[2]
@@ -418,19 +418,18 @@ private fun validateVersion(
     oldJavaVersion: Semver,
     otherVersionsOfProvider: List<Semver>,
 ): Boolean {
-    val schemaExists = verifyUrl(client, newSchema.url)
-    if (!schemaExists) {
-        logger.warn("Skipping release ${newSchema.getKotlinGitTag()} (cannot find url: ${newSchema.url}")
-    }
     val newJavaVersion = Semver(newSchema.javaVersion)
     val sameMajor = newJavaVersion.major == oldJavaVersion.major
     val majorAlreadyInVersionConfig = otherVersionsOfProvider.any { it.major == newJavaVersion.major }
-
     if (!sameMajor && !majorAlreadyInVersionConfig) {
         logger.warn(
             "Version with major update available: ${newSchema.getKotlinGitTag()}. " +
                 "Current version: ${oldSchema.getKotlinGitTag()}",
         )
+    }
+    val schemaExists = verifyUrl(client, newSchema.url)
+    if (sameMajor && !schemaExists) {
+        logger.warn("Skipping release ${newSchema.getKotlinGitTag()} (cannot find url: ${newSchema.url}")
     }
     return schemaExists && sameMajor
 }

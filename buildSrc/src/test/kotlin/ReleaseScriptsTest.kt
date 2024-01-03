@@ -6,7 +6,6 @@ import org.semver4j.Semver
 import java.io.File
 import java.nio.file.Files
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 private const val RESOURCES = "src/test/resources"
 
@@ -81,12 +80,20 @@ class ReleaseScriptsTest {
     }
 
     @Test
-    fun `fails to parses Kotlin library version if no Git hash is available in a pre-release`() {
+    fun `parses a Kotlin library version even if no Git hash is available in a pre-release`() {
         val versionString = "4.7.0.2-alpha.1657304919"
+        val kotlinVersion = KotlinVersion.fromVersionString(versionString)
 
-        assertFailsWith<IllegalStateException>("Invalid version string") {
-            KotlinVersion.fromVersionString(versionString)
-        }
+        val expectedParsedVersion = KotlinVersion(Semver("4.7.0-alpha.1657304919"), 2, false)
+
+        assertEquals(
+            expectedParsedVersion,
+            kotlinVersion,
+        )
+        assertEquals(
+            versionString,
+            kotlinVersion.toString(),
+        )
     }
 
     @Test
