@@ -50,6 +50,8 @@ jobs:
             majorVersion: 4
           - provider: gcp
             majorVersion: 6
+          - provider: gcp
+            majorVersion: 7
           - provider: google-native
             majorVersion: 0
           - provider: aws
@@ -70,6 +72,8 @@ jobs:
             majorVersion: 4
           - provider: nomad
             majorVersion: 0
+          - provider: nomad
+            majorVersion: 2
           - provider: docker
             majorVersion: 3
           - provider: docker
