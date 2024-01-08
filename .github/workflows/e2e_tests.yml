@@ -7,10 +7,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
   azure-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Azure
@@ -85,6 +81,9 @@ jobs:
   gcp-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin GCP
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Check out project sources
         uses: actions/checkout@v4
@@ -116,6 +115,9 @@ jobs:
   google-native-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Google Native
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Check out project sources
         uses: actions/checkout@v4
@@ -147,6 +149,9 @@ jobs:
   kubernetes-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Kubernetes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Check out project sources
         uses: actions/checkout@v4
