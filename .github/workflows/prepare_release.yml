@@ -14,7 +14,7 @@ jobs:
       is_release: ${{ steps.check-number-of-tags.outputs.is_release }}
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 2
       - name: Set up Git user
@@ -96,7 +96,7 @@ jobs:
         with:
           string: ${{ matrix.provider }}
       - name: Check out project sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Check if publication to Maven Central is necessary
         id: check-for-release
         shell: python
@@ -116,7 +116,7 @@ jobs:
               fh.write('is_release=' + str(is_release).lower())
       - name: Set up Java
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: adopt
           java-version: 11
@@ -159,11 +159,11 @@ jobs:
           rclone copy --transfers=1024 ./docs/${{ matrix.provider }} rclone-jvm-lab:/pulumi-kotlin-docs/${{ matrix.provider }}
       - name: Upload buildSrc test report
         if: ${{ failure() && steps.publish-to-maven-central.outcome == 'failure' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-src-test-report
           path: ./buildSrc/build/reports/tests/test/*
-          retention-days: 3          
+          retention-days: 3
   cleanup:
     name: Clean up after release
     needs: tag
@@ -171,14 +171,14 @@ jobs:
     if: ${{ needs.tag.outputs.is_release == 'true' }}
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Git user
         run: |
           git config --global user.name "pulumi-kotlin[bot]"
           git config --global user.email "138587440+pulumi-kotlin[bot]@users.noreply.github.com"
       - name: Prepare for next development phase
         run: ./gradlew postRelease
-      - uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92 # v1.8.0
+      - uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
         id: generate-token
         with:
           app_id: ${{ secrets.APP_ID }}
