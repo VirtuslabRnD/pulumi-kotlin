@@ -29,7 +29,7 @@
   {
     "providerName": "github",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v5.24.0/provider/cmd/pulumi-resource-github/schema.json",
-    "kotlinVersion": "5.24.0.0",
+    "kotlinVersion": "5.24.0.1-SNAPSHOT",
     "javaVersion": "5.24.0",
     "javaGitTag": "v5.24.0",
     "customDependencies": [
@@ -56,7 +56,7 @@
   {
     "providerName": "gcp",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v7.2.0/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "7.2.0.0",
+    "kotlinVersion": "7.2.0.1-SNAPSHOT",
     "javaVersion": "7.2.0",
     "javaGitTag": "v7.2.0",
     "customDependencies": [
