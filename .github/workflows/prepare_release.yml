@@ -96,7 +96,7 @@ jobs:
         with:
           string: ${{ matrix.provider }}
       - name: Check out project sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       - name: Check if publication to Maven Central is necessary
         id: check-for-release
         shell: python
@@ -116,7 +116,7 @@ jobs:
               fh.write('is_release=' + str(is_release).lower())
       - name: Set up Java
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
           distribution: adopt
           java-version: 11
