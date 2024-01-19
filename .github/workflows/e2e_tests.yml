@@ -7,10 +7,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
   azure-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Azure
@@ -20,7 +16,7 @@ jobs:
       id-token: write
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Pulumi CLI
         uses: pulumi/actions@v4
       - name: Publish Pulumi Kotlin Azure to Maven Local
@@ -42,7 +38,7 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
       - name: Upload E2E test report
         if: ${{ failure() && steps.run-azure-e2e-tests.outcome == 'failure' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: azure-e2e-test-report
           path: ./build/reports/tests/e2eTest/*
@@ -55,7 +51,7 @@ jobs:
       id-token: write
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Pulumi CLI
         uses: pulumi/actions@v4
       - name: Publish Pulumi Kotlin Azure Native to Maven Local
@@ -77,7 +73,7 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
       - name: Upload E2E test report
         if: ${{ failure() && steps.run-azure-native-e2e-tests.outcome == 'failure' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: azure-native-e2e-test-report
           path: ./build/reports/tests/e2eTest/*
@@ -85,13 +81,16 @@ jobs:
   gcp-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin GCP
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Pulumi CLI
         uses: pulumi/actions@v4
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v0
+        uses: google-github-actions/auth@v2
         id: auth
         with:
           # the credentials were generated using the following script:
@@ -108,7 +107,7 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
       - name: Upload E2E test report
         if: ${{ failure() && steps.run-gcp-e2e-tests.outcome == 'failure' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gcp-e2e-test-report
           path: ./build/reports/tests/e2eTest/*
@@ -116,13 +115,16 @@ jobs:
   google-native-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Google Native
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Pulumi CLI
         uses: pulumi/actions@v4
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v0
+        uses: google-github-actions/auth@v2
         id: auth
         with:
           # the credentials were generated using the following script:
@@ -139,7 +141,7 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
       - name: Upload E2E test report
         if: ${{ failure() && steps.run-google-native-e2e-tests.outcome == 'failure' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: google-native-e2e-test-report
           path: ./build/reports/tests/e2eTest/*
@@ -147,9 +149,12 @@ jobs:
   kubernetes-e2e-test:
     name: Run end-to-end tests of Pulumi Kotlin Kubernetes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Start Minikube
         run: minikube start --force
       - name: Set up Pulumi CLI
@@ -164,7 +169,7 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN_PULUMI }}
       - name: Upload E2E test report
         if: ${{ failure() && steps.run-kubernetes-e2e-tests.outcome == 'failure' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: kubernetes-e2e-test-report
           path: ./build/reports/tests/e2eTest/*

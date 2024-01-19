@@ -13,27 +13,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Compile and test code
         id: run-tests
         run: ./gradlew build test -x check
       - name: Upload buildSrc test report
         if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-src-test-report
           path: ./buildSrc/build/reports/tests/test/*
           retention-days: 3
       - name: Upload test report
         if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-report
           path: ./build/reports/tests/test/*
           retention-days: 3
       - name: Upload ejected-tests
         if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ejected-tests
           path: ./ejected-tests/
@@ -43,13 +43,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out project sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Run Ktlint
         id: run-ktlint
         run: ./gradlew lintKotlin
       - name: Upload Ktlint report
         if: ${{ failure() && steps.run-ktlint.outcome == 'failure' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ktlint-report
           path: ./build/reports/ktlint/*.html
@@ -59,7 +59,7 @@ jobs:
         run: ./gradlew detekt
       - name: Upload Detekt report
         if: ${{ failure() && steps.run-detekt.outcome == 'failure' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: detekt-report
           path: ./build/reports/detekt/*.html
