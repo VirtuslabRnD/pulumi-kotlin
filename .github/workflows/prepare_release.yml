@@ -159,7 +159,7 @@ jobs:
           rclone copy --transfers=1024 ./docs/${{ matrix.provider }} rclone-jvm-lab:/pulumi-kotlin-docs/${{ matrix.provider }}
       - name: Upload buildSrc test report
         if: ${{ failure() && steps.publish-to-maven-central.outcome == 'failure' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: build-src-test-report
           path: ./buildSrc/build/reports/tests/test/*
