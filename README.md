@@ -541,14 +541,14 @@ implementation("org.virtuslab:pulumi-gcp-kotlin:6.67.1.0")
   </tr>
   <tr>
     <td>gcp</td>
-    <td>7.5.0.0</td>
+    <td>7.6.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-gcp-kotlin</artifactId>
-     <version>7.5.0.0</version>
+     <version>7.6.0.0</version>
 </dependency>
 ```
  
@@ -556,13 +556,13 @@ implementation("org.virtuslab:pulumi-gcp-kotlin:6.67.1.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-gcp-kotlin:7.5.0.0")
+implementation("org.virtuslab:pulumi-gcp-kotlin:7.6.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-gcp-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/gcp">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gcp/7.5.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gcp/7.6.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>google-native</td>
@@ -616,14 +616,14 @@ implementation("org.virtuslab:pulumi-aws-kotlin:5.43.0.0")
   </tr>
   <tr>
     <td>aws</td>
-    <td>6.18.1.0</td>
+    <td>6.18.2.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-aws-kotlin</artifactId>
-     <version>6.18.1.0</version>
+     <version>6.18.2.0</version>
 </dependency>
 ```
  
@@ -631,13 +631,13 @@ implementation("org.virtuslab:pulumi-aws-kotlin:5.43.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-aws-kotlin:6.18.1.0")
+implementation("org.virtuslab:pulumi-aws-kotlin:6.18.2.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-aws-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/aws">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/6.18.1.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/6.18.2.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>aws-native</td>
