@@ -56,7 +56,7 @@
   {
     "providerName": "gcp",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v7.4.0/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "7.4.0.0",
+    "kotlinVersion": "7.4.0.1-SNAPSHOT",
     "javaVersion": "7.4.0",
     "javaGitTag": "v7.4.0",
     "customDependencies": [
