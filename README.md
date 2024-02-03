@@ -991,14 +991,14 @@ implementation("org.virtuslab:pulumi-digitalocean-kotlin:4.25.1.0")
   </tr>
   <tr>
     <td>alicloud</td>
-    <td>3.47.0.0</td>
+    <td>3.48.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-alicloud-kotlin</artifactId>
-     <version>3.47.0.0</version>
+     <version>3.48.0.0</version>
 </dependency>
 ```
  
@@ -1006,13 +1006,13 @@ implementation("org.virtuslab:pulumi-digitalocean-kotlin:4.25.1.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-alicloud-kotlin:3.47.0.0")
+implementation("org.virtuslab:pulumi-alicloud-kotlin:3.48.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-alicloud-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/alicloud">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.47.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.48.0.0/index.html">link</a></td>
   </tr>
 </table>
 
