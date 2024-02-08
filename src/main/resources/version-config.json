@@ -100,10 +100,10 @@
   },
   {
     "providerName": "azure",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v5.64.0/provider/cmd/pulumi-resource-azure/schema.json",
-    "kotlinVersion": "5.64.0.1-SNAPSHOT",
-    "javaVersion": "5.64.0",
-    "javaGitTag": "v5.64.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v5.64.1/provider/cmd/pulumi-resource-azure/schema.json",
+    "kotlinVersion": "5.64.1.0",
+    "javaVersion": "5.64.1",
+    "javaGitTag": "v5.64.1",
     "customDependencies": [
     ]
   },
