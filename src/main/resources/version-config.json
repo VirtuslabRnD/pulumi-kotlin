@@ -55,10 +55,10 @@
   },
   {
     "providerName": "gcp",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v7.7.1/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "7.7.1.1-SNAPSHOT",
-    "javaVersion": "7.7.1",
-    "javaGitTag": "v7.7.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v7.8.0/provider/cmd/pulumi-resource-gcp/schema.json",
+    "kotlinVersion": "7.8.0.0",
+    "javaVersion": "7.8.0",
+    "javaGitTag": "v7.8.0",
     "customDependencies": [
     ]
   },
@@ -91,10 +91,10 @@
   },
   {
     "providerName": "aws-native",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v0.95.0/provider/cmd/pulumi-resource-aws-native/schema.json",
-    "kotlinVersion": "0.95.0.1-SNAPSHOT",
-    "javaVersion": "0.95.0",
-    "javaGitTag": "v0.95.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v0.96.0/provider/cmd/pulumi-resource-aws-native/schema.json",
+    "kotlinVersion": "0.96.0.0",
+    "javaVersion": "0.96.0",
+    "javaGitTag": "v0.96.0",
     "customDependencies": [
     ]
   },
