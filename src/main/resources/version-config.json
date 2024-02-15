@@ -55,10 +55,10 @@
   },
   {
     "providerName": "gcp",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v7.8.0/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "7.8.0.1-SNAPSHOT",
-    "javaVersion": "7.8.0",
-    "javaGitTag": "v7.8.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v7.9.0/provider/cmd/pulumi-resource-gcp/schema.json",
+    "kotlinVersion": "7.9.0.0",
+    "javaVersion": "7.9.0",
+    "javaGitTag": "v7.9.0",
     "customDependencies": [
     ]
   },
@@ -100,10 +100,10 @@
   },
   {
     "providerName": "azure",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v5.65.0/provider/cmd/pulumi-resource-azure/schema.json",
-    "kotlinVersion": "5.65.0.1-SNAPSHOT",
-    "javaVersion": "5.65.0",
-    "javaGitTag": "v5.65.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v5.66.0/provider/cmd/pulumi-resource-azure/schema.json",
+    "kotlinVersion": "5.66.0.0",
+    "javaVersion": "5.66.0",
+    "javaGitTag": "v5.66.0",
     "customDependencies": [
     ]
   },
@@ -172,10 +172,10 @@
   },
   {
     "providerName": "docker",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-docker/v4.5.0/provider/cmd/pulumi-resource-docker/schema.json",
-    "kotlinVersion": "4.5.0.1-SNAPSHOT",
-    "javaVersion": "4.5.0",
-    "javaGitTag": "v4.5.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-docker/v4.5.1/provider/cmd/pulumi-resource-docker/schema.json",
+    "kotlinVersion": "4.5.1.0",
+    "javaVersion": "4.5.1",
+    "javaGitTag": "v4.5.1",
     "customDependencies": [
     ]
   },
