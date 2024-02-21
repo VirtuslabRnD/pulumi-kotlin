@@ -5,6 +5,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
+import kotlin.text.RegexOption.MULTILINE
 
 private const val EXAMPLES_HEADER_REGEX = """\{\{% examples %}}\n(.*?)\{\{% example %}}(.*?)\{\{% /examples %}}"""
 private const val EXAMPLES_HEADER_REGEX_GROUP_NUMBER = 1
@@ -16,6 +17,8 @@ private const val EXAMPLE_HEADER_REGEX = """(.*?)```\w+\n.+?```"""
 private const val EXAMPLE_HEADER_REGEX_GROUP_NUMBER = 1
 
 private const val MARKDOWN_HYPERLINK = "\\[.*]"
+
+private const val MARKDOWN_EMPTY_HEADER = "^[#\\s]*#[#\\s]*\$"
 
 private const val FULL_STOP = "."
 private const val FULL_STOP_HTML_CODE = "&#46;"
@@ -64,6 +67,7 @@ private fun addDocs(kDocBuilder: KDocBuilder, kDoc: String) {
         .replace(EXAMPLES_HEADER_REGEX.toRegex(DOT_MATCHES_ALL)) {
             it.groupValues[EXAMPLES_HEADER_REGEX_GROUP_NUMBER] + "\n$examples"
         }
+        .replace(MARKDOWN_EMPTY_HEADER.toRegex(MULTILINE), "")
 
     kDocBuilder.apply(
         addCommentClosingsAndOpenings(trimmedDocs)
