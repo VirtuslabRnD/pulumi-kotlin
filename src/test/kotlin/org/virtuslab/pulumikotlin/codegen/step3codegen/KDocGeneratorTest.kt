@@ -433,6 +433,34 @@ internal class KDocGeneratorTest {
         assertExportedFileCompiles(className)
     }
 
+    @Test
+    fun `removes empty Markdown headers`() {
+        val description =
+            """# Header
+              | ## 
+              |## Examples
+              |example1
+              |#
+              |# ## 
+              |example2"""
+                .trimMargin()
+        val className = "EmptyMarkdownHeaders"
+
+        assertKDocContentEquals(
+            className,
+            description,
+            """/**
+              | * # Header
+              | * ## Examples
+              | * example1
+              | * example2
+              | */"""
+                .trimMargin(),
+        )
+
+        assertExportedFileCompiles(className)
+    }
+
     private fun assertKDocContentEquals(className: String, description: String, expected: String) {
         writeTypeToFile(
             className,
