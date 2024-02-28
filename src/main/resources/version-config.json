@@ -83,7 +83,7 @@
   {
     "providerName": "aws",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.24.0/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.24.0.0",
+    "kotlinVersion": "6.24.0.1-SNAPSHOT",
     "javaVersion": "6.24.0",
     "javaGitTag": "v6.24.0",
     "customDependencies": [
@@ -101,7 +101,7 @@
   {
     "providerName": "azure",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v5.67.1/provider/cmd/pulumi-resource-azure/schema.json",
-    "kotlinVersion": "5.67.1.0",
+    "kotlinVersion": "5.67.1.1-SNAPSHOT",
     "javaVersion": "5.67.1",
     "javaGitTag": "v5.67.1",
     "customDependencies": [
@@ -137,7 +137,7 @@
   {
     "providerName": "kubernetes",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v4.8.1/provider/cmd/pulumi-resource-kubernetes/schema.json",
-    "kotlinVersion": "4.8.1.0",
+    "kotlinVersion": "4.8.1.1-SNAPSHOT",
     "javaVersion": "4.8.1",
     "javaGitTag": "v4.8.1",
     "customDependencies": [
