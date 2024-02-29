@@ -48,6 +48,8 @@ jobs:
             majorVersion: 0
           - provider: github
             majorVersion: 5
+          - provider: github
+            majorVersion: 6
           - provider: random
             majorVersion: 4
           - provider: gcp
