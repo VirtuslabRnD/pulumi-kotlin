@@ -416,14 +416,14 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:4.16.0.1")
   </tr>
   <tr>
     <td>cloudflare</td>
-    <td>5.21.0.0</td>
+    <td>5.22.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-cloudflare-kotlin</artifactId>
-     <version>5.21.0.0</version>
+     <version>5.22.0.0</version>
 </dependency>
 ```
  
@@ -431,13 +431,13 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:4.16.0.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.21.0.0")
+implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.22.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-cloudflare-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/cloudflare">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/cloudflare/5.21.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/cloudflare/5.22.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>slack</td>
@@ -1016,14 +1016,14 @@ implementation("org.virtuslab:pulumi-digitalocean-kotlin:4.25.2.0")
   </tr>
   <tr>
     <td>alicloud</td>
-    <td>3.49.1.0</td>
+    <td>3.50.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-alicloud-kotlin</artifactId>
-     <version>3.49.1.0</version>
+     <version>3.50.0.0</version>
 </dependency>
 ```
  
@@ -1031,13 +1031,13 @@ implementation("org.virtuslab:pulumi-digitalocean-kotlin:4.25.2.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-alicloud-kotlin:3.49.1.0")
+implementation("org.virtuslab:pulumi-alicloud-kotlin:3.50.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-alicloud-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/alicloud">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.49.1.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.50.0.0/index.html">link</a></td>
   </tr>
 </table>
 
