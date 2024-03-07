@@ -11,7 +11,7 @@
   {
     "providerName": "cloudflare",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.22.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
-    "kotlinVersion": "5.22.0.0",
+    "kotlinVersion": "5.22.0.1-SNAPSHOT",
     "javaVersion": "5.22.0",
     "javaGitTag": "v5.22.0",
     "customDependencies": [
@@ -227,7 +227,7 @@
   {
     "providerName": "alicloud",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-alicloud/v3.50.0/provider/cmd/pulumi-resource-alicloud/schema.json",
-    "kotlinVersion": "3.50.0.0",
+    "kotlinVersion": "3.50.0.1-SNAPSHOT",
     "javaVersion": "3.50.0",
     "javaGitTag": "v3.50.0",
     "customDependencies": [
