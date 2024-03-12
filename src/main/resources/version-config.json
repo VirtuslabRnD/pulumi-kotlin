@@ -38,7 +38,7 @@
   {
     "providerName": "github",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v6.1.0/provider/cmd/pulumi-resource-github/schema.json",
-    "kotlinVersion": "6.1.0.0",
+    "kotlinVersion": "6.1.0.1-SNAPSHOT",
     "javaVersion": "6.1.0",
     "javaGitTag": "v6.1.0",
     "customDependencies": [
@@ -218,7 +218,7 @@
   {
     "providerName": "digitalocean",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.26.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
-    "kotlinVersion": "4.26.0.0",
+    "kotlinVersion": "4.26.0.1-SNAPSHOT",
     "javaVersion": "4.26.0",
     "javaGitTag": "v4.26.0",
     "customDependencies": [
