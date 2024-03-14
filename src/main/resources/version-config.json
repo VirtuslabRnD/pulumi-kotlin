@@ -91,10 +91,10 @@
   },
   {
     "providerName": "aws",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.25.0/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.25.0.1-SNAPSHOT",
-    "javaVersion": "6.25.0",
-    "javaGitTag": "v6.25.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.25.1/provider/cmd/pulumi-resource-aws/schema.json",
+    "kotlinVersion": "6.25.1.0",
+    "javaVersion": "6.25.1",
+    "javaGitTag": "v6.25.1",
     "customDependencies": [
     ]
   },
@@ -163,10 +163,10 @@
   },
   {
     "providerName": "nomad",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-nomad/v2.1.0/provider/cmd/pulumi-resource-nomad/schema.json",
-    "kotlinVersion": "2.1.0.1-SNAPSHOT",
-    "javaVersion": "2.1.0",
-    "javaGitTag": "v2.1.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-nomad/v2.2.0/provider/cmd/pulumi-resource-nomad/schema.json",
+    "kotlinVersion": "2.2.0.0",
+    "javaVersion": "2.2.0",
+    "javaGitTag": "v2.2.0",
     "customDependencies": [
     ]
   },
@@ -217,10 +217,10 @@
   },
   {
     "providerName": "digitalocean",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.26.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
-    "kotlinVersion": "4.26.0.1-SNAPSHOT",
-    "javaVersion": "4.26.0",
-    "javaGitTag": "v4.26.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.27.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
+    "kotlinVersion": "4.27.0.0",
+    "javaVersion": "4.27.0",
+    "javaGitTag": "v4.27.0",
     "customDependencies": [
     ]
   },
