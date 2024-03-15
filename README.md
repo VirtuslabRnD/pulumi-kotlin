@@ -791,14 +791,14 @@ implementation("org.virtuslab:pulumi-kubernetes-kotlin:3.30.2.1")
   </tr>
   <tr>
     <td>kubernetes</td>
-    <td>4.9.0.0</td>
+    <td>4.9.1.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-kubernetes-kotlin</artifactId>
-     <version>4.9.0.0</version>
+     <version>4.9.1.0</version>
 </dependency>
 ```
  
@@ -806,13 +806,13 @@ implementation("org.virtuslab:pulumi-kubernetes-kotlin:3.30.2.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-kubernetes-kotlin:4.9.0.0")
+implementation("org.virtuslab:pulumi-kubernetes-kotlin:4.9.1.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-kubernetes-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/kubernetes">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/kubernetes/4.9.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/kubernetes/4.9.1.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>nomad</td>
