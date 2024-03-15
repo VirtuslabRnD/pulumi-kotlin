@@ -146,7 +146,7 @@
   {
     "providerName": "kubernetes",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v4.9.1/provider/cmd/pulumi-resource-kubernetes/schema.json",
-    "kotlinVersion": "4.9.1.0",
+    "kotlinVersion": "4.9.1.1-SNAPSHOT",
     "javaVersion": "4.9.1",
     "javaGitTag": "v4.9.1",
     "customDependencies": [
