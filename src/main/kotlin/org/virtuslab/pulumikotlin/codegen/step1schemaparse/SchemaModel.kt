@@ -386,5 +386,6 @@ object SchemaModel {
         val buildFiles: String? = null,
         val dependencies: Map<String, String> = emptyMap(),
         val liftSingleValueMethodReturns: Boolean = false,
+        val gradleNexusPublishPluginVersion: String? = null,
     )
 }
