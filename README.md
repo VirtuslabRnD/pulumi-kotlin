@@ -441,14 +441,14 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.22.0.0")
   </tr>
   <tr>
     <td>slack</td>
-    <td>0.4.2.1</td>
+    <td>0.4.4.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-slack-kotlin</artifactId>
-     <version>0.4.2.1</version>
+     <version>0.4.4.0</version>
 </dependency>
 ```
  
@@ -456,13 +456,13 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.22.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-slack-kotlin:0.4.2.1")
+implementation("org.virtuslab:pulumi-slack-kotlin:0.4.4.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-slack-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/slack">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/slack/0.4.2.1/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/slack/0.4.4.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>github</td>
@@ -891,14 +891,14 @@ implementation("org.virtuslab:pulumi-docker-kotlin:3.6.1.2")
   </tr>
   <tr>
     <td>docker</td>
-    <td>4.5.1.0</td>
+    <td>4.5.2.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-docker-kotlin</artifactId>
-     <version>4.5.1.0</version>
+     <version>4.5.2.0</version>
 </dependency>
 ```
  
@@ -906,13 +906,13 @@ implementation("org.virtuslab:pulumi-docker-kotlin:3.6.1.2")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-docker-kotlin:4.5.1.0")
+implementation("org.virtuslab:pulumi-docker-kotlin:4.5.2.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-docker-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/docker">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/docker/4.5.1.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/docker/4.5.2.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>gitlab</td>
