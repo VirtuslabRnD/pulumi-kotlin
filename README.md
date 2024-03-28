@@ -491,14 +491,14 @@ implementation("org.virtuslab:pulumi-github-kotlin:5.26.0.0")
   </tr>
   <tr>
     <td>github</td>
-    <td>6.1.0.0</td>
+    <td>6.2.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-github-kotlin</artifactId>
-     <version>6.1.0.0</version>
+     <version>6.2.0.0</version>
 </dependency>
 ```
  
@@ -506,13 +506,13 @@ implementation("org.virtuslab:pulumi-github-kotlin:5.26.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-github-kotlin:6.1.0.0")
+implementation("org.virtuslab:pulumi-github-kotlin:6.2.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-github-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/github">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/github/6.1.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/github/6.2.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>random</td>
@@ -666,14 +666,14 @@ implementation("org.virtuslab:pulumi-aws-kotlin:6.27.0.0")
   </tr>
   <tr>
     <td>aws-native</td>
-    <td>0.99.0.0</td>
+    <td>0.100.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-aws-native-kotlin</artifactId>
-     <version>0.99.0.0</version>
+     <version>0.100.0.0</version>
 </dependency>
 ```
  
@@ -681,24 +681,24 @@ implementation("org.virtuslab:pulumi-aws-kotlin:6.27.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-aws-native-kotlin:0.99.0.0")
+implementation("org.virtuslab:pulumi-aws-native-kotlin:0.100.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-aws-native-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/aws-native">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws-native/0.99.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws-native/0.100.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>azure</td>
-    <td>5.68.0.0</td>
+    <td>5.70.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-azure-kotlin</artifactId>
-     <version>5.68.0.0</version>
+     <version>5.70.0.0</version>
 </dependency>
 ```
  
@@ -706,13 +706,13 @@ implementation("org.virtuslab:pulumi-aws-native-kotlin:0.99.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-azure-kotlin:5.68.0.0")
+implementation("org.virtuslab:pulumi-azure-kotlin:5.70.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-azure-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/azure">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/azure/5.68.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/azure/5.70.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>azure-native</td>
@@ -891,14 +891,14 @@ implementation("org.virtuslab:pulumi-docker-kotlin:3.6.1.2")
   </tr>
   <tr>
     <td>docker</td>
-    <td>4.5.2.0</td>
+    <td>4.5.3.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-docker-kotlin</artifactId>
-     <version>4.5.2.0</version>
+     <version>4.5.3.0</version>
 </dependency>
 ```
  
@@ -906,13 +906,13 @@ implementation("org.virtuslab:pulumi-docker-kotlin:3.6.1.2")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-docker-kotlin:4.5.2.0")
+implementation("org.virtuslab:pulumi-docker-kotlin:4.5.3.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-docker-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/docker">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/docker/4.5.2.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/docker/4.5.3.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>gitlab</td>
