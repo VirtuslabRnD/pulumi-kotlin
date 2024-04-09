@@ -90,6 +90,8 @@ jobs:
             majorVersion: 4
           - provider: alicloud
             majorVersion: 3
+          - provider: keycloak
+            majorVersion: 5
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
