@@ -92,6 +92,8 @@ jobs:
             majorVersion: 4
           - provider: alicloud
             majorVersion: 3
+          - provider: keycloak
+            majorVersion: 5
     steps:
       - id: provider
         uses: ASzc/change-string-case-action@v5

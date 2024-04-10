@@ -232,5 +232,14 @@
     "javaGitTag": "v3.50.0",
     "customDependencies": [
     ]
+  },
+  {
+    "providerName": "keycloak",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-keycloak/v5.3.1/provider/cmd/pulumi-resource-keycloak/schema.json",
+    "kotlinVersion": "5.3.1.0-SNAPSHOT",
+    "javaVersion": "5.3.1",
+    "javaGitTag": "v5.3.1",
+    "customDependencies": [
+    ]
   }
 ]
