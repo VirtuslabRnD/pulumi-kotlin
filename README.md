@@ -1039,6 +1039,31 @@ implementation("org.virtuslab:pulumi-alicloud-kotlin:3.50.0.0")
     <td><a href="https://www.pulumi.com/registry/packages/alicloud">link</a></td>
     <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.50.0.0/index.html">link</a></td>
   </tr>
+  <tr>
+    <td>keycloak</td>
+    <td>5.3.1.0</td>
+    <td> 
+ 
+```xml
+<dependency>
+     <groupId>org.virtuslab</groupId>
+     <artifactId>pulumi-keycloak-kotlin</artifactId>
+     <version>5.3.1.0</version>
+</dependency>
+```
+ 
+ </td>
+    <td> 
+ 
+```kt
+implementation("org.virtuslab:pulumi-keycloak-kotlin:5.3.1.0")
+```
+ 
+ </td>
+    <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-keycloak-kotlin">link</a></td>
+    <td><a href="https://www.pulumi.com/registry/packages/keycloak">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/keycloak/5.3.1.0/index.html">link</a></td>
+  </tr>
 </table>
 
 ## Giving feedback
