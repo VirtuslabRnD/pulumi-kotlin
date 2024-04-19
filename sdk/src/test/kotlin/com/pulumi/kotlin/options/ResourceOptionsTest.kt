@@ -33,6 +33,7 @@ import com.pulumi.resources.ResourceOptions as JavaResourceOptions
 import com.pulumi.resources.ResourceTransformation.Args as JavaResourceTransformationArgs
 import com.pulumi.resources.ResourceTransformation.Result as JavaResourceTransformationResult
 
+@Suppress("UnusedPrivateMember")
 internal class ResourceOptionsTest {
 
     @BeforeEach
