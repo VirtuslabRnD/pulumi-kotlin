@@ -7,7 +7,7 @@ import com.pulumi.kotlin.PulumiTagMarker
 import com.pulumi.resources.CustomResourceOptions as JavaCustomResourceOptions
 
 /**
- * A bag of optional settings that control a [com.pulumi.kotlin.KotlinCustomResource] behavior.
+ * A bag of optional settings that control the behavior of a [com.pulumi.kotlin.KotlinCustomResource].
  */
 class CustomResourceOptions internal constructor(
     private val javaBackingObject: JavaCustomResourceOptions,

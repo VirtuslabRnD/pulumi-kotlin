@@ -347,7 +347,7 @@ sealed class ResourceOptionsBuilder<T : ResourceOptions<*>>(
     }
 
     /**
-     * Takes existing [T] values and prepares q type-safe builder
+     * Takes existing [T] values and prepares a type-safe builder
      * to merge the current [T] over the same properties of a given [T].
      *
      * The original option objects will be unchanged.

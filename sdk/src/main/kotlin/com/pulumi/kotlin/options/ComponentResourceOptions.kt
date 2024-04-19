@@ -8,7 +8,7 @@ import com.pulumi.resources.ProviderResource
 import com.pulumi.resources.ComponentResourceOptions as JavaComponentResourceOptions
 
 /**
- * A bag of optional settings that control a [com.pulumi.kotlin.KotlinComponentResource] behavior.
+ * A bag of optional settings that control the behavior of a [com.pulumi.kotlin.KotlinComponentResource].
  */
 class ComponentResourceOptions(
     private val javaBackingObject: JavaComponentResourceOptions,
