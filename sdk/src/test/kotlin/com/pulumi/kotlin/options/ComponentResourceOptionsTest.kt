@@ -1,6 +1,8 @@
 package com.pulumi.kotlin.options
 
+import com.pulumi.kotlin.KotlinProviderResource
 import com.pulumi.kotlin.extractOutputValue
+import com.pulumi.kotlin.mockKotlinResource
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -10,84 +12,73 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import kotlin.test.assertContentEquals
 import kotlin.time.Duration.Companion.milliseconds
+import com.pulumi.resources.ProviderResource as JavaProviderResource
 
-internal class CustomResourceOptionsTest : ResourceOptionsTest<CustomResourceOptions, CustomResourceOptionsBuilder>() {
+internal class ComponentResourceOptionsTest :
+    ResourceOptionsTest<ComponentResourceOptions, ComponentResourceOptionsBuilder>() {
 
-    override suspend fun opts(block: suspend CustomResourceOptionsBuilder.() -> Unit): CustomResourceOptions {
-        return CustomResourceOptions.opts(block)
+    override suspend fun opts(block: suspend ComponentResourceOptionsBuilder.() -> Unit): ComponentResourceOptions {
+        return ComponentResourceOptions.opts(block)
     }
 
     @Test
-    fun `option additionalSecretOutputs should be properly set, when list given as input`() = runBlocking {
+    fun `option providers should be properly set, when list given as input`() = runBlocking {
+        // given
+        val mockedProvider1 = mockKotlinResource(KotlinProviderResource::class, JavaProviderResource::class)
+        val mockedProvider2 = mockKotlinResource(KotlinProviderResource::class, JavaProviderResource::class)
+
         // when
         val optsCreatedWithList = opts {
-            additionalSecretOutputs(listOf("username", "password"))
+            providers(listOf(mockedProvider1, mockedProvider2))
         }
 
         // then
         assertAll(
             {
                 assertContentEquals(
-                    listOf("username", "password"),
-                    optsCreatedWithList.additionalSecretOutputs,
-                    "additionalSecretOutputs created with list arg",
+                    listOf(mockedProvider1, mockedProvider2).map { it.underlyingJavaResource },
+                    optsCreatedWithList.providers,
+                    "providers created with list arg",
                 )
             },
         )
     }
 
     @Test
-    fun `option additionalSecretOutputs should be properly set, when varargs given as input`() = runBlocking {
+    fun `option providers should be properly set, when varargs given as input`() = runBlocking {
+        // given
+        val mockedProvider1 = mockKotlinResource(KotlinProviderResource::class, JavaProviderResource::class)
+        val mockedProvider2 = mockKotlinResource(KotlinProviderResource::class, JavaProviderResource::class)
+
         // when
         val opts = opts {
-            additionalSecretOutputs("username", "password")
+            providers(mockedProvider1, mockedProvider2)
         }
 
         // then
         assertAll(
             {
                 assertContentEquals(
-                    listOf("username", "password"),
-                    opts.additionalSecretOutputs,
-                    "additionalSecretOutputs created with list arg",
+                    listOf(mockedProvider1, mockedProvider2).map { it.underlyingJavaResource },
+                    opts.providers,
+                    "providers created with list arg",
                 )
             },
         )
-    }
-
-    @Test
-    fun `option deleteBeforeReplace should be properly set`() = runBlocking {
-        // when
-        val optsDeleteBeforeReplaceTrue = opts {
-            deleteBeforeReplace(true)
-        }
-
-        // then
-        assertTrue(optsDeleteBeforeReplaceTrue.deleteBeforeReplace, "deleteBeforeReplace")
-    }
-
-    @Test
-    fun `option importId should be properly set`() = runBlocking {
-        // when
-        val opts = opts {
-            importId("import-id")
-        }
-
-        // then
-        assertEquals("import-id", opts.importId, "importId")
     }
 
     @Test
     override fun `options should be properly merged to existing options`() = runBlocking {
         // given
-        val username = "username"
-        val password = "password"
+        val mockedProvider1 = mockKotlinResource(KotlinProviderResource::class, JavaProviderResource::class)
+        val mockedProvider2 = mockKotlinResource(KotlinProviderResource::class, JavaProviderResource::class)
+
         val oldResourceName = "old-resource-name"
         val duration = 100.milliseconds
         val oldProjectName = "old-project-name"
 
         val givenOpts = opts {
-            additionalSecretOutputs(username)
+            providers(mockedProvider1)
             aliases(
                 {
                     name(oldResourceName)
@@ -100,7 +91,7 @@ internal class CustomResourceOptionsTest : ResourceOptionsTest<CustomResourceOpt
 
         // when
         val currentOptions = opts {
-            additionalSecretOutputs(password)
+            providers(mockedProvider2)
             aliases(
                 {
                     project(oldProjectName)
@@ -120,7 +111,12 @@ internal class CustomResourceOptionsTest : ResourceOptionsTest<CustomResourceOpt
             .map { extractOutputValue(it) }
 
         assertAll(
-            { assertContentEquals(listOf(username, password), currentOptions.additionalSecretOutputs) },
+            {
+                assertContentEquals(
+                    listOf(mockedProvider1, mockedProvider2).map { it.underlyingJavaResource },
+                    currentOptions.providers,
+                )
+            },
             { assertContentEquals(listOf(oldResourceName, oldProjectName), oldNamesExtractedFromAliases) },
             { assertNull(currentOptions.customTimeouts!!.update) },
             { assertEquals(duration, currentOptions.customTimeouts!!.create!!) },
@@ -135,18 +131,16 @@ internal class CustomResourceOptionsTest : ResourceOptionsTest<CustomResourceOpt
 
         // then
         assertAll(
-            { assertTrue(opts.additionalSecretOutputs!!.isEmpty(), "opts.additionalSecretOutputs") },
             { assertTrue(opts.aliases!!.isEmpty(), "opts.aliases") },
             { assertNull(opts.customTimeouts, "opts.customTimeouts") },
-            { assertFalse(opts.deleteBeforeReplace, "opts.deleteBeforeReplace") },
             { assertTrue(extractOutputValue(opts.dependsOn)!!.isEmpty(), "opts.dependsOn") },
             { assertNull(opts.id, "opts.id") },
             { assertTrue(opts.ignoreChanges!!.isEmpty(), "opts.ignoreChanges") },
-            { assertNull(opts.importId, "opts.importId") },
             { assertNull(opts.pluginDownloadURL, "opts.pluginDownloadURL") },
             { assertNull(opts.parent, "opts.parent") },
             { assertFalse(opts.protect, "opts.protect") },
             { assertNull(opts.provider, "opts.provider") },
+            { assertTrue(opts.providers.isNullOrEmpty(), "opts.providers") },
             { assertTrue(opts.replaceOnChanges!!.isEmpty(), "opts.replaceOnChanges") },
             { assertTrue(opts.resourceTransformations!!.isEmpty(), "opts.resourceTransformations") },
             { assertFalse(opts.retainOnDelete, "opts.retainOnDelete") },
