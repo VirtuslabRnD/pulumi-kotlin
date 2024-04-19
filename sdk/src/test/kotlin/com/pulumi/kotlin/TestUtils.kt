@@ -26,14 +26,8 @@ internal fun <T : KotlinResource, R : Resource> mockKotlinResource(
     val mockedKotlinResource = mockkClass(kotlinResourceToMock)
     val mockedJavaResource = mockkClass(javaResourceEquivalentToMock)
 
-    every {
-        mockedKotlinResource.underlyingJavaResource
-    } returns mockedJavaResource
-
-    mockkObject(GlobalResourceMapper)
-    every {
-        GlobalResourceMapper.tryMap(any<Resource>())
-    } returns mockedKotlinResource
+    every { mockedKotlinResource.underlyingJavaResource } returns mockedJavaResource
+    every { GlobalResourceMapper.tryMap(mockedJavaResource) } returns mockedKotlinResource
 
     return mockedKotlinResource
 }
