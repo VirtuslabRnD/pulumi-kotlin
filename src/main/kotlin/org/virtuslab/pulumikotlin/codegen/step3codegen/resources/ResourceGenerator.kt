@@ -4,7 +4,10 @@ import com.pulumi.kotlin.KotlinComponentResource
 import com.pulumi.kotlin.KotlinCustomResource
 import com.pulumi.kotlin.KotlinProviderResource
 import com.pulumi.kotlin.KotlinResource
-import com.pulumi.kotlin.options.opts
+import com.pulumi.kotlin.options.ComponentResourceOptions
+import com.pulumi.kotlin.options.ComponentResourceOptionsBuilder
+import com.pulumi.kotlin.options.CustomResourceOptions
+import com.pulumi.kotlin.options.CustomResourceOptionsBuilder
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -17,12 +20,11 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.UNIT
+import com.squareup.kotlinpoet.asClassName
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.Depth.Root
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.Direction.Output
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Java
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.LanguageType.Kotlin
-import org.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customResourceOptionsBuilderClass
-import org.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.customResourceOptionsClass
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.MoreTypes.Kotlin.Pulumi.pulumiDslMarkerAnnotation
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.NamingFlags
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.ResourceType
@@ -36,6 +38,8 @@ import org.virtuslab.pulumikotlin.codegen.step3codegen.addDocsIfAvailable
 import org.virtuslab.pulumikotlin.codegen.utils.letIf
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
+import com.pulumi.kotlin.options.ComponentResourceOptions.Companion.opts as componentResourceOpts
+import com.pulumi.kotlin.options.CustomResourceOptions.Companion.opts as customResourceOpts
 
 object ResourceGenerator {
 
@@ -93,8 +97,9 @@ object ResourceGenerator {
             }
 
         val resourceMapperTypeSpec = ResourceMapperGenerator.generateMapper(resourceType)
+        val superclass = determineSuperclass(resourceType)
         val resourceClass = TypeSpec.classBuilder(resourceClassName)
-            .superclass(determineSuperclass(resourceType))
+            .superclass(superclass)
             .addProperties(
                 listOf(
                     PropertySpec.builder(JAVA_RESOURCE_PARAMETER_NAME, javaResourceClassName)
@@ -139,8 +144,10 @@ object ResourceGenerator {
             .addDocs("@param block The arguments to use to populate this resource's properties.")
             .build()
 
-        requireNotNull(::opts) // to ensure compile-time safety
-        val optsCreationFunction = MemberName("com.pulumi.kotlin.options", "opts")
+        val optsClass = determineOptsClass(superclass)
+        val optsBuilderClass = determineOptsBuilderClass(superclass)
+
+        val optsFunctionName = MemberName(optsClass, "opts")
 
         val optsFunction = FunSpec
             .builder("opts")
@@ -148,11 +155,11 @@ object ResourceGenerator {
             .addParameter(
                 "block",
                 LambdaTypeName.get(
-                    customResourceOptionsBuilderClass(),
+                    optsBuilderClass,
                     returnType = UNIT,
                 ).copy(suspending = true),
             )
-            .addStatement("this.opts = %M(block)", optsCreationFunction)
+            .addStatement("this.opts = %M(block)", optsFunctionName)
             .addDocs("@param block A bag of options that control this resource's behavior.")
             .build()
 
@@ -174,9 +181,9 @@ object ResourceGenerator {
                         .mutable(true)
                         .initializer("%T()", argsClassName)
                         .build(),
-                    PropertySpec.builder("opts", customResourceOptionsClass())
+                    PropertySpec.builder("opts", optsClass)
                         .mutable(true)
-                        .initializer("%T()", customResourceOptionsClass())
+                        .initializer("%T()", optsClass)
                         .build(),
                 ),
             )
@@ -262,12 +269,33 @@ object ResourceGenerator {
     }
 
     private fun determineSuperclass(resourceType: ResourceType): KClass<*> {
-        return if (resourceType.isProvider) {
+        return if (resourceType.isProvider && resourceType.isComponent) {
+            error("Invalid resource type for name ${resourceType.name}")
+        } else if (resourceType.isProvider) {
             KotlinProviderResource::class
         } else if (resourceType.isComponent) {
             KotlinComponentResource::class
         } else {
             KotlinCustomResource::class
+        }
+    }
+
+    private fun determineOptsClass(superclass: KClass<*>): ClassName {
+        requireNotNull(::customResourceOpts) // to ensure compile-time safety
+        requireNotNull(::componentResourceOpts) // to ensure compile-time safety
+
+        return when (superclass) {
+            KotlinComponentResource::class -> ComponentResourceOptions::class.asClassName()
+            KotlinCustomResource::class, KotlinProviderResource::class -> CustomResourceOptions::class.asClassName()
+            else -> error("Invalid resource superclass ${superclass.qualifiedName}")
+        }
+    }
+
+    private fun determineOptsBuilderClass(superclass: KClass<*>): ClassName {
+        return when (superclass) {
+            KotlinComponentResource::class -> ComponentResourceOptionsBuilder::class.asClassName()
+            KotlinCustomResource::class, KotlinProviderResource::class -> CustomResourceOptionsBuilder::class.asClassName()
+            else -> error("Invalid resource superclass ${superclass.qualifiedName}")
         }
     }
 }
