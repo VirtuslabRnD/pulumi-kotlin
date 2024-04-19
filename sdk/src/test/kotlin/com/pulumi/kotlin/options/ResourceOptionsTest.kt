@@ -39,7 +39,7 @@ internal class ResourceOptionsTest {
     fun setUpMocking() {
         mockkObject(GlobalResourceMapper)
     }
-    
+
     @AfterEach
     fun cleanUpAfterTests() {
         unmockkAll()
@@ -294,7 +294,7 @@ internal class ResourceOptionsTest {
         val kotlinResource1 = mockKotlinResource(KotlinResource::class, JavaResource::class)
         val kotlinResource2 = mockKotlinResource(KotlinResource::class, JavaResource::class)
         val kotlinResource3 = mockKotlinResource(KotlinResource::class, JavaResource::class)
-        
+
         val kotlinResources = listOf(kotlinResource1, kotlinResource2, kotlinResource3)
 
         // when
@@ -318,7 +318,7 @@ internal class ResourceOptionsTest {
         val kotlinResource1 = mockKotlinResource(KotlinResource::class, JavaResource::class)
         val kotlinResource2 = mockKotlinResource(KotlinResource::class, JavaResource::class)
         val kotlinResource3 = mockKotlinResource(KotlinResource::class, JavaResource::class)
-        
+
         val kotlinResources = listOf(kotlinResource1, kotlinResource2, kotlinResource3)
         val outputListOfKotlinResources = Output.of(kotlinResources)
 

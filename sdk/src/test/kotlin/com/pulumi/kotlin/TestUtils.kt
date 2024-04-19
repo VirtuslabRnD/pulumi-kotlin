@@ -7,7 +7,6 @@ import com.pulumi.resources.ResourceTransformation.Args
 import com.pulumi.resources.ResourceTransformation.Result
 import io.mockk.every
 import io.mockk.mockkClass
-import io.mockk.mockkObject
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.assertAll
