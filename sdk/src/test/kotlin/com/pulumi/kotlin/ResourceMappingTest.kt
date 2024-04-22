@@ -13,24 +13,30 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.util.Optional
 import kotlin.reflect.KClass
+import com.pulumi.resources.ComponentResource as JavaComponentResource
 import com.pulumi.resources.CustomResource as JavaCustomResource
 import com.pulumi.resources.ProviderResource as JavaProviderResource
 import com.pulumi.resources.Resource as JavaResource
 
 internal class ResourceMappingTest {
 
-    var customResourceMock = mockKotlinResource(KotlinResource::class, JavaCustomResource::class)
-    var providerResourceMock = mockKotlinResource(KotlinProviderResource::class, JavaProviderResource::class)
+    private var customResourceMock = mockKotlinResource(KotlinResource::class, JavaCustomResource::class)
+    private var providerResourceMock = mockKotlinResource(KotlinProviderResource::class, JavaProviderResource::class)
+    private var componentResourceMock = mockKotlinResource(KotlinComponentResource::class, JavaComponentResource::class)
 
     @BeforeEach
     fun prepareMappers() {
         /**
-         * Two mappers were defined in order to simulate existence of multiple mappers to choose from in runtime
+         * Three mappers were defined to simulate the existence of multiple mappers to choose from in runtime
          */
         val customResourceMapperMock = mockResourceMapper(customResourceMock, customResourceMock.underlyingJavaResource)
         val providerResourceMapperMock = mockResourceMapper(
             providerResourceMock,
             providerResourceMock.underlyingJavaResource,
+        )
+        val componentResourceMapperMock = mockResourceMapper(
+            componentResourceMock,
+            componentResourceMock.underlyingJavaResource,
         )
 
         /**
@@ -39,6 +45,7 @@ internal class ResourceMappingTest {
          */
         GlobalResourceMapper.registerMapper(customResourceMapperMock)
         GlobalResourceMapper.registerMapper(providerResourceMapperMock)
+        GlobalResourceMapper.registerMapper(componentResourceMapperMock)
     }
 
     @AfterEach
@@ -71,6 +78,15 @@ internal class ResourceMappingTest {
     }
 
     @Test
+    fun `mapper corresponding to java type ComponentResource should be chosen and resource should be mapped`() {
+        // when
+        val mappedProviderResource = GlobalResourceMapper.tryMap(componentResourceMock.underlyingJavaResource)
+
+        // then
+        assertEquals(componentResourceMock, mappedProviderResource)
+    }
+
+    @Test
     fun `CustomResource wrapped in optional should be properly mapped`() {
         // given
         val optionalJavaCustomResource = Optional.of(customResourceMock.underlyingJavaResource)
@@ -92,6 +108,18 @@ internal class ResourceMappingTest {
 
         // then
         assertEquals(providerResourceMock, mappedProviderResource)
+    }
+
+    @Test
+    fun `ComponentResource wrapped in optional should be properly mapped`() {
+        // given
+        val optionalJavaComponentResource = Optional.of(componentResourceMock.underlyingJavaResource)
+
+        // when
+        val mappedComponentResource = GlobalResourceMapper.tryMap(optionalJavaComponentResource)
+
+        // then
+        assertEquals(componentResourceMock, mappedComponentResource)
     }
 
     @Test
@@ -120,6 +148,20 @@ internal class ResourceMappingTest {
         val mappedOutputProviderResourceContents = extractOutputValue(mappedProviderResource)
 
         assertEquals(providerResourceMock, mappedOutputProviderResourceContents)
+    }
+
+    @Test
+    fun `ComponentResource wrapped in Output should be properly mapped`() {
+        // given
+        val outputJavaComponentResource = Output.of(componentResourceMock.underlyingJavaResource)
+
+        // when
+        val mappedComponentResource = GlobalResourceMapper.tryMap(outputJavaComponentResource)
+
+        // then
+        val mappedOutputComponentResourceContents = extractOutputValue(mappedComponentResource)
+
+        assertEquals(componentResourceMock, mappedOutputComponentResourceContents)
     }
 
     @Test
