@@ -16,8 +16,7 @@ val tasksToDisable: List<(String) -> String> = listOf { sourceSetName: String ->
 }
 
 val commonDependencies = listOf(
-    "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1",
-    "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4",
+    "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3",
     "org.virtuslab:pulumi-kotlin:0.10.0.0",
 )
 
@@ -376,6 +375,7 @@ fun configurePom(
                     dependencyNode.appendNode("groupId", it.group)
                     dependencyNode.appendNode("artifactId", it.name)
                     dependencyNode.appendNode("version", it.version)
+
                 }
         }
     }
