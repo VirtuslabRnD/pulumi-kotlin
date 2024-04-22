@@ -1,6 +1,5 @@
 package org.virtuslab.pulumikotlin
 
-import com.pulumi.core.Output
 import io.github.cdklabs.projen.java.JavaProject
 import io.github.cdklabs.projen.java.JavaProjectOptions
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -9,12 +8,6 @@ import org.virtuslab.pulumikotlin.codegen.step2intermediate.PulumiNamingConfigur
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-
-internal fun <T> extractOutputValue(output: Output<T>?): T? {
-    var value: T? = null
-    output?.applyValue { value = it }
-    return value
-}
 
 internal fun namingConfigurationWithSlashInModuleFormat(
     providerName: String,

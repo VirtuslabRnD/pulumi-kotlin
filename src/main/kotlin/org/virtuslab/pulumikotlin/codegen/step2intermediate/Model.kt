@@ -10,23 +10,28 @@ data class UsageKind(val depth: Depth, val subject: Subject, val direction: Dire
 }
 
 enum class Direction {
-    Input, Output
+    Input,
+    Output,
 }
 
 enum class Depth {
-    Root, Nested
+    Root,
+    Nested,
 }
 
 enum class Subject {
-    Function, Resource
+    Function,
+    Resource,
 }
 
 enum class LanguageType {
-    Kotlin, Java
+    Kotlin,
+    Java,
 }
 
 enum class GeneratedClass {
-    EnumClass, NormalClass
+    EnumClass,
+    NormalClass,
 }
 
 data class NamingFlags(
