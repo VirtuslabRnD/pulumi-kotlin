@@ -13,7 +13,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.release>11</maven.compiler.release>
-        <kotlin.version>1.7.20</kotlin.version>
+        <kotlin.version>1.8.0</kotlin.version>
         <mainClass>project.MainKt</mainClass>
         <mainArgs/>
     </properties>
