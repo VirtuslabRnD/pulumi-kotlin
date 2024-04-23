@@ -46,6 +46,11 @@ import kotlin.streams.asSequence
 
 object TypeGenerator {
 
+    private val nullabilityExceptions = listOf(
+        NullabilityException("com.pulumi.gcp.organizations.kotlin.outputs", "GetProjectResult", "autoCreateNetwork"),
+        NullabilityException("com.pulumi.gcp.organizations.kotlin.outputs", "GetProjectResult", "skipDelete"),
+    )
+
     fun generateTypes(
         types: List<RootType>,
         generationOptions: GenerationOptions = GenerationOptions(),
@@ -56,7 +61,7 @@ object TypeGenerator {
             val isFunction = usageKind.subject == Function
             val isOutput = usageKind.direction == Output
             val fields = if (isFunction || isOutput) {
-                prepareFieldsForTypesUsedForFunctionsOrAsOutput(type)
+                prepareFieldsForTypesUsedForFunctionsOrAsOutput(typeNameClashResolver, type)
             } else {
                 prepareFields(type)
             }
@@ -82,16 +87,24 @@ object TypeGenerator {
             )
         }
 
-    private fun prepareFieldsForTypesUsedForFunctionsOrAsOutput(type: ComplexType) =
-        type.fields.map { (name, typeAndOptionality) ->
+    private fun prepareFieldsForTypesUsedForFunctionsOrAsOutput(
+        typeNameClashResolver: TypeNameClashResolver,
+        type: ComplexType,
+    ): List<Field<ReferencedType>> {
+        val className = typeNameClashResolver.kotlinNames(type.metadata)
+        return type.fields.map { (fieldName, typeAndOptionality) ->
+            val isNullabilityException = nullabilityExceptions.contains(
+                NullabilityException(className.packageName, className.className, fieldName),
+            )
             Field(
-                name,
+                fieldName,
                 NormalField(typeAndOptionality.type) { it },
-                typeAndOptionality.type !is OptionalType,
+                !(typeAndOptionality.type is OptionalType || isNullabilityException),
                 overloads = emptyList(),
                 typeAndOptionality.kDoc,
             )
         }
+    }
 
     private fun generateFile(context: Context, typeNameClashResolver: TypeNameClashResolver): FileSpec {
         val typeMetadata = context.typeMetadata
@@ -306,5 +319,11 @@ object TypeGenerator {
         val typeMetadata: TypeMetadata,
         val fields: List<Field<ReferencedType>>,
         val options: GenerationOptions,
+    )
+
+    private data class NullabilityException(
+        val packageName: String,
+        val typeName: String,
+        val fieldName: String,
     )
 }
