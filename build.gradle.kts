@@ -25,7 +25,9 @@ dependencies {
 
     implementation("com.github.ajalt.clikt:clikt:4.3.0")
 
-    // https://nvd.nist.gov/vuln/detail/CVE-2023-3635
+    // Maven Archeologist has two dependencies with vulnerabilities (com.squareup.okio:okio:2.6.0 and 
+    // com.squareup.okhttp3:okhttp:4.7.2), which we chose to replace with newer versions.
+    // See: https://nvd.nist.gov/vuln/detail/CVE-2023-3635
     implementation("com.squareup.okio:okio:3.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10") {
