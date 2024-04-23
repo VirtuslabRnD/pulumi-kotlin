@@ -1,6 +1,7 @@
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.dokka.gradle.DokkaTask
+import org.jmailen.gradle.kotlinter.tasks.FormatTask
 import java.nio.file.Paths
 
 plugins {
@@ -58,6 +59,10 @@ val createTasksForProvider by extra {
         createSourceSet(sourceSetName, outputDirectory, schema.versionedProviderName)
 
         tasks[generationTaskName].finalizedBy(tasks[formatTaskName])
+        tasks.getByName(formatTaskName, FormatTask::class) {
+            failBuildWhenCannotAutoFormat = false
+            ignoreFailures = true
+        }
         tasks[generationTaskName].finalizedBy(tasks[compilationTaskName])
 
         createJarTask(jarTaskName, generationTaskName, sourceSetName, archiveName, version)
