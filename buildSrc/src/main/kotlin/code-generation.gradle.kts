@@ -375,7 +375,6 @@ fun configurePom(
                     dependencyNode.appendNode("groupId", it.group)
                     dependencyNode.appendNode("artifactId", it.name)
                     dependencyNode.appendNode("version", it.version)
-
                 }
         }
     }
