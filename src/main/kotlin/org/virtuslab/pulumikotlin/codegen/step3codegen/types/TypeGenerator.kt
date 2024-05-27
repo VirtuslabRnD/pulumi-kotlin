@@ -46,7 +46,12 @@ import kotlin.streams.asSequence
 
 object TypeGenerator {
 
-    private val nullabilityExceptions = listOf(
+    /**
+     * This is a workaround for nullable fields being reported as non-nullable in Pulumi schemas.
+     * Without this workaround, the affected code causes runtime exceptions when mapping Java objects into Kotlin.
+     * See: https://github.com/VirtuslabRnD/pulumi-kotlin/issues/402
+     */
+    private val nullabilityExceptions = setOf(
         NullabilityException("com.pulumi.gcp.organizations.kotlin.outputs", "GetProjectResult", "autoCreateNetwork"),
         NullabilityException("com.pulumi.gcp.organizations.kotlin.outputs", "GetProjectResult", "skipDelete"),
     )
