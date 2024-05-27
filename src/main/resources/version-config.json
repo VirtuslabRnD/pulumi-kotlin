@@ -216,6 +216,15 @@
     ]
   },
   {
+    "providerName": "gitlab",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v7.0.0/provider/cmd/pulumi-resource-gitlab/schema.json",
+    "kotlinVersion": "7.0.0.0-SNAPSHOT",
+    "javaVersion": "7.0.0",
+    "javaGitTag": "v7.0.0",
+    "customDependencies": [
+    ]
+  },
+  {
     "providerName": "digitalocean",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.27.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
     "kotlinVersion": "4.27.0.1-SNAPSHOT",
