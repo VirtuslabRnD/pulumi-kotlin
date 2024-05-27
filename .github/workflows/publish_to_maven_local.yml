@@ -92,6 +92,8 @@ jobs:
             majorVersion: 3
           - provider: keycloak
             majorVersion: 5
+          - provider: vault
+            majorVersion: 6
     steps:
       - name: Check out project sources
         uses: actions/checkout@v3
