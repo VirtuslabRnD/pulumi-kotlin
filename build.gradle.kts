@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.virtuslab:pulumi-kotlin:0.9.4.0")
+    implementation("org.virtuslab:pulumi-kotlin:0.10.0.0")
 
     implementation("com.squareup:kotlinpoet:1.14.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")

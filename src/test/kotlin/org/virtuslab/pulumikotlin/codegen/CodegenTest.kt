@@ -24,8 +24,8 @@ class CodegenTest {
     private val logger = KotlinLogging.logger {}
 
     private val dependencies = listOf(
-        "com.pulumi:pulumi:0.9.4",
-        "org.virtuslab:pulumi-kotlin:0.9.4.0",
+        "com.pulumi:pulumi:0.10.0",
+        "org.virtuslab:pulumi-kotlin:0.10.0.0",
         "com.google.code.findbugs:jsr305:3.0.2",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.2",
         "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.2",

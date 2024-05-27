@@ -154,7 +154,14 @@ object IntermediateRepresentationGenerator {
                     types,
                     TypeKey.from(pulumiName, inputUsageKind),
                 )
-            ResourceType(pulumiName, argumentType, resultFields, getKDoc(resource), isProvider)
+            ResourceType(
+                pulumiName,
+                argumentType,
+                resultFields,
+                getKDoc(resource),
+                isProvider = isProvider,
+                isComponent = resource.isComponent,
+            )
         } catch (e: InvalidPulumiName) {
             logger.warn("Invalid name", e)
             null
