@@ -32,7 +32,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10") {
         exclude("com.squareup.okio", "okio")
-        exclude("com.squareup.okio", "okio-jvm")
         exclude("com.squareup.okhttp3", "okhttp")
     }
 

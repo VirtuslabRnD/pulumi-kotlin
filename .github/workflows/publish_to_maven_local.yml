@@ -27,9 +27,9 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: adopt
-          java-version: 11
+          java-version: 21
       - name: Publish to Maven Local
-        run: ./gradlew sdk:publishPulumiKotlinSdkPublicationToMavenLocal -Dorg.gradle.daemon=false -q
+        run: ./gradlew sdk:publishPulumiKotlinSdkPublicationToMavenLocal -q
   publish:
     name: Publish pulumi-${{ matrix.provider }}-kotlin (${{ matrix.majorVersion }}) to Maven Local Repository
     runs-on: [ self-hosted, active ]
@@ -123,7 +123,7 @@ jobs:
               fh.write('is_release=' + str(is_release).lower())
       - name: Publish to Maven Local
         id: publish-to-maven-local
-        run: ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.majorVersion }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
+        run: ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.majorVersion }}PublicationToMavenLocal -q
         if: |
           (startsWith(github.head_ref, 'prepare-release') && steps.check-for-release.outputs.is_release == 'true') || 
           (github.event_name == 'push' && steps.check-for-release.outputs.is_release == 'false') || 
