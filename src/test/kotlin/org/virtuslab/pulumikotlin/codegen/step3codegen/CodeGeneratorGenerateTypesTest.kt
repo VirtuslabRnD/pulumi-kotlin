@@ -1,8 +1,11 @@
+@file:OptIn(ExperimentalCompilerApi::class)
+
 package org.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.OK
 import com.tschuchort.compiletesting.SourceFile
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.junit.jupiter.api.Test
 import org.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType

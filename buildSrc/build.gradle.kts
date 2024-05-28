@@ -8,7 +8,7 @@ repositories {
     gradlePluginPortal()
 }
 
-val ktorVersion by extra { "2.3.10" }
+val ktorVersion by extra { "2.3.11" }
 
 dependencies {
     implementation(kotlin("gradle-plugin", version = "1.9.22"))
@@ -27,9 +27,9 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     
-    implementation("org.apache.maven:maven-artifact:3.9.6")
+    implementation("org.apache.maven:maven-artifact:3.9.7")
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.9.0.202403050737-r")
-    implementation("org.semver4j:semver4j:5.2.3")
+    implementation("org.semver4j:semver4j:5.3.0")
 
     testImplementation(kotlin("test", "1.9.22"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")

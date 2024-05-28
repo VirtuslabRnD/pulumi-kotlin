@@ -19,35 +19,37 @@ repositories {
 dependencies {
     implementation("org.virtuslab:pulumi-kotlin:0.10.0.0")
 
-    implementation("com.squareup:kotlinpoet:1.16.0")
+    implementation("com.squareup:kotlinpoet:1.17.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1")
 
-    implementation("com.github.ajalt.clikt:clikt:4.3.0")
+    implementation("com.github.ajalt.clikt:clikt:4.4.0")
 
     // Maven Archeologist has two dependencies with vulnerabilities (com.squareup.okio:okio:2.6.0 and 
     // com.squareup.okhttp3:okhttp:4.7.2), which we chose to replace with newer versions.
     // See: https://nvd.nist.gov/vuln/detail/CVE-2023-3635
     implementation("com.squareup.okio:okio:3.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okio:okio-jvm:3.9.0")
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10") {
         exclude("com.squareup.okio", "okio")
+        exclude("com.squareup.okio", "okio-jvm")
         exclude("com.squareup.okhttp3", "okhttp")
     }
 
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("ch.qos.logback:logback-classic:1.5.6")
 
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.code.gson:gson:2.11.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-    testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.5.0")
+    testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.6.0")
     testImplementation(kotlin("test", "1.9.22"))
-    testImplementation("com.google.cloud:google-cloud-compute:1.51.0")
-    testImplementation("com.azure:azure-identity:1.12.0")
-    testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.38.0")
+    testImplementation("com.google.cloud:google-cloud-compute:1.54.0")
+    testImplementation("com.azure:azure-identity:1.12.1")
+    testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.39.0")
     testImplementation("io.kubernetes:client-java:20.0.1")
-    testImplementation("io.github.cdklabs:projen:0.81.1")
+    testImplementation("io.github.cdklabs:projen:0.81.16")
 }
 
 tasks.test {

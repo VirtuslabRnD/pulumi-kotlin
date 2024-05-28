@@ -20,9 +20,9 @@ repositories {
 
 dependencies {
     api("com.pulumi:pulumi:0.10.0")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.0")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("io.mockk:mockk:1.13.11")
     testImplementation(kotlin("test", "1.9.22"))
 }
 
