@@ -283,7 +283,7 @@ Similarly, when it comes to the base Pulumi dependency, you can replace this:
 <dependency>
     <groupId>com.pulumi</groupId>
     <artifactId>pulumi</artifactId>
-    <version>0.9.4</version>
+    <version>0.10.0</version>
 </dependency>
 ```
 
@@ -293,7 +293,7 @@ with this:
 <dependency>
     <groupId>org.virtuslab</groupId>
     <artifactId>pulumi-kotlin</artifactId>
-    <version>0.9.4.0</version>
+    <version>0.10.0.0</version>
 </dependency>
 ```
 
@@ -321,13 +321,13 @@ implementation("org.virtuslab.pulumi-aws-kotlin:5.42.0.0")
 Similarly, when it comes to the base Pulumi dependency, you can replace this:
 
 ```kt
-implementation("com.pulumi:pulumi:0.9.4")
+implementation("com.pulumi:pulumi:0.10.0")
 ```
 
 with this:
 
 ```kt
-implementation("org.virtuslab:pulumi-kotlin:0.9.4.0")
+implementation("org.virtuslab:pulumi-kotlin:0.10.0.0")
 ```
 
 #### 4. Read the docs.

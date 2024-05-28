@@ -28,7 +28,6 @@ class CodegenTest {
     private val dependencies = listOf(
         "com.pulumi:pulumi:0.10.0",
         "org.virtuslab:pulumi-kotlin:0.10.0.0",
-//        "com.google.code.findbugs:jsr305:3.0.2",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1",
         "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1",
         "com.google.code.gson:gson:2.11.0",

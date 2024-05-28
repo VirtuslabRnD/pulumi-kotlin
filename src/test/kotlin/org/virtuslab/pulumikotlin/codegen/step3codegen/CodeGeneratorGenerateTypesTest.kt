@@ -79,15 +79,14 @@ internal class CodeGeneratorGenerateTypesTest {
                     sources = sourceFiles
 
                     classpaths = listOf(
-                        artifact("org.virtuslab:pulumi-kotlin:0.9.4.0"),
-                        artifact("com.pulumi:pulumi:0.9.4"),
-                        artifact("com.pulumi:aws:5.14.0"),
-                        artifact("com.google.code.findbugs:jsr305:3.0.2"),
-                        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4"),
-                        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4"),
-                        artifact("com.google.code.gson:gson:2.10"),
-                        artifact("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1"),
-                        artifact("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.4.1"),
+                        artifact("org.virtuslab:pulumi-kotlin:0.10.0.0"),
+                        artifact("com.pulumi:pulumi:0.10.0"),
+                        artifact("com.pulumi:aws:6.37.1"),
+                        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1"),
+                        artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1"),
+                        artifact("com.google.code.gson:gson:2.11.0"),
+                        artifact("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3"),
+                        artifact("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.6.3"),
                     )
 
                     messageOutputStream = System.out

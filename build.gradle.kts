@@ -30,7 +30,6 @@ dependencies {
     // See: https://nvd.nist.gov/vuln/detail/CVE-2023-3635
     implementation("com.squareup.okio:okio:3.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okio:okio-jvm:3.9.0")
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10") {
         exclude("com.squareup.okio", "okio")
         exclude("com.squareup.okio", "okio-jvm")
