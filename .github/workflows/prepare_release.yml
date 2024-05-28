@@ -138,6 +138,10 @@ jobs:
             -Psigning.key.password="${{ secrets.GPG_KEY_PASSWORD }}" \
             -Psonatype.username="${{ secrets.SONATYPE_USERNAME }}" \
             -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}" \
+            -Dorg.gradle.jvmargs=-Xmx50G \
+            -Dorg.gradle.workers.max=1 \
+            -Dorg.gradle.daemon=false \
+            -Dkotlin.compiler.execution.strategy=in-process \
             -q
       - name: Rename Dokka directory before upload
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}

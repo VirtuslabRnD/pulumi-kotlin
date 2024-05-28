@@ -23,4 +23,5 @@ jobs:
             -Psigning.key.password="${{ secrets.GPG_KEY_PASSWORD }}" \
             -Psonatype.username="${{ secrets.SONATYPE_USERNAME }}" \
             -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}" \
+            -Dorg.gradle.daemon=false \
             -q
