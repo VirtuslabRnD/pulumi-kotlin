@@ -11,7 +11,7 @@
   {
     "providerName": "cloudflare",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.27.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
-    "kotlinVersion": "5.27.0.0",
+    "kotlinVersion": "5.27.0.1-SNAPSHOT",
     "javaVersion": "5.27.0",
     "javaGitTag": "v5.27.0",
     "customDependencies": [
@@ -47,7 +47,7 @@
   {
     "providerName": "random",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.16.2/provider/cmd/pulumi-resource-random/schema.json",
-    "kotlinVersion": "4.16.2.0",
+    "kotlinVersion": "4.16.2.1-SNAPSHOT",
     "javaVersion": "4.16.2",
     "javaGitTag": "v4.16.2",
     "customDependencies": [
@@ -65,7 +65,7 @@
   {
     "providerName": "gcp",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v7.21.1/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "7.21.1.0",
+    "kotlinVersion": "7.21.1.1-SNAPSHOT",
     "javaVersion": "7.21.1",
     "javaGitTag": "v7.21.1",
     "customDependencies": [
@@ -92,7 +92,7 @@
   {
     "providerName": "aws",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.31.0/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.31.0.0",
+    "kotlinVersion": "6.31.0.1-SNAPSHOT",
     "javaVersion": "6.31.0",
     "javaGitTag": "v6.31.0",
     "customDependencies": [
@@ -101,7 +101,7 @@
   {
     "providerName": "aws-native",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v0.103.0/provider/cmd/pulumi-resource-aws-native/schema.json",
-    "kotlinVersion": "0.103.0.0",
+    "kotlinVersion": "0.103.0.1-SNAPSHOT",
     "javaVersion": "0.103.0",
     "javaGitTag": "v0.103.0",
     "customDependencies": [
@@ -110,7 +110,7 @@
   {
     "providerName": "azure",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v5.75.1/provider/cmd/pulumi-resource-azure/schema.json",
-    "kotlinVersion": "5.75.1.0",
+    "kotlinVersion": "5.75.1.1-SNAPSHOT",
     "javaVersion": "5.75.1",
     "javaGitTag": "v5.75.1",
     "customDependencies": [
@@ -128,7 +128,7 @@
   {
     "providerName": "azure-native",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.38.0/provider/cmd/pulumi-resource-azure-native/schema.json",
-    "kotlinVersion": "2.38.0.0",
+    "kotlinVersion": "2.38.0.1-SNAPSHOT",
     "javaVersion": "2.38.0",
     "javaGitTag": "v2.38.0",
     "customDependencies": [
@@ -146,7 +146,7 @@
   {
     "providerName": "kubernetes",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v4.11.0/provider/cmd/pulumi-resource-kubernetes/schema.json",
-    "kotlinVersion": "4.11.0.0",
+    "kotlinVersion": "4.11.0.1-SNAPSHOT",
     "javaVersion": "4.11.0",
     "javaGitTag": "v4.11.0",
     "customDependencies": [
@@ -218,7 +218,7 @@
   {
     "providerName": "gitlab",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v7.0.0/provider/cmd/pulumi-resource-gitlab/schema.json",
-    "kotlinVersion": "7.0.0.0",
+    "kotlinVersion": "7.0.0.1-SNAPSHOT",
     "javaVersion": "7.0.0",
     "javaGitTag": "v7.0.0",
     "customDependencies": [
@@ -227,7 +227,7 @@
   {
     "providerName": "digitalocean",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.28.1/provider/cmd/pulumi-resource-digitalocean/schema.json",
-    "kotlinVersion": "4.28.1.0",
+    "kotlinVersion": "4.28.1.1-SNAPSHOT",
     "javaVersion": "4.28.1",
     "javaGitTag": "v4.28.1",
     "customDependencies": [
@@ -236,7 +236,7 @@
   {
     "providerName": "alicloud",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-alicloud/v3.54.0/provider/cmd/pulumi-resource-alicloud/schema.json",
-    "kotlinVersion": "3.54.0.0",
+    "kotlinVersion": "3.54.0.1-SNAPSHOT",
     "javaVersion": "3.54.0",
     "javaGitTag": "v3.54.0",
     "customDependencies": [
@@ -254,7 +254,7 @@
   {
     "providerName": "vault",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-vault/v6.0.0/provider/cmd/pulumi-resource-vault/schema.json",
-    "kotlinVersion": "6.0.0.0",
+    "kotlinVersion": "6.0.0.1-SNAPSHOT",
     "javaVersion": "6.0.0",
     "javaGitTag": "v6.0.0",
     "customDependencies": [
