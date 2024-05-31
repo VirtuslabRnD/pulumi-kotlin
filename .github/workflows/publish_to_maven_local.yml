@@ -128,7 +128,7 @@ jobs:
             -Dorg.gradle.jvmargs=-Xmx50g \
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.daemon=false \
-            -Dkotlin.compiler.execution.strategy=in-process
+            -Dkotlin.compiler.execution.strategy=in-process \
             -q
         if: |
           (startsWith(github.head_ref, 'prepare-release') && steps.check-for-release.outputs.is_release == 'true') || 
