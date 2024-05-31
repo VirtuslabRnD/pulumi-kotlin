@@ -141,7 +141,7 @@ jobs:
             -Dorg.gradle.jvmargs=-Xmx50g \
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.daemon=false \
-            -Dkotlin.compiler.execution.strategy=in-process \
+            -Pkotlin.compiler.execution.strategy=in-process \
             -q
       - name: Rename Dokka directory before upload
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
