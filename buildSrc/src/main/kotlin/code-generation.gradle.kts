@@ -59,10 +59,6 @@ val createTasksForProvider by extra {
         createSourceSet(sourceSetName, outputDirectory, schema.versionedProviderName)
 
         tasks[generationTaskName].finalizedBy(tasks[formatTaskName])
-        tasks.getByName(formatTaskName, FormatTask::class) {
-            failBuildWhenCannotAutoFormat = false
-            ignoreFailures = true
-        }
         tasks[generationTaskName].finalizedBy(tasks[compilationTaskName])
 
         createJarTask(jarTaskName, generationTaskName, sourceSetName, archiveName, version)
