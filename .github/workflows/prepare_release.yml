@@ -138,7 +138,7 @@ jobs:
             -Psigning.key.password="${{ secrets.GPG_KEY_PASSWORD }}" \
             -Psonatype.username="${{ secrets.SONATYPE_USERNAME }}" \
             -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}" \
-            -Dorg.gradle.jvmargs=-Xmx50G \
+            -Dorg.gradle.jvmargs=-Xmx50g \
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.daemon=false \
             -Dkotlin.compiler.execution.strategy=in-process \
