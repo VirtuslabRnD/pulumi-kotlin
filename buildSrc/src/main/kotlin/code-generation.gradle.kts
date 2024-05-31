@@ -1,7 +1,6 @@
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.configurationcache.extensions.capitalized
 import org.jetbrains.dokka.gradle.DokkaTask
-import org.jmailen.gradle.kotlinter.tasks.FormatTask
 import java.nio.file.Paths
 
 plugins {
