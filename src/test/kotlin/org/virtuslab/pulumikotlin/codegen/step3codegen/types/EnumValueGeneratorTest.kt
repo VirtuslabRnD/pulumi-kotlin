@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 
 internal class EnumValueGeneratorTest {
 
-    @Suppress("unused", "ktlint:enum-entry-name-case", "EnumNaming", "EnumEntryName")
+    @Suppress("unused", "ktlint:standard:enum-entry-name-case", "EnumNaming", "EnumEntryName")
     enum class EnumValueTestCase(
         val input: String,
         val expected: String,

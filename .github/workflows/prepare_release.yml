@@ -127,7 +127,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: adopt
-          java-version: 11
+          java-version: 21
       - name: Publish packages
         id: publish-to-maven-central
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
@@ -138,7 +138,10 @@ jobs:
             -Psigning.key.password="${{ secrets.GPG_KEY_PASSWORD }}" \
             -Psonatype.username="${{ secrets.SONATYPE_USERNAME }}" \
             -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}" \
+            -Dorg.gradle.jvmargs=-Xmx50g \
+            -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.daemon=false \
+            -Pkotlin.compiler.execution.strategy=in-process \
             -q
       - name: Rename Dokka directory before upload
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}

@@ -3,11 +3,11 @@
 package org.virtuslab.pulumikotlin.azure
 
 import org.apache.commons.lang3.RandomStringUtils
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.virtuslab.pulumikotlin.PROJECT_NAME
 import org.virtuslab.pulumikotlin.Pulumi
 import java.io.File
-import kotlin.test.AfterTest
 
 class AzureE2eTest {
 
@@ -36,7 +36,7 @@ class AzureE2eTest {
         assertVmExists(virtualMachine)
     }
 
-    @AfterTest
+    @AfterEach
     fun cleanupTest() {
         pulumi.destroy()
         pulumi.rmStack()

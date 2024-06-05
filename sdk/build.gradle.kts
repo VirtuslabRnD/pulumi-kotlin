@@ -20,10 +20,10 @@ repositories {
 
 dependencies {
     api("com.pulumi:pulumi:0.10.0")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
-    testImplementation("io.mockk:mockk:1.13.5")
-    testImplementation(kotlin("test"))
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("io.mockk:mockk:1.13.11")
+    testImplementation(kotlin("test", "1.9.22"))
 }
 
 tasks.test {
@@ -36,7 +36,7 @@ kotlinter {
 
 detekt {
     buildUponDefaultConfig = true
-    config = files("${rootProject.projectDir}/.detekt-config.yml")
+    config.setFrom("${rootProject.projectDir}/.detekt-config.yml")
 }
 
 task<Jar>("sourcesJar") {

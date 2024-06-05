@@ -9,11 +9,11 @@ import io.kubernetes.client.openapi.models.V1Pod
 import io.kubernetes.client.util.Config
 import kotlinx.serialization.Serializable
 import org.apache.commons.lang3.RandomStringUtils
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.virtuslab.pulumikotlin.PROJECT_NAME
 import org.virtuslab.pulumikotlin.Pulumi
 import java.io.File
-import kotlin.test.AfterTest
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
@@ -47,7 +47,7 @@ class KubernetesE2eTest {
         assertEquals(container?.ports?.get(0)?.containerPort, 80)
     }
 
-    @AfterTest
+    @AfterEach
     fun cleanupTest() {
         pulumi.destroy()
         pulumi.rmStack()
@@ -58,7 +58,8 @@ class KubernetesE2eTest {
         Configuration.setDefaultApiClient(client)
         val api = CoreV1Api()
 
-        return api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null, null)
+        return api.listPodForAllNamespaces()
+            .execute()
             .items
             .first { it.metadata?.name?.startsWith(podName) ?: false }
     }

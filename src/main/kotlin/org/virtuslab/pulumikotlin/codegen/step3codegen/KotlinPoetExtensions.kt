@@ -24,12 +24,5 @@ object KotlinPoetExtensions {
 
     fun FileSpec.Builder.addTypes(vararg typeSpecs: TypeSpec) = addTypes(typeSpecs.toList())
 
-    fun FileSpec.Builder.addTypes(types: Iterable<TypeSpec>) =
-        apply {
-            types.forEach {
-                addType(it)
-            }
-        }
-
     fun CodeBlock.Builder.add(code: Code) = add(code.toCodeBlock().toKotlinPoetCodeBlock())
 }

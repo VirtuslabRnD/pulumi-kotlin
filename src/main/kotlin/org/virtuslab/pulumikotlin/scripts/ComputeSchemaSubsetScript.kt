@@ -42,7 +42,7 @@ import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.PrintStream
-import java.net.URL
+import java.net.URI
 import java.nio.charset.StandardCharsets
 
 fun main(args: Array<String>) {
@@ -246,7 +246,7 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
     @Suppress("HttpUrlsUsage")
     private fun fetchSchemaInputStream(): InputStream =
         if (fullSchemaPath.startsWith("http://") || fullSchemaPath.startsWith("https://")) {
-            URL(fullSchemaPath).openStream()
+            URI(fullSchemaPath).toURL().openStream()
         } else {
             File(fullSchemaPath).inputStream()
         }

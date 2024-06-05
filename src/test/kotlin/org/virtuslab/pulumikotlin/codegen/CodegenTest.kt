@@ -1,4 +1,5 @@
 @file:Suppress("MoveLambdaOutsideParentheses")
+@file:OptIn(ExperimentalCompilerApi::class)
 
 package org.virtuslab.pulumikotlin.codegen
 
@@ -9,6 +10,7 @@ import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.OK
 import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.SCRIPT_EXECUTION_ERROR
 import com.tschuchort.compiletesting.SourceFile
 import mu.KotlinLogging
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
@@ -26,12 +28,11 @@ class CodegenTest {
     private val dependencies = listOf(
         "com.pulumi:pulumi:0.10.0",
         "org.virtuslab:pulumi-kotlin:0.10.0.0",
-        "com.google.code.findbugs:jsr305:3.0.2",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.2",
-        "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.2",
-        "com.google.code.gson:gson:2.10.1",
-        "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.5.1",
-        "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.5.1",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1",
+        "com.google.code.gson:gson:2.11.0",
+        "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3",
+        "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.6.3",
     )
 
     private lateinit var testInfo: TestInfo

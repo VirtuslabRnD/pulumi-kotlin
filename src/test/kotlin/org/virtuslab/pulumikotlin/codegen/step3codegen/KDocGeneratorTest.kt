@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCompilerApi::class)
+
 package org.virtuslab.pulumikotlin.codegen.step3codegen
 
 import com.squareup.kotlinpoet.FileSpec
@@ -5,6 +7,7 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.assertContains

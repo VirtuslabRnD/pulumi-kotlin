@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: adopt
-          java-version: 11
+          java-version: 21
       - name: Publish to Maven Local
         run: ./gradlew sdk:publishPulumiKotlinSdkPublicationToMavenLocal -Dorg.gradle.daemon=false -q
   publish:
@@ -103,7 +103,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: adopt
-          java-version: 11
+          java-version: 21
       - name: Check if publication to Maven Local is necessary
         id: check-for-release
         shell: python
@@ -123,7 +123,13 @@ jobs:
               fh.write('is_release=' + str(is_release).lower())
       - name: Publish to Maven Local
         id: publish-to-maven-local
-        run: ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.majorVersion }}PublicationToMavenLocal -Dorg.gradle.daemon=false -q
+        run: |
+          ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.majorVersion }}PublicationToMavenLocal \
+            -Dorg.gradle.jvmargs=-Xmx50g \
+            -Dorg.gradle.workers.max=1 \
+            -Dorg.gradle.daemon=false \
+            -Pkotlin.compiler.execution.strategy=in-process \
+            -q
         if: |
           (startsWith(github.head_ref, 'prepare-release') && steps.check-for-release.outputs.is_release == 'true') || 
           (github.event_name == 'push' && steps.check-for-release.outputs.is_release == 'false') || 

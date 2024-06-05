@@ -18,7 +18,7 @@ jobs:
       - name: Check out project sources
         uses: actions/checkout@v4
       - name: Set up Pulumi CLI
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
       - name: Publish Pulumi Kotlin Azure to Maven Local
         run: ./gradlew publishPulumiAzureE2ePublicationToMavenLocal -q
       - name: Publish Pulumi Kotlin Random to Maven Local
@@ -53,7 +53,7 @@ jobs:
       - name: Check out project sources
         uses: actions/checkout@v4
       - name: Set up Pulumi CLI
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
       - name: Publish Pulumi Kotlin Azure Native to Maven Local
         run: ./gradlew publishPulumiAzure-nativeE2ePublicationToMavenLocal -q
       - name: Publish Pulumi Kotlin Random to Maven Local
@@ -88,7 +88,7 @@ jobs:
       - name: Check out project sources
         uses: actions/checkout@v4
       - name: Set up Pulumi CLI
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         id: auth
@@ -122,7 +122,7 @@ jobs:
       - name: Check out project sources
         uses: actions/checkout@v4
       - name: Set up Pulumi CLI
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         id: auth
@@ -158,7 +158,7 @@ jobs:
       - name: Start Minikube
         run: minikube start --force
       - name: Set up Pulumi CLI
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
       - name: Publish Pulumi Kotlin Kubernetes to Maven Local
         run: ./gradlew publishPulumiKubernetesE2ePublicationToMavenLocal -q
       - name: Run E2E tests
