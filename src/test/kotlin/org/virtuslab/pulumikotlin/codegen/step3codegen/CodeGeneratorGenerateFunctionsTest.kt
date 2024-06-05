@@ -6,6 +6,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.OK
 import com.tschuchort.compiletesting.SourceFile
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.config.JvmTarget
 import org.junit.jupiter.api.Test
 import org.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
@@ -100,8 +101,8 @@ internal class CodeGeneratorGenerateFunctionsTest {
                     sources = sourceFiles
 
                     classpaths = listOf(
-                        artifact("org.virtuslab:pulumi-kotlin:0.10.0.0"),
-                        artifact("com.pulumi:pulumi:0.10.0"),
+                        artifact("org.virtuslab:pulumi-kotlin:0.11.0.0"),
+                        artifact("com.pulumi:pulumi:0.11.0"),
                         artifact("com.pulumi:aws:6.37.1"),
                         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1"),
                         artifact("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1"),
@@ -111,6 +112,8 @@ internal class CodeGeneratorGenerateFunctionsTest {
                     )
 
                     messageOutputStream = System.out
+
+                    jvmTarget = JvmTarget.JVM_21.description
                 }
                 .compile()
 
