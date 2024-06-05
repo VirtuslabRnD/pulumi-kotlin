@@ -6,6 +6,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.OK
 import com.tschuchort.compiletesting.SourceFile
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.config.JvmTarget
 import org.junit.jupiter.api.Test
 import org.virtuslab.pulumikotlin.codegen.maven.ArtifactDownloader
 import org.virtuslab.pulumikotlin.codegen.step2intermediate.ComplexType
@@ -90,6 +91,8 @@ internal class CodeGeneratorGenerateTypesTest {
                     )
 
                     messageOutputStream = System.out
+
+                    jvmTarget = JvmTarget.JVM_21.description
                 }
                 .compile()
 

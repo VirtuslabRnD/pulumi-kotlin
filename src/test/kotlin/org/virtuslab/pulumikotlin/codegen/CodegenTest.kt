@@ -11,6 +11,7 @@ import com.tschuchort.compiletesting.KotlinCompilation.ExitCode.SCRIPT_EXECUTION
 import com.tschuchort.compiletesting.SourceFile
 import mu.KotlinLogging
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.config.JvmTarget
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
@@ -901,11 +902,13 @@ class CodegenTest {
         val compilationForGeneratedCode = KotlinCompilation().apply {
             sources = generatedSourceFiles
             classpaths = classPathWithDependencies
+            jvmTarget = JvmTarget.JVM_21.description
         }
 
         val compilationForAdditionalCode = KotlinCompilation().apply {
             sources = additionalSourceFiles
             classpaths = classPathWithDependencies + compilationForGeneratedCode.classesDir
+            jvmTarget = JvmTarget.JVM_21.description
         }
 
         val compiledGeneratedCode = compilationForGeneratedCode.compile()

@@ -8,6 +8,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.config.JvmTarget
 import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.assertContains
@@ -513,6 +514,7 @@ internal class KDocGeneratorTest {
         val compilation = KotlinCompilation().apply {
             sources = listOf(SourceFile.fromPath(getFile(className)))
             messageOutputStream = System.out
+            jvmTarget = JvmTarget.JVM_21.description
         }
 
         assertEquals(KotlinCompilation.ExitCode.OK, compilation.compile().exitCode)
