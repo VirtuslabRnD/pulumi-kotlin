@@ -17,6 +17,11 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: 21
       - name: Set up Pulumi CLI
         uses: pulumi/actions@v5
       - name: Publish Pulumi Kotlin Azure to Maven Local
@@ -52,6 +57,11 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: 21
       - name: Set up Pulumi CLI
         uses: pulumi/actions@v5
       - name: Publish Pulumi Kotlin Azure Native to Maven Local
@@ -87,6 +97,11 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: 21
       - name: Set up Pulumi CLI
         uses: pulumi/actions@v5
       - name: Authenticate to Google Cloud
@@ -121,6 +136,11 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: 21
       - name: Set up Pulumi CLI
         uses: pulumi/actions@v5
       - name: Authenticate to Google Cloud
@@ -155,6 +175,11 @@ jobs:
     steps:
       - name: Check out project sources
         uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: 21
       - name: Start Minikube
         run: minikube start --force
       - name: Set up Pulumi CLI

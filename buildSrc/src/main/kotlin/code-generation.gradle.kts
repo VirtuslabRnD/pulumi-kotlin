@@ -17,7 +17,7 @@ val tasksToDisable: List<(String) -> String> = listOf { sourceSetName: String ->
 
 val commonDependencies = listOf(
     "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3",
-    "org.virtuslab:pulumi-kotlin:0.10.0.0",
+    "org.virtuslab:pulumi-kotlin:0.11.0.0",
 )
 
 val rootDir: String = project.rootDir.absolutePath
