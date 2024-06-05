@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "org.virtuslab"
-version = "0.10.0.1-SNAPSHOT"
+version = "0.11.0.0"
 base.archivesName.set("pulumi-kotlin-sdk")
 
 repositories {
@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    api("com.pulumi:pulumi:0.10.0")
+    api("com.pulumi:pulumi:0.11.0")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testImplementation("io.mockk:mockk:1.13.11")
