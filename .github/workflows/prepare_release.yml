@@ -95,6 +95,8 @@ jobs:
             majorVersion: 6
           - provider: gitlab
             majorVersion: 7
+          - provider: gitlab
+            majorVersion: 8
           - provider: digitalocean
             majorVersion: 4
           - provider: alicloud

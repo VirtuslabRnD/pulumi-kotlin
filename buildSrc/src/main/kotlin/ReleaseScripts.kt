@@ -429,7 +429,7 @@ private fun validateVersion(
     }
     val schemaExists = verifyUrl(client, newSchema.url)
     if (sameMajor && !schemaExists) {
-        logger.warn("Skipping release ${newSchema.getKotlinGitTag()} (cannot find url: ${newSchema.url}")
+        logger.warn("Skipping release ${newSchema.getKotlinGitTag()} (cannot find url: ${newSchema.url})")
     }
     return schemaExists && sameMajor
 }
