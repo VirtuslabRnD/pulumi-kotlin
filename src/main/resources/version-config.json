@@ -82,7 +82,7 @@
   {
     "providerName": "aws",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.34.1/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.34.1.0",
+    "kotlinVersion": "6.34.1.1-SNAPSHOT",
     "javaVersion": "6.34.1",
     "javaGitTag": "v6.34.1",
     "customDependencies": []
@@ -114,7 +114,7 @@
   {
     "providerName": "azure-native",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.43.1/provider/cmd/pulumi-resource-azure-native/schema.json",
-    "kotlinVersion": "2.43.1.0",
+    "kotlinVersion": "2.43.1.1-SNAPSHOT",
     "javaVersion": "2.43.1",
     "javaGitTag": "v2.43.1",
     "customDependencies": []
@@ -210,7 +210,7 @@
   {
     "providerName": "digitalocean",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.30.2/provider/cmd/pulumi-resource-digitalocean/schema.json",
-    "kotlinVersion": "4.30.2.0",
+    "kotlinVersion": "4.30.2.1-SNAPSHOT",
     "javaVersion": "4.30.2",
     "javaGitTag": "v4.30.2",
     "customDependencies": []
