@@ -57,10 +57,10 @@
   },
   {
     "providerName": "gcp",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v7.25.0/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "7.25.0.1-SNAPSHOT",
-    "javaVersion": "7.25.0",
-    "javaGitTag": "v7.25.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v7.26.0/provider/cmd/pulumi-resource-gcp/schema.json",
+    "kotlinVersion": "7.26.0.0",
+    "javaVersion": "7.26.0",
+    "javaGitTag": "v7.26.0",
     "customDependencies": []
   },
   {
@@ -81,18 +81,18 @@
   },
   {
     "providerName": "aws",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.37.1/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.37.1.1-SNAPSHOT",
-    "javaVersion": "6.37.1",
-    "javaGitTag": "v6.37.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.38.0/provider/cmd/pulumi-resource-aws/schema.json",
+    "kotlinVersion": "6.38.0.0",
+    "javaVersion": "6.38.0",
+    "javaGitTag": "v6.38.0",
     "customDependencies": []
   },
   {
     "providerName": "aws-native",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v0.108.1/provider/cmd/pulumi-resource-aws-native/schema.json",
-    "kotlinVersion": "0.108.1.1-SNAPSHOT",
-    "javaVersion": "0.108.1",
-    "javaGitTag": "v0.108.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v0.108.2/provider/cmd/pulumi-resource-aws-native/schema.json",
+    "kotlinVersion": "0.108.2.0",
+    "javaVersion": "0.108.2",
+    "javaGitTag": "v0.108.2",
     "customDependencies": []
   },
   {
