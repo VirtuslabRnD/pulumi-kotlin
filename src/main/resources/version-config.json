@@ -81,10 +81,10 @@
   },
   {
     "providerName": "aws",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.38.1/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.38.1.1-SNAPSHOT",
-    "javaVersion": "6.38.1",
-    "javaGitTag": "v6.38.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.39.0/provider/cmd/pulumi-resource-aws/schema.json",
+    "kotlinVersion": "6.39.0.0",
+    "javaVersion": "6.39.0",
+    "javaGitTag": "v6.39.0",
     "customDependencies": []
   },
   {
