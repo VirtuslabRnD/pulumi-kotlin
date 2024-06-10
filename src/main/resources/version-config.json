@@ -202,7 +202,7 @@
   {
     "providerName": "gitlab",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v8.0.1/provider/cmd/pulumi-resource-gitlab/schema.json",
-    "kotlinVersion": "8.0.1.0",
+    "kotlinVersion": "8.0.1.1-SNAPSHOT",
     "javaVersion": "8.0.1",
     "javaGitTag": "v8.0.1",
     "customDependencies": []
