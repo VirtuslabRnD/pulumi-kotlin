@@ -98,7 +98,7 @@
   {
     "providerName": "azure",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v5.80.0/provider/cmd/pulumi-resource-azure/schema.json",
-    "kotlinVersion": "5.80.0.0",
+    "kotlinVersion": "5.80.0.1-SNAPSHOT",
     "javaVersion": "5.80.0",
     "javaGitTag": "v5.80.0",
     "customDependencies": []
