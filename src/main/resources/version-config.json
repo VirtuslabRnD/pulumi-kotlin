@@ -10,7 +10,7 @@
   {
     "providerName": "cloudflare",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.31.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
-    "kotlinVersion": "5.31.0.0",
+    "kotlinVersion": "5.31.0.1-SNAPSHOT",
     "javaVersion": "5.31.0",
     "javaGitTag": "v5.31.0",
     "customDependencies": []
@@ -82,7 +82,7 @@
   {
     "providerName": "aws",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.39.1/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.39.1.0",
+    "kotlinVersion": "6.39.1.1-SNAPSHOT",
     "javaVersion": "6.39.1",
     "javaGitTag": "v6.39.1",
     "customDependencies": []
@@ -90,7 +90,7 @@
   {
     "providerName": "aws-native",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v0.108.3/provider/cmd/pulumi-resource-aws-native/schema.json",
-    "kotlinVersion": "0.108.3.0",
+    "kotlinVersion": "0.108.3.1-SNAPSHOT",
     "javaVersion": "0.108.3",
     "javaGitTag": "v0.108.3",
     "customDependencies": []
