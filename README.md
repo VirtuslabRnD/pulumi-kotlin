@@ -491,14 +491,14 @@ implementation("org.virtuslab:pulumi-github-kotlin:5.26.0.1")
   </tr>
   <tr>
     <td>github</td>
-    <td>6.2.1.1</td>
+    <td>6.2.2.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-github-kotlin</artifactId>
-     <version>6.2.1.1</version>
+     <version>6.2.2.0</version>
 </dependency>
 ```
  
@@ -506,13 +506,13 @@ implementation("org.virtuslab:pulumi-github-kotlin:5.26.0.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-github-kotlin:6.2.1.1")
+implementation("org.virtuslab:pulumi-github-kotlin:6.2.2.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-github-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/github">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/github/6.2.1.1/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/github/6.2.2.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>random</td>

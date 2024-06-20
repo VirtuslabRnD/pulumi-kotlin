@@ -33,10 +33,10 @@
   },
   {
     "providerName": "github",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v6.2.1/provider/cmd/pulumi-resource-github/schema.json",
-    "kotlinVersion": "6.2.1.2-SNAPSHOT",
-    "javaVersion": "6.2.1",
-    "javaGitTag": "v6.2.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v6.2.2/provider/cmd/pulumi-resource-github/schema.json",
+    "kotlinVersion": "6.2.2.0",
+    "javaVersion": "6.2.2",
+    "javaGitTag": "v6.2.2",
     "customDependencies": []
   },
   {
