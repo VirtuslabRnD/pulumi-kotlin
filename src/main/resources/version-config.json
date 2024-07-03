@@ -113,10 +113,10 @@
   },
   {
     "providerName": "azure-native",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.47.1/provider/cmd/pulumi-resource-azure-native/schema.json",
-    "kotlinVersion": "2.47.1.1-SNAPSHOT",
-    "javaVersion": "2.47.1",
-    "javaGitTag": "v2.47.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.48.0/provider/cmd/pulumi-resource-azure-native/schema.json",
+    "kotlinVersion": "2.48.0.0",
+    "javaVersion": "2.48.0",
+    "javaGitTag": "v2.48.0",
     "customDependencies": []
   },
   {
