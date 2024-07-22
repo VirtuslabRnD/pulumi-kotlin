@@ -166,6 +166,7 @@ object SchemaModel {
         override val replaceOnChanges: Boolean = false,
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
+        val plain: Boolean? = null,
     ) : PrimitiveProperty
 
     @Serializable
