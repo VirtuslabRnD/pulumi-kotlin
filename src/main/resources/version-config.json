@@ -89,10 +89,10 @@
   },
   {
     "providerName": "aws-native",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v0.111.0/provider/cmd/pulumi-resource-aws-native/schema.json",
-    "kotlinVersion": "0.111.0.1-SNAPSHOT",
-    "javaVersion": "0.111.0",
-    "javaGitTag": "v0.111.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v0.112.0/provider/cmd/pulumi-resource-aws-native/schema.json",
+    "kotlinVersion": "0.112.0.0",
+    "javaVersion": "0.112.0",
+    "javaGitTag": "v0.112.0",
     "customDependencies": []
   },
   {
@@ -113,10 +113,10 @@
   },
   {
     "providerName": "azure-native",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.50.0/provider/cmd/pulumi-resource-azure-native/schema.json",
-    "kotlinVersion": "2.50.0.1-SNAPSHOT",
-    "javaVersion": "2.50.0",
-    "javaGitTag": "v2.50.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.50.1/provider/cmd/pulumi-resource-azure-native/schema.json",
+    "kotlinVersion": "2.50.1.0",
+    "javaVersion": "2.50.1",
+    "javaGitTag": "v2.50.1",
     "customDependencies": []
   },
   {
