@@ -416,14 +416,14 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:4.16.0.2")
   </tr>
   <tr>
     <td>cloudflare</td>
-    <td>5.31.0.0</td>
+    <td>5.35.1.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-cloudflare-kotlin</artifactId>
-     <version>5.31.0.0</version>
+     <version>5.35.1.0</version>
 </dependency>
 ```
  
@@ -431,13 +431,13 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:4.16.0.2")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.31.0.0")
+implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.35.1.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-cloudflare-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/cloudflare">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/cloudflare/5.31.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/cloudflare/5.35.1.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>slack</td>
@@ -566,14 +566,14 @@ implementation("org.virtuslab:pulumi-gcp-kotlin:6.67.1.1")
   </tr>
   <tr>
     <td>gcp</td>
-    <td>7.27.0.0</td>
+    <td>7.33.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-gcp-kotlin</artifactId>
-     <version>7.27.0.0</version>
+     <version>7.33.0.0</version>
 </dependency>
 ```
  
@@ -581,13 +581,13 @@ implementation("org.virtuslab:pulumi-gcp-kotlin:6.67.1.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-gcp-kotlin:7.27.0.0")
+implementation("org.virtuslab:pulumi-gcp-kotlin:7.33.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-gcp-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/gcp">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gcp/7.27.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gcp/7.33.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>google-native</td>
