@@ -10,7 +10,7 @@
   {
     "providerName": "cloudflare",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.35.1/provider/cmd/pulumi-resource-cloudflare/schema.json",
-    "kotlinVersion": "5.35.1.0",
+    "kotlinVersion": "5.35.1.1-SNAPSHOT",
     "javaVersion": "5.35.1",
     "javaGitTag": "v5.35.1",
     "customDependencies": []
@@ -58,7 +58,7 @@
   {
     "providerName": "gcp",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v7.33.0/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "7.33.0.0",
+    "kotlinVersion": "7.33.0.1-SNAPSHOT",
     "javaVersion": "7.33.0",
     "javaGitTag": "v7.33.0",
     "customDependencies": []
