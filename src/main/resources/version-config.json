@@ -89,10 +89,10 @@
   },
   {
     "providerName": "aws-native",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v0.112.0/provider/cmd/pulumi-resource-aws-native/schema.json",
-    "kotlinVersion": "0.112.0.1-SNAPSHOT",
-    "javaVersion": "0.112.0",
-    "javaGitTag": "v0.112.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v0.113.0/provider/cmd/pulumi-resource-aws-native/schema.json",
+    "kotlinVersion": "0.113.0.0",
+    "javaVersion": "0.113.0",
+    "javaGitTag": "v0.113.0",
     "customDependencies": []
   },
   {
