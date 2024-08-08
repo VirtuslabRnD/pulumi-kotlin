@@ -129,10 +129,10 @@
   },
   {
     "providerName": "kubernetes",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v4.15.0/provider/cmd/pulumi-resource-kubernetes/schema.json",
-    "kotlinVersion": "4.15.0.1-SNAPSHOT",
-    "javaVersion": "4.15.0",
-    "javaGitTag": "v4.15.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v4.16.0/provider/cmd/pulumi-resource-kubernetes/schema.json",
+    "kotlinVersion": "4.16.0.0",
+    "javaVersion": "4.16.0",
+    "javaGitTag": "v4.16.0",
     "customDependencies": []
   },
   {
