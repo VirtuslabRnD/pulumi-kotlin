@@ -152,6 +152,7 @@ object SchemaModel {
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
         override val isOverlay: Boolean = false,
+        override val plain: Boolean = false,
     ) : RootTypeProperty
 
     @Serializable
@@ -166,7 +167,7 @@ object SchemaModel {
         override val replaceOnChanges: Boolean = false,
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
-        val plain: Boolean? = null,
+        override val plain: Boolean = false,
     ) : PrimitiveProperty
 
     @Serializable
@@ -181,6 +182,7 @@ object SchemaModel {
         override val replaceOnChanges: Boolean = false,
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
+        override val plain: Boolean = false,
     ) : PrimitiveProperty
 
     @Serializable
@@ -195,6 +197,7 @@ object SchemaModel {
         override val replaceOnChanges: Boolean = false,
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
+        override val plain: Boolean = false,
     ) : PrimitiveProperty
 
     @Serializable
@@ -209,6 +212,7 @@ object SchemaModel {
         override val replaceOnChanges: Boolean = false,
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
+        override val plain: Boolean = false,
     ) : PrimitiveProperty
 
     @Serializable
@@ -224,6 +228,7 @@ object SchemaModel {
         override val replaceOnChanges: Boolean = false,
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
+        override val plain: Boolean = false,
     ) : GenericTypeProperty
 
     @Serializable
@@ -240,6 +245,7 @@ object SchemaModel {
         override val replaceOnChanges: Boolean = false,
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
+        override val plain: Boolean = false,
     ) : Property {
         val referencedTypeName: String
             get() = ref.referencedTypeName
@@ -280,6 +286,7 @@ object SchemaModel {
         override val replaceOnChanges: Boolean = false,
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
+        override val plain: Boolean = false,
     ) : GenericTypeProperty
 
     @Serializable
@@ -298,6 +305,7 @@ object SchemaModel {
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
         override val isOverlay: Boolean = false,
+        override val plain: Boolean = false,
     ) : RootTypeProperty, ReferencingOtherTypesProperty
 
     @Serializable
@@ -313,6 +321,7 @@ object SchemaModel {
         override val replaceOnChanges: Boolean = false,
         override val secret: Boolean = false,
         override val const: JsonElement? = null,
+        override val plain: Boolean = false,
     ) : GenericTypeProperty
 
     @Serializable(with = PropertySerializer::class)
@@ -327,6 +336,7 @@ object SchemaModel {
         val const: JsonElement?
         val willReplaceOnChanges: Boolean
         val replaceOnChanges: Boolean
+        val plain: Boolean
     }
 
     @Serializable(with = PropertySerializer::class)
@@ -357,6 +367,7 @@ object SchemaModel {
         val methods: Map<String, String> = emptyMap(),
         val deprecationMessage: String? = null,
         val isOverlay: Boolean = false,
+        val overlaySupportedLanguages: List<String> = emptyList(),
         val language: JsonObject? = null,
     )
 
