@@ -1016,14 +1016,14 @@ implementation("org.virtuslab:pulumi-gitlab-kotlin:7.0.2.0")
   </tr>
   <tr>
     <td>gitlab</td>
-    <td>8.3.0.0</td>
+    <td>8.3.1.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-gitlab-kotlin</artifactId>
-     <version>8.3.0.0</version>
+     <version>8.3.1.0</version>
 </dependency>
 ```
  
@@ -1031,13 +1031,13 @@ implementation("org.virtuslab:pulumi-gitlab-kotlin:7.0.2.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-gitlab-kotlin:8.3.0.0")
+implementation("org.virtuslab:pulumi-gitlab-kotlin:8.3.1.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-gitlab-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/gitlab">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gitlab/8.3.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gitlab/8.3.1.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>digitalocean</td>

@@ -201,10 +201,10 @@
   },
   {
     "providerName": "gitlab",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v8.3.0/provider/cmd/pulumi-resource-gitlab/schema.json",
-    "kotlinVersion": "8.3.0.1-SNAPSHOT",
-    "javaVersion": "8.3.0",
-    "javaGitTag": "v8.3.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v8.3.1/provider/cmd/pulumi-resource-gitlab/schema.json",
+    "kotlinVersion": "8.3.1.0",
+    "javaVersion": "8.3.1",
+    "javaGitTag": "v8.3.1",
     "customDependencies": []
   },
   {
