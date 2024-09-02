@@ -218,7 +218,7 @@
   {
     "providerName": "alicloud",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-alicloud/v3.61.2/provider/cmd/pulumi-resource-alicloud/schema.json",
-    "kotlinVersion": "3.61.2.0",
+    "kotlinVersion": "3.61.2.1-SNAPSHOT",
     "javaVersion": "3.61.2",
     "javaGitTag": "v3.61.2",
     "customDependencies": []
