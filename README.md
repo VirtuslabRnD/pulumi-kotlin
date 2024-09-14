@@ -516,14 +516,14 @@ implementation("org.virtuslab:pulumi-github-kotlin:6.2.2.0")
   </tr>
   <tr>
     <td>random</td>
-    <td>4.16.4.0</td>
+    <td>4.16.5.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-random-kotlin</artifactId>
-     <version>4.16.4.0</version>
+     <version>4.16.5.0</version>
 </dependency>
 ```
  
@@ -531,13 +531,13 @@ implementation("org.virtuslab:pulumi-github-kotlin:6.2.2.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-random-kotlin:4.16.4.0")
+implementation("org.virtuslab:pulumi-random-kotlin:4.16.5.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-random-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/random">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/random/4.16.4.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/random/4.16.5.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>gcp</td>
