@@ -39,25 +39,17 @@ jobs:
       matrix:
         include:
           - provider: cloudflare
-            majorVersion: 4
-          - provider: cloudflare
             majorVersion: 5
           - provider: slack
             majorVersion: 0
-          - provider: github
-            majorVersion: 5
           - provider: github
             majorVersion: 6
           - provider: random
             majorVersion: 4
           - provider: gcp
-            majorVersion: 6
-          - provider: gcp
             majorVersion: 7
           - provider: google-native
             majorVersion: 0
-          - provider: aws
-            majorVersion: 5
           - provider: aws
             majorVersion: 6
           - provider: aws-native
@@ -65,29 +57,13 @@ jobs:
           - provider: azure
             majorVersion: 5
           - provider: azure-native
-            majorVersion: 1
-          - provider: azure-native
             majorVersion: 2
-          - provider: kubernetes
-            majorVersion: 3
           - provider: kubernetes
             majorVersion: 4
           - provider: nomad
-            majorVersion: 0
-          - provider: nomad
             majorVersion: 2
           - provider: docker
-            majorVersion: 3
-          - provider: docker
             majorVersion: 4
-          - provider: gitlab
-            majorVersion: 4
-          - provider: gitlab
-            majorVersion: 5
-          - provider: gitlab
-            majorVersion: 6
-          - provider: gitlab
-            majorVersion: 7
           - provider: gitlab
             majorVersion: 8
           - provider: digitalocean
