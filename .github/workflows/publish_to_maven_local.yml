@@ -32,7 +32,7 @@ jobs:
         run: ./gradlew sdk:publishPulumiKotlinSdkPublicationToMavenLocal -Dorg.gradle.daemon=false -q
   publish:
     name: Publish pulumi-${{ matrix.provider }}-kotlin (${{ matrix.majorVersion }}) to Maven Local Repository
-    runs-on: [ self-hosted, active ]
+    runs-on: ubuntu-latest
     if: ${{ startsWith(github.head_ref, 'prepare-release') || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     strategy:
       fail-fast: false
