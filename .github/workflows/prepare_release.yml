@@ -37,74 +37,68 @@ jobs:
       - name: Push tags
         run: git push --tags
   publish:
-    name: Publish pulumi-${{ matrix.provider }}-kotlin (${{ matrix.majorVersion }}) to Maven Central Repository
+    name: Publish pulumi-${{ matrix.provider }}-kotlin (${{ matrix.major-version }}) to Maven Central Repository
     needs: tag
-    runs-on: [ self-hosted, active ]
+    runs-on: ${{ matrix.runs-on }}
     if: ${{ needs.tag.outputs.is_release == 'true' }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - provider: cloudflare
-            majorVersion: 4
-          - provider: cloudflare
-            majorVersion: 5
+            major-version: 5
+            runs-on: [ ubuntu-latest ]
           - provider: slack
-            majorVersion: 0
+            major-version: 0
+            runs-on: [ ubuntu-latest ]
           - provider: github
-            majorVersion: 5
-          - provider: github
-            majorVersion: 6
+            major-version: 6
+            runs-on: [ ubuntu-latest ]
           - provider: random
-            majorVersion: 4
+            major-version: 4
+            runs-on: [ ubuntu-latest ]
           - provider: gcp
-            majorVersion: 6
-          - provider: gcp
-            majorVersion: 7
+            major-version: 7
+            runs-on: [ self-hosted, active ]
           - provider: google-native
-            majorVersion: 0
+            major-version: 0
+            runs-on: [ self-hosted, active ]
           - provider: aws
-            majorVersion: 5
-          - provider: aws
-            majorVersion: 6
+            major-version: 6
+            runs-on: [ self-hosted, active ]
           - provider: aws-native
-            majorVersion: 0
+            major-version: 0
+            runs-on: [ self-hosted, active ]
           - provider: azure
-            majorVersion: 5
+            major-version: 5
+            runs-on: [ self-hosted, active ]
           - provider: azure-native
-            majorVersion: 1
-          - provider: azure-native
-            majorVersion: 2
+            major-version: 2
+            runs-on: [ self-hosted, active ]
           - provider: kubernetes
-            majorVersion: 3
-          - provider: kubernetes
-            majorVersion: 4
+            major-version: 4
+            runs-on: [ self-hosted, active ]
           - provider: nomad
-            majorVersion: 0
-          - provider: nomad
-            majorVersion: 2
+            major-version: 2
+            runs-on: [ ubuntu-latest ]
           - provider: docker
-            majorVersion: 3
-          - provider: docker
-            majorVersion: 4
+            major-version: 4
+            runs-on: [ ubuntu-latest ]
           - provider: gitlab
-            majorVersion: 4
-          - provider: gitlab
-            majorVersion: 5
-          - provider: gitlab
-            majorVersion: 6
-          - provider: gitlab
-            majorVersion: 7
-          - provider: gitlab
-            majorVersion: 8
+            major-version: 8
+            runs-on: [ ubuntu-latest ]
           - provider: digitalocean
-            majorVersion: 4
+            major-version: 4
+            runs-on: [ ubuntu-latest ]
           - provider: alicloud
-            majorVersion: 3
+            major-version: 3
+            runs-on: [ self-hosted, active ]
           - provider: keycloak
-            majorVersion: 5
+            major-version: 5
+            runs-on: [ ubuntu-latest ]
           - provider: vault
-            majorVersion: 6
+            major-version: 6
+            runs-on: [ ubuntu-latest ]
     steps:
       - id: provider
         uses: ASzc/change-string-case-action@v6
@@ -128,7 +122,7 @@ jobs:
             versions = [
               schema["kotlinVersion"] for schema in schemas
               if schema["providerName"] == "${{ matrix.provider }}" 
-              and schema["kotlinVersion"].split(".")[0] == "${{ matrix.majorVersion }}" 
+              and schema["kotlinVersion"].split(".")[0] == "${{ matrix.major-version }}" 
             ]
             version = versions[0]
             is_release = not version.endswith("-SNAPSHOT")
@@ -144,7 +138,7 @@ jobs:
         id: publish-to-maven-central
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
-          ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.majorVersion }}PublicationToMavenCentralRepository \
+          ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.major-version }}PublicationToMavenCentralRepository \
             -Psigning.enabled=true \
             -Psigning.key="${{ secrets.GPG_KEY }}" \
             -Psigning.key.password="${{ secrets.GPG_KEY_PASSWORD }}" \
@@ -158,10 +152,10 @@ jobs:
       - name: Rename Dokka directory before upload
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
-          file_name=$(ls ./build/libs/pulumi-${{ matrix.provider }}-kotlin-${{ matrix.majorVersion }}*-javadoc.jar | xargs -n 1 basename)
+          file_name=$(ls ./build/libs/pulumi-${{ matrix.provider }}-kotlin-${{ matrix.major-version }}*-javadoc.jar | xargs -n 1 basename)
           version=$(echo $file_name | sed -e "s/^pulumi-${{ matrix.provider }}-kotlin-//" -e "s/-javadoc.jar$//")
           mkdir -p ./docs/${{ matrix.provider }}/$version
-          mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}${{ matrix.majorVersion }}Javadoc/* ./docs/${{ matrix.provider }}/$version
+          mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}${{ matrix.major-version }}Javadoc/* ./docs/${{ matrix.provider }}/$version
       - name: Install Rclone
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
