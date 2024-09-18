@@ -156,11 +156,15 @@ jobs:
           version=$(echo $file_name | sed -e "s/^pulumi-${{ matrix.provider }}-kotlin-//" -e "s/-javadoc.jar$//")
           mkdir -p ./docs/${{ matrix.provider }}/$version
           mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}${{ matrix.major-version }}Javadoc/* ./docs/${{ matrix.provider }}/$version
+      - name: Install GitHub CLI # this can be moved to runner configuration
+        if: ${{ steps.check-for-release.outputs.is_release == 'true' && !contains(matrix.runs-on, 'ubuntu-latest') }}
+        uses: dev-hanz-ops/install-gh-cli-action@v0.1.0
+      - name: Install missing tools # this can be moved to runner configuration
+        if: ${{ steps.check-for-release.outputs.is_release == 'true' && !contains(matrix.runs-on, 'ubuntu-latest') }}
+        run: yum -y install wget zip
       - name: Install Rclone
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
-        run: |
-          yum -y install unzip
-          curl https://rclone.org/install.sh | bash || true
+        uses: AnimMouse/setup-rclone@v1
       - name: Configure Rclone
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
