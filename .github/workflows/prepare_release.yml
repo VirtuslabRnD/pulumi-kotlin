@@ -138,12 +138,7 @@ jobs:
         id: publish-to-maven-central
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
-          ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.major-version }}PublicationToMavenCentralRepository \
-            -Psigning.enabled=true \
-            -Psigning.key="${{ secrets.GPG_KEY }}" \
-            -Psigning.key.password="${{ secrets.GPG_KEY_PASSWORD }}" \
-            -Psonatype.username="${{ secrets.SONATYPE_USERNAME }}" \
-            -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}" \
+          ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.major-version }}PublicationToMavenLocal \
             -Dorg.gradle.jvmargs=-Xmx50g \
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.daemon=false \
