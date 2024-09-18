@@ -156,10 +156,12 @@ jobs:
           version=$(echo $file_name | sed -e "s/^pulumi-${{ matrix.provider }}-kotlin-//" -e "s/-javadoc.jar$//")
           mkdir -p ./docs/${{ matrix.provider }}/$version
           mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}${{ matrix.major-version }}Javadoc/* ./docs/${{ matrix.provider }}/$version
+      - name: Install Zip
+        if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
+        uses: montudor/action-zip@v1      
       - name: Install Rclone
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
-          yum -y install unzip
           curl https://rclone.org/install.sh | bash || true
       - name: Configure Rclone
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
