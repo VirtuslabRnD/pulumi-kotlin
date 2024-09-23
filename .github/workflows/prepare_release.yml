@@ -151,7 +151,7 @@ jobs:
           version=$(echo $file_name | sed -e "s/^pulumi-${{ matrix.provider }}-kotlin-//" -e "s/-javadoc.jar$//")
           mkdir -p ./docs/${{ matrix.provider }}/$version
           mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}${{ matrix.major-version }}Javadoc/* ./docs/${{ matrix.provider }}/$version
-      - name: Setup Rclone
+      - name: Set up Rclone
         uses: AnimMouse/setup-rclone@v1
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
       - name: Configure Rclone
@@ -160,6 +160,7 @@ jobs:
           mkdir -p ~/.config/rclone
           cp .github/workflows/rclone.conf ~/.config/rclone/rclone.conf
           echo "$GCP_SERVICE_ACCOUNT_FILE" > ~/.config/gcp-key.json
+          ls -la ~/.config
         env:
           # pulumi-kotlin-docs service account key created manually through GCP UI and added manually to GitHub by @myhau (Michal Fudala)
           GCP_SERVICE_ACCOUNT_FILE: ${{ secrets.GCP_SERVICE_ACCOUNT_FILE }}
