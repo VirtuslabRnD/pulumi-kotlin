@@ -160,6 +160,7 @@ jobs:
           mkdir -p ~/.config/rclone
           cp .github/workflows/rclone.conf ~/.config/rclone/rclone.conf
           echo "$GCP_SERVICE_ACCOUNT_FILE" > ~/.config/gcp-key.json
+          whoami
           ls -la ~/.config
         env:
           # pulumi-kotlin-docs service account key created manually through GCP UI and added manually to GitHub by @myhau (Michal Fudala)
@@ -167,6 +168,8 @@ jobs:
       - name: Upload Dokka artifacts
         if: ${{ steps.check-for-release.outputs.is_release == 'true' }}
         run: |
+          whoami
+          ls -la ~/.config
           rclone copy --transfers=1024 ./docs/${{ matrix.provider }} rclone-jvm-lab:/pulumi-kotlin-docs/${{ matrix.provider }}
       - name: Upload buildSrc test report
         if: ${{ failure() && steps.publish-to-maven-central.outcome == 'failure' }}
