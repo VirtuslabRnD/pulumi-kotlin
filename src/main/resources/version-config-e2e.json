@@ -19,10 +19,10 @@
   },
   {
     "providerName": "azure-native",
-    "url": "https://gist.githubusercontent.com/jplewa/cea43edd61c3284b29c037cd094e0e77/raw/f32ad6c02c8b90efcea1ae10a84a2d92951bab17/schema-azure-native-v1.103.0-subset-for-build.json",
-    "kotlinVersion": "1.103.0.0-SNAPSHOT",
-    "javaVersion": "1.103.0",
-    "javaGitTag": "v1.103.0",
+    "url": "https://gist.githubusercontent.com/jplewa/9f1b6473760f8788968411a181711a8d/raw/c6ea26c662a75d7a9e4b2551fffb449c9eca3bc3/schema-azure-native-v2.60.1-subset-for-build.json",
+    "kotlinVersion": "2.60.1.0-SNAPSHOT",
+    "javaVersion": "2.60.1",
+    "javaGitTag": "v2.60.1",
     "customDependencies": [
     ]
   },

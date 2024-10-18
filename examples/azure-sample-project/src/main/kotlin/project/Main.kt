@@ -16,6 +16,7 @@ fun main() {
                 skipProviderRegistration(true)
             }
         }
+
         val resourceGroup = resourceGroup("azure-sample-project") {
             opts {
                 provider(provider)
