@@ -1,28 +1,28 @@
 [
   {
     "providerName": "random",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.13.2/provider/cmd/pulumi-resource-random/schema.json",
-    "kotlinVersion": "4.13.2.0-SNAPSHOT",
-    "javaVersion": "4.13.2",
-    "javaGitTag": "v4.13.2",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.16.4/provider/cmd/pulumi-resource-random/schema.json",
+    "kotlinVersion": "4.16.4.0-SNAPSHOT",
+    "javaVersion": "4.16.4",
+    "javaGitTag": "v4.16.4",
     "customDependencies": [
     ]
   },
   {
     "providerName": "azure",
-    "url": "https://gist.githubusercontent.com/jplewa/0897e9ca654d1f029f37162ce8ccba7f/raw/cf5f0801f2c03765316978cf4055be34340346bb/schema-azure-v5.44.1-subset-for-build.json",
-    "kotlinVersion": "5.44.1.0-SNAPSHOT",
-    "javaVersion": "5.44.1",
-    "javaGitTag": "v5.44.1",
+    "url": "https://gist.githubusercontent.com/jplewa/3a13cf2ed18aa39de8cb9189dd487356/raw/6aa6c7929106aad8661478080eafb45e5cf03e8f/schema-azure-v5.87.0-subset-for-build.json",
+    "kotlinVersion": "5.87.0.0-SNAPSHOT",
+    "javaVersion": "5.87.0",
+    "javaGitTag": "v5.87.0",
     "customDependencies": [
     ]
   },
   {
     "providerName": "azure-native",
-    "url": "https://gist.githubusercontent.com/jplewa/cea43edd61c3284b29c037cd094e0e77/raw/f32ad6c02c8b90efcea1ae10a84a2d92951bab17/schema-azure-native-v1.103.0-subset-for-build.json",
-    "kotlinVersion": "1.103.0.0-SNAPSHOT",
-    "javaVersion": "1.103.0",
-    "javaGitTag": "v1.103.0",
+    "url": "https://gist.githubusercontent.com/jplewa/9f1b6473760f8788968411a181711a8d/raw/c6ea26c662a75d7a9e4b2551fffb449c9eca3bc3/schema-azure-native-v2.60.1-subset-for-build.json",
+    "kotlinVersion": "2.60.1.0-SNAPSHOT",
+    "javaVersion": "2.60.1",
+    "javaGitTag": "v2.60.1",
     "customDependencies": [
     ]
   },

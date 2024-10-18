@@ -40,14 +40,14 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.11.0")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.6.0")
     testImplementation(kotlin("test", "1.9.22"))
-    testImplementation("com.google.cloud:google-cloud-compute:1.54.0")
-    testImplementation("com.azure:azure-identity:1.12.1")
-    testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.39.0")
-    testImplementation("io.kubernetes:client-java:20.0.1")
-    testImplementation("io.github.cdklabs:projen:0.81.16")
+    testImplementation("com.google.cloud:google-cloud-compute:1.62.0")
+    testImplementation("com.azure:azure-identity:1.14.0")
+    testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.43.0")
+    testImplementation("io.kubernetes:client-java:21.0.2")
+    testImplementation("io.github.cdklabs:projen:0.88.5")
 }
 
 tasks.test {

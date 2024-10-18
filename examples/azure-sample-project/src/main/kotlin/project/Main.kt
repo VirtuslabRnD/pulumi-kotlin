@@ -2,6 +2,7 @@ package project
 
 import com.pulumi.azure.compute.kotlin.virtualMachine
 import com.pulumi.azure.core.kotlin.resourceGroup
+import com.pulumi.azure.kotlin.azureProvider
 import com.pulumi.azure.network.kotlin.networkInterface
 import com.pulumi.azure.network.kotlin.subnet
 import com.pulumi.azure.network.kotlin.virtualNetwork
@@ -10,7 +11,20 @@ import com.pulumi.random.kotlin.randomPassword
 
 fun main() {
     Pulumi.run { ctx ->
-        val resourceGroup = resourceGroup("azure-sample-project")
+        val provider = azureProvider("azure-provider") {
+            args {
+                skipProviderRegistration(true)
+            }
+        }
+
+        val resourceGroup = resourceGroup("azure-sample-project") {
+            args {
+                location(ctx.config("azure").get("location").orElse(null))
+            }
+            opts {
+                provider(provider)
+            }
+        }
 
         val mainVirtualNetwork = virtualNetwork("virtual-network") {
             args {
