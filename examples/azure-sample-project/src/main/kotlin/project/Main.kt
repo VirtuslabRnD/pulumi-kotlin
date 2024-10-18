@@ -2,6 +2,7 @@ package project
 
 import com.pulumi.azure.compute.kotlin.virtualMachine
 import com.pulumi.azure.core.kotlin.resourceGroup
+import com.pulumi.azure.kotlin.azureProvider
 import com.pulumi.azure.network.kotlin.networkInterface
 import com.pulumi.azure.network.kotlin.subnet
 import com.pulumi.azure.network.kotlin.virtualNetwork
@@ -10,12 +11,24 @@ import com.pulumi.random.kotlin.randomPassword
 
 fun main() {
     Pulumi.run { ctx ->
-        val resourceGroup = resourceGroup("azure-sample-project")
+        val provider = azureProvider("azure-provider") {
+            args {
+                skipProviderRegistration(true)
+            }
+        }
+        val resourceGroup = resourceGroup("azure-sample-project") {
+            opts {
+                provider(provider)
+            }
+        }
 
         val mainVirtualNetwork = virtualNetwork("virtual-network") {
             args {
                 resourceGroupName(resourceGroup.name)
                 addressSpaces("10.0.0.0/16")
+            }
+            opts {
+                provider(provider)
             }
         }
 
@@ -24,6 +37,9 @@ fun main() {
                 resourceGroupName(resourceGroup.name)
                 virtualNetworkName(mainVirtualNetwork.name)
                 addressPrefixes("10.0.2.0/24")
+            }
+            opts {
+                provider(provider)
             }
         }
 
@@ -36,12 +52,18 @@ fun main() {
                     privateIpAddressAllocation("Dynamic")
                 }
             }
+            opts {
+                provider(provider)
+            }
         }
 
         val randomAdminPassword = randomPassword("random-admin-password") {
             args {
                 length(20)
                 special(true)
+            }
+            opts {
+                provider(provider)
             }
         }
 
@@ -72,6 +94,9 @@ fun main() {
                 }
                 tags("foo" to "bar")
                 deleteOsDiskOnTermination(true)
+            }
+            opts {
+                provider(provider)
             }
         }
         ctx.export("virtualMachineId", virtualMachine.id)
