@@ -62,9 +62,6 @@ fun main() {
                 length(20)
                 special(true)
             }
-            opts {
-                provider(provider)
-            }
         }
 
         val virtualMachine = virtualMachine("virtual-machine") {
