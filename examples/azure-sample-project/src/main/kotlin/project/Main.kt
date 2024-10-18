@@ -18,6 +18,9 @@ fun main() {
         }
 
         val resourceGroup = resourceGroup("azure-sample-project") {
+            args {
+                location(ctx.config("azure").get("location").orElse(null))
+            }
             opts {
                 provider(provider)
             }
@@ -28,9 +31,6 @@ fun main() {
                 resourceGroupName(resourceGroup.name)
                 addressSpaces("10.0.0.0/16")
             }
-            opts {
-                provider(provider)
-            }
         }
 
         val internalSubnet = subnet("internal-subnet") {
@@ -38,9 +38,6 @@ fun main() {
                 resourceGroupName(resourceGroup.name)
                 virtualNetworkName(mainVirtualNetwork.name)
                 addressPrefixes("10.0.2.0/24")
-            }
-            opts {
-                provider(provider)
             }
         }
 
@@ -52,9 +49,6 @@ fun main() {
                     subnetId(internalSubnet.id)
                     privateIpAddressAllocation("Dynamic")
                 }
-            }
-            opts {
-                provider(provider)
             }
         }
 
@@ -92,9 +86,6 @@ fun main() {
                 }
                 tags("foo" to "bar")
                 deleteOsDiskOnTermination(true)
-            }
-            opts {
-                provider(provider)
             }
         }
         ctx.export("virtualMachineId", virtualMachine.id)
