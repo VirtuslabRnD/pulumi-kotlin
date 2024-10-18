@@ -51,7 +51,7 @@ jobs:
             major-version: 4
             runs-on: [ ubuntu-latest ]
           - provider: gcp
-            major-version: 7
+            major-version: 8
             runs-on: [ self-hosted, active ]
           - provider: google-native
             major-version: 0
@@ -63,7 +63,7 @@ jobs:
             major-version: 0
             runs-on: [ self-hosted, active ]
           - provider: azure
-            major-version: 5
+            major-version: 6
             runs-on: [ self-hosted, active ]
           - provider: azure-native
             major-version: 2
