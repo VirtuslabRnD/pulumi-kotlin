@@ -46,10 +46,10 @@
   },
   {
     "providerName": "kubernetes",
-    "url": "https://gist.githubusercontent.com/jplewa/1d396426206698b29a884b5d85391ee3/raw/cfc2220d07524c9f99e5be14928f91819323ea80/schema-kubernetes-v3.30.1-subset-for-build.json",
-    "kotlinVersion": "3.30.1.0-SNAPSHOT",
-    "javaVersion": "3.30.1",
-    "javaGitTag": "v3.30.1",
+    "url": "https://gist.githubusercontent.com/jplewa/d9cee70403601260496c7b73778ba917/raw/c3972268eef48b32b104c9a79e4225c4daf781b4/schema-kubernetes-v4.18.2-subset-for-build.json",
+    "kotlinVersion": "4.18.2.0-SNAPSHOT",
+    "javaVersion": "4.18.2",
+    "javaGitTag": "v4.18.2",
     "customDependencies": [
     ]
   }
