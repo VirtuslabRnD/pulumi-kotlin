@@ -158,7 +158,7 @@ jobs:
           mv ./build/dokka/pulumi${{ steps.provider.outputs.capitalized }}${{ matrix.major-version }}Javadoc/* ./docs/${{ matrix.provider }}/$version
       - name: Install GitHub CLI # TODO: move this step to runner VM setup
         if: ${{ steps.check-for-release.outputs.is_release == 'true' && !contains(matrix.runs-on, 'ubuntu-latest') }}
-        uses: dev-hanz-ops/install-gh-cli-action@v0.1.0
+        uses: dev-hanz-ops/install-gh-cli-action@v0.2.0
       - name: Install missing tools # TODO: move this step to runner VM setup
         if: ${{ steps.check-for-release.outputs.is_release == 'true' && !contains(matrix.runs-on, 'ubuntu-latest') }}
         run: yum -y install wget zip
