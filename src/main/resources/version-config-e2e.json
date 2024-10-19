@@ -28,10 +28,10 @@
   },
   {
     "providerName": "gcp",
-    "url": "https://gist.githubusercontent.com/jplewa/0988583befa715aedcde660feae81002/raw/4cc4ace69b244a3c552071f90e7662e5abb7e91e/schema-gcp-v6.59.0-subset-for-build.json",
-    "kotlinVersion": "6.59.0.0-SNAPSHOT",
-    "javaVersion": "6.59.0",
-    "javaGitTag": "v6.59.0",
+    "url": "https://gist.githubusercontent.com/jplewa/5bbaa7f9e3ff6f01acf57f14304801b7/raw/c28debe8331c490efa78b2bcde0af49ad3495c25/schema-gcp-v8.0.0-subset-for-build.json",
+    "kotlinVersion": "8.0.0.0-SNAPSHOT",
+    "javaVersion": "8.0.0",
+    "javaGitTag": "v8.0.0",
     "customDependencies": [
     ]
   },
