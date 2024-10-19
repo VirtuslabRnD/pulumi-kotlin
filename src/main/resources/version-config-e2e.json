@@ -28,10 +28,10 @@
   },
   {
     "providerName": "gcp",
-    "url": "https://gist.githubusercontent.com/jplewa/0988583befa715aedcde660feae81002/raw/4cc4ace69b244a3c552071f90e7662e5abb7e91e/schema-gcp-v6.59.0-subset-for-build.json",
-    "kotlinVersion": "6.59.0.0-SNAPSHOT",
-    "javaVersion": "6.59.0",
-    "javaGitTag": "v6.59.0",
+    "url": "https://gist.githubusercontent.com/jplewa/5bbaa7f9e3ff6f01acf57f14304801b7/raw/c28debe8331c490efa78b2bcde0af49ad3495c25/schema-gcp-v8.0.0-subset-for-build.json",
+    "kotlinVersion": "8.0.0.0-SNAPSHOT",
+    "javaVersion": "8.0.0",
+    "javaGitTag": "v8.0.0",
     "customDependencies": [
     ]
   },
@@ -46,10 +46,10 @@
   },
   {
     "providerName": "kubernetes",
-    "url": "https://gist.githubusercontent.com/jplewa/1d396426206698b29a884b5d85391ee3/raw/cfc2220d07524c9f99e5be14928f91819323ea80/schema-kubernetes-v3.30.1-subset-for-build.json",
-    "kotlinVersion": "3.30.1.0-SNAPSHOT",
-    "javaVersion": "3.30.1",
-    "javaGitTag": "v3.30.1",
+    "url": "https://gist.githubusercontent.com/jplewa/d9cee70403601260496c7b73778ba917/raw/c3972268eef48b32b104c9a79e4225c4daf781b4/schema-kubernetes-v4.18.2-subset-for-build.json",
+    "kotlinVersion": "4.18.2.0-SNAPSHOT",
+    "javaVersion": "4.18.2",
+    "javaGitTag": "v4.18.2",
     "customDependencies": [
     ]
   }
