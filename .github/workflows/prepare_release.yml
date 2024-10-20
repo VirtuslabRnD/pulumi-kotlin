@@ -86,7 +86,7 @@ jobs:
             runs-on: [ ubuntu-latest ]
           - provider: gitlab
             major-version: 8
-            runs-on: [ self-hosted, active ]
+            runs-on: [ ubuntu-latest ]
           - provider: digitalocean
             major-version: 4
             runs-on: [ ubuntu-latest ]
