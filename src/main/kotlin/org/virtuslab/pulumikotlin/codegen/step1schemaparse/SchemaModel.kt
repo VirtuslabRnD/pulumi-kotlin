@@ -306,7 +306,8 @@ object SchemaModel {
         override val const: JsonElement? = null,
         override val isOverlay: Boolean = false,
         override val plain: Boolean = false,
-    ) : RootTypeProperty, ReferencingOtherTypesProperty
+    ) : RootTypeProperty,
+        ReferencingOtherTypesProperty
 
     @Serializable
     data class MapProperty(

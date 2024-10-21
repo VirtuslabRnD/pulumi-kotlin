@@ -14,8 +14,9 @@ import com.pulumi.resources.CustomTimeouts as JavaCustomTimeouts
  * @see [CustomResourceOptions.customTimeouts]
  * @see [JavaCustomTimeouts]
  */
-class CustomTimeouts internal constructor(private val javaBackingObject: JavaCustomTimeouts) :
-    ConvertibleToJava<JavaCustomTimeouts> {
+class CustomTimeouts internal constructor(
+    private val javaBackingObject: JavaCustomTimeouts,
+) : ConvertibleToJava<JavaCustomTimeouts> {
     val create: Duration?
         get() = javaBackingObject.create.orElse(null)?.toKotlinDuration()
     val update: Duration?

@@ -1,5 +1,6 @@
 package org.virtuslab.pulumikotlin.scripts
 
+import com.github.ajalt.clikt.core.main
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement

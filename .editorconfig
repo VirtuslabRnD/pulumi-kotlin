@@ -2,6 +2,7 @@
 ktlint_code_style = intellij_idea
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_allow_trailing_comma_on_call_site = true
+ktlint_standard_function-expression-body = disabled
 
 [build/generated-src/**/*.kt]
 ktlint_standard_enum-entry-name-case = disabled

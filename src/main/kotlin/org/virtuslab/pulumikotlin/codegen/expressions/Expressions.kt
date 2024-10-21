@@ -131,12 +131,13 @@ data class CustomCodeBlock(val text: String, val args: List<Any>) {
     }
 }
 
-class CodeBlockCreationException(text: String, args: List<Any>, cause: java.lang.Exception) : RuntimeException(
-    "Failed to create Kotlin Poet code block.\n" +
-        "Text: $text\n" +
-        "Args: $args",
-    cause,
-)
+class CodeBlockCreationException(text: String, args: List<Any>, cause: java.lang.Exception) :
+    RuntimeException(
+        "Failed to create Kotlin Poet code block.\n" +
+            "Text: $text\n" +
+            "Args: $args",
+        cause,
+    )
 
 data class CustomExpressionBuilder(val text: String, val args: List<Any>) {
 
