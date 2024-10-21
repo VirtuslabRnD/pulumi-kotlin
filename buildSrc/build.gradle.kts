@@ -1,6 +1,6 @@
 plugins {
     `kotlin-dsl`
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("plugin.serialization") version "2.0.21"
 }
 
 repositories {
@@ -8,17 +8,17 @@ repositories {
     gradlePluginPortal()
 }
 
-val ktorVersion by extra { "2.3.11" }
+val ktorVersion by extra { "3.0.0" }
 
 dependencies {
-    implementation(kotlin("gradle-plugin", version = "1.9.22"))
+    implementation(kotlin("gradle-plugin", version = "2.0.21"))
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.9.20")
     implementation("de.undercouch.download:de.undercouch.download.gradle.plugin:5.6.0")
-    implementation("org.jmailen.gradle:kotlinter-gradle:4.3.0")
+    implementation("org.jmailen.gradle:kotlinter-gradle:4.4.1")
 
-    implementation(kotlin("stdlib", "1.9.22"))
-    implementation(kotlin("maven-serialization", "1.9.22"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation(kotlin("stdlib", "2.0.21"))
+    implementation(kotlin("maven-serialization", "2.0.21"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-html:0.11.0")
     
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -27,12 +27,12 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     
-    implementation("org.apache.maven:maven-artifact:3.9.7")
-    implementation("org.eclipse.jgit:org.eclipse.jgit:6.9.0.202403050737-r")
-    implementation("org.semver4j:semver4j:5.3.0")
+    implementation("org.apache.maven:maven-artifact:3.9.9")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r")
+    implementation("org.semver4j:semver4j:5.4.1")
 
-    testImplementation(kotlin("test", "1.9.22"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation(kotlin("test", "2.0.21"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
 }
 
 tasks.test {
