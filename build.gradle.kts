@@ -35,7 +35,7 @@ dependencies {
         exclude("com.squareup.okhttp3", "okhttp")
     }
 
-    runtimeOnly("io.github.oshai:kotlin-logging-jvm:7.0.0")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     implementation("ch.qos.logback:logback-classic:1.5.11")
 
     implementation("com.google.code.gson:gson:2.11.0")
