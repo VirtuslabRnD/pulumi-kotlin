@@ -91,8 +91,9 @@ object EnumTypeGenerator {
         )
     }
 
-    class InvalidEnumName(className: ClassName, cause: Throwable) : IllegalArgumentException(
-        "Failed to generate enum name for Java class $className",
-        cause,
-    )
+    class InvalidEnumName(className: ClassName, cause: Throwable) :
+        IllegalArgumentException(
+            "Failed to generate enum name for Java class $className",
+            cause,
+        )
 }

@@ -1,6 +1,7 @@
 package org.virtuslab.pulumikotlin.scripts
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.parameters.options.RawOption
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
@@ -73,7 +74,7 @@ private const val HELP =
         ```
     """
 
-class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : CliktCommand(help = HELP) {
+class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : CliktCommand() {
 
     private val json = Json {
         prettyPrint = true
@@ -241,6 +242,10 @@ class ComputeSchemaSubsetScript(outputStream: OutputStream = System.out) : Clikt
         val encodedNewSchema = json.encodeToJsonElement(removeDescriptionFieldIfNeeded(newSchema))
 
         outputPath?.let { File(it).writeText(encodedNewSchema.toString()) } ?: printStream.println(encodedNewSchema)
+    }
+
+    override fun help(context: com.github.ajalt.clikt.core.Context): String {
+        return HELP
     }
 
     @Suppress("HttpUrlsUsage")
