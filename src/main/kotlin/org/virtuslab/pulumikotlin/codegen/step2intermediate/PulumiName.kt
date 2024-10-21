@@ -337,9 +337,10 @@ data class PulumiName(
     }
 }
 
-class InvalidPulumiName(name: String, namespace: List<String>) : RuntimeException(
-    "Skipping generation of $name from namespace $namespace",
-)
+class InvalidPulumiName(name: String, namespace: List<String>) :
+    RuntimeException(
+        "Skipping generation of $name from namespace $namespace",
+    )
 
 data class NameGeneration(private val pulumiName: PulumiName, private val namingFlags: NamingFlags) {
 
