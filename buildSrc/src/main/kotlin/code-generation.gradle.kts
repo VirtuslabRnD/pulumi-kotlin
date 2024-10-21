@@ -16,7 +16,7 @@ val tasksToDisable: List<(String) -> String> = listOf { sourceSetName: String ->
 }
 
 val commonDependencies = listOf(
-    "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3",
+    "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.3",
     "org.virtuslab:pulumi-kotlin:0.11.0.0",
 )
 
