@@ -3,9 +3,9 @@ import org.gradle.configurationcache.extensions.capitalized
 plugins {
     application
     kotlin("jvm")
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("plugin.serialization") version "2.0.21"
     id("org.jmailen.kotlinter")
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("io.gitlab.arturbosch.detekt") version "1.23.7"
     id("code-generation")
 }
 
@@ -19,35 +19,35 @@ repositories {
 dependencies {
     implementation("org.virtuslab:pulumi-kotlin:0.11.0.0")
 
-    implementation("com.squareup:kotlinpoet:1.17.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1")
+    implementation("com.squareup:kotlinpoet:1.18.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.9.0")
 
-    implementation("com.github.ajalt.clikt:clikt:4.4.0")
+    implementation("com.github.ajalt.clikt:clikt:5.0.1")
 
     // Maven Archeologist has two dependencies with vulnerabilities (com.squareup.okio:okio:2.6.0 and 
     // com.squareup.okhttp3:okhttp:4.7.2), which we chose to replace with newer versions.
     // See: https://nvd.nist.gov/vuln/detail/CVE-2023-3635
-    implementation("com.squareup.okio:okio:3.9.0")
+    implementation("com.squareup.okio:okio:3.9.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.tools.build:maven-archeologist:0.0.10") {
         exclude("com.squareup.okio", "okio")
         exclude("com.squareup.okhttp3", "okhttp")
     }
 
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    implementation("ch.qos.logback:logback-classic:1.5.6")
+    runtimeOnly("io.github.oshai:kotlin-logging-jvm:7.0.0")
+    implementation("ch.qos.logback:logback-classic:1.5.11")
 
     implementation("com.google.code.gson:gson:2.11.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.6.0")
-    testImplementation(kotlin("test", "1.9.22"))
+    testImplementation(kotlin("test", "2.0.21"))
     testImplementation("com.google.cloud:google-cloud-compute:1.62.0")
     testImplementation("com.azure:azure-identity:1.14.0")
     testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.43.0")
     testImplementation("io.kubernetes:client-java:21.0.2")
-    testImplementation("io.github.cdklabs:projen:0.88.5")
+    testImplementation("io.github.cdklabs:projen:0.88.6")
 }
 
 tasks.test {
