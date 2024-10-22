@@ -3,7 +3,7 @@ import org.gradle.configurationcache.extensions.capitalized
 plugins {
     application
     kotlin("jvm")
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("plugin.serialization") version "1.9.25"
     id("org.jmailen.kotlinter")
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
     id("code-generation")
@@ -42,7 +42,7 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.6.0")
-    testImplementation(kotlin("test", "1.9.22"))
+    testImplementation(kotlin("test", "1.9.25"))
     testImplementation("com.google.cloud:google-cloud-compute:1.62.0")
     testImplementation("com.azure:azure-identity:1.14.0")
     testImplementation("com.azure.resourcemanager:azure-resourcemanager-compute:2.43.0")

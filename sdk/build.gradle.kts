@@ -23,7 +23,7 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testImplementation("io.mockk:mockk:1.13.11")
-    testImplementation(kotlin("test", "1.9.22"))
+    testImplementation(kotlin("test", "1.9.25"))
 }
 
 tasks.test {

@@ -1,5 +1,6 @@
 package project
 
+import com.pulumi.googlenative.compute.v1.kotlin.inputs.MetadataItemsItemArgsBuilder
 import com.pulumi.googlenative.compute.v1.kotlin.instance
 import com.pulumi.kotlin.Pulumi
 
@@ -23,6 +24,14 @@ fun main() {
                     network("global/networks/default")
                 }
                 metadata {
+//                    val argument: suspend (MetadataItemsItemArgsBuilder) -> Unit = {
+//                        it.key("foo")
+//                        it.value("bar")
+//                    }
+//                    val argument: suspend MetadataItemsItemArgsBuilder.() -> Unit = {
+//                        this.key("startup-script")
+//                        this.value("echo hi > /test.txt")
+//                    }
                     items(
                         {
                             key("foo")
