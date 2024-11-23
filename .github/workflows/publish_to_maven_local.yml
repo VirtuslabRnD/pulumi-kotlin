@@ -121,7 +121,7 @@ jobs:
         id: publish-to-maven-local
         run: |
           ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.major-version }}PublicationToMavenLocal \
-            -Dorg.gradle.jvmargs=-Xmx50g \
+            -Dorg.gradle.jvmargs="-Xmx50g -Xss2048k" \
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.daemon=false \
             -Pkotlin.compiler.execution.strategy=in-process \
