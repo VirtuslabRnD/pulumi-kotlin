@@ -38,60 +38,60 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - provider: cloudflare
-            major-version: 5
-            runs-on: [ ubuntu-latest ]
-          - provider: slack
-            major-version: 0
-            runs-on: [ ubuntu-latest ]
-          - provider: github
-            major-version: 6
-            runs-on: [ ubuntu-latest ]
-          - provider: random
-            major-version: 4
-            runs-on: [ ubuntu-latest ]
-          - provider: gcp
-            major-version: 8
-            runs-on: [ self-hosted, active ]
-          - provider: google-native
-            major-version: 0
-            runs-on: [ self-hosted, active ]
-          - provider: aws
-            major-version: 6
-            runs-on: [ self-hosted, active ]
-          - provider: aws-native
-            major-version: 0
-            runs-on: [ self-hosted, active ]
-          - provider: azure
-            major-version: 6
-            runs-on: [ self-hosted, active ]
-          - provider: azure-native
-            major-version: 2
-            runs-on: [ self-hosted, active ]
-          - provider: kubernetes
-            major-version: 4
-            runs-on: [ self-hosted, active ]
-          - provider: nomad
-            major-version: 2
-            runs-on: [ ubuntu-latest ]
-          - provider: docker
-            major-version: 4
-            runs-on: [ ubuntu-latest ]
+#          - provider: cloudflare
+#            major-version: 5
+#            runs-on: [ ubuntu-latest ]
+#          - provider: slack
+#            major-version: 0
+#            runs-on: [ ubuntu-latest ]
+#          - provider: github
+#            major-version: 6
+#            runs-on: [ ubuntu-latest ]
+#          - provider: random
+#            major-version: 4
+#            runs-on: [ ubuntu-latest ]
+#          - provider: gcp
+#            major-version: 8
+#            runs-on: [ self-hosted, active ]
+#          - provider: google-native
+#            major-version: 0
+#            runs-on: [ self-hosted, active ]
+#          - provider: aws
+#            major-version: 6
+#            runs-on: [ self-hosted, active ]
+#          - provider: aws-native
+#            major-version: 0
+#            runs-on: [ self-hosted, active ]
+#          - provider: azure
+#            major-version: 6
+#            runs-on: [ self-hosted, active ]
+#          - provider: azure-native
+#            major-version: 2
+#            runs-on: [ self-hosted, active ]
+#          - provider: kubernetes
+#            major-version: 4
+#            runs-on: [ self-hosted, active ]
+#          - provider: nomad
+#            major-version: 2
+#            runs-on: [ ubuntu-latest ]
+#          - provider: docker
+#            major-version: 4
+#            runs-on: [ ubuntu-latest ]
           - provider: gitlab
             major-version: 8
-            runs-on: [ self-hosted, active ]
-          - provider: digitalocean
-            major-version: 4
             runs-on: [ ubuntu-latest ]
-          - provider: alicloud
-            major-version: 3
-            runs-on: [ self-hosted, active ]
-          - provider: keycloak
-            major-version: 5
-            runs-on: [ ubuntu-latest ]
-          - provider: vault
-            major-version: 6
-            runs-on: [ ubuntu-latest ]
+#          - provider: digitalocean
+#            major-version: 4
+#            runs-on: [ ubuntu-latest ]
+#          - provider: alicloud
+#            major-version: 3
+#            runs-on: [ self-hosted, active ]
+#          - provider: keycloak
+#            major-version: 5
+#            runs-on: [ ubuntu-latest ]
+#          - provider: vault
+#            major-version: 6
+#            runs-on: [ ubuntu-latest ]
     steps:
       - name: Check out project sources
         uses: actions/checkout@v4
@@ -121,7 +121,7 @@ jobs:
         id: publish-to-maven-local
         run: |
           ./gradlew publishPulumi${{ matrix.provider }}${{ matrix.major-version }}PublicationToMavenLocal \
-            -Dorg.gradle.jvmargs=-Xmx50g \
+            -Dorg.gradle.jvmargs="-Xmx50g -Xss2048k" \
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.daemon=false \
             -Pkotlin.compiler.execution.strategy=in-process \
