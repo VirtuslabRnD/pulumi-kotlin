@@ -104,6 +104,14 @@
     "customDependencies": []
   },
   {
+    "providerName": "aws-native",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v1.0.0/provider/cmd/pulumi-resource-aws-native/schema.json",
+    "kotlinVersion": "1.0.0.0-SNAPSHOT",
+    "javaVersion": "1.0.0",
+    "javaGitTag": "v1.0.0",
+    "customDependencies": []
+  },
+  {
     "providerName": "azure",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v5.87.0/provider/cmd/pulumi-resource-azure/schema.json",
     "kotlinVersion": "5.87.0.1-SNAPSHOT",

@@ -67,7 +67,7 @@ jobs:
             major-version: 6
             runs-on: [ self-hosted, active ]
           - provider: aws-native
-            major-version: 0
+            major-version: 1
             runs-on: [ self-hosted, active ]
           - provider: azure
             major-version: 6
