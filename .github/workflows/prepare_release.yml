@@ -86,7 +86,7 @@ jobs:
             runs-on: [ ubuntu-latest ]
           - provider: gitlab
             major-version: 8
-            runs-on: [ self-hosted, active ]
+            runs-on: [ ubuntu-latest ]
           - provider: digitalocean
             major-version: 4
             runs-on: [ ubuntu-latest ]
@@ -144,7 +144,7 @@ jobs:
             -Psigning.key.password="${{ secrets.GPG_KEY_PASSWORD }}" \
             -Psonatype.username="${{ secrets.SONATYPE_USERNAME }}" \
             -Psonatype.password="${{ secrets.SONATYPE_PASSWORD }}" \
-            -Dorg.gradle.jvmargs=-Xmx50g \
+            -Dorg.gradle.jvmargs="-Xmx50g -Xss2048k" \
             -Dorg.gradle.workers.max=1 \
             -Dorg.gradle.daemon=false \
             -Pkotlin.compiler.execution.strategy=in-process \
