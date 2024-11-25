@@ -10,7 +10,7 @@
   {
     "providerName": "cloudflare",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.43.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
-    "kotlinVersion": "5.43.0.0",
+    "kotlinVersion": "5.43.0.1-SNAPSHOT",
     "javaVersion": "5.43.0",
     "javaGitTag": "v5.43.0",
     "customDependencies": []
@@ -66,7 +66,7 @@
   {
     "providerName": "gcp",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v8.5.0/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "8.5.0.0",
+    "kotlinVersion": "8.5.0.1-SNAPSHOT",
     "javaVersion": "8.5.0",
     "javaGitTag": "v8.5.0",
     "customDependencies": []
@@ -90,7 +90,7 @@
   {
     "providerName": "aws",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.57.0/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.57.0.0",
+    "kotlinVersion": "6.57.0.1-SNAPSHOT",
     "javaVersion": "6.57.0",
     "javaGitTag": "v6.57.0",
     "customDependencies": []
@@ -106,7 +106,7 @@
   {
     "providerName": "aws-native",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v1.2.0/provider/cmd/pulumi-resource-aws-native/schema.json",
-    "kotlinVersion": "1.2.0.0",
+    "kotlinVersion": "1.2.0.1-SNAPSHOT",
     "javaVersion": "1.2.0",
     "javaGitTag": "v1.2.0",
     "customDependencies": []
@@ -122,7 +122,7 @@
   {
     "providerName": "azure",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v6.7.0/provider/cmd/pulumi-resource-azure/schema.json",
-    "kotlinVersion": "6.7.0.0",
+    "kotlinVersion": "6.7.0.1-SNAPSHOT",
     "javaVersion": "6.7.0",
     "javaGitTag": "v6.7.0",
     "customDependencies": []
@@ -138,7 +138,7 @@
   {
     "providerName": "azure-native",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.65.1/provider/cmd/pulumi-resource-azure-native/schema.json",
-    "kotlinVersion": "2.65.1.0",
+    "kotlinVersion": "2.65.1.1-SNAPSHOT",
     "javaVersion": "2.65.1",
     "javaGitTag": "v2.65.1",
     "customDependencies": []
