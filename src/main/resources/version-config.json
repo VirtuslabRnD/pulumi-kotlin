@@ -105,10 +105,10 @@
   },
   {
     "providerName": "aws-native",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v1.13.0/provider/cmd/pulumi-resource-aws-native/schema.json",
-    "kotlinVersion": "1.13.0.1-SNAPSHOT",
-    "javaVersion": "1.13.0",
-    "javaGitTag": "v1.13.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v1.14.0/provider/cmd/pulumi-resource-aws-native/schema.json",
+    "kotlinVersion": "1.14.0.0",
+    "javaVersion": "1.14.0",
+    "javaGitTag": "v1.14.0",
     "customDependencies": []
   },
   {
@@ -121,10 +121,10 @@
   },
   {
     "providerName": "azure",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v6.12.0/provider/cmd/pulumi-resource-azure/schema.json",
-    "kotlinVersion": "6.12.0.1-SNAPSHOT",
-    "javaVersion": "6.12.0",
-    "javaGitTag": "v6.12.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure/v6.13.0/provider/cmd/pulumi-resource-azure/schema.json",
+    "kotlinVersion": "6.13.0.0",
+    "javaVersion": "6.13.0",
+    "javaGitTag": "v6.13.0",
     "customDependencies": []
   },
   {
@@ -241,18 +241,18 @@
   },
   {
     "providerName": "alicloud",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-alicloud/v3.68.0/provider/cmd/pulumi-resource-alicloud/schema.json",
-    "kotlinVersion": "3.68.0.1-SNAPSHOT",
-    "javaVersion": "3.68.0",
-    "javaGitTag": "v3.68.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-alicloud/v3.69.0/provider/cmd/pulumi-resource-alicloud/schema.json",
+    "kotlinVersion": "3.69.0.0",
+    "javaVersion": "3.69.0",
+    "javaGitTag": "v3.69.0",
     "customDependencies": []
   },
   {
     "providerName": "keycloak",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-keycloak/v5.3.4/provider/cmd/pulumi-resource-keycloak/schema.json",
-    "kotlinVersion": "5.3.4.1-SNAPSHOT",
-    "javaVersion": "5.3.4",
-    "javaGitTag": "v5.3.4",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-keycloak/v5.4.0/provider/cmd/pulumi-resource-keycloak/schema.json",
+    "kotlinVersion": "5.4.0.0",
+    "javaVersion": "5.4.0",
+    "javaGitTag": "v5.4.0",
     "customDependencies": []
   },
   {
