@@ -65,10 +65,10 @@
   },
   {
     "providerName": "gcp",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v8.10.0/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "8.10.0.1-SNAPSHOT",
-    "javaVersion": "8.10.0",
-    "javaGitTag": "v8.10.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v8.10.1/provider/cmd/pulumi-resource-gcp/schema.json",
+    "kotlinVersion": "8.10.1.0",
+    "javaVersion": "8.10.1",
+    "javaGitTag": "v8.10.1",
     "customDependencies": []
   },
   {
