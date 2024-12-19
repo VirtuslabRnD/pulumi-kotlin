@@ -65,10 +65,10 @@
   },
   {
     "providerName": "gcp",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v8.11.0/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "8.11.0.1-SNAPSHOT",
-    "javaVersion": "8.11.0",
-    "javaGitTag": "v8.11.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v8.12.0/provider/cmd/pulumi-resource-gcp/schema.json",
+    "kotlinVersion": "8.12.0.0",
+    "javaVersion": "8.12.0",
+    "javaGitTag": "v8.12.0",
     "customDependencies": []
   },
   {
@@ -105,10 +105,10 @@
   },
   {
     "providerName": "aws-native",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v1.16.0/provider/cmd/pulumi-resource-aws-native/schema.json",
-    "kotlinVersion": "1.16.0.1-SNAPSHOT",
-    "javaVersion": "1.16.0",
-    "javaGitTag": "v1.16.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws-native/v1.17.0/provider/cmd/pulumi-resource-aws-native/schema.json",
+    "kotlinVersion": "1.17.0.0",
+    "javaVersion": "1.17.0",
+    "javaGitTag": "v1.17.0",
     "customDependencies": []
   },
   {
@@ -241,10 +241,10 @@
   },
   {
     "providerName": "alicloud",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-alicloud/v3.69.0/provider/cmd/pulumi-resource-alicloud/schema.json",
-    "kotlinVersion": "3.69.0.1-SNAPSHOT",
-    "javaVersion": "3.69.0",
-    "javaGitTag": "v3.69.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-alicloud/v3.70.0/provider/cmd/pulumi-resource-alicloud/schema.json",
+    "kotlinVersion": "3.70.0.0",
+    "javaVersion": "3.70.0",
+    "javaGitTag": "v3.70.0",
     "customDependencies": []
   },
   {
