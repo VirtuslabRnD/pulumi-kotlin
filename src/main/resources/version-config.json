@@ -66,7 +66,7 @@
   {
     "providerName": "gcp",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v8.13.1/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "8.13.1.0",
+    "kotlinVersion": "8.13.1.1-SNAPSHOT",
     "javaVersion": "8.13.1",
     "javaGitTag": "v8.13.1",
     "customDependencies": []
@@ -138,7 +138,7 @@
   {
     "providerName": "azure-native",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.82.0/provider/cmd/pulumi-resource-azure-native/schema.json",
-    "kotlinVersion": "2.82.0.0",
+    "kotlinVersion": "2.82.0.1-SNAPSHOT",
     "javaVersion": "2.82.0",
     "javaGitTag": "v2.82.0",
     "customDependencies": []
@@ -170,7 +170,7 @@
   {
     "providerName": "nomad",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-nomad/v2.4.2/provider/cmd/pulumi-resource-nomad/schema.json",
-    "kotlinVersion": "2.4.2.0",
+    "kotlinVersion": "2.4.2.1-SNAPSHOT",
     "javaVersion": "2.4.2",
     "javaGitTag": "v2.4.2",
     "customDependencies": []
