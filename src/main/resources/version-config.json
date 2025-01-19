@@ -9,10 +9,10 @@
   },
   {
     "providerName": "cloudflare",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.47.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
-    "kotlinVersion": "5.47.0.1-SNAPSHOT",
-    "javaVersion": "5.47.0",
-    "javaGitTag": "v5.47.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-cloudflare/v5.48.0/provider/cmd/pulumi-resource-cloudflare/schema.json",
+    "kotlinVersion": "5.48.0.0",
+    "javaVersion": "5.48.0",
+    "javaGitTag": "v5.48.0",
     "customDependencies": []
   },
   {
@@ -33,18 +33,18 @@
   },
   {
     "providerName": "github",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v6.5.0/provider/cmd/pulumi-resource-github/schema.json",
-    "kotlinVersion": "6.5.0.1-SNAPSHOT",
-    "javaVersion": "6.5.0",
-    "javaGitTag": "v6.5.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v6.6.0/provider/cmd/pulumi-resource-github/schema.json",
+    "kotlinVersion": "6.6.0.0",
+    "javaVersion": "6.6.0",
+    "javaGitTag": "v6.6.0",
     "customDependencies": []
   },
   {
     "providerName": "random",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.16.8/provider/cmd/pulumi-resource-random/schema.json",
-    "kotlinVersion": "4.16.8.1-SNAPSHOT",
-    "javaVersion": "4.16.8",
-    "javaGitTag": "v4.16.8",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.17.0/provider/cmd/pulumi-resource-random/schema.json",
+    "kotlinVersion": "4.17.0.0",
+    "javaVersion": "4.17.0",
+    "javaGitTag": "v4.17.0",
     "customDependencies": []
   },
   {
@@ -153,10 +153,10 @@
   },
   {
     "providerName": "kubernetes",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v4.20.0/provider/cmd/pulumi-resource-kubernetes/schema.json",
-    "kotlinVersion": "4.20.0.1-SNAPSHOT",
-    "javaVersion": "4.20.0",
-    "javaGitTag": "v4.20.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v4.21.0/provider/cmd/pulumi-resource-kubernetes/schema.json",
+    "kotlinVersion": "4.21.0.0",
+    "javaVersion": "4.21.0",
+    "javaGitTag": "v4.21.0",
     "customDependencies": []
   },
   {
@@ -185,10 +185,10 @@
   },
   {
     "providerName": "docker",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-docker/v4.6.0/provider/cmd/pulumi-resource-docker/schema.json",
-    "kotlinVersion": "4.6.0.1-SNAPSHOT",
-    "javaVersion": "4.6.0",
-    "javaGitTag": "v4.6.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-docker/v4.6.1/provider/cmd/pulumi-resource-docker/schema.json",
+    "kotlinVersion": "4.6.1.0",
+    "javaVersion": "4.6.1",
+    "javaGitTag": "v4.6.1",
     "customDependencies": []
   },
   {
@@ -225,10 +225,10 @@
   },
   {
     "providerName": "gitlab",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v8.7.1/provider/cmd/pulumi-resource-gitlab/schema.json",
-    "kotlinVersion": "8.7.1.1-SNAPSHOT",
-    "javaVersion": "8.7.1",
-    "javaGitTag": "v8.7.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v8.8.0/provider/cmd/pulumi-resource-gitlab/schema.json",
+    "kotlinVersion": "8.8.0.0",
+    "javaVersion": "8.8.0",
+    "javaGitTag": "v8.8.0",
     "customDependencies": []
   },
   {
