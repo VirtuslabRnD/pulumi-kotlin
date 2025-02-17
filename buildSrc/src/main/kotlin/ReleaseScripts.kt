@@ -23,7 +23,6 @@ import kotlinx.html.tr
 import kotlinx.html.unsafe
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.apache.maven.artifact.versioning.ComparableVersion
@@ -145,6 +144,7 @@ fun updateProviderSchemas(
     readmeFile: File,
     skipPreReleaseVersions: Boolean,
     fastForwardToMostRecentVersion: Boolean,
+    minimumNumberOfUpdates: Int,
 ) {
     val schemas = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
 
@@ -168,7 +168,13 @@ fun updateProviderSchemas(
 
     val updatedSchemas = fetchUpdatedSchemas(schemas, client, skipPreReleaseVersions, fastForwardToMostRecentVersion)
 
-    if (updatedSchemas == schemas) {
+    val numberOfUpdates = updatedSchemas.filter { !schemas.contains(it) }.size
+
+    if (numberOfUpdates < minimumNumberOfUpdates) {
+        logger.info(
+            "The number of updates is insufficient for a commit " +
+                "(minimum: $minimumNumberOfUpdates, actual: $numberOfUpdates)",
+        )
         return
     }
 

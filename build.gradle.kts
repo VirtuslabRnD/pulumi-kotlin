@@ -119,6 +119,7 @@ tasks.register<Task>("prepareReleaseOfUpdatedSchemas") {
     group = "releaseManagement"
     val skipPreReleaseVersions = findBooleanProperty("skipPreReleaseVersions", defaultValue = false)
     val fastForwardToMostRecentVersion = findBooleanProperty("fastForwardToMostRecentVersion", defaultValue = false)
+    val minimumNumberOfUpdates = findTypedProperty<String?>("minimumNumberOfUpdates")?.toInt() ?: 1
 
     doLast {
         updateProviderSchemas(
@@ -127,6 +128,7 @@ tasks.register<Task>("prepareReleaseOfUpdatedSchemas") {
             readmeFile = readmeFile,
             skipPreReleaseVersions = skipPreReleaseVersions,
             fastForwardToMostRecentVersion = fastForwardToMostRecentVersion,
+            minimumNumberOfUpdates = minimumNumberOfUpdates
         )
     }
 }

@@ -31,7 +31,11 @@ jobs:
         run: echo "last_commit=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       - name: Prepare release
         if: ${{ steps.find-existing-pull-request.outputs.number == '' }}
-        run: ./gradlew prepareReleaseOfUpdatedSchemas -PskipPreReleaseVersions=true -PfastForwardToMostRecentVersion=false
+        run: |
+          ./gradlew prepareReleaseOfUpdatedSchemas \
+            -PskipPreReleaseVersions=true \
+            -PfastForwardToMostRecentVersion=false \
+            -PminimumNumberOfUpdates=5
       - name: Check for commit
         if: ${{ steps.find-existing-pull-request.outputs.number == '' }}
         id: check-for-commit
