@@ -256,6 +256,14 @@
     "customDependencies": []
   },
   {
+    "providerName": "keycloak",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-keycloak/v6.1.0/provider/cmd/pulumi-resource-keycloak/schema.json",
+    "kotlinVersion": "6.1.0.0-SNAPSHOT",
+    "javaVersion": "6.1.0",
+    "javaGitTag": "v6.1.0",
+    "customDependencies": []
+  },
+  {
     "providerName": "vault",
     "url": "https://raw.githubusercontent.com/pulumi/pulumi-vault/v6.4.0/provider/cmd/pulumi-resource-vault/schema.json",
     "kotlinVersion": "6.4.0.1-SNAPSHOT",

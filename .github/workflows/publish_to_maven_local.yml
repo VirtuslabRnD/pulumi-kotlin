@@ -87,7 +87,7 @@ jobs:
             major-version: 3
             runs-on: [ self-hosted, active ]
           - provider: keycloak
-            major-version: 5
+            major-version: 6
             runs-on: [ ubuntu-latest ]
           - provider: vault
             major-version: 6
