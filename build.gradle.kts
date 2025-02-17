@@ -128,7 +128,7 @@ tasks.register<Task>("prepareReleaseOfUpdatedSchemas") {
             readmeFile = readmeFile,
             skipPreReleaseVersions = skipPreReleaseVersions,
             fastForwardToMostRecentVersion = fastForwardToMostRecentVersion,
-            minimumNumberOfUpdates = minimumNumberOfUpdates
+            minimumNumberOfUpdates = minimumNumberOfUpdates,
         )
     }
 }
