@@ -23,7 +23,6 @@ import kotlinx.html.tr
 import kotlinx.html.unsafe
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.apache.maven.artifact.versioning.ComparableVersion
@@ -145,12 +144,13 @@ fun updateProviderSchemas(
     readmeFile: File,
     skipPreReleaseVersions: Boolean,
     fastForwardToMostRecentVersion: Boolean,
+    minimumNumberOfUpdates: Int,
 ) {
     val schemas = Json.decodeFromString<List<SchemaMetadata>>(versionConfigFile.readText())
 
     validateIfReleaseIsPossible(schemas)
 
-    val client = HttpClient(CIO) {
+    val httpClient = HttpClient(CIO) {
         engine {
             requestTimeout = TimeUnit.MINUTES.toMillis(1)
         }
@@ -166,9 +166,17 @@ fun updateProviderSchemas(
         }
     }
 
-    val updatedSchemas = fetchUpdatedSchemas(schemas, client, skipPreReleaseVersions, fastForwardToMostRecentVersion)
+    val updatedSchemas = httpClient.use {
+        fetchUpdatedSchemas(schemas, it, skipPreReleaseVersions, fastForwardToMostRecentVersion)
+    }
 
-    if (updatedSchemas == schemas) {
+    val numberOfUpdates = updatedSchemas.filter { !schemas.contains(it) }.size
+
+    if (numberOfUpdates < minimumNumberOfUpdates) {
+        logger.warn(
+            "The number of updates is insufficient for a commit " +
+                "(minimum: $minimumNumberOfUpdates, actual: $numberOfUpdates)",
+        )
         return
     }
 
@@ -181,8 +189,6 @@ fun updateProviderSchemas(
         "This release includes the following versions:\n" +
         tags.joinToString("\n")
     commitChangesInFiles(gitDirectory, commitMessage, versionConfigFile, readmeFile)
-
-    client.close()
 }
 
 private fun fetchUpdatedSchemas(
