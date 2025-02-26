@@ -150,7 +150,7 @@ fun updateProviderSchemas(
 
     validateIfReleaseIsPossible(schemas)
 
-    val client = HttpClient(CIO) {
+    val httpClient = HttpClient(CIO) {
         engine {
             requestTimeout = TimeUnit.MINUTES.toMillis(1)
         }
@@ -166,12 +166,14 @@ fun updateProviderSchemas(
         }
     }
 
-    val updatedSchemas = fetchUpdatedSchemas(schemas, client, skipPreReleaseVersions, fastForwardToMostRecentVersion)
+    val updatedSchemas = httpClient.use {
+        fetchUpdatedSchemas(schemas, it, skipPreReleaseVersions, fastForwardToMostRecentVersion)
+    }
 
     val numberOfUpdates = updatedSchemas.filter { !schemas.contains(it) }.size
 
     if (numberOfUpdates < minimumNumberOfUpdates) {
-        logger.info(
+        logger.warn(
             "The number of updates is insufficient for a commit " +
                 "(minimum: $minimumNumberOfUpdates, actual: $numberOfUpdates)",
         )
@@ -187,8 +189,6 @@ fun updateProviderSchemas(
         "This release includes the following versions:\n" +
         tags.joinToString("\n")
     commitChangesInFiles(gitDirectory, commitMessage, versionConfigFile, readmeFile)
-
-    client.close()
 }
 
 private fun fetchUpdatedSchemas(
