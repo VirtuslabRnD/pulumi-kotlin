@@ -2,7 +2,7 @@ name: Update schemas
 
 on:
   schedule:
-    - cron: '0 6 */2 * *'
+    - cron: '0 6 * * 1-5'
   workflow_dispatch:
 
 jobs:
