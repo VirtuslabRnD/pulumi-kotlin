@@ -65,10 +65,10 @@
   },
   {
     "providerName": "gcp",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v8.21.0/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "8.21.0.1-SNAPSHOT",
-    "javaVersion": "8.21.0",
-    "javaGitTag": "v8.21.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v8.22.0/provider/cmd/pulumi-resource-gcp/schema.json",
+    "kotlinVersion": "8.22.0.0",
+    "javaVersion": "8.22.0",
+    "javaGitTag": "v8.22.0",
     "customDependencies": []
   },
   {
@@ -89,10 +89,10 @@
   },
   {
     "providerName": "aws",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.71.0/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.71.0.1-SNAPSHOT",
-    "javaVersion": "6.71.0",
-    "javaGitTag": "v6.71.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.72.0/provider/cmd/pulumi-resource-aws/schema.json",
+    "kotlinVersion": "6.72.0.0",
+    "javaVersion": "6.72.0",
+    "javaGitTag": "v6.72.0",
     "customDependencies": []
   },
   {
@@ -137,10 +137,10 @@
   },
   {
     "providerName": "azure-native",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.89.1/provider/cmd/pulumi-resource-azure-native/schema.json",
-    "kotlinVersion": "2.89.1.1-SNAPSHOT",
-    "javaVersion": "2.89.1",
-    "javaGitTag": "v2.89.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v2.89.2/provider/cmd/pulumi-resource-azure-native/schema.json",
+    "kotlinVersion": "2.89.2.0",
+    "javaVersion": "2.89.2",
+    "javaGitTag": "v2.89.2",
     "customDependencies": []
   },
   {
@@ -225,18 +225,18 @@
   },
   {
     "providerName": "gitlab",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v8.9.0/provider/cmd/pulumi-resource-gitlab/schema.json",
-    "kotlinVersion": "8.9.0.1-SNAPSHOT",
-    "javaVersion": "8.9.0",
-    "javaGitTag": "v8.9.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gitlab/v8.10.0/provider/cmd/pulumi-resource-gitlab/schema.json",
+    "kotlinVersion": "8.10.0.0",
+    "javaVersion": "8.10.0",
+    "javaGitTag": "v8.10.0",
     "customDependencies": []
   },
   {
     "providerName": "digitalocean",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.40.1/provider/cmd/pulumi-resource-digitalocean/schema.json",
-    "kotlinVersion": "4.40.1.1-SNAPSHOT",
-    "javaVersion": "4.40.1",
-    "javaGitTag": "v4.40.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.40.2/provider/cmd/pulumi-resource-digitalocean/schema.json",
+    "kotlinVersion": "4.40.2.0",
+    "javaVersion": "4.40.2",
+    "javaGitTag": "v4.40.2",
     "customDependencies": []
   },
   {
