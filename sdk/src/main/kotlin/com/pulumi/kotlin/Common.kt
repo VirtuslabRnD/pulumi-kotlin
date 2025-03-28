@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.pulumi.kotlin
 
 import com.pulumi.Context
