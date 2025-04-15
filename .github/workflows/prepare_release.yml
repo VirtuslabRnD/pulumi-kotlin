@@ -46,7 +46,7 @@ jobs:
       matrix:
         include:
           - provider: cloudflare
-            major-version: 5
+            major-version: 6
             runs-on: [ ubuntu-latest ]
           - provider: slack
             major-version: 0
@@ -73,7 +73,7 @@ jobs:
             major-version: 6
             runs-on: [ self-hosted, active ]
           - provider: azure-native
-            major-version: 2
+            major-version: 3
             runs-on: [ self-hosted, active ]
           - provider: kubernetes
             major-version: 4
