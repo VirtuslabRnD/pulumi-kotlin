@@ -1,0 +1,5 @@
+name: ${PROJECT}
+description: ${DESCRIPTION}
+runtime: java
+template:
+  description: "A minimal Pulumi Kotlin program with Gradle builds (Kotlin DSL)"
