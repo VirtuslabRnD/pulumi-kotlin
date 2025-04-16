@@ -47,7 +47,7 @@ jobs:
         include:
           - provider: cloudflare
             major-version: 6
-            runs-on: [ ubuntu-latest ]
+            runs-on: [ self-hosted, active ]
           - provider: slack
             major-version: 0
             runs-on: [ ubuntu-latest ]
