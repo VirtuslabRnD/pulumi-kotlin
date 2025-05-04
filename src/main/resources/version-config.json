@@ -41,18 +41,18 @@
   },
   {
     "providerName": "github",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v6.7.1/provider/cmd/pulumi-resource-github/schema.json",
-    "kotlinVersion": "6.7.1.1-SNAPSHOT",
-    "javaVersion": "6.7.1",
-    "javaGitTag": "v6.7.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-github/v6.7.2/provider/cmd/pulumi-resource-github/schema.json",
+    "kotlinVersion": "6.7.2.0",
+    "javaVersion": "6.7.2",
+    "javaGitTag": "v6.7.2",
     "customDependencies": []
   },
   {
     "providerName": "random",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.18.1/provider/cmd/pulumi-resource-random/schema.json",
-    "kotlinVersion": "4.18.1.1-SNAPSHOT",
-    "javaVersion": "4.18.1",
-    "javaGitTag": "v4.18.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-random/v4.18.2/provider/cmd/pulumi-resource-random/schema.json",
+    "kotlinVersion": "4.18.2.0",
+    "javaVersion": "4.18.2",
+    "javaGitTag": "v4.18.2",
     "customDependencies": []
   },
   {
@@ -73,10 +73,10 @@
   },
   {
     "providerName": "gcp",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v8.27.1/provider/cmd/pulumi-resource-gcp/schema.json",
-    "kotlinVersion": "8.27.1.1-SNAPSHOT",
-    "javaVersion": "8.27.1",
-    "javaGitTag": "v8.27.1",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-gcp/v8.28.0/provider/cmd/pulumi-resource-gcp/schema.json",
+    "kotlinVersion": "8.28.0.0",
+    "javaVersion": "8.28.0",
+    "javaGitTag": "v8.28.0",
     "customDependencies": []
   },
   {
@@ -97,10 +97,10 @@
   },
   {
     "providerName": "aws",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.78.0/provider/cmd/pulumi-resource-aws/schema.json",
-    "kotlinVersion": "6.78.0.1-SNAPSHOT",
-    "javaVersion": "6.78.0",
-    "javaGitTag": "v6.78.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-aws/v6.79.0/provider/cmd/pulumi-resource-aws/schema.json",
+    "kotlinVersion": "6.79.0.0",
+    "javaVersion": "6.79.0",
+    "javaGitTag": "v6.79.0",
     "customDependencies": []
   },
   {
@@ -153,10 +153,10 @@
   },
   {
     "providerName": "azure-native",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v3.2.0/provider/cmd/pulumi-resource-azure-native/schema.json",
-    "kotlinVersion": "3.2.0.1-SNAPSHOT",
-    "javaVersion": "3.2.0",
-    "javaGitTag": "v3.2.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-azure-native/v3.3.0/provider/cmd/pulumi-resource-azure-native/schema.json",
+    "kotlinVersion": "3.3.0.0",
+    "javaVersion": "3.3.0",
+    "javaGitTag": "v3.3.0",
     "customDependencies": []
   },
   {
@@ -169,10 +169,10 @@
   },
   {
     "providerName": "kubernetes",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v4.22.2/provider/cmd/pulumi-resource-kubernetes/schema.json",
-    "kotlinVersion": "4.22.2.1-SNAPSHOT",
-    "javaVersion": "4.22.2",
-    "javaGitTag": "v4.22.2",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-kubernetes/v4.23.0/provider/cmd/pulumi-resource-kubernetes/schema.json",
+    "kotlinVersion": "4.23.0.0",
+    "javaVersion": "4.23.0",
+    "javaGitTag": "v4.23.0",
     "customDependencies": []
   },
   {
@@ -249,18 +249,18 @@
   },
   {
     "providerName": "digitalocean",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.42.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
-    "kotlinVersion": "4.42.0.1-SNAPSHOT",
-    "javaVersion": "4.42.0",
-    "javaGitTag": "v4.42.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-digitalocean/v4.43.0/provider/cmd/pulumi-resource-digitalocean/schema.json",
+    "kotlinVersion": "4.43.0.0",
+    "javaVersion": "4.43.0",
+    "javaGitTag": "v4.43.0",
     "customDependencies": []
   },
   {
     "providerName": "alicloud",
-    "url": "https://raw.githubusercontent.com/pulumi/pulumi-alicloud/v3.76.0/provider/cmd/pulumi-resource-alicloud/schema.json",
-    "kotlinVersion": "3.76.0.1-SNAPSHOT",
-    "javaVersion": "3.76.0",
-    "javaGitTag": "v3.76.0",
+    "url": "https://raw.githubusercontent.com/pulumi/pulumi-alicloud/v3.77.0/provider/cmd/pulumi-resource-alicloud/schema.json",
+    "kotlinVersion": "3.77.0.0",
+    "javaVersion": "3.77.0",
+    "javaGitTag": "v3.77.0",
     "customDependencies": []
   },
   {
