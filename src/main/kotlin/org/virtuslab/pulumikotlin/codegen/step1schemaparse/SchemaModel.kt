@@ -3,6 +3,8 @@ package org.virtuslab.pulumikotlin.codegen.step1schemaparse
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
@@ -102,7 +104,7 @@ object SchemaModel {
     @JvmInline
     value class Language(val map: Map<String, JsonElement>?)
 
-    @Serializable
+    @Serializable(with = PropertyTypeSerializer::class)
     enum class PropertyType {
         @SerialName("array")
         ArrayType,
@@ -121,6 +123,26 @@ object SchemaModel {
 
         @SerialName("number")
         NumberType,
+
+        @SerialName("unknown")
+        Unknown,
+    }
+
+    private val PropertyType.serialName: String
+        get() = this::class.java.getField(this.name).getAnnotation(SerialName::class.java)!!.value
+
+    object PropertyTypeSerializer : KSerializer<PropertyType> {
+        private val className = this::class.qualifiedName!!
+        private val lookup = PropertyType.entries.associateBy({ it }, { it.serialName })
+        private val revLookup = PropertyType.entries.associateBy { it.serialName }
+
+        override val descriptor = PrimitiveSerialDescriptor(className, PrimitiveKind.STRING)
+
+        override fun serialize(encoder: kotlinx.serialization.encoding.Encoder, value: PropertyType) =
+            encoder.encodeString(lookup.getValue(value))
+
+        override fun deserialize(decoder: kotlinx.serialization.encoding.Decoder) =
+            revLookup.getOrDefault(decoder.decodeString(), PropertyType.Unknown)
     }
 
     @Serializable

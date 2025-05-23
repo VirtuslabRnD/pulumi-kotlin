@@ -120,6 +120,7 @@ class ReleaseScriptsTest {
             readmeFile = temporaryBeforeReadmeUpdateFile,
             skipPreReleaseVersions = false,
             fastForwardToMostRecentVersion = false,
+            minimumNumberOfUpdates = 1,
         )
 
         assertEquals(
