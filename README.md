@@ -441,14 +441,14 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.49.1.0")
   </tr>
   <tr>
     <td>cloudflare</td>
-    <td>6.2.0.0</td>
+    <td>6.2.1.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-cloudflare-kotlin</artifactId>
-     <version>6.2.0.0</version>
+     <version>6.2.1.0</version>
 </dependency>
 ```
  
@@ -456,13 +456,13 @@ implementation("org.virtuslab:pulumi-cloudflare-kotlin:5.49.1.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-cloudflare-kotlin:6.2.0.0")
+implementation("org.virtuslab:pulumi-cloudflare-kotlin:6.2.1.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-cloudflare-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/cloudflare">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/cloudflare/6.2.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/cloudflare/6.2.1.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>slack</td>
@@ -616,14 +616,14 @@ implementation("org.virtuslab:pulumi-gcp-kotlin:7.38.0.0")
   </tr>
   <tr>
     <td>gcp</td>
-    <td>8.30.0.0</td>
+    <td>8.31.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-gcp-kotlin</artifactId>
-     <version>8.30.0.0</version>
+     <version>8.31.0.0</version>
 </dependency>
 ```
  
@@ -631,13 +631,13 @@ implementation("org.virtuslab:pulumi-gcp-kotlin:7.38.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-gcp-kotlin:8.30.0.0")
+implementation("org.virtuslab:pulumi-gcp-kotlin:8.31.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-gcp-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/gcp">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gcp/8.30.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/gcp/8.31.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>google-native</td>
@@ -691,14 +691,14 @@ implementation("org.virtuslab:pulumi-aws-kotlin:5.43.0.1")
   </tr>
   <tr>
     <td>aws</td>
-    <td>6.80.0.0</td>
+    <td>6.81.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-aws-kotlin</artifactId>
-     <version>6.80.0.0</version>
+     <version>6.81.0.0</version>
 </dependency>
 ```
  
@@ -706,13 +706,13 @@ implementation("org.virtuslab:pulumi-aws-kotlin:5.43.0.1")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-aws-kotlin:6.80.0.0")
+implementation("org.virtuslab:pulumi-aws-kotlin:6.81.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-aws-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/aws">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/6.80.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/aws/6.81.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>aws-native</td>
@@ -791,14 +791,14 @@ implementation("org.virtuslab:pulumi-azure-kotlin:5.87.0.0")
   </tr>
   <tr>
     <td>azure</td>
-    <td>6.22.1.0</td>
+    <td>6.23.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-azure-kotlin</artifactId>
-     <version>6.22.1.0</version>
+     <version>6.23.0.0</version>
 </dependency>
 ```
  
@@ -806,13 +806,13 @@ implementation("org.virtuslab:pulumi-azure-kotlin:5.87.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-azure-kotlin:6.22.1.0")
+implementation("org.virtuslab:pulumi-azure-kotlin:6.23.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-azure-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/azure">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/azure/6.22.1.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/azure/6.23.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>azure-native</td>
@@ -1191,14 +1191,14 @@ implementation("org.virtuslab:pulumi-digitalocean-kotlin:4.45.0.0")
   </tr>
   <tr>
     <td>alicloud</td>
-    <td>3.78.0.0</td>
+    <td>3.79.0.0</td>
     <td> 
  
 ```xml
 <dependency>
      <groupId>org.virtuslab</groupId>
      <artifactId>pulumi-alicloud-kotlin</artifactId>
-     <version>3.78.0.0</version>
+     <version>3.79.0.0</version>
 </dependency>
 ```
  
@@ -1206,13 +1206,13 @@ implementation("org.virtuslab:pulumi-digitalocean-kotlin:4.45.0.0")
     <td> 
  
 ```kt
-implementation("org.virtuslab:pulumi-alicloud-kotlin:3.78.0.0")
+implementation("org.virtuslab:pulumi-alicloud-kotlin:3.79.0.0")
 ```
  
  </td>
     <td><a href="https://search.maven.org/artifact/org.virtuslab/pulumi-alicloud-kotlin">link</a></td>
     <td><a href="https://www.pulumi.com/registry/packages/alicloud">link</a></td>
-    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.78.0.0/index.html">link</a></td>
+    <td><a href="https://storage.googleapis.com/pulumi-kotlin-docs/alicloud/3.79.0.0/index.html">link</a></td>
   </tr>
   <tr>
     <td>keycloak</td>
