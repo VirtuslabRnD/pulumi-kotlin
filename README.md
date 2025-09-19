@@ -11,8 +11,7 @@
 
 Experimental support for Kotlin language in [Pulumi](https://www.pulumi.com/).
 
-**This is a proof of concept.** [We really need your feedback](#giving-feedback) before adding more features, improving
-the code and integrating with the Pulumi ecosystem.
+**This repository is not currently maintained.**
 
 ## Navigation
 
@@ -23,8 +22,6 @@ the code and integrating with the Pulumi ecosystem.
 - [Getting started](#getting-started)
 
 - [Supported providers](#supported-providers)
-
-- [Giving feedback](#giving-feedback)
 
 - [Development docs](#development-docs)
 
@@ -1291,15 +1288,6 @@ implementation("org.virtuslab:pulumi-vault-kotlin:6.7.1.0")
   </tr>
 </table>
 
-## Giving feedback
-
-Pulumi Kotlin SDK is a proof of concept, **we really need feedback before moving on**.
-
-- Create [an issue in this repo][issues-pulumi-kotlin] or express your opinion in the
-  existing ["Support for idiomatic Kotlin"][support-for-idiomatic-kotlin-issue] issue.
-- Start a thread on [#java channel][pulumi-slack-java-channel] (Pulumi community Slack).
-- Book a meeting [through Calendly][calendly-feedback-meeting] and let's talk!
-
 ## Development docs
 
 - [Code generation and local run details](docs/code-generation.md)
@@ -1315,7 +1303,6 @@ Pulumi Kotlin SDK is a proof of concept, **we really need feedback before moving
 [issues-pulumi-kotlin]: https://github.com/VirtuslabRnD/pulumi-kotlin/issues
 [support-for-idiomatic-kotlin-issue]: https://github.com/pulumi/pulumi-java/issues/544
 [pulumi-slack-java-channel]: https://pulumi-community.slack.com/archives/C03DPAY96NB
-[calendly-feedback-meeting]: https://calendly.com/michalfudala/kotlin-sdk-for-pulumi-feedback
 
 
 <p align="center">
