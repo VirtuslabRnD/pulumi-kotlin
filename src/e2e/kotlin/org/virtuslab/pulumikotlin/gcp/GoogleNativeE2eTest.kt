@@ -8,12 +8,14 @@ import org.junit.jupiter.api.Test
 import org.virtuslab.pulumikotlin.PROJECT_NAME
 import org.virtuslab.pulumikotlin.Pulumi
 import java.io.File
+import kotlin.test.Ignore
 
 class GoogleNativeE2eTest {
 
     private lateinit var pulumi: Pulumi
 
     @Test
+    @Ignore("The schema is out of date")
     fun `GCP VM instance can be created`() {
         val exampleName = "google-native-sample-project"
         val rootDirectory = File("examples/$exampleName")
