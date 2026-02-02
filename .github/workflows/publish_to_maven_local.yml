@@ -1,7 +1,6 @@
 name: Test pulumi-kotlin generated code by publishing to Maven Local repository
 
 on:
-  pull_request:
   workflow_dispatch:
 
 jobs:
